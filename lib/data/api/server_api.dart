@@ -9,6 +9,7 @@ import 'package:queue_management_system_client/domain/models/location/location.d
 import 'package:queue_management_system_client/domain/models/verification/Confirm.dart';
 
 import '../../domain/models/base/result.dart';
+import '../../domain/models/queue/queue.dart';
 import '../../domain/models/verification/login.dart';
 import '../../domain/models/verification/signup.dart';
 import '../../domain/models/verification/tokens.dart';
@@ -16,6 +17,7 @@ import '../converters/base/container_for_list_converter.dart';
 import '../converters/base/error_result_converter.dart';
 import '../converters/json_converter.dart';
 import '../converters/location/location.dart';
+import '../converters/queue/queue.dart';
 import '../converters/verification/login_converter.dart';
 import '../converters/verification/signup_converters.dart';
 import '../converters/verification/tokens_converter.dart';
@@ -46,6 +48,8 @@ class ServerApi {
 
   final LocationConverter _locationConverter;
 
+  final QueueConverter _queueConverter;
+
   ServerApi(
       this._dioApi,
       this._tokensStorage,
@@ -55,7 +59,8 @@ class ServerApi {
       this._signupConverter,
       this._confirmConverter,
       this._loginConverter,
-      this._locationConverter
+      this._locationConverter,
+      this._queueConverter
   );
 
   Future<Result<ContainerForList<T>>> _execRequestForList<T>({
@@ -197,6 +202,45 @@ class ServerApi {
         converter: null,
         request: _dioApi.delete(
           '$url/locations/$id/delete',
+        )
+    );
+  }
+
+
+
+
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, int page, int pageSize) async {
+    return await _execRequestForList(
+        converter: _queueConverter,
+        request: _dioApi.get(
+            '$url/queues',
+            queryParameters: {
+              'location_id': locationId,
+              'page': page,
+              'page_size': pageSize
+            }
+        )
+    );
+  }
+
+  Future<Result<QueueModel>> createQueue(int locationId, QueueModel queue) async {
+    return await _execRequest(
+        converter: _queueConverter,
+        request: _dioApi.post(
+            '$url/queues/create',
+            data: _queueConverter.toJson(queue),
+            queryParameters: {
+              'location_id': locationId
+            }
+        )
+    );
+  }
+
+  Future<Result> deleteQueue(int id) async {
+    return await _execRequest(
+        converter: null,
+        request: _dioApi.delete(
+          '$url/queues/$id/delete',
         )
     );
   }

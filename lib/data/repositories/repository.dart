@@ -3,6 +3,7 @@ import 'package:queue_management_system_client/domain/models/verification/Confir
 
 import '../../domain/models/base/result.dart';
 import '../../domain/models/location/location.dart';
+import '../../domain/models/queue/queue.dart';
 import '../../domain/models/verification/login.dart';
 import '../../domain/models/verification/signup.dart';
 import '../../domain/models/verification/tokens.dart';
@@ -15,4 +16,8 @@ abstract class Repository {
   Future<Result<ContainerForList<LocationModel>>> getMyLocations(int page, int pageSize);
   Future<Result<LocationModel>> createLocation(LocationModel location);
   Future<Result> deleteLocation(int id);
+
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, int page, int pageSize);
+  Future<Result<QueueModel>> createQueue(int locationId, QueueModel location);
+  Future<Result> deleteQueue(int id);
 }

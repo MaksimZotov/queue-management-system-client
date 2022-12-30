@@ -3,6 +3,7 @@ import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/data/repositories/repository.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
 import 'package:queue_management_system_client/domain/models/location/location.dart';
+import 'package:queue_management_system_client/domain/models/queue/queue.dart';
 
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/verification/Confirm.dart';
@@ -53,6 +54,25 @@ class RepositoryImpl extends Repository {
   @override
   Future<Result> deleteLocation(int id) async {
     return await _serverApi.deleteLocation(id);
+  }
+
+
+
+
+
+  @override
+  Future<Result<QueueModel>> createQueue(int locationId, QueueModel queue) async {
+    return await _serverApi.createQueue(locationId, queue);
+  }
+
+  @override
+  Future<Result> deleteQueue(int id) async {
+    return await _serverApi.deleteQueue(id);
+  }
+
+  @override
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, int page, int pageSize) async {
+    return await _serverApi.getQueues(locationId, page, pageSize);
   }
 
 }
