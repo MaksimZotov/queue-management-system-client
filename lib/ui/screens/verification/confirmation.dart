@@ -9,6 +9,7 @@ import '../../../domain/models/base/result.dart';
 import '../../../domain/models/verification/Confirm.dart';
 import '../../navigation/route_generator.dart';
 import '../../widgets/text_field_widget.dart';
+import '../location/locations.dart';
 
 
 class ConfirmationParams {
@@ -46,7 +47,12 @@ class ConfirmationState extends State<ConfirmationWidget> {
 
         listener: (context, state) {
           if (state.readyToLogin) {
-            Navigator.of(context).pushNamed(Routes.toLocations).then((value) =>
+            Navigator.of(context).pushNamed(
+              Routes.toLocations,
+              arguments: LocationsParams(
+                  username: null
+              )
+            ).then((value) =>
                 BlocProvider.of<ConfirmationCubit>(context).onPush()
             );
           }

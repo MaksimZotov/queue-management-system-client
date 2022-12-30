@@ -36,7 +36,12 @@ class AuthorizationState extends State<AuthorizationWidget> {
 
         listener: (context, state) {
           if (state.readyToLogin) {
-            Navigator.of(context).pushNamed(Routes.toLocations).then((value) =>
+            Navigator.of(context).pushNamed(
+              Routes.toLocations,
+              arguments: LocationsParams(
+                username: null
+              )
+            ).then((value) =>
                 BlocProvider.of<AuthorizationCubit>(context).onPush()
             );
           }

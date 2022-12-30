@@ -43,7 +43,9 @@ class RouteGenerator {
         );
       case Routes.toLocations:
         return MaterialPageRoute(
-          builder: (ctx) => const LocationsWidget(),
+          builder: (ctx) => LocationsWidget(
+            params: args as LocationsParams,
+          ),
         );
     }
     throw Exception("Incorrect route: $route");

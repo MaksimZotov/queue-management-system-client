@@ -58,46 +58,66 @@ class ServerApi {
       this._locationConverter
   );
 
-  Future<Result<T>> _execRequest<T>({
-    required JsonConverter? converter,
-    required Future<Response> request,
-    required bool isList
+  Future<Result<ContainerForList<T>>> _execRequestForList<T>({
+    JsonConverter<T>? converter,
+    required Future<Response> request
   }) async {
     try {
       Response response = await request;
       int? code = response.statusCode;
       if (code != null && code >= 200 && code < 300) {
-        if (isList) {
-          return SuccessResult(
-              data: _containerForListConverter.fromJson(
+        return SuccessResult(
+            data: _containerForListConverter.fromJson<T>(
                 json: response.data,
                 converter: converter!
-              ) as T
-          );
-        } else {
-          return SuccessResult(
-              data: converter?.fromJson(response.data)
-          );
-        }
-      } else {
-        final ErrorResult error = _errorResultConverter.fromJson(
-            response.data
+            )
         );
-        return ErrorResult(
-            description: error.description ?? unknownError,
-            errors: error.errors
-        );
-      }
-    } on TimeoutException {
-      return ErrorResult(description: responseTimeoutError, errors: null);
-    } on SocketException catch(e) {
-      if (e.osError?.errorCode == 101) {
-        return ErrorResult(description: noConnectionError, errors: null);
       } else {
-        return ErrorResult(description: unknownError, errors: null);
+        return getErrorFromResponse(response);
       }
-    } on Exception {
-      return ErrorResult(description: unknownError, errors: null);
+    } on Exception catch(exception) {
+      return getErrorFromException(exception);
+    }
+  }
+
+  Future<Result<T>> _execRequest<T>({
+    JsonConverter? converter,
+    required Future<Response> request
+  }) async {
+    try {
+      Response response = await request;
+      int? code = response.statusCode;
+      if (code != null && code >= 200 && code < 300) {
+        return SuccessResult(data: converter?.fromJson(response.data));
+      } else {
+        return getErrorFromResponse(response);
+      }
+    } on Exception catch(exception) {
+      return getErrorFromException(exception);
+    }
+  }
+
+  ErrorResult<T> getErrorFromResponse<T>(Response response) {
+    final ErrorResult error = _errorResultConverter.fromJson(
+        response.data
+    );
+    return ErrorResult(
+        description: error.description ?? unknownError,
+        errors: error.errors
+    );
+  }
+
+  ErrorResult<T> getErrorFromException<T>(Exception exception) {
+    if (exception is TimeoutException) {
+      return ErrorResult(description: responseTimeoutError);
+    } else if (exception is SocketException) {
+      if (exception.osError?.errorCode == 101) {
+        return ErrorResult(description: noConnectionError);
+      } else {
+        return ErrorResult(description: unknownError);
+      }
+    } else {
+      return ErrorResult(description: unknownError);
     }
   }
 
@@ -113,24 +133,20 @@ class ServerApi {
 
   Future<Result> signup(SignupModel signup) async {
     final result = await _execRequest(
-        converter: null,
         request: _dioApi.post(
           '$url$signupMethod',
           data: _signupConverter.toJson(signup)
-        ),
-        isList: false
+        )
     );
     return result;
   }
 
   Future<Result> confirm(ConfirmModel confirm) async {
     final result = await _execRequest(
-        converter: null,
         request: _dioApi.post(
             '$url$confirmMethod',
             data: _confirmConverter.toJson(confirm)
-        ),
-        isList: false
+        )
     );
     return result;
   }
@@ -141,8 +157,7 @@ class ServerApi {
         request: _dioApi.post(
             '$url$loginMethod',
             data: _loginConverter.toJson(login)
-        ),
-        isList: false
+        )
     );
     if (result is SuccessResult) {
       await _saveTokens(result as SuccessResult<TokensModel>);
@@ -155,7 +170,7 @@ class ServerApi {
 
 
   Future<Result<ContainerForList<LocationModel>>> getMyLocations(int page, int pageSize) async {
-    return await _execRequest(
+    return await _execRequestForList(
         converter: _locationConverter,
         request: _dioApi.get(
           '$url/locations/me',
@@ -163,8 +178,7 @@ class ServerApi {
             'page': page,
             'page_size': pageSize
           }
-        ),
-        isList: true
+        )
     );
   }
 
@@ -172,10 +186,9 @@ class ServerApi {
     return await _execRequest(
         converter: _locationConverter,
         request: _dioApi.post(
-            '$url/locations/me/create',
+            '$url/locations/create',
              data: _locationConverter.toJson(location)
-        ),
-        isList: false
+        )
     );
   }
 
@@ -183,9 +196,8 @@ class ServerApi {
     return await _execRequest(
         converter: null,
         request: _dioApi.delete(
-          '$url/locations/me/$id/delete',
-        ),
-        isList: false
+          '$url/locations/$id/delete',
+        )
     );
   }
 }

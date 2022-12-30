@@ -5,12 +5,14 @@ class TextFieldWidget extends StatefulWidget {
     Key? key,
     this.onTextChanged,
     required this.label,
-    required this.text
+    required this.text,
+    this.maxLines = 1
   }) : super(key: key);
 
   final ValueChanged<String>? onTextChanged;
   final String label;
   final String text;
+  final int? maxLines;
 
   @override
   State createState() => _TextFieldState();
@@ -22,6 +24,7 @@ class _TextFieldState extends State<TextFieldWidget> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: TextFormField(
+        maxLines: widget.maxLines,
         initialValue: widget.text,
         decoration: InputDecoration(
           border: const OutlineInputBorder(),
