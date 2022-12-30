@@ -17,7 +17,6 @@ class StatesAssembler {
   AuthorizationCubit getAuthorizationCubit() => getIt.get();
   LocationsCubit getLocationsCubit(LocationsParams params) => getIt.get(param1: params);
   CreateLocationCubit getCreateLocationCubit() => getIt.get();
-  DeleteLocationCubit getDeleteLocationCubit(DeleteLocationParams params) => getIt.get(param1: params);
 }
 
 const statesAssembler = StatesAssembler._();

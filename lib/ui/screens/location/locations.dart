@@ -4,7 +4,6 @@ import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/models/location/location.dart';
 import 'package:queue_management_system_client/ui/screens/location/create_location.dart';
 import 'package:queue_management_system_client/ui/screens/location/delete_location.dart';
-import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/location_item.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
@@ -34,6 +33,8 @@ class _LocationsState extends State<LocationsWidget> {
   final String title = 'Локации';
   final String createLocationHint = 'Создать локацию';
 
+  final ScrollController _scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider<LocationsCubit>(
@@ -53,20 +54,30 @@ class _LocationsState extends State<LocationsWidget> {
           appBar: AppBar(
             title: Text(title),
           ),
-          body: state.loading ? const Center(
-            child: CircularProgressIndicator(),
-          ) : state.readyToGoToLocation != null ? const SizedBox.shrink() : ListView.builder(
+          body: ListView.builder(
+            controller: _scrollController
+              ..addListener(() {
+                if (_scrollController.offset ==
+                    _scrollController.position.maxScrollExtent
+                ) {
+                  BlocProvider.of<LocationsCubit>(context).loadNext();
+                }
+              }),
             itemBuilder: (context, index) {
               return LocationItemWidget(
-                  location: state.locations[index],
-                  onDelete: (location) => showDialog(
-                      context: context,
-                      builder: (context) => DeleteLocationWidget(
-                          params: DeleteLocationParams(
+                location: state.locations[index],
+                onDelete: (location) => showDialog(
+                    context: context,
+                    builder: (context) => DeleteLocationWidget(
+                        params: DeleteLocationParams(
                             id: location.id!
-                          )
-                      )
-                  ),
+                        )
+                    )
+                ).then((result) {
+                  if (result is DeleteLocationResult) {
+                    BlocProvider.of<LocationsCubit>(context).deleteLocation(result);
+                  }
+                }),
               );
             },
             itemCount: state.locations.length,
@@ -75,7 +86,11 @@ class _LocationsState extends State<LocationsWidget> {
             onPressed: () => showDialog(
                 context: context,
                 builder: (context) => const CreateLocationWidget()
-            ),
+            ).then((result) {
+              if (result is CreateLocationResult) {
+                BlocProvider.of<LocationsCubit>(context).createLocation(result);
+              }
+            }),
             child: const Icon(Icons.add),
           ),
         ),
@@ -86,7 +101,7 @@ class _LocationsState extends State<LocationsWidget> {
 
 class LocationsLogicState {
 
-  static const int pageSize = 20;
+  static const int pageSize = 30;
 
   final LocationsParams params;
 
@@ -144,11 +159,19 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
       isLast: false,
       readyToGoToLocation: null,
       snackBar: null,
-      loading: true
+      loading: false
     )
   );
 
   Future<void> onStart() async {
+    await loadNext();
+  }
+
+  Future<void> loadNext() async {
+    if (state.loading || state.isLast) {
+      return;
+    }
+    emit(state.copyWith(loading: true));
     Result result;
     if (state.params.username == null) {
       result = await locationInteractor.getMyLocations(
@@ -165,15 +188,49 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
     if (result is SuccessResult<ContainerForList<LocationModel>>) {
       emit(
           state.copyWith(
-            loading: false,
-            locations: state.locations + result.data.results,
-            curPage: state.curPage + 1,
-            isLast: result.data.isLast
+              loading: false,
+              locations: state.locations + result.data.results,
+              curPage: state.curPage + 1,
+              isLast: result.data.isLast
           )
       );
     } else if (result is ErrorResult) {
       emit(state.copyWith(loading: false, snackBar: result.description));
     }
+  }
+
+  Future<void> createLocation(CreateLocationResult result) async {
+    emit(state.copyWith(loading: true));
+    await locationInteractor.createLocation(
+        LocationModel(
+            id: null,
+            name: result.name,
+            description: result.description
+        )
+    )..onSuccess((result) {
+      _reload();
+    })..onError((result) {
+      emit(state.copyWith(loading: false, snackBar: result.description));
+    });
+  }
+
+  Future deleteLocation(DeleteLocationResult result) async {
+    emit(state.copyWith(loading: true));
+    await locationInteractor.deleteLocation(result.id)..onSuccess((result) {
+      _reload();
+    })..onError((result) {
+      emit(state.copyWith(loading: false, snackBar: result.description));
+    });
+  }
+
+  Future<void> _reload() async {
+    emit(state.copyWith(
+      loading: false,
+      locations: [],
+      curPage: 0,
+      isLast: false
+    ));
+    loadNext();
   }
 
   void onSnackBarShowed() {
