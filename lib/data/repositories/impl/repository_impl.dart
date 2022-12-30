@@ -75,4 +75,19 @@ class RepositoryImpl extends Repository {
     return await _serverApi.getQueues(locationId, page, pageSize);
   }
 
+  @override
+  Future<Result<QueueModel>> getQueueState(int id) async {
+    return await _serverApi.getQueueState(id);
+  }
+
+  @override
+  Future<Result> notifyClientInQueue(int queueId, int clientId) async {
+    return await _serverApi.notifyClientInQueue(queueId, clientId);
+  }
+
+  @override
+  Future<Result> serveClientInQueue(int queueId, int clientId) async {
+    return await _serverApi.serveClientInQueue(queueId, clientId);
+  }
+
 }

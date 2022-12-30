@@ -4,11 +4,13 @@ import 'package:queue_management_system_client/domain/models/location/location.d
 import '../../domain/models/queue/queue.dart';
 
 class QueueItemWidget extends StatefulWidget {
+  final ValueChanged<QueueModel> onClick;
   final ValueChanged<QueueModel> onDelete;
   final QueueModel queue;
 
   const QueueItemWidget({
     Key? key,
+    required this.onClick,
     required this.onDelete,
     required this.queue,
   }) : super(key: key);
@@ -23,6 +25,7 @@ class _QueueItemState extends State<QueueItemWidget> {
     return Center(
       child: Card(
         child: ListTile(
+          onTap: () => widget.onClick(widget.queue),
           title: Text(widget.queue.name),
           subtitle: Text(widget.queue.description),
           trailing: IconButton(

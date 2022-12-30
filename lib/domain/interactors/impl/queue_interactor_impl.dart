@@ -28,4 +28,19 @@ class QueueInteractorImpl extends QueueInteractor {
   Future<Result> deleteQueue(int id) async {
     return await _repository.deleteQueue(id);
   }
+
+  @override
+  Future<Result<QueueModel>> getQueueState(int id) async {
+    return await _repository.getQueueState(id);
+  }
+
+  @override
+  Future<Result> notifyClientInQueue(int queueId, int clientId) async {
+    return await _repository.notifyClientInQueue(queueId, clientId);
+  }
+
+  @override
+  Future<Result> serveClientInQueue(int queueId, int clientId) async {
+    return await _repository.serveClientInQueue(queueId, clientId);
+  }
 }

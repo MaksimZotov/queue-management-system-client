@@ -244,4 +244,29 @@ class ServerApi {
         )
     );
   }
+
+  Future<Result<QueueModel>> getQueueState(int id) async {
+    return await _execRequest(
+        converter: _queueConverter,
+        request: _dioApi.get(
+            '$url/queues/$id'
+        )
+    );
+  }
+
+  Future<Result> serveClientInQueue(int queueId, int clientId) async {
+    return await _execRequest(
+        request: _dioApi.post(
+            '$url/queues/$queueId/clients/$clientId/serve'
+        )
+    );
+  }
+
+  Future<Result> notifyClientInQueue(int queueId, int clientId) async {
+    return await _execRequest(
+        request: _dioApi.post(
+            '$url/queues/$queueId/clients/$clientId/notify'
+        )
+    );
+  }
 }

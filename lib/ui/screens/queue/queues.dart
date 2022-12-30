@@ -7,6 +7,7 @@ import 'package:queue_management_system_client/domain/models/queue/queue.dart';
 import 'package:queue_management_system_client/ui/screens/location/create_location.dart';
 import 'package:queue_management_system_client/ui/screens/location/delete_location.dart';
 import 'package:queue_management_system_client/ui/screens/queue/create_queue.dart';
+import 'package:queue_management_system_client/ui/screens/queue/queue.dart';
 import 'package:queue_management_system_client/ui/widgets/location_item.dart';
 import 'package:queue_management_system_client/ui/widgets/queue_item.dart';
 
@@ -64,6 +65,14 @@ class _QueuesState extends State<QueuesWidget> {
             itemBuilder: (context, index) {
               return QueueItemWidget(
                 queue: state.queues[index],
+                onClick: (queue) => Navigator.of(context).pushNamed(
+                    Routes.toMyQueue,
+                    arguments: QueueParams(
+                        queueId: queue.id!,
+                        queueName: queue.name,
+                        queueDescription: queue.description
+                    )
+                ),
                 onDelete: (location) => showDialog(
                     context: context,
                     builder: (context) => DeleteQueueWidget(

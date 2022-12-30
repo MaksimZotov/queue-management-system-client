@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:queue_management_system_client/ui/screens/location/locations.dart';
+import 'package:queue_management_system_client/ui/screens/queue/queue.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queues.dart';
 import 'package:queue_management_system_client/ui/screens/verification/authorization.dart';
 import 'package:queue_management_system_client/ui/screens/verification/confirmation.dart';
@@ -17,6 +18,7 @@ class Routes {
   static const String toLocations = 'toLocations';
 
   static const String toQueues = 'toQueues';
+  static const String toMyQueue = 'toMyQueue';
 }
 
 class RouteGenerator {
@@ -55,6 +57,12 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (ctx) => QueuesWidget(
             params: args as QueuesParams,
+          ),
+        );
+      case Routes.toMyQueue:
+        return MaterialPageRoute(
+          builder: (ctx) => QueueWidget(
+            params: args as QueueParams,
           ),
         );
     }

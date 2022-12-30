@@ -20,4 +20,7 @@ abstract class Repository {
   Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, int page, int pageSize);
   Future<Result<QueueModel>> createQueue(int locationId, QueueModel location);
   Future<Result> deleteQueue(int id);
+  Future<Result<QueueModel>> getQueueState(int id);
+  Future<Result> serveClientInQueue(int queueId, int clientId);
+  Future<Result> notifyClientInQueue(int queueId, int clientId);
 }

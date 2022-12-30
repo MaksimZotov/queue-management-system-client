@@ -1,5 +1,6 @@
 import 'package:queue_management_system_client/ui/screens/location/create_location.dart';
 import 'package:queue_management_system_client/ui/screens/location/delete_location.dart';
+import 'package:queue_management_system_client/ui/screens/queue/queue.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queues.dart';
 import 'package:queue_management_system_client/ui/screens/verification/authorization.dart';
 import 'package:queue_management_system_client/ui/screens/verification/registration.dart';
@@ -23,6 +24,7 @@ class StatesAssembler {
 
   QueuesCubit getQueuesCubit(QueuesParams params) => getIt.get(param1: params);
   CreateQueueCubit getCreateQueueCubit() => getIt.get();
+  QueueCubit getQueueCubit(QueueParams params) => getIt.get(param1: params);
 }
 
 const statesAssembler = StatesAssembler._();
