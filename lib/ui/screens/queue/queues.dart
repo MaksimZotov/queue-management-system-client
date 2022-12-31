@@ -20,11 +20,9 @@ import 'delete_queue.dart';
 
 class QueuesParams {
   final int locationId;
-  final String locationName;
 
   QueuesParams({
-    required this.locationId,
-    required this.locationName
+    required this.locationId
   });
 }
 
@@ -38,7 +36,7 @@ class QueuesWidget extends StatefulWidget {
 }
 
 class _QueuesState extends State<QueuesWidget> {
-  late final String title = 'Очереди в "${widget.params.locationName}"';
+  final titleStart = 'Локация: ';
   final String createLocationHint = 'Создать локацию';
 
   final ScrollController _scrollController = ScrollController();
@@ -51,7 +49,9 @@ class _QueuesState extends State<QueuesWidget> {
       child: BlocBuilder<QueuesCubit, QueuesLogicState>(
         builder: (context, state) => Scaffold(
           appBar: AppBar(
-            title: Text(title),
+            title: Text(
+                state.locationName.isEmpty ? '' : titleStart + state.locationName
+            ),
           ),
           body: ListView.builder(
             controller: _scrollController
@@ -66,11 +66,9 @@ class _QueuesState extends State<QueuesWidget> {
               return QueueItemWidget(
                 queue: state.queues[index],
                 onClick: (queue) => Navigator.of(context).pushNamed(
-                    Routes.queue,
+                    Routes.queueWithId,
                     arguments: QueueParams(
-                        queueId: queue.id!,
-                        queueName: queue.name,
-                        queueDescription: queue.description
+                        queueId: queue.id!
                     )
                 ),
                 onDelete: (location) => showDialog(
@@ -112,6 +110,8 @@ class QueuesLogicState {
 
   final QueuesParams params;
 
+  final String locationName;
+
   final List<QueueModel> queues;
   final int curPage;
   final bool isLast;
@@ -122,6 +122,7 @@ class QueuesLogicState {
 
   QueuesLogicState({
     required this.params,
+    required this.locationName,
     required this.queues,
     required this.curPage,
     required this.isLast,
@@ -130,14 +131,16 @@ class QueuesLogicState {
   });
 
   QueuesLogicState copyWith({
-    List<QueueModel>? locations,
+    String? locationName,
+    List<QueueModel>? queues,
     int? curPage,
     bool? isLast,
     String? snackBar,
     bool? loading,
   }) => QueuesLogicState(
       params: params,
-      queues: locations ?? this.queues,
+      locationName: locationName ?? this.locationName,
+      queues: queues ?? this.queues,
       curPage: curPage ?? this.curPage,
       isLast: isLast ?? this.isLast,
       snackBar: snackBar,
@@ -149,13 +152,16 @@ class QueuesLogicState {
 class QueuesCubit extends Cubit<QueuesLogicState> {
 
   final QueueInteractor queueInteractor;
+  final LocationInteractor locationInteractor;
 
   QueuesCubit({
     required this.queueInteractor,
+    required this.locationInteractor,
     @factoryParam required QueuesParams params
   }) : super(
     QueuesLogicState(
       params: params,
+      locationName: '',
       queues: [],
       curPage: 0,
       isLast: false,
@@ -165,7 +171,12 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
   );
 
   Future<void> onStart() async {
-    await loadNext();
+    await locationInteractor.getLocation(state.params.locationId)..onSuccess((result) async {
+      emit(state.copyWith(locationName: result.data.name));
+      await loadNext();
+    })..onError((result) {
+      emit(state.copyWith(snackBar: result.description));
+    });
   }
 
   Future<void> loadNext() async {
@@ -181,7 +192,7 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
       emit(
           state.copyWith(
               loading: false,
-              locations: state.queues + result.data.results,
+              queues: state.queues + result.data.results,
               curPage: state.curPage + 1,
               isLast: result.data.isLast
           )
@@ -219,7 +230,7 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
   Future<void> _reload() async {
     emit(state.copyWith(
       loading: false,
-      locations: [],
+      queues: [],
       curPage: 0,
       isLast: false
     ));

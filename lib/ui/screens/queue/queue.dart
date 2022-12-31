@@ -5,21 +5,14 @@ import 'package:queue_management_system_client/domain/interactors/queue_interact
 import 'package:queue_management_system_client/domain/models/queue/client_in_queue.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue.dart';
 import 'package:queue_management_system_client/ui/widgets/client_item.dart';
-import 'package:stomp_dart_client/stomp.dart';
-import 'package:stomp_dart_client/stomp_config.dart';
-import 'package:stomp_dart_client/stomp_frame.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 
 class QueueParams {
   final int queueId;
-  final String queueName;
-  final String queueDescription;
 
   QueueParams({
-    required this.queueId,
-    required this.queueName,
-    required this.queueDescription
+    required this.queueId
   });
 }
 
@@ -33,7 +26,7 @@ class QueueWidget extends StatefulWidget {
 }
 
 class _QueueState extends State<QueueWidget> {
-  late final String title = 'Очередь "${widget.params.queueName}"';
+  final titleStart = 'Очередь: ';
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +36,9 @@ class _QueueState extends State<QueueWidget> {
       child: BlocBuilder<QueueCubit, QueueLogicState>(
         builder: (context, state) => Scaffold(
           appBar: AppBar(
-            title: Text(title),
+            title: Text(
+                state.queueState.name.isEmpty ? '' : titleStart + state.queueState.name
+            ),
           ),
           body: ListView.builder(
             itemBuilder: (context, index) {
@@ -94,9 +89,6 @@ class QueueCubit extends Cubit<QueueLogicState> {
 
   final QueueInteractor queueInteractor;
 
-  StompClient? stompClient;
-  final socketUrl = 'http://localhost:8080/our-websocket';
-
   QueueCubit({
     required this.queueInteractor,
     @factoryParam required QueueParams params
@@ -105,8 +97,8 @@ class QueueCubit extends Cubit<QueueLogicState> {
           params: params,
           queueState: QueueModel(
             id: params.queueId,
-            name: params.queueName,
-            description: params.queueDescription,
+            name: '',
+            description: '',
             clients: []
           ),
           snackBar: null,

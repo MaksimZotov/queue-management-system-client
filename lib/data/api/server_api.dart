@@ -205,6 +205,15 @@ class ServerApi {
     );
   }
 
+  Future<Result<LocationModel>> getLocation(int id) async {
+    return await _execRequest(
+        converter: _locationConverter,
+        request: _dioApi.get(
+            '$url/locations/$id',
+        )
+    );
+  }
+
   Future<Result> deleteLocation(int id) async {
     return await _execRequest(
         converter: null,

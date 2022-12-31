@@ -59,10 +59,9 @@ class _LocationsState extends State<LocationsWidget> {
               return LocationItemWidget(
                 location: state.locations[index],
                 onClick: (location) => Navigator.of(context).pushNamed(
-                    Routes.queues,
+                    Routes.queuesInLocation,
                     arguments: QueuesParams(
-                        locationId: location.id!,
-                        locationName: location.name
+                        locationId: location.id!
                     )
                 ),
                 onDelete: (location) => showDialog(

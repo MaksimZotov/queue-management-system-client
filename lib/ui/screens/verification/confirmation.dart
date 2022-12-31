@@ -48,7 +48,7 @@ class ConfirmationState extends State<ConfirmationWidget> {
         listener: (context, state) {
           if (state.readyToLogin) {
             Navigator.of(context).pushNamed(
-              Routes.locations,
+              Routes.locationsInAccount,
               arguments: LocationsParams(
                   username: null
               )

@@ -23,6 +23,11 @@ class LocationInteractorImpl extends LocationInteractor {
   }
 
   @override
+  Future<Result<LocationModel>> getLocation(int id) async {
+    return await _repository.getLocation(id);
+  }
+
+  @override
   Future<Result> deleteLocation(int id) async {
     return await _repository.deleteLocation(id);
   }

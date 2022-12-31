@@ -32,7 +32,7 @@ class SelectState extends State<SelectWidget> {
         listener: (context, state) {
           if (state.selectStateEnum == SelectStateEnum.goToLocations) {
             Navigator.of(context).pushNamed(
-                Routes.locations,
+                Routes.locationsInAccount,
                 arguments: LocationsParams(
                   username: null
                 )

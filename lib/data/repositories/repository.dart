@@ -16,6 +16,7 @@ abstract class Repository {
 
   Future<Result<ContainerForList<LocationModel>>> getMyLocations(int page, int pageSize);
   Future<Result<LocationModel>> createLocation(LocationModel location);
+  Future<Result<LocationModel>> getLocation(int id);
   Future<Result> deleteLocation(int id);
 
   Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, int page, int pageSize);

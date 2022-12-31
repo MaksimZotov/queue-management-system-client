@@ -55,6 +55,11 @@ class RepositoryImpl extends Repository {
   }
 
   @override
+  Future<Result<LocationModel>> getLocation(int id) async {
+    return await _serverApi.getLocation(id);
+  }
+
+  @override
   Future<Result> deleteLocation(int id) async {
     return await _serverApi.deleteLocation(id);
   }
