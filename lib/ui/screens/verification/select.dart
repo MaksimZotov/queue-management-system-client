@@ -32,7 +32,7 @@ class SelectState extends State<SelectWidget> {
         listener: (context, state) {
           if (state.selectStateEnum == SelectStateEnum.goToLocations) {
             Navigator.of(context).pushNamed(
-                Routes.toLocations,
+                Routes.locations,
                 arguments: LocationsParams(
                   username: null
                 )
@@ -59,7 +59,7 @@ class SelectState extends State<SelectWidget> {
                     text: authorization,
                     onClick: () {
                       Navigator.of(context).pushNamed(
-                        Routes.toAuthorization
+                        Routes.authorization
                       );
                     },
                   ),
@@ -67,7 +67,7 @@ class SelectState extends State<SelectWidget> {
                     text: registration,
                     onClick: () {
                       Navigator.of(context).pushNamed(
-                        Routes.toRegistration
+                        Routes.registration
                       );
                     },
                   ),

@@ -14,7 +14,7 @@ class AppState extends State<AppWidget> {
   @override
   Widget build(BuildContext ctx) {
     return const MaterialApp(
-      initialRoute: Routes.toSelect,
+      initialRoute: Routes.initial,
       onGenerateRoute: RouteGenerator.generateRoute,
     );
   }

@@ -37,7 +37,7 @@ class AuthorizationState extends State<AuthorizationWidget> {
         listener: (context, state) {
           if (state.readyToLogin) {
             Navigator.of(context).pushNamed(
-              Routes.toLocations,
+              Routes.locations,
               arguments: LocationsParams(
                 username: null
               )

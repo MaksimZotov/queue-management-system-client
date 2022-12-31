@@ -41,7 +41,7 @@ class RegistrationState extends State<RegistrationWidget> {
         listener: (context, state) {
           if (state.readyToConfirm) {
             Navigator.of(context).pushNamed(
-              Routes.toConfirmation,
+              Routes.confirmation,
               arguments: ConfirmationParams(
                   username: state.username,
                   password: state.password

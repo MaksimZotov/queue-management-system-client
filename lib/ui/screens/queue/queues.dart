@@ -66,7 +66,7 @@ class _QueuesState extends State<QueuesWidget> {
               return QueueItemWidget(
                 queue: state.queues[index],
                 onClick: (queue) => Navigator.of(context).pushNamed(
-                    Routes.toQueue,
+                    Routes.queue,
                     arguments: QueueParams(
                         queueId: queue.id!,
                         queueName: queue.name,

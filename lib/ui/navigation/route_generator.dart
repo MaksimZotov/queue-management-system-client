@@ -10,15 +10,15 @@ import 'package:queue_management_system_client/ui/screens/verification/select.da
 class Routes {
   Routes._();
 
-  static const String toSelect = 'toSelect';
-  static const String toRegistration = 'toRegistration';
-  static const String toConfirmation = 'toConfirmation';
-  static const String toAuthorization = 'toAuthorization';
+  static const String initial = '/';
+  static const String registration = '/registration';
+  static const String confirmation = '/confirmation';
+  static const String authorization = '/authorization';
 
-  static const String toLocations = 'toLocations';
+  static const String locations = '/locations';
 
-  static const String toQueues = 'toQueues';
-  static const String toQueue = 'toQueue';
+  static const String queues = '/locations/';
+  static const String queue = '/queues';
 }
 
 class RouteGenerator {
@@ -28,44 +28,78 @@ class RouteGenerator {
     final route = settings.name;
     final args = settings.arguments;
 
+    return _GeneratePageRoute(
+        widget: getWidget(route, args),
+        routeName: getRouteName(route, args)
+    );
+  }
+
+  static Widget getWidget(String? route, Object? args) {
     switch (route) {
-      case Routes.toSelect:
-        return MaterialPageRoute(
-          builder: (ctx) => const SelectWidget(),
-        );
-      case Routes.toRegistration:
-        return MaterialPageRoute(
-          builder: (ctx) => const RegistrationWidget(),
-        );
-      case Routes.toConfirmation:
-        return MaterialPageRoute(
-          builder: (ctx) => ConfirmationWidget(
-              params: args as ConfirmationParams
-          ),
-        );
-      case Routes.toAuthorization:
-        return MaterialPageRoute(
-          builder: (ctx) => const AuthorizationWidget(),
-        );
-      case Routes.toLocations:
-        return MaterialPageRoute(
-          builder: (ctx) => LocationsWidget(
-            params: args as LocationsParams,
-          ),
-        );
-      case Routes.toQueues:
-        return MaterialPageRoute(
-          builder: (ctx) => QueuesWidget(
-            params: args as QueuesParams,
-          ),
-        );
-      case Routes.toQueue:
-        return MaterialPageRoute(
-          builder: (ctx) => QueueWidget(
-            params: args as QueueParams,
-          ),
-        );
+      case Routes.initial:
+        return const SelectWidget();
+      case Routes.registration:
+        return const RegistrationWidget();
+      case Routes.confirmation:
+        return ConfirmationWidget(params: args as ConfirmationParams);
+      case Routes.authorization:
+        return const AuthorizationWidget();
+      case Routes.locations:
+        return LocationsWidget(params: args as LocationsParams);
+      case Routes.queues:
+        return QueuesWidget(params: args as QueuesParams);
+      case Routes.queue:
+        return QueueWidget(params: args as QueueParams);
     }
     throw Exception("Incorrect route: $route");
   }
+
+  static String getRouteName(String? route, Object? args) {
+    switch (route) {
+      case Routes.initial:
+        return Routes.initial;
+      case Routes.registration:
+        return Routes.registration;
+      case Routes.confirmation:
+        return Routes.confirmation;
+      case Routes.authorization:
+        return Routes.authorization;
+      case Routes.locations:
+        LocationsParams params = args as LocationsParams;
+        String postFix = (params.username == null) ? '/me' : '/${params.username}';
+        return Routes.locations + postFix;
+      case Routes.queues:
+        QueuesParams params = args as QueuesParams;
+        String postFix = '${params.locationId}/queues';
+        return Routes.queues + postFix;
+      case Routes.queue:
+        QueueParams params = args as QueueParams;
+        String postFix = '/${params.queueId}';
+        return Routes.queue + postFix;
+    }
+    throw Exception("Incorrect route: $route");
+  }
+}
+
+class _GeneratePageRoute extends PageRouteBuilder {
+  final Widget widget;
+  final String routeName;
+
+  _GeneratePageRoute({required this.widget, required this.routeName})
+      : super(
+      settings: RouteSettings(name: routeName),
+      pageBuilder: (BuildContext context, Animation<double> animation,
+          Animation<double> secondaryAnimation) {
+        return widget;
+      },
+      transitionDuration: const Duration(milliseconds: 250),
+      transitionsBuilder: (BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+          Widget child) {
+        return FadeTransition(
+          opacity: animation,
+          child: child,
+        );
+      });
 }
