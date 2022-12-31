@@ -19,7 +19,7 @@ abstract class DataModule {
           )
         ]
     );
-    dioApi.options.connectTimeout = 5000;
+    //dioApi.options.connectTimeout = 5000;
     dioApi.options.receiveTimeout = 5000;
     dioApi.options.sendTimeout = 5000;
     return dioApi;

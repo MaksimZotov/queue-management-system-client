@@ -31,7 +31,12 @@ class SelectState extends State<SelectWidget> {
 
         listener: (context, state) {
           if (state.selectStateEnum == SelectStateEnum.goToLocations) {
-            Navigator.of(context).pushNamed(Routes.toLocations).then((value) =>
+            Navigator.of(context).pushNamed(
+                Routes.toLocations,
+                arguments: LocationsParams(
+                  username: null
+                )
+            ).then((value) =>
                 BlocProvider.of<SelectCubit>(context).onPush()
             );
           }
