@@ -1,12 +1,17 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/converters/verification/confirm_converter.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
 import 'package:queue_management_system_client/domain/models/location/location.dart';
 import 'package:queue_management_system_client/domain/models/verification/Confirm.dart';
+import 'package:stomp_dart_client/stomp.dart';
+import 'package:stomp_dart_client/stomp_config.dart';
+import 'package:stomp_dart_client/stomp_frame.dart';
 
 import '../../domain/models/base/result.dart';
 import '../../domain/models/queue/queue.dart';
@@ -49,6 +54,9 @@ class ServerApi {
   final LocationConverter _locationConverter;
 
   final QueueConverter _queueConverter;
+
+  Map<int, StompClient> stompClients = {};
+  final socketUrl = '$url/our-websocket';
 
   ServerApi(
       this._dioApi,
@@ -267,6 +275,47 @@ class ServerApi {
         request: _dioApi.post(
             '$url/queues/$queueId/clients/$clientId/notify'
         )
+    );
+  }
+
+  void connectToQueueSocket(
+      int queueId,
+      VoidCallback onConnected,
+      ValueChanged<QueueModel> onQueueChanged,
+      ValueChanged<dynamic> onError
+  ) {
+    if (stompClients.containsKey(queueId)) {
+      stompClients.remove(queueId)?.deactivate();
+    }
+    StompClient client = StompClient(
+        config: StompConfig.SockJS(
+          url: socketUrl,
+          onConnect: (frame) => _onConnect(queueId, onConnected, onQueueChanged),
+          onWebSocketError: onError,
+        )
+    );
+    client.activate();
+    stompClients[queueId] = client;
+  }
+
+  void disconnectFromQueueSocket(int queueId) {
+    stompClients[queueId]?.deactivate();
+    stompClients.remove(queueId);
+  }
+
+  void _onConnect(
+      int queueId,
+      VoidCallback onConnected,
+      ValueChanged<QueueModel> onQueueChanged
+  ) {
+    onConnected.call();
+    stompClients[queueId]?.subscribe(
+      destination: '/topic/queues/$queueId',
+      callback: (StompFrame frame) {
+        onQueueChanged.call(
+            _queueConverter.fromJson(json.decode(frame.body!))
+        );
+      }
     );
   }
 }

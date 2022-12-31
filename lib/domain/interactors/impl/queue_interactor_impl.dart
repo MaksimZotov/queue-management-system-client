@@ -1,5 +1,8 @@
 
 
+import 'dart:ui';
+
+import 'package:flutter/cupertino.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../data/repositories/repository.dart';
@@ -42,5 +45,15 @@ class QueueInteractorImpl extends QueueInteractor {
   @override
   Future<Result> serveClientInQueue(int queueId, int clientId) async {
     return await _repository.serveClientInQueue(queueId, clientId);
+  }
+
+  @override
+  void connectToQueueSocket(int queueId, VoidCallback onConnected, ValueChanged<QueueModel> onQueueChanged, ValueChanged onError) {
+    _repository.connectToQueueSocket(queueId, onConnected, onQueueChanged, onError);
+  }
+
+  @override
+  void disconnectFromQueueSocket(int queueId) {
+    _repository.disconnectFromQueueSocket(queueId);
   }
 }

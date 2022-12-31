@@ -115,6 +115,7 @@ class QueueCubit extends Cubit<QueueLogicState> {
   );
 
   Future<void> onStart() async {
+    print('onStart');
     emit(state.copyWith(loading: true));
     await queueInteractor.getQueueState(state.params.queueId)..onSuccess((result) {
       emit(state.copyWith(loading: false, queueState: result.data));
@@ -122,15 +123,14 @@ class QueueCubit extends Cubit<QueueLogicState> {
       emit(state.copyWith(loading: false, snackBar: result.description));
     });
 
-    if (stompClient == null) {
-      stompClient = StompClient(
-          config: StompConfig.SockJS(
-            url: socketUrl,
-            onConnect: onConnect,
-            onWebSocketError: (dynamic error) => print(error.toString()),
-          ));
-      stompClient?.activate();
-    }
+    queueInteractor.connectToQueueSocket(
+      state.params.queueId,
+      () => print("Connected"),
+      (queue) {
+        emit(state.copyWith(queueState: queue));
+      },
+      (error) => print(error)
+    );
   }
 
   Future<void> notify(ClientInQueueModel client) async {
@@ -145,19 +145,9 @@ class QueueCubit extends Cubit<QueueLogicState> {
     emit(state.copyWith(snackBar: null));
   }
 
-  void onConnect(StompFrame frame) {
-    print('Connected');
-    print(stompClient);
-    stompClient?.subscribe(
-        destination: '/topic/messages/1',
-        callback: (StompFrame frame) {
-          print(frame.body);
-        });
-  }
-
   @override
   Future<void> close() async {
-    stompClient?.deactivate();
+    queueInteractor.disconnectFromQueueSocket(state.params.queueId);
     return super.close();
   }
 }

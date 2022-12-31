@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
 import 'package:queue_management_system_client/domain/models/verification/Confirm.dart';
 
@@ -23,4 +24,6 @@ abstract class Repository {
   Future<Result<QueueModel>> getQueueState(int id);
   Future<Result> serveClientInQueue(int queueId, int clientId);
   Future<Result> notifyClientInQueue(int queueId, int clientId);
+  void connectToQueueSocket(int queueId, VoidCallback onConnected, ValueChanged<QueueModel> onQueueChanged, ValueChanged<dynamic> onError);
+  void disconnectFromQueueSocket(int queueId);
 }

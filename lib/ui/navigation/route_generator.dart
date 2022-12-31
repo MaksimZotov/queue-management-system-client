@@ -18,7 +18,7 @@ class Routes {
   static const String toLocations = 'toLocations';
 
   static const String toQueues = 'toQueues';
-  static const String toMyQueue = 'toMyQueue';
+  static const String toQueue = 'toQueue';
 }
 
 class RouteGenerator {
@@ -59,7 +59,7 @@ class RouteGenerator {
             params: args as QueuesParams,
           ),
         );
-      case Routes.toMyQueue:
+      case Routes.toQueue:
         return MaterialPageRoute(
           builder: (ctx) => QueueWidget(
             params: args as QueueParams,

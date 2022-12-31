@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:flutter/src/foundation/basic_types.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/data/repositories/repository.dart';
@@ -88,6 +91,16 @@ class RepositoryImpl extends Repository {
   @override
   Future<Result> serveClientInQueue(int queueId, int clientId) async {
     return await _serverApi.serveClientInQueue(queueId, clientId);
+  }
+
+  @override
+  void connectToQueueSocket(int queueId, VoidCallback onConnected, ValueChanged<QueueModel> onQueueChanged, ValueChanged onError) {
+    _serverApi.connectToQueueSocket(queueId, onConnected, onQueueChanged, onError);
+  }
+
+  @override
+  void disconnectFromQueueSocket(int queueId) {
+    _serverApi.disconnectFromQueueSocket(queueId);
   }
 
 }
