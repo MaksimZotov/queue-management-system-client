@@ -53,6 +53,7 @@ class _LocationsState extends State<LocationsWidget> {
                 location: state.locations[index],
                 onClick: (location) => widget.emitConfig(
                     QueuesConfig(
+                        username: state.config.username,
                         locationId: location.id!
                     )
                 ),

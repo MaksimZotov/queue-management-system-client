@@ -10,6 +10,10 @@ import '../screens/queue/queue.dart';
 
 abstract class BaseConfig {
   Page getPage(ValueChanged<BaseConfig> emitConfig);
+
+  BaseConfig? getPrevConfig() {
+    return null;
+  }
 }
 
 class ErrorConfig extends BaseConfig {
@@ -46,6 +50,11 @@ class AuthorizationConfig extends BaseConfig {
         )
     );
   }
+
+  @override
+  BaseConfig getPrevConfig() {
+    return InitialConfig();
+  }
 }
 
 class RegistrationConfig extends BaseConfig {
@@ -58,10 +67,15 @@ class RegistrationConfig extends BaseConfig {
         )
     );
   }
+
+  @override
+  BaseConfig getPrevConfig() {
+    return InitialConfig();
+  }
 }
 
 class LocationsConfig extends BaseConfig {
-  String? username;
+  String username;
 
   LocationsConfig({
     required this.username
@@ -80,9 +94,11 @@ class LocationsConfig extends BaseConfig {
 }
 
 class QueuesConfig extends BaseConfig {
+  String username;
   int locationId;
 
   QueuesConfig({
+    required this.username,
     required this.locationId
   });
 
@@ -96,12 +112,21 @@ class QueuesConfig extends BaseConfig {
         )
     );
   }
+
+  @override
+  BaseConfig getPrevConfig() {
+    return LocationsConfig(username: username);
+  }
 }
 
 class QueueConfig extends BaseConfig {
+  String username;
+  int locationId;
   int queueId;
 
   QueueConfig({
+    required this.username,
+    required this.locationId,
     required this.queueId
   });
 
@@ -113,5 +138,10 @@ class QueueConfig extends BaseConfig {
           config: this,
         )
     );
+  }
+
+  @override
+  BaseConfig getPrevConfig() {
+    return QueuesConfig(username: username, locationId: locationId);
   }
 }

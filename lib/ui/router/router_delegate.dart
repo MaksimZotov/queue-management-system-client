@@ -9,27 +9,33 @@ class AppRouterDelegate extends RouterDelegate<BaseConfig>
 
   AppRouterDelegate() : navigatorKey = GlobalKey<NavigatorState>();
 
-  List<BaseConfig> configs = [];
+  BaseConfig? config = InitialConfig();
 
   List<Page> get pages {
-    List<Page> pages = configs
-        .map((config) => config.getPage(emitConfig))
-        .toList();
+    List<Page> pages = [];
+    BaseConfig? curConfig = config;
+    while (curConfig != null) {
+      pages.add(curConfig.getPage(emitConfig));
+      curConfig = curConfig.getPrevConfig();
+    }
     if (pages.isEmpty) {
       return [InitialConfig().getPage(emitConfig)];
     }
-    return pages;
+    print('FFFFFFFFFFFFFFFFFFFFFFFFF');
+    print('pages');
+    print(pages.reversed.toList());
+    return pages.reversed.toList();
   }
 
   @override
   BaseConfig get currentConfiguration {
     print('FFFFFFFFFFFFFFFFFFFFFFFFF');
     print('currentConfiguration');
-    print(configs);
-    if (configs.isEmpty) {
+    print(config);
+    if (config == null) {
       return InitialConfig();
     }
-    return configs.last;
+    return config!;
   }
 
   @override
@@ -39,12 +45,14 @@ class AppRouterDelegate extends RouterDelegate<BaseConfig>
       pages: pages,
       onPopPage: (route, result) {
         if (!route.didPop(result)) {
+          print('FFFFFFFFFFFFFFFFFFFFFFFFF');
+          print('onPopPageTEST');
           return false;
         }
         print('FFFFFFFFFFFFFFFFFFFFFFFFF');
         print('onPopPage');
-        print(configs);
-        configs.removeLast();
+        print(config);
+        config = config?.getPrevConfig();
         notifyListeners();
         return true;
       },
@@ -55,15 +63,15 @@ class AppRouterDelegate extends RouterDelegate<BaseConfig>
   Future<void> setNewRoutePath(BaseConfig configuration) async {
     print('FFFFFFFFFFFFFFFFFFFFFFFFF');
     print('setNewRoutePath');
-    print(configs);
-    configs.add(configuration);
+    config = configuration;
+    print(config);
   }
 
   void emitConfig(BaseConfig configuration) {
     print('FFFFFFFFFFFFFFFFFFFFFFFFF');
     print('emitConfig');
-    print(configs);
-    configs.add(configuration);
+    config = configuration;
+    print(config);
     notifyListeners();
   }
 }

@@ -39,9 +39,11 @@ class AuthorizationState extends State<AuthorizationWidget> {
         listener: (context, state) {
           if (state.readyToLogin) {
             BlocProvider.of<AuthorizationCubit>(context).onPush();
+            print('FFFFFFFFFFFFFFFFFFFFFFFFF');
+            print('readyToLogin');
             widget.emitConfig(
                 LocationsConfig(
-                    username: null
+                    username: 'me'
                 )
             );
           }
@@ -131,11 +133,9 @@ class AuthorizationLogicState {
 class AuthorizationCubit extends Cubit<AuthorizationLogicState> {
 
   final VerificationInteractor verificationInteractor;
-  final LocationInteractor locationInteractor;
 
   AuthorizationCubit({
-    required this.verificationInteractor,
-    required this.locationInteractor
+    required this.verificationInteractor
   }) : super(
       AuthorizationLogicState(
         username: '',
@@ -163,7 +163,6 @@ class AuthorizationCubit extends Cubit<AuthorizationLogicState> {
         )
     );
     if (result is SuccessResult) {
-      locationInteractor.getMyLocations(0, LocationsLogicState.pageSize);
       emit(state.copyWith(loading: false, readyToLogin: true));
     } else if (result is ErrorResult) {
       emit(state.copyWith(loading: false, snackBar: result.description));

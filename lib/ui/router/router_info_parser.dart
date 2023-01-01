@@ -9,58 +9,52 @@ class AppRouterInformationParser
   Future<BaseConfig> parseRouteInformation(
       RouteInformation routeInformation
   ) async {
+    print('FFFFFFFFFFFFFFFFFFFFFFFFF');
+    print('parseRouteInformation');
+    print(routeInformation.location);
+    try {
+      final uri = Uri.parse(routeInformation.location!);
+      List<String> segments = uri.pathSegments;
 
-    String? route = routeInformation.location;
-    if (route == null) {
-      return ErrorConfig();
-    }
-
-    final uri = Uri.parse(route);
-    List<String> segments = uri.pathSegments;
-    
-    if (segments.isEmpty) {
-      return InitialConfig();
-    }
-
-    String first = segments.first;
-    if (segments.length == 1) {
-      switch (first) {
-        case 'authorization':
-          return AuthorizationConfig();
-        case 'registration':
-          return RegistrationConfig();
-        case 'locations':
-          if (uri.queryParameters.containsKey('username')) {
-            return LocationsConfig(
-                username: uri.queryParameters['username']
-            );
+      switch (segments.length) {
+        case 0:
+          return InitialConfig();
+        case 1:
+          switch (segments[0]) {
+            case 'authorization':
+              return AuthorizationConfig();
+            case 'registration':
+              return RegistrationConfig();
           }
           break;
-        case 'queues':
-          if (uri.queryParameters.containsKey('location_id')) {
-            int? locationId = int.tryParse(uri.queryParameters['location_id'] ?? '');
-            if (locationId != null) {
+        case 2:
+           switch (segments[0]) {
+             case 'locations':
+               return LocationsConfig(username: segments[1]);
+           }
+           break;
+        case 3:
+          switch (segments[0]) {
+            case 'locations':
               return QueuesConfig(
-                  locationId: locationId
+                  username: segments[1],
+                  locationId: int.parse(segments[2])
               );
-            }
+          }
+          break;
+        case 4:
+          switch (segments[0]) {
+            case 'locations':
+              return QueueConfig(
+                  username: segments[1],
+                  locationId: int.parse(segments[2]),
+                  queueId: int.parse(segments[3])
+              );
           }
       }
+    } on Exception {
+      return ErrorConfig();
     }
-    
-    String second = segments[1];
-    if (segments.length == 2) {
-      switch (first) {
-        case 'queues':
-          int? queueId = int.tryParse(second);
-          if (queueId != null) {
-            return QueueConfig(
-                queueId: queueId
-            );
-          }
-      }
-    }
-
     return ErrorConfig();
   }
 
@@ -76,21 +70,24 @@ class AppRouterInformationParser
       return const RouteInformation(location: '/registration');
     }
     if (configuration is LocationsConfig) {
-      String username = configuration.username.toString();
+      String username = configuration.username;
       return RouteInformation(
-          location: '/locations?username=$username'
+          location: '/locations/$username'
       );
     }
     if (configuration is QueuesConfig) {
+      String username = configuration.username;
       int locationId = configuration.locationId;
       return RouteInformation(
-          location: '/queues?location_id=$locationId'
+          location: '/locations/$username/$locationId'
       );
     }
     if (configuration is QueueConfig) {
+      String username = configuration.username;
+      int locationId = configuration.locationId;
       int queueId = configuration.queueId;
       return RouteInformation(
-          location: '/queues/$queueId'
+          location: '/locations/$username/$locationId/$queueId'
       );
     }
     return null;

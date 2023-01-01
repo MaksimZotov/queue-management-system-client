@@ -34,7 +34,7 @@ class SelectState extends State<SelectWidget> {
         listener: (context, state) {
           if (state.selectStateEnum == SelectStateEnum.goToLocations) {
             BlocProvider.of<SelectCubit>(context).onPush();
-            widget.emitConfig(LocationsConfig(username: null));
+            widget.emitConfig(LocationsConfig(username: 'me'));
           }
         },
 
