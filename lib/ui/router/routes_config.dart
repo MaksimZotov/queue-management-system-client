@@ -1,39 +1,117 @@
-class ShopListRouteConfig {
-  final int? id;
-  final String? selectedItem;
-  final String? selectedRoute;
-  final bool show404;
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:queue_management_system_client/ui/screens/queue/queues.dart';
+import 'package:queue_management_system_client/ui/screens/verification/authorization.dart';
+import 'package:queue_management_system_client/ui/screens/verification/registration.dart';
+import 'package:queue_management_system_client/ui/screens/verification/select.dart';
 
-  ShopListRouteConfig.list()
-      : selectedRoute = null,
-        selectedItem = null,
-        show404 = false,
-        id = null;
+import '../screens/location/locations.dart';
+import '../screens/queue/queue.dart';
 
-  ShopListRouteConfig.newRoute(this.selectedRoute)
-      : selectedItem = null,
-        id = null,
-        show404 = false;
+abstract class BaseConfig {
+  Page getPage(ValueChanged<BaseConfig> emitConfig);
+}
 
-  ShopListRouteConfig.nestedItemRoute(
-      this.selectedRoute, this.selectedItem, this.id)
-      : show404 = false;
+class ErrorConfig extends BaseConfig {
+  @override
+  Page getPage(ValueChanged<BaseConfig> emitConfig) {
+    return const MaterialPage(
+      key: ValueKey('Error Page'),
+      child: Center(
+        child: Text('404'),
+      )
+    );
+  }
+}
 
-  ShopListRouteConfig.details(this.selectedItem, this.id)
-      : selectedRoute = null,
-        show404 = false;
+class InitialConfig extends BaseConfig {
+  @override
+  Page getPage(ValueChanged<BaseConfig> emitConfig) {
+    return MaterialPage(
+        key: const ValueKey('Initial Page'),
+        child: SelectWidget(
+          emitConfig: emitConfig,
+        )
+    );
+  }
+}
 
-  ShopListRouteConfig.error()
-      : selectedRoute = null,
-        selectedItem = null,
-        show404 = true,
-        id = null;
+class AuthorizationConfig extends BaseConfig {
+  @override
+  Page getPage(ValueChanged<BaseConfig> emitConfig) {
+    return MaterialPage(
+        key: const ValueKey('Authorization Page'),
+        child: AuthorizationWidget(
+          emitConfig: emitConfig,
+        )
+    );
+  }
+}
 
-  bool get isListPage => selectedItem == null && selectedRoute == null;
+class RegistrationConfig extends BaseConfig {
+  @override
+  Page getPage(ValueChanged<BaseConfig> emitConfig) {
+    return MaterialPage(
+        key: const ValueKey('Registration Page'),
+        child: RegistrationWidget(
+          emitConfig: emitConfig,
+        )
+    );
+  }
+}
 
-  bool get isDetailsPage => selectedItem != null && selectedRoute == null;
+class LocationsConfig extends BaseConfig {
+  String? username;
 
-  bool get isNewPage => selectedRoute != null && selectedItem == null;
+  LocationsConfig({
+    required this.username
+  });
 
-  bool get isNestedPage => selectedRoute != null && selectedItem != null;
+  @override
+  Page getPage(ValueChanged<BaseConfig> emitConfig) {
+    return MaterialPage(
+        key: ValueKey('Locations Page $username'),
+        child: LocationsWidget(
+          config: this,
+          emitConfig: emitConfig,
+        )
+    );
+  }
+}
+
+class QueuesConfig extends BaseConfig {
+  int locationId;
+
+  QueuesConfig({
+    required this.locationId
+  });
+
+  @override
+  Page getPage(ValueChanged<BaseConfig> emitConfig) {
+    return MaterialPage(
+        key: ValueKey('Queues Page $locationId'),
+        child: QueuesWidget(
+          config: this,
+          emitConfig: emitConfig,
+        )
+    );
+  }
+}
+
+class QueueConfig extends BaseConfig {
+  int queueId;
+
+  QueueConfig({
+    required this.queueId
+  });
+
+  @override
+  Page getPage(ValueChanged<BaseConfig> emitConfig) {
+    return MaterialPage(
+        key: ValueKey('Queue Page $queueId'),
+        child: QueueWidget(
+          config: this,
+        )
+    );
+  }
 }

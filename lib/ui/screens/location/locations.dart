@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/models/location/location.dart';
+import 'package:queue_management_system_client/ui/router/routes_config.dart';
 import 'package:queue_management_system_client/ui/screens/location/create_location.dart';
 import 'package:queue_management_system_client/ui/screens/location/delete_location.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queues.dart';
@@ -11,20 +12,12 @@ import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/models/base/container_for_list.dart';
 import '../../../domain/models/base/result.dart';
-import '../../navigation/route_generator.dart';
-
-class LocationsParams {
-  final String? username;
-
-  LocationsParams({
-    this.username,
-  });
-}
 
 class LocationsWidget extends StatefulWidget {
-  final LocationsParams params;
+  ValueChanged<BaseConfig> emitConfig;
+  final LocationsConfig config;
 
-  const LocationsWidget({super.key, required this.params});
+  LocationsWidget({super.key, required this.config, required this.emitConfig});
 
   @override
   State<LocationsWidget> createState() => _LocationsState();
@@ -39,7 +32,7 @@ class _LocationsState extends State<LocationsWidget> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<LocationsCubit>(
-      create: (context) => statesAssembler.getLocationsCubit(widget.params)..onStart(),
+      create: (context) => statesAssembler.getLocationsCubit(widget.config)..onStart(),
       lazy: true,
       child: BlocBuilder<LocationsCubit, LocationsLogicState>(
         builder: (context, state) => Scaffold(
@@ -58,16 +51,15 @@ class _LocationsState extends State<LocationsWidget> {
             itemBuilder: (context, index) {
               return LocationItemWidget(
                 location: state.locations[index],
-                onClick: (location) => Navigator.of(context).pushNamed(
-                    Routes.queuesInLocation,
-                    arguments: QueuesParams(
+                onClick: (location) => widget.emitConfig(
+                    QueuesConfig(
                         locationId: location.id!
                     )
                 ),
                 onDelete: (location) => showDialog(
                     context: context,
                     builder: (context) => DeleteLocationWidget(
-                        params: DeleteLocationParams(
+                        config: DeleteLocationConfig(
                             id: location.id!
                         )
                     )
@@ -101,7 +93,7 @@ class LocationsLogicState {
 
   static const int pageSize = 30;
 
-  final LocationsParams params;
+  final LocationsConfig config;
 
   final List<LocationModel> locations;
   final int curPage;
@@ -112,7 +104,7 @@ class LocationsLogicState {
 
 
   LocationsLogicState({
-    required this.params,
+    required this.config,
     required this.locations,
     required this.curPage,
     required this.isLast,
@@ -127,7 +119,7 @@ class LocationsLogicState {
     String? snackBar,
     bool? loading,
   }) => LocationsLogicState(
-      params: params,
+      config: config,
       locations: locations ?? this.locations,
       curPage: curPage ?? this.curPage,
       isLast: isLast ?? this.isLast,
@@ -143,10 +135,10 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
 
   LocationsCubit({
     required this.locationInteractor,
-    @factoryParam required LocationsParams params
+    @factoryParam required LocationsConfig config
   }) : super(
     LocationsLogicState(
-      params: params,
+      config: config,
       locations: [],
       curPage: 0,
       isLast: false,
@@ -165,7 +157,7 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
     }
     emit(state.copyWith(loading: true));
     Result result;
-    if (state.params.username == null) {
+    if (state.config.username == null) {
       result = await locationInteractor.getMyLocations(
           state.curPage,
           LocationsLogicState.pageSize

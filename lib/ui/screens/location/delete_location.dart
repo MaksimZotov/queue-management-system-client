@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 
-class DeleteLocationParams {
+class DeleteLocationConfig {
   final int id;
 
-  DeleteLocationParams({
+  DeleteLocationConfig({
     required this.id,
   });
 }
@@ -18,9 +18,9 @@ class DeleteLocationResult {
 }
 
 class DeleteLocationWidget extends StatefulWidget {
-  final DeleteLocationParams params;
+  final DeleteLocationConfig config;
 
-  const DeleteLocationWidget({super.key, required this.params});
+  const DeleteLocationWidget({super.key, required this.config});
 
   @override
   State<DeleteLocationWidget> createState() => _DeleteLocationState();
@@ -41,7 +41,7 @@ class _DeleteLocationState extends State<DeleteLocationWidget> {
             text: yesText,
             onClick: () => Navigator.of(context).pop(
                 DeleteLocationResult(
-                    id: widget.params.id
+                    id: widget.config.id
                 )
             )
         ),

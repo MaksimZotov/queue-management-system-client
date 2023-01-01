@@ -1,68 +1,97 @@
 import 'package:flutter/material.dart';
 
 import 'routes_config.dart';
-import '../constants.dart';
 
-class ShopListRouterInformationParser
-    extends RouteInformationParser<ShopListRouteConfig> {
+class AppRouterInformationParser
+    extends RouteInformationParser<BaseConfig> {
+
   @override
-  Future<ShopListRouteConfig> parseRouteInformation(
-      RouteInformation routeInformation) async {
-    final uri = Uri.parse(routeInformation.location!);
-    // Handle '/'
-    if (uri.pathSegments.isEmpty) {
-      return ShopListRouteConfig.list();
+  Future<BaseConfig> parseRouteInformation(
+      RouteInformation routeInformation
+  ) async {
+
+    String? route = routeInformation.location;
+    if (route == null) {
+      return ErrorConfig();
     }
 
-    // Handle '/items/:itemId'
-    // Handle '/route/:itemId'
-    if (uri.pathSegments.length == 2) {
-      var secondSegment = uri.pathSegments[1];
-      var id = int.tryParse(secondSegment);
+    final uri = Uri.parse(route);
+    List<String> segments = uri.pathSegments;
+    
+    if (segments.isEmpty) {
+      return InitialConfig();
+    }
 
-      if (id == null) return ShopListRouteConfig.error();
-
-      if (uri.pathSegments[0] != 'items') {
-
-          return ShopListRouteConfig.nestedItemRoute(uri.pathSegments[0], 'item $id', id);
+    String first = segments.first;
+    if (segments.length == 1) {
+      switch (first) {
+        case 'authorization':
+          return AuthorizationConfig();
+        case 'registration':
+          return RegistrationConfig();
+        case 'locations':
+          if (uri.queryParameters.containsKey('username')) {
+            return LocationsConfig(
+                username: uri.queryParameters['username']
+            );
+          }
+          break;
+        case 'queues':
+          if (uri.queryParameters.containsKey('location_id')) {
+            int? locationId = int.tryParse(uri.queryParameters['location_id'] ?? '');
+            if (locationId != null) {
+              return QueuesConfig(
+                  locationId: locationId
+              );
+            }
+          }
       }
-
-      // return example items 0
-      return ShopListRouteConfig.details(
-          'item $id', id);
     }
-
-    // Handle '/route'
-    if (uri.pathSegments.length == 1) {
-      if (!routes.contains(uri.pathSegments[0])) {
-        return ShopListRouteConfig.error();
+    
+    String second = segments[1];
+    if (segments.length == 2) {
+      switch (first) {
+        case 'queues':
+          int? queueId = int.tryParse(second);
+          if (queueId != null) {
+            return QueueConfig(
+                queueId: queueId
+            );
+          }
       }
-      return ShopListRouteConfig.newRoute(uri.pathSegments[0]);
     }
 
-
-    // Handle /404
-    return ShopListRouteConfig.error();
+    return ErrorConfig();
   }
 
   @override
-  RouteInformation? restoreRouteInformation(ShopListRouteConfig configuration) {
-    if (configuration.show404) {
-      return const RouteInformation(location: '/404');
-    }
-    if (configuration.isListPage) {
+  RouteInformation? restoreRouteInformation(BaseConfig configuration) {
+    if (configuration is InitialConfig) {
       return const RouteInformation(location: '/');
     }
-    if (configuration.isNewPage) {
-      return RouteInformation(location: '/${configuration.selectedRoute!}');
+    if (configuration is AuthorizationConfig) {
+      return const RouteInformation(location: '/authorization');
     }
-
-    if (configuration.isNestedPage) {
+    if (configuration is RegistrationConfig) {
+      return const RouteInformation(location: '/registration');
+    }
+    if (configuration is LocationsConfig) {
+      String username = configuration.username.toString();
       return RouteInformation(
-          location: '/${configuration.selectedRoute!}/${configuration.id}');
+          location: '/locations?username=$username'
+      );
     }
-    if (configuration.isDetailsPage) {
-      return RouteInformation(location: '/items/${configuration.id}');
+    if (configuration is QueuesConfig) {
+      int locationId = configuration.locationId;
+      return RouteInformation(
+          location: '/queues?location_id=$locationId'
+      );
+    }
+    if (configuration is QueueConfig) {
+      int queueId = configuration.queueId;
+      return RouteInformation(
+          location: '/queues/$queueId'
+      );
     }
     return null;
   }

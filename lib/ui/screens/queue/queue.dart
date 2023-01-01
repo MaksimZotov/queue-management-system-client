@@ -7,19 +7,13 @@ import 'package:queue_management_system_client/domain/models/queue/queue.dart';
 import 'package:queue_management_system_client/ui/widgets/client_item.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
+import '../../router/routes_config.dart';
 
-class QueueParams {
-  final int queueId;
-
-  QueueParams({
-    required this.queueId
-  });
-}
 
 class QueueWidget extends StatefulWidget {
-  final QueueParams params;
+  final QueueConfig config;
 
-  const QueueWidget({super.key, required this.params});
+  const QueueWidget({super.key, required this.config});
 
   @override
   State<QueueWidget> createState() => _QueueState();
@@ -31,7 +25,7 @@ class _QueueState extends State<QueueWidget> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<QueueCubit>(
-      create: (context) => statesAssembler.getQueueCubit(widget.params)..onStart(),
+      create: (context) => statesAssembler.getQueueCubit(widget.config)..onStart(),
       lazy: true,
       child: BlocBuilder<QueueCubit, QueueLogicState>(
         builder: (context, state) => Scaffold(
@@ -58,7 +52,7 @@ class _QueueState extends State<QueueWidget> {
 
 class QueueLogicState {
 
-  final QueueParams params;
+  final QueueConfig config;
 
   final QueueModel queueState;
 
@@ -66,7 +60,7 @@ class QueueLogicState {
   final bool loading;
   
   QueueLogicState({
-    required this.params,
+    required this.config,
     required this.queueState,
     required this.snackBar,
     required this.loading,
@@ -77,7 +71,7 @@ class QueueLogicState {
     String? snackBar,
     bool? loading,
   }) => QueueLogicState(
-      params: params,
+      config: config,
       queueState: queueState ?? this.queueState,
       snackBar: snackBar,
       loading: loading ?? this.loading
@@ -91,12 +85,12 @@ class QueueCubit extends Cubit<QueueLogicState> {
 
   QueueCubit({
     required this.queueInteractor,
-    @factoryParam required QueueParams params
+    @factoryParam required QueueConfig config
   }) : super(
       QueueLogicState(
-          params: params,
+          config: config,
           queueState: QueueModel(
-            id: params.queueId,
+            id: config.queueId,
             name: '',
             description: '',
             clients: []
@@ -109,14 +103,14 @@ class QueueCubit extends Cubit<QueueLogicState> {
   Future<void> onStart() async {
     print('onStart');
     emit(state.copyWith(loading: true));
-    await queueInteractor.getQueueState(state.params.queueId)..onSuccess((result) {
+    await queueInteractor.getQueueState(state.config.queueId)..onSuccess((result) {
       emit(state.copyWith(loading: false, queueState: result.data));
     })..onError((result) {
       emit(state.copyWith(loading: false, snackBar: result.description));
     });
 
     queueInteractor.connectToQueueSocket(
-      state.params.queueId,
+      state.config.queueId,
       () => print("Connected"),
       (queue) {
         emit(state.copyWith(queueState: queue));
@@ -126,11 +120,11 @@ class QueueCubit extends Cubit<QueueLogicState> {
   }
 
   Future<void> notify(ClientInQueueModel client) async {
-    await queueInteractor.notifyClientInQueue(state.params.queueId, client.id);
+    await queueInteractor.notifyClientInQueue(state.config.queueId, client.id);
   }
 
   Future<void> serve(ClientInQueueModel client) async {
-    await queueInteractor.serveClientInQueue(state.params.queueId, client.id);
+    await queueInteractor.serveClientInQueue(state.config.queueId, client.id);
   }
 
   void onSnackBarShowed() {
@@ -139,7 +133,7 @@ class QueueCubit extends Cubit<QueueLogicState> {
 
   @override
   Future<void> close() async {
-    queueInteractor.disconnectFromQueueSocket(state.params.queueId);
+    queueInteractor.disconnectFromQueueSocket(state.config.queueId);
     return super.close();
   }
 }

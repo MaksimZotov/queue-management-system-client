@@ -2,34 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
-import 'package:queue_management_system_client/domain/models/location/location.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue.dart';
-import 'package:queue_management_system_client/ui/screens/location/create_location.dart';
-import 'package:queue_management_system_client/ui/screens/location/delete_location.dart';
 import 'package:queue_management_system_client/ui/screens/queue/create_queue.dart';
-import 'package:queue_management_system_client/ui/screens/queue/queue.dart';
-import 'package:queue_management_system_client/ui/widgets/location_item.dart';
 import 'package:queue_management_system_client/ui/widgets/queue_item.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';
-import '../../../domain/models/base/container_for_list.dart';
-import '../../../domain/models/base/result.dart';
-import '../../navigation/route_generator.dart';
+import '../../router/routes_config.dart';
 import 'delete_queue.dart';
 
-class QueuesParams {
-  final int locationId;
-
-  QueuesParams({
-    required this.locationId
-  });
-}
-
 class QueuesWidget extends StatefulWidget {
-  final QueuesParams params;
+  ValueChanged<BaseConfig> emitConfig;
+  final QueuesConfig config;
 
-  const QueuesWidget({super.key, required this.params});
+  QueuesWidget({super.key, required this.config, required this.emitConfig});
 
   @override
   State<QueuesWidget> createState() => _QueuesState();
@@ -44,7 +30,7 @@ class _QueuesState extends State<QueuesWidget> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<QueuesCubit>(
-      create: (context) => statesAssembler.getQueuesCubit(widget.params)..onStart(),
+      create: (context) => statesAssembler.getQueuesCubit(widget.config)..onStart(),
       lazy: true,
       child: BlocBuilder<QueuesCubit, QueuesLogicState>(
         builder: (context, state) => Scaffold(
@@ -65,16 +51,15 @@ class _QueuesState extends State<QueuesWidget> {
             itemBuilder: (context, index) {
               return QueueItemWidget(
                 queue: state.queues[index],
-                onClick: (queue) => Navigator.of(context).pushNamed(
-                    Routes.queueWithId,
-                    arguments: QueueParams(
+                onClick: (queue) => widget.emitConfig(
+                    QueueConfig(
                         queueId: queue.id!
                     )
                 ),
                 onDelete: (location) => showDialog(
                     context: context,
                     builder: (context) => DeleteQueueWidget(
-                        params: DeleteQueueParams(
+                        config: DeleteQueueConfig(
                             id: location.id!
                         )
                     )
@@ -108,7 +93,7 @@ class QueuesLogicState {
 
   static const int pageSize = 30;
 
-  final QueuesParams params;
+  final QueuesConfig config;
 
   final String locationName;
 
@@ -121,7 +106,7 @@ class QueuesLogicState {
 
 
   QueuesLogicState({
-    required this.params,
+    required this.config,
     required this.locationName,
     required this.queues,
     required this.curPage,
@@ -138,7 +123,7 @@ class QueuesLogicState {
     String? snackBar,
     bool? loading,
   }) => QueuesLogicState(
-      params: params,
+      config: config,
       locationName: locationName ?? this.locationName,
       queues: queues ?? this.queues,
       curPage: curPage ?? this.curPage,
@@ -157,10 +142,10 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
   QueuesCubit({
     required this.queueInteractor,
     required this.locationInteractor,
-    @factoryParam required QueuesParams params
+    @factoryParam required QueuesConfig config
   }) : super(
     QueuesLogicState(
-      params: params,
+      config: config,
       locationName: '',
       queues: [],
       curPage: 0,
@@ -171,7 +156,7 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
   );
 
   Future<void> onStart() async {
-    await locationInteractor.getLocation(state.params.locationId)..onSuccess((result) async {
+    await locationInteractor.getLocation(state.config.locationId)..onSuccess((result) async {
       emit(state.copyWith(locationName: result.data.name));
       await loadNext();
     })..onError((result) {
@@ -185,7 +170,7 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
     }
     emit(state.copyWith(loading: true));
     await queueInteractor.getQueues(
-        state.params.locationId,
+        state.config.locationId,
         state.curPage,
         QueuesLogicState.pageSize
     )..onSuccess((result) {
@@ -205,7 +190,7 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
   Future<void> createQueue(CreateQueueResult result) async {
     emit(state.copyWith(loading: true));
     await queueInteractor.createQueue(
-        state.params.locationId,
+        state.config.locationId,
         QueueModel(
             id: null,
             name: result.name,

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 
-class DeleteQueueParams {
+class DeleteQueueConfig {
   final int id;
 
-  DeleteQueueParams({
+  DeleteQueueConfig({
     required this.id,
   });
 }
@@ -18,9 +18,9 @@ class DeleteQueueResult {
 }
 
 class DeleteQueueWidget extends StatefulWidget {
-  final DeleteQueueParams params;
+  final DeleteQueueConfig config;
 
-  const DeleteQueueWidget({super.key, required this.params});
+  const DeleteQueueWidget({super.key, required this.config});
 
   @override
   State<DeleteQueueWidget> createState() => _DeleteQueueState();
@@ -41,7 +41,7 @@ class _DeleteQueueState extends State<DeleteQueueWidget> {
             text: yesText,
             onClick: () => Navigator.of(context).pop(
                 DeleteQueueResult(
-                    id: widget.params.id
+                    id: widget.config.id
                 )
             )
         ),

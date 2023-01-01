@@ -1,3 +1,4 @@
+import 'package:queue_management_system_client/ui/router/routes_config.dart';
 import 'package:queue_management_system_client/ui/screens/location/create_location.dart';
 import 'package:queue_management_system_client/ui/screens/location/delete_location.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queue.dart';
@@ -16,15 +17,15 @@ class StatesAssembler {
 
   SelectCubit getSelectCubit() => getIt.get();
   RegistrationCubit getRegistrationCubit() => getIt.get();
-  ConfirmationCubit getConfirmationCubit(ConfirmationParams params) => getIt.get(param1: params);
+  ConfirmationCubit getConfirmationCubit(ConfirmationConfig params) => getIt.get(param1: params);
   AuthorizationCubit getAuthorizationCubit() => getIt.get();
 
-  LocationsCubit getLocationsCubit(LocationsParams params) => getIt.get(param1: params);
+  LocationsCubit getLocationsCubit(LocationsConfig config) => getIt.get(param1: config);
   CreateLocationCubit getCreateLocationCubit() => getIt.get();
 
-  QueuesCubit getQueuesCubit(QueuesParams params) => getIt.get(param1: params);
+  QueuesCubit getQueuesCubit(QueuesConfig config) => getIt.get(param1: config);
   CreateQueueCubit getCreateQueueCubit() => getIt.get();
-  QueueCubit getQueueCubit(QueueParams params) => getIt.get(param1: params);
+  QueueCubit getQueueCubit(QueueConfig config) => getIt.get(param1: config);
 }
 
 const statesAssembler = StatesAssembler._();

@@ -186,8 +186,9 @@ class ServerApi {
     return await _execRequestForList(
         converter: _locationConverter,
         request: _dioApi.get(
-          '$url/locations/me',
+          '$url/locations',
           queryParameters: {
+            'username': null,
             'page': page,
             'page_size': pageSize
           }
