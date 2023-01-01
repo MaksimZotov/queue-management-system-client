@@ -9,7 +9,7 @@ class AppRouterDelegate extends RouterDelegate<BaseConfig>
 
   AppRouterDelegate() : navigatorKey = GlobalKey<NavigatorState>();
 
-  BaseConfig? config = InitialConfig();
+  BaseConfig? config;
 
   List<Page> get pages {
     List<Page> pages = [];
