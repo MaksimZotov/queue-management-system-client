@@ -5,8 +5,11 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:injectable/injectable.dart';
+import 'package:queue_management_system_client/data/converters/client/client.dart';
+import 'package:queue_management_system_client/data/converters/client/client_join_info.dart';
 import 'package:queue_management_system_client/data/converters/verification/confirm_converter.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
+import 'package:queue_management_system_client/domain/models/client/client.dart';
 import 'package:queue_management_system_client/domain/models/location/location.dart';
 import 'package:queue_management_system_client/domain/models/verification/Confirm.dart';
 import 'package:stomp_dart_client/stomp.dart';
@@ -14,6 +17,7 @@ import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
 
 import '../../domain/models/base/result.dart';
+import '../../domain/models/client/client_join_info.dart';
 import '../../domain/models/queue/queue.dart';
 import '../../domain/models/verification/login.dart';
 import '../../domain/models/verification/signup.dart';
@@ -26,7 +30,7 @@ import '../converters/queue/queue.dart';
 import '../converters/verification/login_converter.dart';
 import '../converters/verification/signup_converters.dart';
 import '../converters/verification/tokens_converter.dart';
-import '../local/tokens_storage.dart';
+import '../local/secure_storage.dart';
 
 @lazySingleton
 class ServerApi {
@@ -41,7 +45,7 @@ class ServerApi {
   static const loginMethod = '/verification/login';
 
   final Dio _dioApi;
-  final TokensStorage _tokensStorage;
+  final SecureStorage _tokensStorage;
 
   final ErrorResultConverter _errorResultConverter;
   final ContainerForListConverter _containerForListConverter;
@@ -54,6 +58,9 @@ class ServerApi {
   final LocationConverter _locationConverter;
 
   final QueueConverter _queueConverter;
+
+  final ClientConverter _clientConverter;
+  final ClientJoinInfoConverter _clientJoinInfoConverter;
 
   Map<int, StompClient> stompClients = {};
   final socketUrl = '$url/our-websocket';
@@ -68,7 +75,9 @@ class ServerApi {
       this._confirmConverter,
       this._loginConverter,
       this._locationConverter,
-      this._queueConverter
+      this._queueConverter,
+      this._clientConverter,
+      this._clientJoinInfoConverter
   );
 
   Future<Result<ContainerForList<T>>> _execRequestForList<T>({
@@ -287,6 +296,34 @@ class ServerApi {
         )
     );
   }
+
+
+
+
+
+  Future<Result<ClientModel>> getClientInQueue(String username, int locationId, int queueId, String? email) async {
+    return await _execRequest(
+        converter: _clientConverter,
+        request: _dioApi.get(
+            '$url/$username/locations/$locationId/queues/$queueId/client',
+            queryParameters: { 'email': email }
+        )
+    );
+  }
+
+  Future<Result<ClientModel>> joinClientToQueue(String username, int locationId, int queueId, ClientJoinInfo clientJoinInfo) async {
+    return await _execRequest(
+        converter: _clientConverter,
+        request: _dioApi.post(
+            '$url/$username/locations/$locationId/queues/$queueId/join',
+            data: _clientJoinInfoConverter.toJson(clientJoinInfo)
+        )
+    );
+  }
+
+
+
+
 
   void connectToQueueSocket(
       int queueId,

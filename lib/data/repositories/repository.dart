@@ -3,6 +3,8 @@ import 'package:queue_management_system_client/domain/models/base/container_for_
 import 'package:queue_management_system_client/domain/models/verification/Confirm.dart';
 
 import '../../domain/models/base/result.dart';
+import '../../domain/models/client/client.dart';
+import '../../domain/models/client/client_join_info.dart';
 import '../../domain/models/location/location.dart';
 import '../../domain/models/queue/queue.dart';
 import '../../domain/models/verification/login.dart';
@@ -27,4 +29,7 @@ abstract class Repository {
   Future<Result> notifyClientInQueue(int queueId, int clientId);
   void connectToQueueSocket(int queueId, VoidCallback onConnected, ValueChanged<QueueModel> onQueueChanged, ValueChanged<dynamic> onError);
   void disconnectFromQueueSocket(int queueId);
+
+  Future<Result<ClientModel>> getClientInQueue(String username, int locationId, int queueId);
+  Future<Result<ClientModel>> joinClientToQueue(String username, int locationId, int queueId, ClientJoinInfo clientJoinInfo);
 }

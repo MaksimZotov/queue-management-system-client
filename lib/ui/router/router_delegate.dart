@@ -12,26 +12,19 @@ class AppRouterDelegate extends RouterDelegate<BaseConfig>
   BaseConfig? config;
 
   List<Page> get pages {
-    List<Page> pages = [];
-    BaseConfig? curConfig = config;
-    while (curConfig != null) {
-      pages.add(curConfig.getPage(emitConfig));
-      curConfig = curConfig.getPrevConfig();
-    }
+    List<Page> pages = [
+      config?.getPrevConfig()?.getPage(emitConfig),
+      config?.getPage(emitConfig)
+    ].whereType<Page>().toList();
     if (pages.isEmpty) {
       return [InitialConfig().getPage(emitConfig)];
+    } else {
+      return pages;
     }
-    print('FFFFFFFFFFFFFFFFFFFFFFFFF');
-    print('pages');
-    print(pages.reversed.toList());
-    return pages.reversed.toList();
   }
 
   @override
   BaseConfig get currentConfiguration {
-    print('FFFFFFFFFFFFFFFFFFFFFFFFF');
-    print('currentConfiguration');
-    print(config);
     if (config == null) {
       return InitialConfig();
     }
@@ -45,13 +38,8 @@ class AppRouterDelegate extends RouterDelegate<BaseConfig>
       pages: pages,
       onPopPage: (route, result) {
         if (!route.didPop(result)) {
-          print('FFFFFFFFFFFFFFFFFFFFFFFFF');
-          print('onPopPageTEST');
           return false;
         }
-        print('FFFFFFFFFFFFFFFFFFFFFFFFF');
-        print('onPopPage');
-        print(config);
         config = config?.getPrevConfig();
         notifyListeners();
         return true;
@@ -61,17 +49,11 @@ class AppRouterDelegate extends RouterDelegate<BaseConfig>
 
   @override
   Future<void> setNewRoutePath(BaseConfig configuration) async {
-    print('FFFFFFFFFFFFFFFFFFFFFFFFF');
-    print('setNewRoutePath');
     config = configuration;
-    print(config);
   }
 
   void emitConfig(BaseConfig configuration) {
-    print('FFFFFFFFFFFFFFFFFFFFFFFFF');
-    print('emitConfig');
     config = configuration;
-    print(config);
     notifyListeners();
   }
 }

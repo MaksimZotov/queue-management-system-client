@@ -9,9 +9,6 @@ class AppRouterInformationParser
   Future<BaseConfig> parseRouteInformation(
       RouteInformation routeInformation
   ) async {
-    print('FFFFFFFFFFFFFFFFFFFFFFFFF');
-    print('parseRouteInformation');
-    print(routeInformation.location);
     try {
       final uri = Uri.parse(routeInformation.location!);
       List<String> segments = uri.pathSegments;
@@ -51,6 +48,16 @@ class AppRouterInformationParser
                   queueId: int.parse(segments[3])
               );
           }
+          break;
+        case 6:
+          switch (segments[1]) {
+            case 'locations':
+              return ClientConfig(
+                  username: segments[0],
+                  locationId: int.parse(segments[2]),
+                  queueId: int.parse(segments[4])
+              );
+          }
       }
     } on Exception {
       return ErrorConfig();
@@ -88,6 +95,14 @@ class AppRouterInformationParser
       int queueId = configuration.queueId;
       return RouteInformation(
           location: '/locations/$username/$locationId/$queueId'
+      );
+    }
+    if (configuration is ClientConfig) {
+      String username = configuration.username;
+      int locationId = configuration.locationId;
+      int queueId = configuration.queueId;
+      return RouteInformation(
+          location: '/$username/locations/$locationId/queues/$queueId/client'
       );
     }
     return null;

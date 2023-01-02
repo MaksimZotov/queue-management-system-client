@@ -1,12 +1,12 @@
 import 'package:dio/dio.dart';
 
 import '../../../domain/models/verification/tokens.dart';
-import '../../local/tokens_storage.dart';
+import '../../local/secure_storage.dart';
 import '../server_api.dart';
 
 class InterceptorsWrapperServerApi extends InterceptorsWrapper {
 
-  final TokensStorage _tokensStorage;
+  final SecureStorage _tokensStorage;
   final Dio _dioApi;
 
   InterceptorsWrapperServerApi(

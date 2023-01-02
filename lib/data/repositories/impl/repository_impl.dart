@@ -5,21 +5,25 @@ import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/data/repositories/repository.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
+import 'package:queue_management_system_client/domain/models/client/client.dart';
 import 'package:queue_management_system_client/domain/models/location/location.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue.dart';
 
 import '../../../domain/models/base/result.dart';
+import '../../../domain/models/client/client_join_info.dart';
 import '../../../domain/models/verification/Confirm.dart';
 import '../../../domain/models/verification/login.dart';
 import '../../../domain/models/verification/signup.dart';
 import '../../../domain/models/verification/tokens.dart';
+import '../../local/shared_preferences_storage.dart';
 
 @Singleton(as: Repository)
 class RepositoryImpl extends Repository {
 
   final ServerApi _serverApi;
+  final SharedPreferencesStorage _sharedPreferencesStorage;
 
-  RepositoryImpl(this._serverApi);
+  RepositoryImpl(this._serverApi, this._sharedPreferencesStorage);
 
 
 
@@ -106,6 +110,27 @@ class RepositoryImpl extends Repository {
   @override
   void disconnectFromQueueSocket(int queueId) {
     _serverApi.disconnectFromQueueSocket(queueId);
+  }
+
+
+
+
+
+  @override
+  Future<Result<ClientModel>> getClientInQueue(String username, int locationId, int queueId) async {
+    String? email = await _sharedPreferencesStorage.getClientInQueueEmail();
+    return await _serverApi.getClientInQueue(username, locationId, queueId, email)
+      ..onSuccess((result) async {
+        await _sharedPreferencesStorage.setClientInQueueEmail(email: result.data.email);
+      });
+  }
+
+  @override
+  Future<Result<ClientModel>> joinClientToQueue(String username, int locationId, int queueId, ClientJoinInfo clientJoinInfo) async {
+    return await _serverApi.joinClientToQueue(username, locationId, queueId, clientJoinInfo)
+      ..onSuccess((result) async {
+        await _sharedPreferencesStorage.setClientInQueueEmail(email: result.data.email);
+      });
   }
 
 }

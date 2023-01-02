@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:queue_management_system_client/ui/screens/client/client.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queues.dart';
 import 'package:queue_management_system_client/ui/screens/verification/authorization.dart';
 import 'package:queue_management_system_client/ui/screens/verification/registration.dart';
@@ -143,5 +144,33 @@ class QueueConfig extends BaseConfig {
   @override
   BaseConfig getPrevConfig() {
     return QueuesConfig(username: username, locationId: locationId);
+  }
+}
+
+class ClientConfig extends BaseConfig {
+  String username;
+  int locationId;
+  int queueId;
+
+  ClientConfig({
+    required this.username,
+    required this.locationId,
+    required this.queueId
+  });
+
+  @override
+  Page getPage(ValueChanged<BaseConfig> emitConfig) {
+    return MaterialPage(
+        key: ValueKey('Client Page $queueId'),
+        child: ClientWidget(
+          config: this,
+          emitConfig: emitConfig
+        )
+    );
+  }
+
+  @override
+  BaseConfig? getPrevConfig() {
+    return null;//QueuesConfig(username: username, locationId: locationId);
   }
 }

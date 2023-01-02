@@ -39,8 +39,6 @@ class AuthorizationState extends State<AuthorizationWidget> {
         listener: (context, state) {
           if (state.readyToLogin) {
             BlocProvider.of<AuthorizationCubit>(context).onPush();
-            print('FFFFFFFFFFFFFFFFFFFFFFFFF');
-            print('readyToLogin');
             widget.emitConfig(
                 LocationsConfig(
                     username: 'me'

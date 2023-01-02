@@ -34,8 +34,6 @@ class SelectState extends State<SelectWidget> {
         listener: (context, state) {
           if (state.selectStateEnum == SelectStateEnum.goToLocations) {
             BlocProvider.of<SelectCubit>(context).onPush();
-            print('FFFFFFFFFFFFFFFFFFFFFFFFF');
-            print('goToLocations');
             widget.emitConfig(LocationsConfig(username: 'me'));
           }
         },
@@ -89,15 +87,15 @@ class SelectCubit extends Cubit<SelectLogicState> {
 
   SelectCubit({
     required this.locationInteractor
-  }) : super(SelectLogicState(SelectStateEnum.loading));
+  }) : super(SelectLogicState(SelectStateEnum.stay));
 
   Future<void> onStart() async {
-    final result = await locationInteractor.getMyLocations(0, LocationsLogicState.pageSize);
-    if (result is SuccessResult) {
-      //emit(SelectLogicState(SelectStateEnum.goToLocations));
-    } else if (result is ErrorResult) {
-      emit(SelectLogicState(SelectStateEnum.stay));
-    }
+    //final result = await locationInteractor.getMyLocations(0, LocationsLogicState.pageSize);
+    //if (result is SuccessResult) {
+    //  //emit(SelectLogicState(SelectStateEnum.goToLocations));
+    //} else if (result is ErrorResult) {
+    //  emit(SelectLogicState(SelectStateEnum.stay));
+    //}
   }
 
   void onPush() {

@@ -1,4 +1,6 @@
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
+import 'package:queue_management_system_client/ui/screens/client/client.dart';
+import 'package:queue_management_system_client/ui/screens/client/client_join.dart';
 import 'package:queue_management_system_client/ui/screens/location/create_location.dart';
 import 'package:queue_management_system_client/ui/screens/location/delete_location.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queue.dart';
@@ -26,6 +28,9 @@ class StatesAssembler {
   QueuesCubit getQueuesCubit(QueuesConfig config) => getIt.get(param1: config);
   CreateQueueCubit getCreateQueueCubit() => getIt.get();
   QueueCubit getQueueCubit(QueueConfig config) => getIt.get(param1: config);
+
+  ClientCubit getClientCubit(ClientConfig config) => getIt.get(param1: config);
+  ClientJoinCubit getClientJoinCubit() => getIt.get();
 }
 
 const statesAssembler = StatesAssembler._();
