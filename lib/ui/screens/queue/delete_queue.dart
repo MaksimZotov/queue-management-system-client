@@ -1,33 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 
-class DeleteLocationConfig {
+class DeleteQueueConfig {
   final int id;
 
-  DeleteLocationConfig({
+  DeleteQueueConfig({
     required this.id,
   });
 }
 
-class DeleteLocationResult {
+class DeleteQueueResult {
   final int id;
 
-  DeleteLocationResult({
+  DeleteQueueResult({
     required this.id,
   });
 }
 
-class DeleteLocationWidget extends StatefulWidget {
-  final DeleteLocationConfig config;
+class DeleteQueueWidget extends StatefulWidget {
+  final DeleteQueueConfig config;
 
-  const DeleteLocationWidget({super.key, required this.config});
+  const DeleteQueueWidget({super.key, required this.config});
 
   @override
-  State<DeleteLocationWidget> createState() => _DeleteLocationState();
+  State<DeleteQueueWidget> createState() => _DeleteQueueState();
 }
 
-class _DeleteLocationState extends State<DeleteLocationWidget> {
-  final String title = 'Удалить локацию?';
+class _DeleteQueueState extends State<DeleteQueueWidget> {
+  final String title = 'Удалить очередь?';
   final String yesText = 'Удалить';
   final String cancelText = 'Отмена';
 
@@ -40,7 +40,7 @@ class _DeleteLocationState extends State<DeleteLocationWidget> {
         ButtonWidget(
             text: yesText,
             onClick: () => Navigator.of(context).pop(
-                DeleteLocationResult(
+                DeleteQueueResult(
                     id: widget.config.id
                 )
             )

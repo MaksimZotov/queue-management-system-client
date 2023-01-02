@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:queue_management_system_client/ui/navigation/route_generator.dart';
+
+import '../../router/router_delegate.dart';
+import '../../router/router_info_parser.dart';
 
 class AppWidget extends StatefulWidget {
   const AppWidget({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => AppState();
+  State<AppWidget> createState() => _AppWidgetState();
 }
 
-
-class AppState extends State<AppWidget> {
+class _AppWidgetState extends State<AppWidget> {
+  AppRouterDelegate routerDelegate = AppRouterDelegate();
+  AppRouterInformationParser routerInformationParser = AppRouterInformationParser();
 
   @override
-  Widget build(BuildContext ctx) {
-    return const MaterialApp(
-      initialRoute: Routes.toSelect,
-      onGenerateRoute: RouteGenerator.generateRoute,
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      routerDelegate: routerDelegate,
+      routeInformationParser: routerInformationParser,
     );
   }
 }

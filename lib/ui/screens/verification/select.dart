@@ -3,15 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
-import 'package:queue_management_system_client/ui/navigation/route_generator.dart';
 import 'package:queue_management_system_client/ui/screens/verification/registration.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
+import '../../router/routes_config.dart';
 import '../location/locations.dart';
 
 class SelectWidget extends StatefulWidget {
-  const SelectWidget({super.key});
+  ValueChanged<BaseConfig> emitConfig;
+
+  SelectWidget({super.key, required this.emitConfig});
 
   @override
   State<SelectWidget> createState() => SelectState();
@@ -31,9 +33,8 @@ class SelectState extends State<SelectWidget> {
 
         listener: (context, state) {
           if (state.selectStateEnum == SelectStateEnum.goToLocations) {
-            Navigator.of(context).pushNamed(Routes.toLocations).then((value) =>
-                BlocProvider.of<SelectCubit>(context).onPush()
-            );
+            BlocProvider.of<SelectCubit>(context).onPush();
+            widget.emitConfig(LocationsConfig(username: 'me'));
           }
         },
 
@@ -53,17 +54,13 @@ class SelectState extends State<SelectWidget> {
                   ButtonWidget(
                     text: authorization,
                     onClick: () {
-                      Navigator.of(context).pushNamed(
-                        Routes.toAuthorization
-                      );
+                      widget.emitConfig(AuthorizationConfig());
                     },
                   ),
                   ButtonWidget(
                     text: registration,
                     onClick: () {
-                      Navigator.of(context).pushNamed(
-                        Routes.toRegistration
-                      );
+                      widget.emitConfig(RegistrationConfig());
                     },
                   ),
                 ],
@@ -90,15 +87,15 @@ class SelectCubit extends Cubit<SelectLogicState> {
 
   SelectCubit({
     required this.locationInteractor
-  }) : super(SelectLogicState(SelectStateEnum.loading));
+  }) : super(SelectLogicState(SelectStateEnum.stay));
 
   Future<void> onStart() async {
-    final result = await locationInteractor.getMyLocations(0, LocationsLogicState.pageSize);
-    if (result is SuccessResult) {
-      emit(SelectLogicState(SelectStateEnum.goToLocations));
-    } else if (result is ErrorResult) {
-      emit(SelectLogicState(SelectStateEnum.stay));
-    }
+    //final result = await locationInteractor.getMyLocations(0, LocationsLogicState.pageSize);
+    //if (result is SuccessResult) {
+    //  //emit(SelectLogicState(SelectStateEnum.goToLocations));
+    //} else if (result is ErrorResult) {
+    //  emit(SelectLogicState(SelectStateEnum.stay));
+    //}
   }
 
   void onPush() {

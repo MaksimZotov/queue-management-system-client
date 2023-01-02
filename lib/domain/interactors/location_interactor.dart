@@ -5,5 +5,6 @@ import '../models/location/location.dart';
 abstract class LocationInteractor {
   Future<Result<ContainerForList<LocationModel>>> getMyLocations(int page, int pageSize);
   Future<Result<LocationModel>> createLocation(LocationModel location);
+  Future<Result<LocationModel>> getLocation(int id);
   Future<Result> deleteLocation(int id);
 }

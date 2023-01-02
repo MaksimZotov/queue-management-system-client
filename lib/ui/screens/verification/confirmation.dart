@@ -7,16 +7,16 @@ import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/verification/Confirm.dart';
-import '../../navigation/route_generator.dart';
+import '../../router/routes_config.dart';
 import '../../widgets/text_field_widget.dart';
 import '../location/locations.dart';
 
 
-class ConfirmationParams {
+class ConfirmationConfig {
   final String username;
   final String password;
 
-  ConfirmationParams({
+  ConfirmationConfig({
     required this.username,
     required this.password
   });
@@ -24,9 +24,9 @@ class ConfirmationParams {
 
 
 class ConfirmationWidget extends StatefulWidget {
-  final ConfirmationParams params;
+  final ConfirmationConfig config;
 
-  const ConfirmationWidget({super.key, required this.params});
+  const ConfirmationWidget({super.key, required this.config});
 
   @override
   State<ConfirmationWidget> createState() => ConfirmationState();
@@ -41,20 +41,22 @@ class ConfirmationState extends State<ConfirmationWidget> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ConfirmationCubit>(
-      create: (context) => statesAssembler.getConfirmationCubit(widget.params),
+      create: (context) => statesAssembler.getConfirmationCubit(widget.config),
       lazy: true,
       child: BlocConsumer<ConfirmationCubit, ConfirmationLogicState>(
 
         listener: (context, state) {
           if (state.readyToLogin) {
-            Navigator.of(context).pushNamed(
-              Routes.toLocations,
-              arguments: LocationsParams(
-                  username: null
-              )
-            ).then((value) =>
-                BlocProvider.of<ConfirmationCubit>(context).onPush()
-            );
+            BlocProvider.of<ConfirmationCubit>(context).onPush();
+            // TODO
+            // Navigator.of(context).pushNamed(
+            //   Routes.locationsInAccount,
+            //   arguments: LocationsConfig(
+            //       username: null
+            //   )
+            // ).then((value) =>
+            //     BlocProvider.of<ConfirmationCubit>(context).onPush()
+            // );
           }
           if (state.snackBar != null) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -102,7 +104,7 @@ class ConfirmationState extends State<ConfirmationWidget> {
 
 class ConfirmationLogicState {
 
-  final ConfirmationParams params;
+  final ConfirmationConfig params;
   final String code;
   final String? snackBar;
   final bool readyToLogin;
@@ -137,7 +139,7 @@ class ConfirmationCubit extends Cubit<ConfirmationLogicState> {
 
   ConfirmationCubit({
     required this.verificationInteractor,
-    @factoryParam required ConfirmationParams params
+    @factoryParam required ConfirmationConfig params
   }) : super(
       ConfirmationLogicState(
           params: params,

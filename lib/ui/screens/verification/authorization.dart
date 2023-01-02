@@ -8,13 +8,15 @@ import 'package:queue_management_system_client/ui/widgets/password_widget.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/models/base/result.dart';
-import '../../navigation/route_generator.dart';
+import '../../router/routes_config.dart';
 import '../../widgets/text_field_widget.dart';
 import '../location/locations.dart';
 
 
 class AuthorizationWidget extends StatefulWidget {
-  const AuthorizationWidget({super.key});
+  ValueChanged<BaseConfig> emitConfig;
+
+  AuthorizationWidget({super.key, required this.emitConfig});
 
   @override
   State<AuthorizationWidget> createState() => AuthorizationState();
@@ -36,13 +38,11 @@ class AuthorizationState extends State<AuthorizationWidget> {
 
         listener: (context, state) {
           if (state.readyToLogin) {
-            Navigator.of(context).pushNamed(
-              Routes.toLocations,
-              arguments: LocationsParams(
-                username: null
-              )
-            ).then((value) =>
-                BlocProvider.of<AuthorizationCubit>(context).onPush()
+            BlocProvider.of<AuthorizationCubit>(context).onPush();
+            widget.emitConfig(
+                LocationsConfig(
+                    username: 'me'
+                )
             );
           }
           if (state.snackBar != null) {
@@ -131,11 +131,9 @@ class AuthorizationLogicState {
 class AuthorizationCubit extends Cubit<AuthorizationLogicState> {
 
   final VerificationInteractor verificationInteractor;
-  final LocationInteractor locationInteractor;
 
   AuthorizationCubit({
-    required this.verificationInteractor,
-    required this.locationInteractor
+    required this.verificationInteractor
   }) : super(
       AuthorizationLogicState(
         username: '',
@@ -163,7 +161,6 @@ class AuthorizationCubit extends Cubit<AuthorizationLogicState> {
         )
     );
     if (result is SuccessResult) {
-      locationInteractor.getMyLocations(0, LocationsLogicState.pageSize);
       emit(state.copyWith(loading: false, readyToLogin: true));
     } else if (result is ErrorResult) {
       emit(state.copyWith(loading: false, snackBar: result.description));

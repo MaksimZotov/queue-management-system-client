@@ -2,7 +2,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 
 @lazySingleton
-class TokensStorage {
+class SecureStorage {
   final _storage = const FlutterSecureStorage();
 
   static const _accessToken = 'ACCESS_TOKEN';

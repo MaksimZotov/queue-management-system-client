@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:queue_management_system_client/domain/models/location/location.dart';
 
 class LocationItemWidget extends StatefulWidget {
+  final ValueChanged<LocationModel> onClick;
   final ValueChanged<LocationModel> onDelete;
   final LocationModel location;
 
   const LocationItemWidget({
     Key? key,
+    required this.onClick,
     required this.onDelete,
     required this.location,
   }) : super(key: key);
@@ -27,6 +29,7 @@ class _LocationItemState extends State<LocationItemWidget> {
             icon: const Icon(Icons.delete),
             onPressed: () => widget.onDelete(widget.location),
           ),
+          onTap: () => widget.onClick(widget.location),
         ),
       ),
     );

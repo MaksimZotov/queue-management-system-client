@@ -7,10 +7,10 @@ import '../../../data/repositories/repository.dart';
 import '../../models/base/container_for_list.dart';
 
 @Singleton(as: LocationInteractor)
-class RoomInteractorImpl extends LocationInteractor {
+class LocationInteractorImpl extends LocationInteractor {
   final Repository _repository;
 
-  RoomInteractorImpl(this._repository);
+  LocationInteractorImpl(this._repository);
 
   @override
   Future<Result<ContainerForList<LocationModel>>> getMyLocations(int page, int pageSize) async {
@@ -20,6 +20,11 @@ class RoomInteractorImpl extends LocationInteractor {
   @override
   Future<Result<LocationModel>> createLocation(LocationModel location) async {
     return await _repository.createLocation(location);
+  }
+
+  @override
+  Future<Result<LocationModel>> getLocation(int id) async {
+    return await _repository.getLocation(id);
   }
 
   @override

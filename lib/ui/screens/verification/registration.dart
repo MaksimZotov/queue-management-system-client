@@ -10,10 +10,12 @@ import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/verification_interactor.dart';
 import '../../../domain/models/base/result.dart';
-import '../../navigation/route_generator.dart';
+import '../../router/routes_config.dart';
 
 class RegistrationWidget extends StatefulWidget {
-  const RegistrationWidget({super.key});
+  ValueChanged<BaseConfig> emitConfig;
+
+  RegistrationWidget({super.key, required this.emitConfig});
 
   @override
   State<RegistrationWidget> createState() => RegistrationState();
@@ -40,15 +42,14 @@ class RegistrationState extends State<RegistrationWidget> {
 
         listener: (context, state) {
           if (state.readyToConfirm) {
-            Navigator.of(context).pushNamed(
-              Routes.toConfirmation,
-              arguments: ConfirmationParams(
-                  username: state.username,
-                  password: state.password
-              )
-            ).then((value) =>
-                BlocProvider.of<RegistrationCubit>(context).onPush()
-            );
+            BlocProvider.of<RegistrationCubit>(context).onPush();
+            // TODO
+            // widget.emitConfig(
+            //     ConfirmationConfig(
+            //         username: state.username,
+            //         password: state.password
+            //     )
+            // );
           }
           if (state.snackBar != null) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(

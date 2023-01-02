@@ -1,43 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/models/location/location.dart';
-import 'package:queue_management_system_client/ui/router/routes_config.dart';
-import 'package:queue_management_system_client/ui/screens/location/create_location.dart';
-import 'package:queue_management_system_client/ui/screens/location/delete_location.dart';
-import 'package:queue_management_system_client/ui/screens/queue/queues.dart';
-import 'package:queue_management_system_client/ui/widgets/location_item.dart';
+import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
+import 'package:queue_management_system_client/domain/models/queue/queue.dart';
+import 'package:queue_management_system_client/ui/screens/queue/create_queue.dart';
+import 'package:queue_management_system_client/ui/widgets/queue_item.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';
-import '../../../domain/models/base/container_for_list.dart';
-import '../../../domain/models/base/result.dart';
+import '../../router/routes_config.dart';
+import 'delete_queue.dart';
 
-class LocationsWidget extends StatefulWidget {
+class QueuesWidget extends StatefulWidget {
   ValueChanged<BaseConfig> emitConfig;
-  final LocationsConfig config;
+  final QueuesConfig config;
 
-  LocationsWidget({super.key, required this.config, required this.emitConfig});
+  QueuesWidget({super.key, required this.config, required this.emitConfig});
 
   @override
-  State<LocationsWidget> createState() => _LocationsState();
+  State<QueuesWidget> createState() => _QueuesState();
 }
 
-class _LocationsState extends State<LocationsWidget> {
-  final String title = 'Локации';
+class _QueuesState extends State<QueuesWidget> {
+  final titleStart = 'Локация: ';
   final String createLocationHint = 'Создать локацию';
 
   final ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<LocationsCubit>(
-      create: (context) => statesAssembler.getLocationsCubit(widget.config)..onStart(),
+    return BlocProvider<QueuesCubit>(
+      create: (context) => statesAssembler.getQueuesCubit(widget.config)..onStart(),
       lazy: true,
-      child: BlocBuilder<LocationsCubit, LocationsLogicState>(
+      child: BlocBuilder<QueuesCubit, QueuesLogicState>(
         builder: (context, state) => Scaffold(
           appBar: AppBar(
-            title: Text(title),
+            title: Text(
+                state.locationName.isEmpty ? '' : titleStart + state.locationName
+            ),
           ),
           body: ListView.builder(
             controller: _scrollController
@@ -45,41 +45,42 @@ class _LocationsState extends State<LocationsWidget> {
                 if (_scrollController.offset ==
                     _scrollController.position.maxScrollExtent
                 ) {
-                  BlocProvider.of<LocationsCubit>(context).loadNext();
+                  BlocProvider.of<QueuesCubit>(context).loadNext();
                 }
               }),
             itemBuilder: (context, index) {
-              return LocationItemWidget(
-                location: state.locations[index],
-                onClick: (location) => widget.emitConfig(
-                    QueuesConfig(
+              return QueueItemWidget(
+                queue: state.queues[index],
+                onClick: (queue) => widget.emitConfig(
+                    QueueConfig(
                         username: state.config.username,
-                        locationId: location.id!
+                        locationId: state.config.locationId,
+                        queueId: queue.id!
                     )
                 ),
                 onDelete: (location) => showDialog(
                     context: context,
-                    builder: (context) => DeleteLocationWidget(
-                        config: DeleteLocationConfig(
+                    builder: (context) => DeleteQueueWidget(
+                        config: DeleteQueueConfig(
                             id: location.id!
                         )
                     )
                 ).then((result) {
-                  if (result is DeleteLocationResult) {
-                    BlocProvider.of<LocationsCubit>(context).deleteLocation(result);
+                  if (result is DeleteQueueResult) {
+                    BlocProvider.of<QueuesCubit>(context).deleteQueue(result);
                   }
                 }),
               );
             },
-            itemCount: state.locations.length,
+            itemCount: state.queues.length,
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () => showDialog(
                 context: context,
-                builder: (context) => const CreateLocationWidget()
+                builder: (context) => const CreateQueueWidget()
             ).then((result) {
-              if (result is CreateLocationResult) {
-                BlocProvider.of<LocationsCubit>(context).createLocation(result);
+              if (result is CreateQueueResult) {
+                BlocProvider.of<QueuesCubit>(context).createQueue(result);
               }
             }),
             child: const Icon(Icons.add),
@@ -90,13 +91,15 @@ class _LocationsState extends State<LocationsWidget> {
   }
 }
 
-class LocationsLogicState {
+class QueuesLogicState {
 
   static const int pageSize = 30;
 
-  final LocationsConfig config;
+  final QueuesConfig config;
 
-  final List<LocationModel> locations;
+  final String locationName;
+
+  final List<QueueModel> queues;
   final int curPage;
   final bool isLast;
   
@@ -104,24 +107,27 @@ class LocationsLogicState {
   final bool loading;
 
 
-  LocationsLogicState({
+  QueuesLogicState({
     required this.config,
-    required this.locations,
+    required this.locationName,
+    required this.queues,
     required this.curPage,
     required this.isLast,
     required this.snackBar,
     required this.loading,
   });
 
-  LocationsLogicState copyWith({
-    List<LocationModel>? locations,
+  QueuesLogicState copyWith({
+    String? locationName,
+    List<QueueModel>? queues,
     int? curPage,
     bool? isLast,
     String? snackBar,
     bool? loading,
-  }) => LocationsLogicState(
+  }) => QueuesLogicState(
       config: config,
-      locations: locations ?? this.locations,
+      locationName: locationName ?? this.locationName,
+      queues: queues ?? this.queues,
       curPage: curPage ?? this.curPage,
       isLast: isLast ?? this.isLast,
       snackBar: snackBar,
@@ -130,17 +136,20 @@ class LocationsLogicState {
 }
 
 @injectable
-class LocationsCubit extends Cubit<LocationsLogicState> {
+class QueuesCubit extends Cubit<QueuesLogicState> {
 
+  final QueueInteractor queueInteractor;
   final LocationInteractor locationInteractor;
 
-  LocationsCubit({
+  QueuesCubit({
+    required this.queueInteractor,
     required this.locationInteractor,
-    @factoryParam required LocationsConfig config
+    @factoryParam required QueuesConfig config
   }) : super(
-    LocationsLogicState(
+    QueuesLogicState(
       config: config,
-      locations: [],
+      locationName: '',
+      queues: [],
       curPage: 0,
       isLast: false,
       snackBar: null,
@@ -149,7 +158,12 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
   );
 
   Future<void> onStart() async {
-    await loadNext();
+    await locationInteractor.getLocation(state.config.locationId)..onSuccess((result) async {
+      emit(state.copyWith(locationName: result.data.name));
+      await loadNext();
+    })..onError((result) {
+      emit(state.copyWith(snackBar: result.description));
+    });
   }
 
   Future<void> loadNext() async {
@@ -157,37 +171,29 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
       return;
     }
     emit(state.copyWith(loading: true));
-    Result result;
-    if (state.config.username == null) {
-      result = await locationInteractor.getMyLocations(
-          state.curPage,
-          LocationsLogicState.pageSize
-      );
-    } else {
-      // TODO
-      result = await locationInteractor.getMyLocations(
-          state.curPage,
-          LocationsLogicState.pageSize
-      );
-    }
-    if (result is SuccessResult<ContainerForList<LocationModel>>) {
+    await queueInteractor.getQueues(
+        state.config.locationId,
+        state.curPage,
+        QueuesLogicState.pageSize
+    )..onSuccess((result) {
       emit(
           state.copyWith(
               loading: false,
-              locations: state.locations + result.data.results,
+              queues: state.queues + result.data.results,
               curPage: state.curPage + 1,
               isLast: result.data.isLast
           )
       );
-    } else if (result is ErrorResult) {
+    })..onError((result) {
       emit(state.copyWith(loading: false, snackBar: result.description));
-    }
+    });
   }
 
-  Future<void> createLocation(CreateLocationResult result) async {
+  Future<void> createQueue(CreateQueueResult result) async {
     emit(state.copyWith(loading: true));
-    await locationInteractor.createLocation(
-        LocationModel(
+    await queueInteractor.createQueue(
+        state.config.locationId,
+        QueueModel(
             id: null,
             name: result.name,
             description: result.description
@@ -199,9 +205,9 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
     });
   }
 
-  Future deleteLocation(DeleteLocationResult result) async {
+  Future deleteQueue(DeleteQueueResult result) async {
     emit(state.copyWith(loading: true));
-    await locationInteractor.deleteLocation(result.id)..onSuccess((result) {
+    await queueInteractor.deleteQueue(result.id)..onSuccess((result) {
       _reload();
     })..onError((result) {
       emit(state.copyWith(loading: false, snackBar: result.description));
@@ -211,7 +217,7 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
   Future<void> _reload() async {
     emit(state.copyWith(
       loading: false,
-      locations: [],
+      queues: [],
       curPage: 0,
       isLast: false
     ));
