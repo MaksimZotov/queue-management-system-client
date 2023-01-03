@@ -3,8 +3,8 @@ import '../models/base/result.dart';
 import '../models/location/location.dart';
 
 abstract class LocationInteractor {
-  Future<Result<ContainerForList<LocationModel>>> getMyLocations(int page, int pageSize);
+  Future<Result<ContainerForList<LocationModel>>> getLocations(int page, int pageSize, String username);
   Future<Result<LocationModel>> createLocation(LocationModel location);
-  Future<Result<LocationModel>> getLocation(int id);
+  Future<Result<LocationModel>> getLocation(int id, String? username);
   Future<Result> deleteLocation(int id);
 }

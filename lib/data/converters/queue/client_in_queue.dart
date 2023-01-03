@@ -4,7 +4,6 @@ import 'package:queue_management_system_client/domain/models/queue/client_in_que
 
 @singleton
 class ClientInQueueFields {
-  final String id = 'id';
   final String email = 'email';
   final String firstName = 'first_name';
   final String lastName = 'last_name';
@@ -18,7 +17,6 @@ class ClientInQueueConverter extends JsonConverter<ClientInQueueModel> {
 
   @override
   ClientInQueueModel fromJson(Map<String, dynamic> json) => ClientInQueueModel(
-      id: json[_clientInRoomFields.id] as int,
       email: json[_clientInRoomFields.email] as String,
       firstName: json[_clientInRoomFields.firstName] as String,
       lastName: json[_clientInRoomFields.lastName] as String,
@@ -27,7 +25,6 @@ class ClientInQueueConverter extends JsonConverter<ClientInQueueModel> {
 
   @override
   Map<String, dynamic> toJson(ClientInQueueModel data) => {
-    _clientInRoomFields.id: data.id,
     _clientInRoomFields.email: data.email,
     _clientInRoomFields.firstName: data.firstName,
     _clientInRoomFields.lastName: data.lastName,

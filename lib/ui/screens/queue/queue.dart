@@ -120,11 +120,11 @@ class QueueCubit extends Cubit<QueueLogicState> {
   }
 
   Future<void> notify(ClientInQueueModel client) async {
-    await queueInteractor.notifyClientInQueue(state.config.queueId, client.id);
+    await queueInteractor.notifyClientInQueue(state.config.queueId, client.email);
   }
 
   Future<void> serve(ClientInQueueModel client) async {
-    await queueInteractor.serveClientInQueue(state.config.queueId, client.id);
+    await queueInteractor.serveClientInQueue(state.config.queueId, client.email);
   }
 
   void onSnackBarShowed() {

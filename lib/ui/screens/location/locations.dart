@@ -157,31 +157,24 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
       return;
     }
     emit(state.copyWith(loading: true));
-    Result result;
-    if (state.config.username == null) {
-      result = await locationInteractor.getMyLocations(
-          state.curPage,
-          LocationsLogicState.pageSize
-      );
-    } else {
-      // TODO
-      result = await locationInteractor.getMyLocations(
-          state.curPage,
-          LocationsLogicState.pageSize
-      );
-    }
-    if (result is SuccessResult<ContainerForList<LocationModel>>) {
-      emit(
-          state.copyWith(
-              loading: false,
-              locations: state.locations + result.data.results,
-              curPage: state.curPage + 1,
-              isLast: result.data.isLast
-          )
-      );
-    } else if (result is ErrorResult) {
-      emit(state.copyWith(loading: false, snackBar: result.description));
-    }
+    await locationInteractor.getLocations(
+        state.curPage,
+        LocationsLogicState.pageSize,
+        state.config.username
+    )
+      ..onSuccess((result) {
+        emit(
+            state.copyWith(
+                loading: false,
+                locations: state.locations + result.data.results,
+                curPage: state.curPage + 1,
+                isLast: result.data.isLast
+            )
+        );
+      })
+      ..onError((result) {
+        emit(state.copyWith(loading: false, snackBar: result.description));
+      });
   }
 
   Future<void> createLocation(CreateLocationResult result) async {

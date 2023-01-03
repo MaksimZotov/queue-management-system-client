@@ -18,8 +18,8 @@ class QueueInteractorImpl extends QueueInteractor {
   QueueInteractorImpl(this._repository);
 
   @override
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, int page, int pageSize) async {
-    return await _repository.getQueues(locationId, page, pageSize);
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, int page, int pageSize, String? username) async {
+    return await _repository.getQueues(locationId, page, pageSize, username);
   }
 
   @override
@@ -38,13 +38,13 @@ class QueueInteractorImpl extends QueueInteractor {
   }
 
   @override
-  Future<Result> notifyClientInQueue(int queueId, int clientId) async {
-    return await _repository.notifyClientInQueue(queueId, clientId);
+  Future<Result> notifyClientInQueue(int queueId, String email) async {
+    return await _repository.notifyClientInQueue(queueId, email);
   }
 
   @override
-  Future<Result> serveClientInQueue(int queueId, int clientId) async {
-    return await _repository.serveClientInQueue(queueId, clientId);
+  Future<Result> serveClientInQueue(int queueId, String email) async {
+    return await _repository.serveClientInQueue(queueId, email);
   }
 
   @override

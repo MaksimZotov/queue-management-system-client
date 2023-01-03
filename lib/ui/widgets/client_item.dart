@@ -25,7 +25,7 @@ class _ClientItemState extends State<ClientItemWidget> {
         child: ListTile(
           title: Text('${widget.client.firstName} ${widget.client.lastName}'),
           subtitle: Text(widget.client.email),
-          leading:  widget.client.orderNumber == 1 ? IconButton(
+          leading:  true ? IconButton(
             icon: const Icon(Icons.done_outline_rounded),
             onPressed: () => widget.onServe(widget.client),
           ) : null,

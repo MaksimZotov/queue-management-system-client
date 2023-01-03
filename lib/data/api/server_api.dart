@@ -191,13 +191,13 @@ class ServerApi {
 
 
 
-  Future<Result<ContainerForList<LocationModel>>> getMyLocations(int page, int pageSize) async {
+  Future<Result<ContainerForList<LocationModel>>> getLocations(int page, int pageSize, String? username) async {
     return await _execRequestForList(
         converter: _locationConverter,
         request: _dioApi.get(
           '$url/locations',
           queryParameters: {
-            'username': null,
+            'username': username,
             'page': page,
             'page_size': pageSize
           }
@@ -215,11 +215,12 @@ class ServerApi {
     );
   }
 
-  Future<Result<LocationModel>> getLocation(int id) async {
+  Future<Result<LocationModel>> getLocation(int locationId, String? username) async {
     return await _execRequest(
         converter: _locationConverter,
         request: _dioApi.get(
-            '$url/locations/$id',
+            '$url/locations/$locationId',
+            queryParameters: { 'username': username }
         )
     );
   }
@@ -228,7 +229,7 @@ class ServerApi {
     return await _execRequest(
         converter: null,
         request: _dioApi.delete(
-          '$url/locations/$id/delete',
+          '$url/locations/$id/delete'
         )
     );
   }
@@ -236,12 +237,13 @@ class ServerApi {
 
 
 
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, int page, int pageSize) async {
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, int page, int pageSize, String? username) async {
     return await _execRequestForList(
         converter: _queueConverter,
         request: _dioApi.get(
             '$url/queues',
             queryParameters: {
+              'username': username,
               'location_id': locationId,
               'page': page,
               'page_size': pageSize
@@ -281,18 +283,20 @@ class ServerApi {
     );
   }
 
-  Future<Result> serveClientInQueue(int queueId, int clientId) async {
+  Future<Result> serveClientInQueue(int queueId, String email) async {
     return await _execRequest(
         request: _dioApi.post(
-            '$url/queues/$queueId/clients/$clientId/serve'
+            '$url/queues/$queueId/serve',
+            queryParameters: { 'email': email }
         )
     );
   }
 
-  Future<Result> notifyClientInQueue(int queueId, int clientId) async {
+  Future<Result> notifyClientInQueue(int queueId, String email) async {
     return await _execRequest(
         request: _dioApi.post(
-            '$url/queues/$queueId/clients/$clientId/notify'
+            '$url/queues/$queueId/notify',
+            queryParameters: { 'email': email }
         )
     );
   }
@@ -301,12 +305,15 @@ class ServerApi {
 
 
 
-  Future<Result<ClientModel>> getClientInQueue(String username, int locationId, int queueId, String? email) async {
+  Future<Result<ClientModel>> getClientInQueue(String username, int locationId, int queueId, String? email, String? accessKey) async {
     return await _execRequest(
         converter: _clientConverter,
         request: _dioApi.get(
-            '$url/$username/locations/$locationId/queues/$queueId/client',
-            queryParameters: { 'email': email }
+            '$url/queues/$queueId/client',
+            queryParameters: {
+              'email': email,
+              'access_key': accessKey
+            }
         )
     );
   }
@@ -315,8 +322,49 @@ class ServerApi {
     return await _execRequest(
         converter: _clientConverter,
         request: _dioApi.post(
-            '$url/$username/locations/$locationId/queues/$queueId/join',
-            data: _clientJoinInfoConverter.toJson(clientJoinInfo)
+            '$url/queues/$queueId/client/join',
+            data: _clientJoinInfoConverter.toJson(clientJoinInfo),
+            queryParameters: {
+              'username': username,
+              'location_id': locationId,
+              'queue_id': queueId
+            }
+        )
+    );
+  }
+
+  Future<Result<ClientModel>> rejoinClientToQueue(int queueId, String email) async {
+    return await _execRequest(
+        converter: _clientConverter,
+        request: _dioApi.post(
+            '$url/queues/$queueId/client/rejoin',
+            queryParameters: { 'email': email}
+        )
+    );
+  }
+
+  Future<Result<ClientModel>> confirmClientCodeInQueue(int queueId, String email, String code) async {
+    return await _execRequest(
+        converter: _clientConverter,
+        request: _dioApi.post(
+            '$url/queues/$queueId/client/confirm',
+            queryParameters: {
+              'email': email,
+              'code': code
+            }
+        )
+    );
+  }
+
+  Future<Result<ClientModel>> leaveQueue(int queueId, String? email, String? accessKey) async {
+    return await _execRequest(
+        converter: _clientConverter,
+        request: _dioApi.post(
+            '$url/queues/$queueId/client/leave',
+            queryParameters: {
+              'email': email,
+              'access_key': accessKey
+            }
         )
     );
   }

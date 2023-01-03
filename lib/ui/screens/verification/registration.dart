@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:queue_management_system_client/domain/models/verification/Confirm.dart';
 import 'package:queue_management_system_client/domain/models/verification/signup.dart';
 import 'package:queue_management_system_client/ui/screens/verification/confirmation.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
@@ -10,6 +11,7 @@ import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/verification_interactor.dart';
 import '../../../domain/models/base/result.dart';
+import '../../../domain/models/verification/login.dart';
 import '../../router/routes_config.dart';
 
 class RegistrationWidget extends StatefulWidget {
@@ -42,16 +44,19 @@ class RegistrationState extends State<RegistrationWidget> {
 
         listener: (context, state) {
           if (state.readyToConfirm) {
-            BlocProvider.of<RegistrationCubit>(context).onPush();
-            // TODO
-            // widget.emitConfig(
-            //     ConfirmationConfig(
-            //         username: state.username,
-            //         password: state.password
-            //     )
-            // );
-          }
-          if (state.snackBar != null) {
+            showDialog(
+                context: context,
+                builder: (context) => const ConfirmationWidget()
+            ).then((result) {
+              if (result is ConfirmationResult) {
+                BlocProvider.of<RegistrationCubit>(context).confirm(result);
+              }
+            });
+          } else if (state.readyToLocations) {
+            widget.emitConfig(
+              LocationsConfig(username: state.username)
+            );
+          } else if (state.snackBar != null) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(state.snackBar!),
             ));
@@ -141,6 +146,7 @@ class RegistrationLogicState {
   final String repeatPassword;
   final String? snackBar;
   final bool readyToConfirm;
+  final bool readyToLocations;
   final bool loading;
 
   RegistrationLogicState({
@@ -152,6 +158,7 @@ class RegistrationLogicState {
     required this.repeatPassword,
     required this.snackBar,
     required this.readyToConfirm,
+    required this.readyToLocations,
     required this.loading
   });
 
@@ -164,6 +171,7 @@ class RegistrationLogicState {
     String? repeatPassword,
     String? snackBar,
     bool? readyToConfirm,
+    bool? readyToLocations,
     bool? loading
   }) => RegistrationLogicState(
       username: username ?? this.username,
@@ -174,6 +182,7 @@ class RegistrationLogicState {
       repeatPassword: repeatPassword ?? this.repeatPassword,
       snackBar: snackBar,
       readyToConfirm: readyToConfirm ?? this.readyToConfirm,
+      readyToLocations: readyToLocations ?? this.readyToLocations,
       loading: loading ?? this.loading
   );
 }
@@ -195,6 +204,7 @@ class RegistrationCubit extends Cubit<RegistrationLogicState> {
           repeatPassword: '',
           snackBar: null,
           readyToConfirm: false,
+          readyToLocations: false,
           loading: false
       )
   );
@@ -240,6 +250,33 @@ class RegistrationCubit extends Cubit<RegistrationLogicState> {
     } else if (signupResult is ErrorResult) {
       emit(state.copyWith(loading: false, snackBar: signupResult.description));
     }
+  }
+
+  Future<void> confirm(ConfirmationResult result) async {
+    emit(state.copyWith(loading: true, readyToConfirm: false));
+    await verificationInteractor.confirm(
+      ConfirmModel(
+          username: state.username,
+          code: result.code
+      )
+    )
+      ..onSuccess((result) async {
+        await verificationInteractor.login(
+          LoginModel(
+            username: state.username,
+            password: state.password
+          )
+        )
+          ..onSuccess((result) {
+            emit(state.copyWith(loading: false, readyToLocations: true));
+          })
+          ..onError((result) {
+            emit(state.copyWith(loading: false, snackBar: result.description));
+          });
+      })
+      ..onError((result) {
+        emit(state.copyWith(loading: false, snackBar: result.description));
+      });
   }
 
   void onPush() {

@@ -90,7 +90,7 @@ class SelectCubit extends Cubit<SelectLogicState> {
   }) : super(SelectLogicState(SelectStateEnum.stay));
 
   Future<void> onStart() async {
-    //final result = await locationInteractor.getMyLocations(0, LocationsLogicState.pageSize);
+    //final result = await locationInteractor.getLocations(0, LocationsLogicState.pageSize);
     //if (result is SuccessResult) {
     //  //emit(SelectLogicState(SelectStateEnum.goToLocations));
     //} else if (result is ErrorResult) {

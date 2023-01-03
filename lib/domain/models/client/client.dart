@@ -8,6 +8,7 @@ class ClientModel {
   final String? firstName;
   final String? lastName;
   final int? beforeMe;
+  final String? accessKey;
 
   ClientModel({
     required this.inQueue,
@@ -16,7 +17,8 @@ class ClientModel {
     this.email,
     this.firstName,
     this.lastName,
-    this.beforeMe
+    this.beforeMe,
+    this.accessKey
   });
 
 }

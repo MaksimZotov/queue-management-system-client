@@ -21,4 +21,19 @@ class ClientInteractorImpl extends ClientInteractor {
   Future<Result<ClientModel>> joinClientToQueue(String username, int locationId, int queueId, ClientJoinInfo clientJoinInfo) async {
     return await _repository.joinClientToQueue(username, locationId, queueId, clientJoinInfo);
   }
+
+  @override
+  Future<Result<ClientModel>> confirmClientCodeInQueue(int queueId, String email, String code) async {
+    return await _repository.confirmClientCodeInQueue(queueId, email, code);
+  }
+
+  @override
+  Future<Result<ClientModel>> leaveQueue(int queueId) async {
+    return await _repository.leaveQueue(queueId);
+  }
+
+  @override
+  Future<Result<ClientModel>> rejoinClientToQueue(int queueId, String email) async {
+    return await _repository.rejoinClientToQueue(queueId, email);
+  }
 }

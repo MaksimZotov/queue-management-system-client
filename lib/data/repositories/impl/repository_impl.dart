@@ -49,8 +49,8 @@ class RepositoryImpl extends Repository {
 
 
   @override
-  Future<Result<ContainerForList<LocationModel>>> getMyLocations(int page, int pageSize) async {
-    return await _serverApi.getMyLocations(page, pageSize);
+  Future<Result<ContainerForList<LocationModel>>> getLocations(int page, int pageSize, String username) async {
+    return await _serverApi.getLocations(page, pageSize, username);
   }
 
   @override
@@ -59,8 +59,8 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result<LocationModel>> getLocation(int id) async {
-    return await _serverApi.getLocation(id);
+  Future<Result<LocationModel>> getLocation(int id, String? username) async {
+    return await _serverApi.getLocation(id, username);
   }
 
   @override
@@ -83,8 +83,8 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, int page, int pageSize) async {
-    return await _serverApi.getQueues(locationId, page, pageSize);
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, int page, int pageSize, String? username) async {
+    return await _serverApi.getQueues(locationId, page, pageSize, username);
   }
 
   @override
@@ -93,13 +93,13 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result> notifyClientInQueue(int queueId, int clientId) async {
-    return await _serverApi.notifyClientInQueue(queueId, clientId);
+  Future<Result> notifyClientInQueue(int queueId, String email) async {
+    return await _serverApi.notifyClientInQueue(queueId, email);
   }
 
   @override
-  Future<Result> serveClientInQueue(int queueId, int clientId) async {
-    return await _serverApi.serveClientInQueue(queueId, clientId);
+  Future<Result> serveClientInQueue(int queueId, String email) async {
+    return await _serverApi.serveClientInQueue(queueId, email);
   }
 
   @override
@@ -119,9 +119,11 @@ class RepositoryImpl extends Repository {
   @override
   Future<Result<ClientModel>> getClientInQueue(String username, int locationId, int queueId) async {
     String? email = await _sharedPreferencesStorage.getClientInQueueEmail();
-    return await _serverApi.getClientInQueue(username, locationId, queueId, email)
+    String? accessKey = await _sharedPreferencesStorage.getClientInQueueAccessKey();
+    return await _serverApi.getClientInQueue(username, locationId, queueId, email, accessKey)
       ..onSuccess((result) async {
         await _sharedPreferencesStorage.setClientInQueueEmail(email: result.data.email);
+        await _sharedPreferencesStorage.setClientInQueueAccessKey(accessKey: result.data.accessKey);
       });
   }
 
@@ -130,6 +132,36 @@ class RepositoryImpl extends Repository {
     return await _serverApi.joinClientToQueue(username, locationId, queueId, clientJoinInfo)
       ..onSuccess((result) async {
         await _sharedPreferencesStorage.setClientInQueueEmail(email: result.data.email);
+        await _sharedPreferencesStorage.setClientInQueueAccessKey(accessKey: result.data.accessKey);
+      });
+  }
+
+  @override
+  Future<Result<ClientModel>> confirmClientCodeInQueue(int queueId, String email, String code) async {
+    return await _serverApi.confirmClientCodeInQueue(queueId, email, code)
+      ..onSuccess((result) async {
+        await _sharedPreferencesStorage.setClientInQueueEmail(email: result.data.email);
+        await _sharedPreferencesStorage.setClientInQueueAccessKey(accessKey: result.data.accessKey);
+      });
+  }
+
+  @override
+  Future<Result<ClientModel>> leaveQueue(int queueId) async {
+    String? email = await _sharedPreferencesStorage.getClientInQueueEmail();
+    String? accessKey = await _sharedPreferencesStorage.getClientInQueueAccessKey();
+    return await _serverApi.leaveQueue(queueId, email, accessKey)
+      ..onSuccess((result) async {
+        await _sharedPreferencesStorage.setClientInQueueEmail(email: result.data.email);
+        await _sharedPreferencesStorage.setClientInQueueAccessKey(accessKey: result.data.accessKey);
+      });
+  }
+
+  @override
+  Future<Result<ClientModel>> rejoinClientToQueue(int queueId, String email) async {
+    return await _serverApi.rejoinClientToQueue(queueId, email)
+      ..onSuccess((result) async {
+        await _sharedPreferencesStorage.setClientInQueueEmail(email: result.data.email);
+        await _sharedPreferencesStorage.setClientInQueueAccessKey(accessKey: result.data.accessKey);
       });
   }
 

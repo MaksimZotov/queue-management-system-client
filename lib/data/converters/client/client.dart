@@ -13,6 +13,7 @@ class ClientFields {
   final String firstName = 'first_name';
   final String lastName = 'last_name';
   final String beforeMe = 'before_me';
+  final String accessKey = 'access_key';
 }
 
 @singleton
@@ -29,6 +30,7 @@ class ClientConverter extends JsonConverter<ClientModel> {
     firstName: json[_clientFields.firstName] as String?,
     lastName: json[_clientFields.lastName] as String?,
     beforeMe: json[_clientFields.beforeMe] as int?,
+    accessKey: json[_clientFields.accessKey] as String?
   );
 
   @override
@@ -40,5 +42,6 @@ class ClientConverter extends JsonConverter<ClientModel> {
     _clientFields.firstName: data.firstName,
     _clientFields.lastName: data.lastName,
     _clientFields.beforeMe: data.beforeMe,
+    _clientFields.accessKey: data.accessKey
   };
 }

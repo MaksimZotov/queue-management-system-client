@@ -1,5 +1,6 @@
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
 import 'package:queue_management_system_client/ui/screens/client/client.dart';
+import 'package:queue_management_system_client/ui/screens/client/client_confirm.dart';
 import 'package:queue_management_system_client/ui/screens/client/client_join.dart';
 import 'package:queue_management_system_client/ui/screens/location/create_location.dart';
 import 'package:queue_management_system_client/ui/screens/location/delete_location.dart';
@@ -9,6 +10,7 @@ import 'package:queue_management_system_client/ui/screens/verification/authoriza
 import 'package:queue_management_system_client/ui/screens/verification/registration.dart';
 import 'package:queue_management_system_client/ui/screens/verification/select.dart';
 
+import '../../ui/screens/client/client_rejoin.dart';
 import '../../ui/screens/location/locations.dart';
 import '../../ui/screens/queue/create_queue.dart';
 import '../../ui/screens/verification/confirmation.dart';
@@ -19,7 +21,7 @@ class StatesAssembler {
 
   SelectCubit getSelectCubit() => getIt.get();
   RegistrationCubit getRegistrationCubit() => getIt.get();
-  ConfirmationCubit getConfirmationCubit(ConfirmationConfig params) => getIt.get(param1: params);
+  ConfirmationCubit getConfirmationCubit() => getIt.get();
   AuthorizationCubit getAuthorizationCubit() => getIt.get();
 
   LocationsCubit getLocationsCubit(LocationsConfig config) => getIt.get(param1: config);
@@ -31,6 +33,8 @@ class StatesAssembler {
 
   ClientCubit getClientCubit(ClientConfig config) => getIt.get(param1: config);
   ClientJoinCubit getClientJoinCubit() => getIt.get();
+  ClientRejoinCubit getClientRejoinCubit() => getIt.get();
+  ClientConfirmCubit getClientConfirmCubit() => getIt.get();
 }
 
 const statesAssembler = StatesAssembler._();

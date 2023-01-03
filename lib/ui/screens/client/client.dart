@@ -6,7 +6,9 @@ import 'package:queue_management_system_client/domain/models/client/client.dart'
 import 'package:queue_management_system_client/domain/models/client/client_join_info.dart';
 import 'package:queue_management_system_client/domain/models/location/location.dart';
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
+import 'package:queue_management_system_client/ui/screens/client/client_confirm.dart';
 import 'package:queue_management_system_client/ui/screens/client/client_join.dart';
+import 'package:queue_management_system_client/ui/screens/client/client_rejoin.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../widgets/button_widget.dart';
@@ -30,6 +32,9 @@ class _ClientState extends State<ClientWidget> {
   final String beforeMeStart = 'Перед вами: ';
 
   final String joinText = 'Подключиться';
+  final String rejoinText = 'Переподключиться';
+  final String leaveText = 'Покинуть';
+  final String reloadText = 'Перезагрузить';
 
   final String empty = '';
 
@@ -39,7 +44,25 @@ class _ClientState extends State<ClientWidget> {
     return BlocProvider<ClientCubit>(
       create: (context) => statesAssembler.getClientCubit(widget.config)..onStart(),
       lazy: true,
-      child: BlocBuilder<ClientCubit, ClientLogicState>(
+      child: BlocConsumer<ClientCubit, ClientLogicState>(
+
+        listener: (context, state) {
+          if (state.readyToConfirm) {
+            showDialog(
+                context: context,
+                builder: (context) => ClientConfirmWidget(
+                    config: ClientConfirmConfig(
+                      email: state.email
+                    )
+                )
+            ).then((result) {
+              if (result is ClientConfirmResult) {
+                BlocProvider.of<ClientCubit>(context).confirm(result);
+              }
+            });
+          }
+        },
+
         builder: (context, state) =>
             Scaffold(
               appBar: AppBar(
@@ -86,6 +109,25 @@ class _ClientState extends State<ClientWidget> {
                             }
                           }),
                         ),
+                        ButtonWidget(
+                          text: rejoinText,
+                          onClick: () => showDialog(
+                              context: context,
+                              builder: (context) => const ClientRejoinWidget()
+                          ).then((result) {
+                            if (result is ClientJoinResult) {
+                              BlocProvider.of<ClientCubit>(context).rejoin(result);
+                            }
+                          }),
+                        ),
+                        ButtonWidget(
+                          text: leaveText,
+                          onClick: () => BlocProvider.of<ClientCubit>(context).leave()
+                        ),
+                        ButtonWidget(
+                            text: reloadText,
+                            onClick: () => BlocProvider.of<ClientCubit>(context).onStart()
+                        ),
                       ],
                     ),
                   ),
@@ -105,6 +147,9 @@ class ClientLogicState {
 
   final ClientModel clientState;
 
+  final String email;
+  final bool readyToConfirm;
+
   final String? snackBar;
   final bool loading;
 
@@ -112,6 +157,8 @@ class ClientLogicState {
   ClientLogicState({
     required this.config,
     required this.clientState,
+    required this.email,
+    required this.readyToConfirm,
     required this.snackBar,
     required this.loading,
   });
@@ -119,6 +166,8 @@ class ClientLogicState {
   ClientLogicState copyWith({
     List<LocationModel>? locations,
     ClientModel? clientState,
+    String? email,
+    bool? readyToConfirm,
     bool? isLast,
     String? snackBar,
     bool? loading,
@@ -126,6 +175,8 @@ class ClientLogicState {
       ClientLogicState(
           config: config,
           clientState: clientState ?? this.clientState,
+          email: email ?? this.email,
+          readyToConfirm: readyToConfirm ?? this.readyToConfirm,
           snackBar: snackBar,
           loading: loading ?? this.loading
       );
@@ -147,36 +198,78 @@ class ClientCubit extends Cubit<ClientLogicState> {
             queueName: '',
             queueLength: 0
           ),
+          email: '',
+          readyToConfirm: false,
           snackBar: null,
           loading: false
       )
   );
 
   Future<void> onStart() async {
+    emit(state.copyWith(loading: true));
     await clientInteractor.getClientInQueue(
         state.config.username,
         state.config.locationId,
         state.config.queueId
     )
       ..onSuccess((result) {
-        emit(state.copyWith(clientState: result.data));
+        emit(state.copyWith(loading: false, clientState: result.data));
       })
       ..onError((result) {
-        emit(state.copyWith(snackBar: result.description));
+        emit(state.copyWith(loading: false, snackBar: result.description));
       });
   }
 
-  Future<void> join(ClientJoinResult clientJoinResult) async {
+  Future<void> join(ClientJoinResult result) async {
+    emit(state.copyWith(loading: true, email: result.email));
     await clientInteractor.joinClientToQueue(
         state.config.username,
         state.config.locationId,
         state.config.queueId,
         ClientJoinInfo(
-            email: clientJoinResult.email,
-            firstName: clientJoinResult.firstName,
-            lastName: clientJoinResult.lastName
+            email: result.email,
+            firstName: result.firstName,
+            lastName: result.lastName
         )
     )
+      ..onSuccess((result) {
+        emit(state.copyWith(loading: false, clientState: result.data, readyToConfirm: true));
+      })
+      ..onError((result) {
+        emit(state.copyWith(loading: false, snackBar: result.description));
+      });
+  }
+
+  Future<void> rejoin(ClientJoinResult result) async {
+    emit(state.copyWith(loading: true, email: result.email));
+    await clientInteractor.rejoinClientToQueue(
+        state.config.queueId,
+        result.email
+    )
+      ..onSuccess((result) {
+        emit(state.copyWith(loading: false, clientState: result.data, readyToConfirm: true));
+      })
+      ..onError((result) {
+        emit(state.copyWith(loading: false, snackBar: result.description));
+      });
+  }
+
+  Future<void> confirm(ClientConfirmResult result) async {
+    await clientInteractor.confirmClientCodeInQueue(
+        state.config.queueId,
+        result.email,
+        result.code
+    )
+      ..onSuccess((result) {
+        emit(state.copyWith(loading: false, clientState: result.data, readyToConfirm: true));
+      })
+      ..onError((result) {
+        emit(state.copyWith(loading: false, snackBar: result.description));
+      });
+  }
+
+  Future<void> leave() async {
+    await clientInteractor.leaveQueue(state.config.queueId)
       ..onSuccess((result) {
         emit(state.copyWith(clientState: result.data));
       })
