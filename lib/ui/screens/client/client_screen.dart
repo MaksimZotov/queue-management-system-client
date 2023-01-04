@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:queue_management_system_client/domain/enums/client_in_queue_status.dart';
 import 'package:queue_management_system_client/domain/interactors/client_interactor.dart';
-import 'package:queue_management_system_client/domain/models/client/client.dart';
-import 'package:queue_management_system_client/domain/models/client/client_join_info.dart';
-import 'package:queue_management_system_client/domain/models/location/location.dart';
+import 'package:queue_management_system_client/domain/models/client/client_model.dart';
+import 'package:queue_management_system_client/domain/models/client/client_join_info_model.dart';
+import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
-import 'package:queue_management_system_client/ui/screens/client/client_confirm.dart';
-import 'package:queue_management_system_client/ui/screens/client/client_join.dart';
-import 'package:queue_management_system_client/ui/screens/client/client_rejoin.dart';
+import 'package:queue_management_system_client/ui/screens/client/client_confirm_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/client/client_join_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/client/client_rejoin_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/verification/confirm_dialog.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../widgets/button_widget.dart';
@@ -86,7 +88,7 @@ class _ClientState extends State<ClientWidget> {
                         )
                       ] + (state.clientState.inQueue ? <Widget>[
                         Text(
-                          statusStart + state.clientState.status!,
+                          statusStart + state.clientState.status!.name,
                         ),
                         Text(
                           emailStart + state.clientState.email!,
@@ -99,17 +101,6 @@ class _ClientState extends State<ClientWidget> {
                         ),
                         Text(
                           beforeMeStart + state.clientState.beforeMe.toString(),
-                        ),
-                        ButtonWidget(
-                          text: rejoinText,
-                          onClick: () => showDialog(
-                              context: context,
-                              builder: (context) => const ClientRejoinWidget()
-                          ).then((result) {
-                            if (result is ClientJoinResult) {
-                              BlocProvider.of<ClientCubit>(context).rejoin(result);
-                            }
-                          }),
                         ),
                         ButtonWidget(
                             text: leaveText,
@@ -127,7 +118,7 @@ class _ClientState extends State<ClientWidget> {
                             }
                           }),
                         ),
-                      ]) + (state.email != '' ? <Widget>[
+                      ]) + (state.clientState.status == ClientInQueueStatus.reserved ? <Widget>[
                         ButtonWidget(
                             text: confirmWindowText,
                             onClick: () {
@@ -140,17 +131,24 @@ class _ClientState extends State<ClientWidget> {
                                                 email: state.email
                                             )
                                         )
-                                ).then((result) {
-                                  if (result is ClientConfirmResult) {
-                                    BlocProvider.of<ClientCubit>(context).confirm(
-                                        result
-                                    );
-                                  }
-                                });
+                                ).then((result) =>
+                                  BlocProvider.of<ClientCubit>(context).confirm(result)
+                                );
                               }
                             }
                         )
                       ] : <Widget>[]) + [
+                        ButtonWidget(
+                          text: rejoinText,
+                          onClick: () => showDialog(
+                              context: context,
+                              builder: (context) => const ClientRejoinWidget()
+                          ).then((result) {
+                            if (result is ClientJoinResult) {
+                              BlocProvider.of<ClientCubit>(context).rejoin(result);
+                            }
+                          }),
+                        ),
                         ButtonWidget(
                             text: reloadText,
                             onClick: BlocProvider.of<ClientCubit>(context).onStart
@@ -281,18 +279,23 @@ class ClientCubit extends Cubit<ClientLogicState> {
       });
   }
 
-  Future<void> confirm(ClientConfirmResult result) async {
-    await clientInteractor.confirmClientCodeInQueue(
-        state.config.queueId,
-        result.email,
-        result.code
-    )
-      ..onSuccess((result) {
-        emit(state.copyWith(loading: false, clientState: result.data, readyToConfirm: false));
-      })
-      ..onError((result) {
-        emit(state.copyWith(loading: false, snackBar: result.description, readyToConfirm: false));
-      });
+  Future<void> confirm(Object result) async {
+    if (result is ClientConfirmResult) {
+      emit(state.copyWith(loading: true, readyToConfirm: false));
+      await clientInteractor.confirmClientCodeInQueue(
+          state.config.queueId,
+          result.email,
+          result.code
+      )
+        ..onSuccess((result) {
+          emit(state.copyWith(loading: false, clientState: result.data));
+        })
+        ..onError((result) {
+          emit(state.copyWith(loading: false, snackBar: result.description));
+        });
+    } else {
+      emit(state.copyWith(loading: false, readyToConfirm: false));
+    }
   }
 
   Future<void> leave() async {

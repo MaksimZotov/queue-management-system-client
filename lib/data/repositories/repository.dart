@@ -1,15 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
-import 'package:queue_management_system_client/domain/models/verification/Confirm.dart';
+import 'package:queue_management_system_client/domain/models/verification/confirm_model.dart';
 
 import '../../domain/models/base/result.dart';
-import '../../domain/models/client/client.dart';
-import '../../domain/models/client/client_join_info.dart';
-import '../../domain/models/location/location.dart';
-import '../../domain/models/queue/queue.dart';
-import '../../domain/models/verification/login.dart';
-import '../../domain/models/verification/signup.dart';
-import '../../domain/models/verification/tokens.dart';
+import '../../domain/models/client/client_model.dart';
+import '../../domain/models/client/client_join_info_model.dart';
+import '../../domain/models/location/location_model.dart';
+import '../../domain/models/queue/queue_model.dart';
+import '../../domain/models/verification/login_model.dart';
+import '../../domain/models/verification/signup_model.dart';
+import '../../domain/models/verification/tokens_model.dart';
 
 abstract class Repository {
   Future<Result> signup(SignupModel signup);

@@ -1,3 +1,5 @@
+import '../../enums/client_in_queue_status.dart';
+
 class ClientModel {
   final bool inQueue;
 
@@ -9,7 +11,7 @@ class ClientModel {
   final String? lastName;
   final int? beforeMe;
   final String? accessKey;
-  final String? status;
+  final ClientInQueueStatus? status;
 
   ClientModel({
     required this.inQueue,

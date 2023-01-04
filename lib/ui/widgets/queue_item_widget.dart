@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:queue_management_system_client/domain/models/location/location.dart';
+import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 
-import '../../domain/models/queue/queue.dart';
+import '../../domain/models/queue/queue_model.dart';
 
 class QueueItemWidget extends StatefulWidget {
   final ValueChanged<QueueModel> onClick;

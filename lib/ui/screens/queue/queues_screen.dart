@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
-import 'package:queue_management_system_client/domain/models/queue/queue.dart';
-import 'package:queue_management_system_client/ui/screens/queue/create_queue.dart';
-import 'package:queue_management_system_client/ui/widgets/queue_item.dart';
+import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
+import 'package:queue_management_system_client/ui/screens/queue/create_queue_dialog.dart';
+import 'package:queue_management_system_client/ui/widgets/queue_item_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../router/routes_config.dart';
-import 'delete_queue.dart';
+import 'delete_queue_dialog.dart';
 
 class QueuesWidget extends StatefulWidget {
   ValueChanged<BaseConfig> emitConfig;

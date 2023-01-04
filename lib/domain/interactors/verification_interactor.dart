@@ -1,7 +1,7 @@
 import '../models/base/result.dart';
-import '../models/verification/Confirm.dart';
-import '../models/verification/login.dart';
-import '../models/verification/signup.dart';
+import '../models/verification/confirm_model.dart';
+import '../models/verification/login_model.dart';
+import '../models/verification/signup_model.dart';
 
 abstract class VerificationInteractor {
   Future<Result> signup(SignupModel signup);

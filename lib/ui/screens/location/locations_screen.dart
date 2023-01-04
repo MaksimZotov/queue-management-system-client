@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/models/location/location.dart';
+import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
-import 'package:queue_management_system_client/ui/screens/location/create_location.dart';
-import 'package:queue_management_system_client/ui/screens/location/delete_location.dart';
-import 'package:queue_management_system_client/ui/screens/queue/queues.dart';
-import 'package:queue_management_system_client/ui/widgets/location_item.dart';
+import 'package:queue_management_system_client/ui/screens/location/create_location_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/location/delete_location_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/queue/queues_screen.dart';
+import 'package:queue_management_system_client/ui/widgets/location_item_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';

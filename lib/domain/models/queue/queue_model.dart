@@ -1,4 +1,4 @@
-import 'client_in_queue.dart';
+import 'client_in_queue_model.dart';
 
 class QueueModel {
   final int? id;

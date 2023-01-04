@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-import '../../../domain/models/verification/tokens.dart';
+import '../../../domain/models/verification/tokens_model.dart';
 import '../../local/secure_storage.dart';
 import '../server_api.dart';
 

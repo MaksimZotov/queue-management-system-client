@@ -3,12 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
-import 'package:queue_management_system_client/ui/screens/verification/registration.dart';
+import 'package:queue_management_system_client/ui/screens/verification/registration_screen.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../router/routes_config.dart';
-import '../location/locations.dart';
+import '../location/locations_screen.dart';
 
 class SelectWidget extends StatefulWidget {
   ValueChanged<BaseConfig> emitConfig;

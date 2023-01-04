@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 
 import '../models/base/container_for_list.dart';
 import '../models/base/result.dart';
-import '../models/queue/queue.dart';
+import '../models/queue/queue_model.dart';
 
 abstract class QueueInteractor {
   Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, int page, int pageSize, String? username);

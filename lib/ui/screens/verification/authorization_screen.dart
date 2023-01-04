@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/verification_interactor.dart';
-import 'package:queue_management_system_client/domain/models/verification/login.dart';
+import 'package:queue_management_system_client/domain/models/verification/login_model.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/password_widget.dart';
 import '../../../di/assemblers/states_assembler.dart';
@@ -10,7 +10,7 @@ import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/text_field_widget.dart';
-import '../location/locations.dart';
+import '../location/locations_screen.dart';
 
 
 class AuthorizationWidget extends StatefulWidget {

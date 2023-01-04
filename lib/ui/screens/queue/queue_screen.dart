@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
-import 'package:queue_management_system_client/domain/models/queue/client_in_queue.dart';
-import 'package:queue_management_system_client/domain/models/queue/queue.dart';
-import 'package:queue_management_system_client/ui/widgets/client_item.dart';
+import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
+import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
+import 'package:queue_management_system_client/ui/widgets/client_item_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../router/routes_config.dart';

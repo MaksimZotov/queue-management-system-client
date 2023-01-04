@@ -1,9 +1,9 @@
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/converters/json_converter.dart';
-import 'package:queue_management_system_client/domain/models/location/location.dart';
+import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 
-import '../../../domain/models/client/client.dart';
-import '../../../domain/models/client/client_join_info.dart';
+import '../../../domain/models/client/client_model.dart';
+import '../../../domain/models/client/client_join_info_model.dart';
 
 @singleton
 class ClientJoinInfoFields {

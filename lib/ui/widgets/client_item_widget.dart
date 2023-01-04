@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:queue_management_system_client/domain/models/queue/client_in_queue.dart';
+import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 
 class ClientItemWidget extends StatefulWidget {
   final ValueChanged<ClientInQueueModel> onNotify;

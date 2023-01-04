@@ -8,7 +8,7 @@ import 'package:injectable/injectable.dart';
 import '../../../data/repositories/repository.dart';
 import '../../models/base/container_for_list.dart';
 import '../../models/base/result.dart';
-import '../../models/queue/queue.dart';
+import '../../models/queue/queue_model.dart';
 import '../queue_interactor.dart';
 
 @Singleton(as: QueueInteractor)

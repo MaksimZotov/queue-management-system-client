@@ -1,12 +1,12 @@
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/repositories/repository.dart';
 import 'package:queue_management_system_client/domain/interactors/verification_interactor.dart';
-import 'package:queue_management_system_client/domain/models/verification/login.dart';
-import 'package:queue_management_system_client/domain/models/verification/signup.dart';
-import 'package:queue_management_system_client/domain/models/verification/tokens.dart';
+import 'package:queue_management_system_client/domain/models/verification/login_model.dart';
+import 'package:queue_management_system_client/domain/models/verification/signup_model.dart';
+import 'package:queue_management_system_client/domain/models/verification/tokens_model.dart';
 
 import '../../models/base/result.dart';
-import '../../models/verification/Confirm.dart';
+import '../../models/verification/confirm_model.dart';
 
 @Singleton(as: VerificationInteractor)
 class VerificationInteractorImpl extends VerificationInteractor {

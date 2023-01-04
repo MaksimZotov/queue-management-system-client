@@ -1,7 +1,8 @@
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/converters/json_converter.dart';
+import 'package:queue_management_system_client/domain/enums/client_in_queue_status.dart';
 
-import '../../../domain/models/client/client.dart';
+import '../../../domain/models/client/client_model.dart';
 
 @singleton
 class ClientFields {
@@ -31,7 +32,7 @@ class ClientConverter extends JsonConverter<ClientModel> {
     lastName: json[_clientFields.lastName] as String?,
     beforeMe: json[_clientFields.beforeMe] as int?,
     accessKey: json[_clientFields.accessKey] as String?,
-    status: json[_clientFields.status] as String?,
+    status: ClientInQueueStatus.get(json[_clientFields.status] as String?),
   );
 
   @override
@@ -44,6 +45,6 @@ class ClientConverter extends JsonConverter<ClientModel> {
     _clientFields.lastName: data.lastName,
     _clientFields.beforeMe: data.beforeMe,
     _clientFields.accessKey: data.accessKey,
-    _clientFields.status: data.status
+    _clientFields.status: data.status?.name
   };
 }

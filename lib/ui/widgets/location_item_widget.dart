@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:queue_management_system_client/domain/models/location/location.dart';
+import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 
 class LocationItemWidget extends StatefulWidget {
   final ValueChanged<LocationModel> onClick;

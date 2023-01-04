@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
-import 'package:queue_management_system_client/domain/models/location/location.dart';
+import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 
 import '../../../data/repositories/repository.dart';
 import '../../models/base/container_for_list.dart';

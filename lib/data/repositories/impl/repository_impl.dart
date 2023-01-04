@@ -5,16 +5,16 @@ import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/data/repositories/repository.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
-import 'package:queue_management_system_client/domain/models/client/client.dart';
-import 'package:queue_management_system_client/domain/models/location/location.dart';
-import 'package:queue_management_system_client/domain/models/queue/queue.dart';
+import 'package:queue_management_system_client/domain/models/client/client_model.dart';
+import 'package:queue_management_system_client/domain/models/location/location_model.dart';
+import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
 
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/client/client_join_info.dart';
-import '../../../domain/models/verification/Confirm.dart';
-import '../../../domain/models/verification/login.dart';
-import '../../../domain/models/verification/signup.dart';
-import '../../../domain/models/verification/tokens.dart';
+import '../../../domain/models/client/client_join_info_model.dart';
+import '../../../domain/models/verification/confirm_model.dart';
+import '../../../domain/models/verification/login_model.dart';
+import '../../../domain/models/verification/signup_model.dart';
+import '../../../domain/models/verification/tokens_model.dart';
 import '../../local/shared_preferences_storage.dart';
 
 @Singleton(as: Repository)

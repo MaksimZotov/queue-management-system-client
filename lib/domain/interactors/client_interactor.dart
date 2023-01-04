@@ -1,6 +1,6 @@
 import '../models/base/result.dart';
-import '../models/client/client.dart';
-import '../models/client/client_join_info.dart';
+import '../models/client/client_model.dart';
+import '../models/client/client_join_info_model.dart';
 
 abstract class ClientInteractor {
   Future<Result<ClientModel>> getClientInQueue(String username, int locationId, int queueId);

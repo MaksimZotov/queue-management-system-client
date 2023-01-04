@@ -1,8 +1,8 @@
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/converters/json_converter.dart';
 
-import '../../../domain/models/queue/queue.dart';
-import 'client_in_queue.dart';
+import '../../../domain/models/queue/queue_model.dart';
+import 'client_in_queue_converter.dart';
 
 @singleton
 class QueueFields {
