@@ -25,10 +25,10 @@ class _LocationItemState extends State<LocationItemWidget> {
         child: ListTile(
           title: Text(widget.location.name),
           subtitle: Text(widget.location.description),
-          trailing: IconButton(
+          trailing: widget.location.hasRules == true ? IconButton(
             icon: const Icon(Icons.delete),
             onPressed: () => widget.onDelete(widget.location),
-          ),
+          ) : null,
           onTap: () => widget.onClick(widget.location),
         ),
       ),

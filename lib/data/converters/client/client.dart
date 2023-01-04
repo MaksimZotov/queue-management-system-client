@@ -1,6 +1,5 @@
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/converters/json_converter.dart';
-import 'package:queue_management_system_client/domain/models/location/location.dart';
 
 import '../../../domain/models/client/client.dart';
 
@@ -14,6 +13,7 @@ class ClientFields {
   final String lastName = 'last_name';
   final String beforeMe = 'before_me';
   final String accessKey = 'access_key';
+  final String status = 'status';
 }
 
 @singleton
@@ -30,7 +30,8 @@ class ClientConverter extends JsonConverter<ClientModel> {
     firstName: json[_clientFields.firstName] as String?,
     lastName: json[_clientFields.lastName] as String?,
     beforeMe: json[_clientFields.beforeMe] as int?,
-    accessKey: json[_clientFields.accessKey] as String?
+    accessKey: json[_clientFields.accessKey] as String?,
+    status: json[_clientFields.status] as String?,
   );
 
   @override
@@ -42,6 +43,7 @@ class ClientConverter extends JsonConverter<ClientModel> {
     _clientFields.firstName: data.firstName,
     _clientFields.lastName: data.lastName,
     _clientFields.beforeMe: data.beforeMe,
-    _clientFields.accessKey: data.accessKey
+    _clientFields.accessKey: data.accessKey,
+    _clientFields.status: data.status
   };
 }

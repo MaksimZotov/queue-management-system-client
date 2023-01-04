@@ -9,6 +9,7 @@ class ClientModel {
   final String? lastName;
   final int? beforeMe;
   final String? accessKey;
+  final String? status;
 
   ClientModel({
     required this.inQueue,
@@ -18,7 +19,8 @@ class ClientModel {
     this.firstName,
     this.lastName,
     this.beforeMe,
-    this.accessKey
+    this.accessKey,
+    this.status
   });
 
 }

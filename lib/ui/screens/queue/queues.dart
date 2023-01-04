@@ -36,9 +36,7 @@ class _QueuesState extends State<QueuesWidget> {
       child: BlocBuilder<QueuesCubit, QueuesLogicState>(
         builder: (context, state) => Scaffold(
           appBar: AppBar(
-            title: Text(state.locationName.isEmpty
-                ? ''
-                : titleStart + state.locationName),
+            title: Text(state.locationName.isEmpty ? '' : titleStart + state.locationName),
           ),
           body: ListView.builder(
             controller: _scrollController
@@ -52,21 +50,27 @@ class _QueuesState extends State<QueuesWidget> {
               return QueueItemWidget(
                 queue: state.queues[index],
                 onClick: (queue) => widget.emitConfig(
-                  QueueConfig(
+                  state.hasRules ? QueueConfig(
                     username: state.config.username,
                     locationId: state.config.locationId,
-                    queueId: queue.id!)),
-                    onDelete: (location) => showDialog(
-                        context: context,
-                        builder: (context) => DeleteQueueWidget(
-                            config: DeleteQueueConfig(id: location.id!)
-                        )
-                    ).then((result) {
-                      if (result is DeleteQueueResult) {
-                        BlocProvider.of<QueuesCubit>(context).deleteQueue(result);
-                      }
-                    }
-                  ),
+                    queueId: queue.id!
+                  ) : ClientConfig(
+                      username: state.config.username,
+                      locationId: state.config.locationId,
+                      queueId: queue.id!
+                  )
+                ),
+                onDelete: (location) => showDialog(
+                    context: context,
+                    builder: (context) => DeleteQueueWidget(
+                        config: DeleteQueueConfig(id: location.id!)
+                    )
+                ).then((result) {
+                  if (result is DeleteQueueResult) {
+                    BlocProvider.of<QueuesCubit>(context).deleteQueue(result);
+                  }
+                }
+                ),
               );
             },
             itemCount: state.queues.length,
@@ -93,6 +97,7 @@ class QueuesLogicState {
   final QueuesConfig config;
 
   final String locationName;
+  final bool hasRules;
 
   final List<QueueModel> queues;
   final int curPage;
@@ -104,6 +109,7 @@ class QueuesLogicState {
   QueuesLogicState({
     required this.config,
     required this.locationName,
+    required this.hasRules,
     required this.queues,
     required this.curPage,
     required this.isLast,
@@ -114,6 +120,7 @@ class QueuesLogicState {
   QueuesLogicState copyWith({
     String? locationName,
     List<QueueModel>? queues,
+    bool? hasRules,
     int? curPage,
     bool? isLast,
     String? snackBar,
@@ -122,6 +129,7 @@ class QueuesLogicState {
       QueuesLogicState(
           config: config,
           locationName: locationName ?? this.locationName,
+          hasRules: hasRules ?? this.hasRules,
           queues: queues ?? this.queues,
           curPage: curPage ?? this.curPage,
           isLast: isLast ?? this.isLast,
@@ -141,6 +149,7 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
       QueuesLogicState(
             config: config,
             locationName: '',
+            hasRules: false,
             queues: [],
             curPage: 0,
             isLast: false,
@@ -154,7 +163,12 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
         state.config.locationId, state.config.username
     )
       ..onSuccess((result) async {
-        emit(state.copyWith(locationName: result.data.name));
+        emit(
+            state.copyWith(
+                locationName: result.data.name,
+                hasRules: result.data.hasRules
+            )
+        );
         await loadNext();
       })
       ..onError((result) {

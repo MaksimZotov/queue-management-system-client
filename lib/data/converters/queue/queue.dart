@@ -10,36 +10,39 @@ class QueueFields {
   final String name = 'name';
   final String description = 'description';
   final String clients = 'clients';
+  final String hasRules = 'has_rules';
 }
 
 @singleton
 class QueueConverter extends JsonConverter<QueueModel> {
-  final QueueFields _clientInRoomFields;
+  final QueueFields _queueFields;
   final ClientInQueueConverter _clientInQueueConverter;
 
   QueueConverter(
-      this._clientInRoomFields,
+      this._queueFields,
       this._clientInQueueConverter
   );
 
   @override
   QueueModel fromJson(Map<String, dynamic> json) {
     return QueueModel(
-        id: json[_clientInRoomFields.id] as int?,
-        name: json[_clientInRoomFields.name] as String,
-        description: json[_clientInRoomFields.description] as String,
-        clients: (json[_clientInRoomFields.clients] as List<dynamic>?)
+        id: json[_queueFields.id] as int?,
+        name: json[_queueFields.name] as String,
+        description: json[_queueFields.description] as String,
+        clients: (json[_queueFields.clients] as List<dynamic>?)
             ?.map((client) =>
                 _clientInQueueConverter.fromJson(client as Map<String, dynamic>)
-            ).toList()
+            ).toList(),
+        hasRules: json[_queueFields.hasRules] as bool?
     );
   }
 
   @override
   Map<String, dynamic> toJson(QueueModel data) => {
-    _clientInRoomFields.id: data.id,
-    _clientInRoomFields.name: data.name,
-    _clientInRoomFields.description: data.description,
-    _clientInRoomFields.clients: data.clients?.map(_clientInQueueConverter.toJson)
+    _queueFields.id: data.id,
+    _queueFields.name: data.name,
+    _queueFields.description: data.description,
+    _queueFields.clients: data.clients?.map(_clientInQueueConverter.toJson),
+    _queueFields.hasRules: data.hasRules
   };
 }

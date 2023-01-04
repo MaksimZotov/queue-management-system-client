@@ -143,7 +143,10 @@ class QueueConfig extends BaseConfig {
 
   @override
   BaseConfig getPrevConfig() {
-    return QueuesConfig(username: username, locationId: locationId);
+    return QueuesConfig(
+        username: username,
+        locationId: locationId
+    );
   }
 }
 
@@ -171,6 +174,9 @@ class ClientConfig extends BaseConfig {
 
   @override
   BaseConfig? getPrevConfig() {
-    return QueuesConfig(username: username, locationId: locationId);
+    return QueuesConfig(
+        username: username,
+        locationId: locationId
+    );
   }
 }

@@ -26,6 +26,7 @@ class ClientWidget extends StatefulWidget {
 class _ClientState extends State<ClientWidget> {
   final String titleStart = 'Очередь: ';
   final String queueLength = 'В очереди: ';
+  final String statusStart = 'Статус: ';
   final String emailStart = 'Почта: ';
   final String firstNameStart = 'Имя: ';
   final String lastNameStart = 'Фамилия: ';
@@ -35,8 +36,7 @@ class _ClientState extends State<ClientWidget> {
   final String rejoinText = 'Переподключиться';
   final String leaveText = 'Покинуть';
   final String reloadText = 'Перезагрузить';
-
-  final String empty = '';
+  final String confirmWindowText = 'Окно подтверждения';
 
 
   @override
@@ -86,6 +86,9 @@ class _ClientState extends State<ClientWidget> {
                         )
                       ] + (state.clientState.inQueue ? <Widget>[
                         Text(
+                          statusStart + state.clientState.status!,
+                        ),
+                        Text(
                           emailStart + state.clientState.email!,
                         ),
                         Text(
@@ -96,18 +99,6 @@ class _ClientState extends State<ClientWidget> {
                         ),
                         Text(
                           beforeMeStart + state.clientState.beforeMe.toString(),
-                        ),
-                      ] : []) + [
-                        ButtonWidget(
-                          text: joinText,
-                          onClick: () => showDialog(
-                              context: context,
-                              builder: (context) => const ClientJoinWidget()
-                          ).then((result) {
-                            if (result is ClientJoinResult) {
-                              BlocProvider.of<ClientCubit>(context).join(result);
-                            }
-                          }),
                         ),
                         ButtonWidget(
                           text: rejoinText,
@@ -121,12 +112,48 @@ class _ClientState extends State<ClientWidget> {
                           }),
                         ),
                         ButtonWidget(
-                          text: leaveText,
-                          onClick: () => BlocProvider.of<ClientCubit>(context).leave()
+                            text: leaveText,
+                            onClick: BlocProvider.of<ClientCubit>(context).leave
+                        )
+                      ] : [
+                        ButtonWidget(
+                          text: joinText,
+                          onClick: () => showDialog(
+                              context: context,
+                              builder: (context) => const ClientJoinWidget()
+                          ).then((result) {
+                            if (result is ClientJoinResult) {
+                              BlocProvider.of<ClientCubit>(context).join(result);
+                            }
+                          }),
                         ),
+                      ]) + (state.email != '' ? <Widget>[
+                        ButtonWidget(
+                            text: confirmWindowText,
+                            onClick: () {
+                              if (state.email != '') {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) =>
+                                        ClientConfirmWidget(
+                                            config: ClientConfirmConfig(
+                                                email: state.email
+                                            )
+                                        )
+                                ).then((result) {
+                                  if (result is ClientConfirmResult) {
+                                    BlocProvider.of<ClientCubit>(context).confirm(
+                                        result
+                                    );
+                                  }
+                                });
+                              }
+                            }
+                        )
+                      ] : <Widget>[]) + [
                         ButtonWidget(
                             text: reloadText,
-                            onClick: () => BlocProvider.of<ClientCubit>(context).onStart()
+                            onClick: BlocProvider.of<ClientCubit>(context).onStart
                         ),
                       ],
                     ),
@@ -261,10 +288,10 @@ class ClientCubit extends Cubit<ClientLogicState> {
         result.code
     )
       ..onSuccess((result) {
-        emit(state.copyWith(loading: false, clientState: result.data, readyToConfirm: true));
+        emit(state.copyWith(loading: false, clientState: result.data, readyToConfirm: false));
       })
       ..onError((result) {
-        emit(state.copyWith(loading: false, snackBar: result.description));
+        emit(state.copyWith(loading: false, snackBar: result.description, readyToConfirm: false));
       });
   }
 

@@ -28,10 +28,10 @@ class _QueueItemState extends State<QueueItemWidget> {
           onTap: () => widget.onClick(widget.queue),
           title: Text(widget.queue.name),
           subtitle: Text(widget.queue.description),
-          trailing: IconButton(
+          trailing: widget.queue.hasRules == true ? IconButton(
             icon: const Icon(Icons.delete),
             onPressed: () => widget.onDelete(widget.queue),
-          ),
+          ) : null,
         ),
       ),
     );
