@@ -73,17 +73,18 @@ class _LocationsState extends State<LocationsWidget> {
             },
             itemCount: state.locations.length,
           ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () => showDialog(
-                context: context,
-                builder: (context) => const CreateLocationWidget()
-            ).then((result) {
-              if (result is CreateLocationResult) {
-                BlocProvider.of<LocationsCubit>(context).createLocation(result);
-              }
-            }),
-            child: const Icon(Icons.add),
-          ),
+          floatingActionButton: state.hasRules
+            ? FloatingActionButton(
+              onPressed: () => showDialog(
+                  context: context,
+                  builder: (context) => const CreateLocationWidget()
+              ).then((result) {
+                if (result is CreateLocationResult) {
+                  BlocProvider.of<LocationsCubit>(context).createLocation(result);
+                }
+              }),
+              child: const Icon(Icons.add),
+            ) : null,
         ),
       ),
     );
@@ -99,6 +100,9 @@ class LocationsLogicState {
   final List<LocationModel> locations;
   final int curPage;
   final bool isLast;
+
+  // TODO - Сделать инициализацию поля через систему ролей
+  final bool hasRules;
   
   final String? snackBar;
   final bool loading;
@@ -109,6 +113,7 @@ class LocationsLogicState {
     required this.locations,
     required this.curPage,
     required this.isLast,
+    required this.hasRules,
     required this.snackBar,
     required this.loading,
   });
@@ -117,6 +122,7 @@ class LocationsLogicState {
     List<LocationModel>? locations,
     int? curPage,
     bool? isLast,
+    bool? hasRules,
     String? snackBar,
     bool? loading,
   }) => LocationsLogicState(
@@ -124,6 +130,7 @@ class LocationsLogicState {
       locations: locations ?? this.locations,
       curPage: curPage ?? this.curPage,
       isLast: isLast ?? this.isLast,
+      hasRules: hasRules ?? this.hasRules,
       snackBar: snackBar,
       loading: loading ?? this.loading
   );
@@ -143,6 +150,7 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
       locations: [],
       curPage: 0,
       isLast: false,
+      hasRules: true,
       snackBar: null,
       loading: false
     )

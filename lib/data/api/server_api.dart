@@ -130,17 +130,19 @@ class ServerApi {
   }
 
   ErrorResult<T> getErrorFromException<T>(Exception exception) {
+    if (exception is DioError) {
+      Response? response = exception.response;
+      if (response != null) {
+        return getErrorFromResponse(response);
+      }
+    }
     if (exception is TimeoutException) {
       return ErrorResult(description: responseTimeoutError);
-    } else if (exception is SocketException) {
-      if (exception.osError?.errorCode == 101) {
-        return ErrorResult(description: noConnectionError);
-      } else {
-        return ErrorResult(description: unknownError);
-      }
-    } else {
-      return ErrorResult(description: unknownError);
     }
+    if (exception is SocketException && exception.osError?.errorCode == 101) {
+      return ErrorResult(description: noConnectionError);
+    }
+    return ErrorResult(description: unknownError);
   }
 
   Future<void> _saveTokens(SuccessResult<TokensModel> result) async {

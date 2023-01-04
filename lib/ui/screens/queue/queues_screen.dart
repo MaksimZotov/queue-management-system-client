@@ -75,16 +75,17 @@ class _QueuesState extends State<QueuesWidget> {
             },
             itemCount: state.queues.length,
           ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () => showDialog(
-                context: context,
-                builder: (context) => const CreateQueueWidget()).then((result) {
-              if (result is CreateQueueResult) {
-                BlocProvider.of<QueuesCubit>(context).createQueue(result);
-              }
-            }),
-            child: const Icon(Icons.add),
-          ),
+          floatingActionButton: state.hasRules
+            ? FloatingActionButton(
+              onPressed: () => showDialog(
+                  context: context,
+                  builder: (context) => const CreateQueueWidget()).then((result) {
+                if (result is CreateQueueResult) {
+                  BlocProvider.of<QueuesCubit>(context).createQueue(result);
+                }
+              }),
+              child: const Icon(Icons.add),
+            ) : null,
         ),
       ),
     );

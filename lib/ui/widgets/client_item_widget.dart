@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:queue_management_system_client/domain/enums/client_in_queue_status.dart';
 import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 
 class ClientItemWidget extends StatefulWidget {
@@ -23,6 +24,9 @@ class _ClientItemState extends State<ClientItemWidget> {
     return Center(
       child: Card(
         child: ListTile(
+          tileColor: widget.client.status == ClientInQueueStatus.inQueue
+              ? const Color.fromARGB(1, 224, 224, 224)
+              : const Color.fromARGB(1, 130, 130, 130),
           title: Text('${widget.client.firstName} ${widget.client.lastName}'),
           subtitle: Text(widget.client.email),
           leading: IconButton(

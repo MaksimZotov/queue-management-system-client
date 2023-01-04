@@ -20,7 +20,7 @@ class LocationConverter extends JsonConverter<LocationModel> {
     id: json[_locationFields.id] as int?,
     name: json[_locationFields.name] as String,
     description: json[_locationFields.description] as String,
-      hasRules: json[_locationFields.hasRules] as bool?
+    hasRules: json[_locationFields.hasRules] as bool?
   );
 
   @override
