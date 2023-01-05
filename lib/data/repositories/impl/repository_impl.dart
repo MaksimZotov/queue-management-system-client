@@ -6,6 +6,7 @@ import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/data/repositories/repository.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
 import 'package:queue_management_system_client/domain/models/client/client_model.dart';
+import 'package:queue_management_system_client/domain/models/location/has_rules_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
 
@@ -15,6 +16,7 @@ import '../../../domain/models/verification/confirm_model.dart';
 import '../../../domain/models/verification/login_model.dart';
 import '../../../domain/models/verification/signup_model.dart';
 import '../../../domain/models/verification/tokens_model.dart';
+import '../../local/secure_storage.dart';
 import '../../local/shared_preferences_storage.dart';
 
 @Singleton(as: Repository)
@@ -22,8 +24,13 @@ class RepositoryImpl extends Repository {
 
   final ServerApi _serverApi;
   final SharedPreferencesStorage _sharedPreferencesStorage;
+  final SecureStorage _secureStorage;
 
-  RepositoryImpl(this._serverApi, this._sharedPreferencesStorage);
+  RepositoryImpl(
+      this._serverApi,
+      this._sharedPreferencesStorage,
+      this._secureStorage
+  );
 
 
 
@@ -42,6 +49,16 @@ class RepositoryImpl extends Repository {
   @override
   Future<Result> signup(SignupModel signup) async {
     return await _serverApi.signup(signup);
+  }
+
+  @override
+  Future<bool> checkToken() async {
+    return await _secureStorage.containsAccessToken();
+  }
+
+  @override
+  Future logout() async {
+    await _secureStorage.deleteAll();
   }
 
 
@@ -64,8 +81,13 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result> deleteLocation(int id) async {
-    return await _serverApi.deleteLocation(id);
+  Future<Result> deleteLocation(int locationId) async {
+    return await _serverApi.deleteLocation(locationId);
+  }
+
+  @override
+  Future<Result<HasRulesModel>> checkHasRules(String username) async {
+    return await _serverApi.checkHasRules(username);
   }
 
 

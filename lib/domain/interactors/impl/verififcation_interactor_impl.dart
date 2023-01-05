@@ -29,4 +29,13 @@ class VerificationInteractorImpl extends VerificationInteractor {
     return await _repository.login(login);
   }
 
+  @override
+  Future<bool> checkToken() async {
+    return await _repository.checkToken();
+  }
+
+  @override
+  Future logout() async {
+    await _repository.logout();
+  }
 }

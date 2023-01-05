@@ -5,6 +5,7 @@ import 'package:queue_management_system_client/domain/models/verification/confir
 import '../../domain/models/base/result.dart';
 import '../../domain/models/client/client_model.dart';
 import '../../domain/models/client/client_join_info_model.dart';
+import '../../domain/models/location/has_rules_model.dart';
 import '../../domain/models/location/location_model.dart';
 import '../../domain/models/queue/queue_model.dart';
 import '../../domain/models/verification/login_model.dart';
@@ -15,11 +16,14 @@ abstract class Repository {
   Future<Result> signup(SignupModel signup);
   Future<Result> confirm(ConfirmModel confirm);
   Future<Result<TokensModel>> login(LoginModel login);
+  Future<bool> checkToken();
+  Future logout();
 
   Future<Result<ContainerForList<LocationModel>>> getLocations(int page, int pageSize, String username);
   Future<Result<LocationModel>> createLocation(LocationModel location);
   Future<Result<LocationModel>> getLocation(int id, String? username);
-  Future<Result> deleteLocation(int id);
+  Future<Result> deleteLocation(int locationId);
+  Future<Result<HasRulesModel>> checkHasRules(String username);
 
   Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, int page, int pageSize, String? username);
   Future<Result<QueueModel>> createQueue(int locationId, QueueModel location);

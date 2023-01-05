@@ -7,9 +7,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/converters/client/client_converter.dart';
 import 'package:queue_management_system_client/data/converters/client/client_join_info_converter.dart';
+import 'package:queue_management_system_client/data/converters/location/has_rules_converter.dart';
 import 'package:queue_management_system_client/data/converters/verification/confirm_converter.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
 import 'package:queue_management_system_client/domain/models/client/client_model.dart';
+import 'package:queue_management_system_client/domain/models/location/has_rules_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 import 'package:queue_management_system_client/domain/models/verification/confirm_model.dart';
 import 'package:stomp_dart_client/stomp.dart';
@@ -57,6 +59,7 @@ class ServerApi {
   final LoginConverter _loginConverter;
 
   final LocationConverter _locationConverter;
+  final HasRulesConverter _hasRulesConverter;
 
   final QueueConverter _queueConverter;
 
@@ -76,6 +79,7 @@ class ServerApi {
       this._confirmConverter,
       this._loginConverter,
       this._locationConverter,
+      this._hasRulesConverter,
       this._queueConverter,
       this._clientConverter,
       this._clientJoinInfoConverter
@@ -231,11 +235,21 @@ class ServerApi {
     );
   }
 
-  Future<Result> deleteLocation(int id) async {
+  Future<Result> deleteLocation(int locationId) async {
     return await _execRequest(
         converter: null,
-        request: _dioApi.delete(
-          '$url/locations/$id/delete'
+        request: _dioApi.get(
+            '$url/locations/check'
+        )
+    );
+  }
+
+  Future<Result<HasRulesModel>> checkHasRules(String username) async {
+    return await _execRequest(
+        converter: _hasRulesConverter,
+        request: _dioApi.get(
+            '$url/locations/check',
+            queryParameters: { 'username': username }
         )
     );
   }

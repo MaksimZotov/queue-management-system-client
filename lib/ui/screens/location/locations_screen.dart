@@ -10,6 +10,7 @@ import 'package:queue_management_system_client/ui/widgets/location_item_widget.d
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';
+import '../../../domain/interactors/verification_interactor.dart';
 import '../../../domain/models/base/container_for_list.dart';
 import '../../../domain/models/base/result.dart';
 
@@ -34,10 +35,28 @@ class _LocationsState extends State<LocationsWidget> {
     return BlocProvider<LocationsCubit>(
       create: (context) => statesAssembler.getLocationsCubit(widget.config)..onStart(),
       lazy: true,
-      child: BlocBuilder<LocationsCubit, LocationsLogicState>(
+      child: BlocConsumer<LocationsCubit, LocationsLogicState>(
+
+        listener: (context, state) {
+          if (state.readyToLogout) {
+            widget.emitConfig(InitialConfig());
+          } else if (state.snackBar != null) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(state.snackBar!),
+            ));
+            BlocProvider.of<LocationsCubit>(context).onSnackBarShowed();
+          }
+        },
+
         builder: (context, state) => Scaffold(
           appBar: AppBar(
             title: Text(title),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(state.hasToken ? Icons.logout : Icons.login),
+                onPressed: BlocProvider.of<LocationsCubit>(context).logout,
+              )
+            ],
           ),
           body: ListView.builder(
             controller: _scrollController
@@ -101,8 +120,10 @@ class LocationsLogicState {
   final int curPage;
   final bool isLast;
 
-  // TODO - Сделать инициализацию поля через систему ролей
   final bool hasRules;
+  final bool hasToken;
+
+  final bool readyToLogout;
   
   final String? snackBar;
   final bool loading;
@@ -114,6 +135,8 @@ class LocationsLogicState {
     required this.curPage,
     required this.isLast,
     required this.hasRules,
+    required this.hasToken,
+    required this.readyToLogout,
     required this.snackBar,
     required this.loading,
   });
@@ -123,6 +146,8 @@ class LocationsLogicState {
     int? curPage,
     bool? isLast,
     bool? hasRules,
+    bool? hasToken,
+    bool? readyToLogout,
     String? snackBar,
     bool? loading,
   }) => LocationsLogicState(
@@ -131,6 +156,8 @@ class LocationsLogicState {
       curPage: curPage ?? this.curPage,
       isLast: isLast ?? this.isLast,
       hasRules: hasRules ?? this.hasRules,
+      hasToken: hasToken ?? this.hasToken,
+      readyToLogout: readyToLogout ?? this.readyToLogout,
       snackBar: snackBar,
       loading: loading ?? this.loading
   );
@@ -140,9 +167,11 @@ class LocationsLogicState {
 class LocationsCubit extends Cubit<LocationsLogicState> {
 
   final LocationInteractor locationInteractor;
+  final VerificationInteractor verificationInteractor;
 
   LocationsCubit({
     required this.locationInteractor,
+    required this.verificationInteractor,
     @factoryParam required LocationsConfig config
   }) : super(
     LocationsLogicState(
@@ -150,14 +179,32 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
       locations: [],
       curPage: 0,
       isLast: false,
-      hasRules: true,
+      hasRules: false,
+      hasToken: false,
+      readyToLogout: false,
       snackBar: null,
       loading: false
     )
   );
 
   Future<void> onStart() async {
+    emit(state.copyWith(loading: true));
+    if (await verificationInteractor.checkToken()) {
+      emit(state.copyWith(hasToken: true));
+    }
+    await locationInteractor.checkHasRules(state.config.username)
+      ..onSuccess((result) {
+        emit(state.copyWith(loading: false, hasRules: result.data.hasRules));
+      })
+      ..onError((result) {
+        emit(state.copyWith(loading: false, snackBar: result.description));
+      });
     await loadNext();
+  }
+
+  Future<void> logout() async {
+    await verificationInteractor.logout();
+    emit(state.copyWith(readyToLogout: true));
   }
 
   Future<void> loadNext() async {

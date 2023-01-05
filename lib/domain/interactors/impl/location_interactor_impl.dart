@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
+import 'package:queue_management_system_client/domain/models/location/has_rules_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 
 import '../../../data/repositories/repository.dart';
@@ -28,7 +29,12 @@ class LocationInteractorImpl extends LocationInteractor {
   }
 
   @override
-  Future<Result> deleteLocation(int id) async {
-    return await _repository.deleteLocation(id);
+  Future<Result> deleteLocation(int locationId) async {
+    return await _repository.deleteLocation(locationId);
+  }
+
+  @override
+  Future<Result<HasRulesModel>> checkHasRules(String username) async {
+    return await _repository.checkHasRules(username);
   }
 }

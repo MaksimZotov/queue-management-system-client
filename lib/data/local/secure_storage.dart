@@ -16,6 +16,10 @@ class SecureStorage {
     return await _storage.read(key: _accessToken);
   }
 
+  Future<bool> containsAccessToken() async {
+    return await _storage.containsKey(key: _accessToken);
+  }
+
   Future<void> setRefreshToken({required String refreshToken}) async {
     return await _storage.write(key: _refreshToken, value: refreshToken);
   }

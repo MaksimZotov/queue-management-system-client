@@ -7,4 +7,6 @@ abstract class VerificationInteractor {
   Future<Result> signup(SignupModel signup);
   Future<Result> confirm(ConfirmModel confirm);
   Future<Result> login(LoginModel login);
+  Future<bool> checkToken();
+  Future logout();
 }
