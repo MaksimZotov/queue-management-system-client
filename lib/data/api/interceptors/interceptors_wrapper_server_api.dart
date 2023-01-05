@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:queue_management_system_client/data/converters/verification/tokens_converter.dart';
 
 import '../../../domain/models/verification/tokens_model.dart';
 import '../../local/secure_storage.dart';
@@ -31,16 +32,16 @@ class InterceptorsWrapperServerApi extends InterceptorsWrapper {
 
   @override
   void onError(DioError err, ErrorInterceptorHandler handler) async {
-    if ((err.response?.statusCode == 401)) {
+    if ((err.response?.statusCode == 403)) {
       if (await _tokensStorage.containsRefreshToken()) {
         final refreshToken = await _tokensStorage.getRefreshToken();
-        final response = await _dioApi.post<TokensModel>(
-            _refreshTokenMethod,
-            queryParameters: { 'refresh_token': refreshToken }
+        final response = await _dioApi.post(
+            '${ServerApi.url}$_refreshTokenMethod',
+            queryParameters: { 'refresh_token': 'Bearer $refreshToken' }
         );
         int? code = response.statusCode;
         if (code != null && code >= 200 && code < 300) {
-          final tokens = response.data!;
+          final tokens = TokensConverter(TokensFields()).fromJson(response.data!);
           await _tokensStorage.setAccessToken(accessToken: tokens.access);
           await _tokensStorage.setRefreshToken(refreshToken: tokens.refresh);
           final requestOptions = err.requestOptions;
@@ -57,9 +58,9 @@ class InterceptorsWrapperServerApi extends InterceptorsWrapper {
           return handler.resolve(retryResponse);
         } else {
           await _tokensStorage.deleteAll();
+          return handler.next(err);
         }
       }
     }
-    return handler.next(err);
   }
 }
