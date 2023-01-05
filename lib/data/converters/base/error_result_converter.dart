@@ -16,7 +16,7 @@ class ErrorResultConverter extends JsonConverter<ErrorResult> {
   @override
   ErrorResult fromJson(Map<String, dynamic> json) => ErrorResult(
       description: json[_errorResultFields.description] as String?,
-      errors: Map.from(json[_errorResultFields.errors]).map((key, value) =>
+      errors: Map.from(json[_errorResultFields.errors] ?? {}).map((key, value) =>
         MapEntry(
           key as String,
           value as String

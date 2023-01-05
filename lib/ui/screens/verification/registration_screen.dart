@@ -38,7 +38,6 @@ class RegistrationState extends State<RegistrationWidget> {
   Widget build(BuildContext context) {
     return BlocProvider<RegistrationCubit>(
       create: (context) => statesAssembler.getRegistrationCubit(),
-      lazy: true,
 
       child: BlocConsumer<RegistrationCubit, RegistrationLogicState>(
 
@@ -72,60 +71,55 @@ class RegistrationState extends State<RegistrationWidget> {
             child: CircularProgressIndicator(),
           ) : state.readyToConfirm ?
           const SizedBox.shrink() : Center(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                child: Column(
-                  children: <Widget>[
-                    TextFieldWidget(
-                      text: state.username,
-                      label: usernameHint,
-                      onTextChanged: (text) {
-                        BlocProvider.of<RegistrationCubit>(context).setUsername(text);
-                      },
-                    ),
-                    TextFieldWidget(
-                      text: state.email,
-                      label: emailHint,
-                      onTextChanged: (text) {
-                        BlocProvider.of<RegistrationCubit>(context).setEmail(text);
-                      },
-                    ),
-                    TextFieldWidget(
-                      text: state.firstName,
-                      label: firstNameHint,
-                      onTextChanged: (text) {
-                        BlocProvider.of<RegistrationCubit>(context).setFirstName(text);
-                      },
-                    ),
-                    TextFieldWidget(
-                      text: state.lastName,
-                      label: lastNameHint,
-                      onTextChanged: (text) {
-                        BlocProvider.of<RegistrationCubit>(context).setLastName(text);
-                      },
-                    ),
-                    PasswordWidget(
-                      text: state.password,
-                      label: passwordHint,
-                      onTextChanged: (text) {
-                        BlocProvider.of<RegistrationCubit>(context).setPassword(text);
-                      },
-                    ),
-                    PasswordWidget(
-                      text: state.repeatPassword,
-                      label: repeatPasswordHint,
-                      onTextChanged: (text) {
-                        BlocProvider.of<RegistrationCubit>(context).setRepeatPassword(text);
-                      },
-                    ),
-                    ButtonWidget(
-                      text: signupText,
-                      onClick: () {
-                        BlocProvider.of<RegistrationCubit>(context).onClickSignup();
-                      },
-                    ),
-                  ],
+            child: SizedBox(
+              width: double.infinity,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                  child: Column(
+                    children: <Widget>[
+                      TextFieldWidget(
+                        text: state.username,
+                        label: usernameHint,
+                        error: state.errors[RegistrationCubit.usernameKey],
+                        onTextChanged: BlocProvider.of<RegistrationCubit>(context).setUsername,
+                      ),
+                      TextFieldWidget(
+                        text: state.email,
+                        label: emailHint,
+                        error: state.errors[RegistrationCubit.emailKey],
+                        onTextChanged: BlocProvider.of<RegistrationCubit>(context).setEmail,
+                      ),
+                      TextFieldWidget(
+                        text: state.firstName,
+                        label: firstNameHint,
+                        error: state.errors[RegistrationCubit.firstNameKey],
+                        onTextChanged:  BlocProvider.of<RegistrationCubit>(context).setFirstName,
+                      ),
+                      TextFieldWidget(
+                        text: state.lastName,
+                        label: lastNameHint,
+                        error: state.errors[RegistrationCubit.lastNameKey],
+                        onTextChanged: BlocProvider.of<RegistrationCubit>(context).setLastName,
+                      ),
+                      PasswordWidget(
+                        text: state.password,
+                        label: passwordHint,
+                        error: state.errors[RegistrationCubit.passwordKey],
+                        onTextChanged: BlocProvider.of<RegistrationCubit>(context).setPassword,
+                      ),
+                      PasswordWidget(
+                        text: state.repeatPassword,
+                        label: repeatPasswordHint,
+                        error: state.errors[RegistrationCubit.repeatPasswordKey],
+                        onTextChanged: BlocProvider.of<RegistrationCubit>(context).setRepeatPassword,
+                      ),
+                      ButtonWidget(
+                        text: signupText,
+                        onClick: BlocProvider.of<RegistrationCubit>(context).onClickSignup,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -148,6 +142,7 @@ class RegistrationLogicState {
   final bool readyToConfirm;
   final bool readyToLocations;
   final bool loading;
+  final Map<String, String> errors;
 
   RegistrationLogicState({
     required this.username,
@@ -159,7 +154,8 @@ class RegistrationLogicState {
     required this.snackBar,
     required this.readyToConfirm,
     required this.readyToLocations,
-    required this.loading
+    required this.loading,
+    required this.errors
   });
 
   RegistrationLogicState copyWith({
@@ -168,11 +164,13 @@ class RegistrationLogicState {
     String? firstName,
     String? lastName,
     String? password,
+    String? passwordError,
     String? repeatPassword,
     String? snackBar,
     bool? readyToConfirm,
     bool? readyToLocations,
-    bool? loading
+    bool? loading,
+    Map<String, String>? errors
   }) => RegistrationLogicState(
       username: username ?? this.username,
       email: email ?? this.email,
@@ -183,12 +181,20 @@ class RegistrationLogicState {
       snackBar: snackBar,
       readyToConfirm: readyToConfirm ?? this.readyToConfirm,
       readyToLocations: readyToLocations ?? this.readyToLocations,
-      loading: loading ?? this.loading
+      loading: loading ?? this.loading,
+      errors: errors ?? this.errors
   );
 }
 
 @injectable
 class RegistrationCubit extends Cubit<RegistrationLogicState> {
+
+  static const usernameKey = 'USERNAME';
+  static const emailKey = 'EMAIL';
+  static const firstNameKey = 'FIRST_NAME';
+  static const lastNameKey = 'LAST_NAME';
+  static const passwordKey = 'PASSWORD';
+  static const repeatPasswordKey = 'REPEAT_PASSWORD';
 
   final VerificationInteractor verificationInteractor;
 
@@ -205,37 +211,56 @@ class RegistrationCubit extends Cubit<RegistrationLogicState> {
           snackBar: null,
           readyToConfirm: false,
           readyToLocations: false,
-          loading: false
+          loading: false,
+          errors: { }
       )
   );
 
   void setUsername(String text) {
-    emit(state.copyWith(username: text));
+    emit(state.copyWith(
+        username: text,
+        errors: Map.from(state.errors)..removeWhere((k, v) => k == usernameKey)
+    ));
   }
 
   void setEmail(String text) {
-    emit(state.copyWith(email: text));
+    emit(state.copyWith(
+        email: text,
+        errors: Map.from(state.errors)..removeWhere((k, v) => k == emailKey))
+    );
   }
 
   void setFirstName(String text) {
-    emit(state.copyWith(firstName: text));
+    emit(state.copyWith(
+        firstName: text,
+        errors: Map.from(state.errors)..removeWhere((k, v) => k == firstNameKey))
+    );
   }
 
   void setLastName(String text) {
-    emit(state.copyWith(lastName: text));
+    emit(state.copyWith(
+        lastName: text,
+        errors: Map.from(state.errors)..removeWhere((k, v) => k == lastNameKey))
+    );
   }
 
   void setPassword(String text) {
-    emit(state.copyWith(password: text));
+    emit(state.copyWith(
+        password: text,
+        errors: Map.from(state.errors)..removeWhere((k, v) => k == passwordKey))
+    );
   }
 
   void setRepeatPassword(String text) {
-    emit(state.copyWith(repeatPassword: text));
+    emit(state.copyWith(
+        repeatPassword: text,
+        errors: Map.from(state.errors)..removeWhere((k, v) => k == repeatPasswordKey))
+    );
   }
 
   Future<void> onClickSignup() async {
     emit(state.copyWith(loading: true));
-    Result signupResult = await verificationInteractor.signup(
+    await verificationInteractor.signup(
       SignupModel(
         username: state.username,
         email: state.email,
@@ -244,12 +269,13 @@ class RegistrationCubit extends Cubit<RegistrationLogicState> {
         password: state.password,
         repeatPassword: state.repeatPassword
       )
-    );
-    if (signupResult is SuccessResult) {
-      emit(state.copyWith(loading: false, readyToConfirm: true));
-    } else if (signupResult is ErrorResult) {
-      emit(state.copyWith(loading: false, snackBar: signupResult.description));
-    }
+    )
+      ..onSuccess((result) {
+        emit(state.copyWith(loading: false, readyToConfirm: true, errors: {}));
+      })
+      ..onError((result) {
+        emit(state.copyWith(loading: false, snackBar: result.description, errors: result.errors));
+      });
   }
 
   Future<void> confirm(ConfirmResult result) async {

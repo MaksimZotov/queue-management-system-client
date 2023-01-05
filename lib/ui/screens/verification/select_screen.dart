@@ -28,7 +28,6 @@ class SelectState extends State<SelectWidget> {
   Widget build(BuildContext context) {
     return BlocProvider<SelectCubit>(
       create: (context) => statesAssembler.getSelectCubit()..onStart(),
-      lazy: true,
       child: BlocConsumer<SelectCubit, SelectLogicState>(
 
         listener: (context, state) {
@@ -46,24 +45,27 @@ class SelectState extends State<SelectWidget> {
             appBar: AppBar(
               title: Text(title),
             ),
-            body: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  ButtonWidget(
-                    text: authorization,
-                    onClick: () {
-                      widget.emitConfig(AuthorizationConfig());
-                    },
-                  ),
-                  ButtonWidget(
-                    text: registration,
-                    onClick: () {
-                      widget.emitConfig(RegistrationConfig());
-                    },
-                  ),
-                ],
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    ButtonWidget(
+                      text: authorization,
+                      onClick: () {
+                        widget.emitConfig(AuthorizationConfig());
+                      },
+                    ),
+                    ButtonWidget(
+                      text: registration,
+                      onClick: () {
+                        widget.emitConfig(RegistrationConfig());
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

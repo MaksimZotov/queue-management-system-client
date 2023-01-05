@@ -33,6 +33,7 @@ class _ConfirmState extends State<ConfirmWidget> {
   final String title = 'Подтверждение кода';
   final String codeHint = 'Код';
   final String confirmText = 'Подтвердить';
+  final String cancelText = 'Отмена';
 
   @override
   Widget build(BuildContext context) {
@@ -42,13 +43,19 @@ class _ConfirmState extends State<ConfirmWidget> {
       child: BlocBuilder<ConfirmCubit, ConfirmLogicState>(
         builder: (context, state) => SimpleDialog(
           title: Text(title),
-          contentPadding: const EdgeInsets.all(20),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                  Radius.circular(16.0)
+              )
+          ),
           children: [
             TextFieldWidget(
                 label: codeHint,
                 text: state.code,
                 onTextChanged: BlocProvider.of<ConfirmCubit>(context).setCode
             ),
+            const SizedBox(height: 16),
             ButtonWidget(
                 text: confirmText,
                 onClick: () => Navigator.of(context).pop(
@@ -56,6 +63,10 @@ class _ConfirmState extends State<ConfirmWidget> {
                         code: state.code
                     )
                 )
+            ),
+            ButtonWidget(
+                text: cancelText,
+                onClick: Navigator.of(context).pop
             )
           ],
         ),

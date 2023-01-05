@@ -35,6 +35,7 @@ import '../local/secure_storage.dart';
 @lazySingleton
 class ServerApi {
   final String unknownError = 'Неизвестная ошибка';
+  final String serverError = 'Ошибка на сервере';
   final String responseTimeoutError = 'Вышло время ожидания ответа';
   final String noConnectionError = 'Нет соединения';
 
@@ -120,11 +121,14 @@ class ServerApi {
   }
 
   ErrorResult<T> getErrorFromResponse<T>(Response response) {
+    if (response.statusCode == 500) {
+      return ErrorResult(description: serverError);
+    }
     final ErrorResult error = _errorResultConverter.fromJson(
         response.data
     );
     return ErrorResult(
-        description: error.description ?? unknownError,
+        description: error.description,
         errors: error.errors
     );
   }

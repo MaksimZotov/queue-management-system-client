@@ -17,6 +17,15 @@ class _AppWidgetState extends State<AppWidget> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      theme: ThemeData(
+          primarySwatch: Colors.teal,
+          textTheme: const TextTheme(
+            headline1: TextStyle(color: Colors.grey),
+            headline2: TextStyle(color: Colors.grey),
+            bodyText2: TextStyle(color: Colors.grey),
+            subtitle1: TextStyle(color: Colors.black),
+          ),
+      ),
       debugShowCheckedModeBanner: false,
       routerDelegate: routerDelegate,
       routeInformationParser: routerInformationParser,

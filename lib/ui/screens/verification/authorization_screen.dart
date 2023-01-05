@@ -12,7 +12,6 @@ import '../../router/routes_config.dart';
 import '../../widgets/text_field_widget.dart';
 import '../location/locations_screen.dart';
 
-
 class AuthorizationWidget extends StatefulWidget {
   ValueChanged<BaseConfig> emitConfig;
 
@@ -23,7 +22,6 @@ class AuthorizationWidget extends StatefulWidget {
 }
 
 class AuthorizationState extends State<AuthorizationWidget> {
-
   final String title = 'Авторизация';
   final String usernameHint = "Логин";
   final String passwordHint = "Пароль";
@@ -33,17 +31,11 @@ class AuthorizationState extends State<AuthorizationWidget> {
   Widget build(BuildContext context) {
     return BlocProvider<AuthorizationCubit>(
       create: (context) => statesAssembler.getAuthorizationCubit(),
-      lazy: true,
       child: BlocConsumer<AuthorizationCubit, AuthorizationLogicState>(
-
         listener: (context, state) {
           if (state.readyToLogin) {
             BlocProvider.of<AuthorizationCubit>(context).onPush();
-            widget.emitConfig(
-                LocationsConfig(
-                    username: 'me'
-                )
-            );
+            widget.emitConfig(LocationsConfig(username: 'me'));
           }
           if (state.snackBar != null) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -52,44 +44,55 @@ class AuthorizationState extends State<AuthorizationWidget> {
             BlocProvider.of<AuthorizationCubit>(context).onSnackBarShowed();
           }
         },
-
         builder: (context, state) => Scaffold(
           appBar: AppBar(
             title: Text(title),
           ),
-          body: state.loading ? const Center(
-            child: CircularProgressIndicator(),
-          ) : state.readyToLogin ? const SizedBox.shrink() : Center(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                child: Column(
-                  children: <Widget>[
-                    TextFieldWidget(
-                      text: state.username,
-                      label: usernameHint,
-                      onTextChanged: (text) {
-                        BlocProvider.of<AuthorizationCubit>(context).setUsername(text);
-                      },
+          body: state.loading
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : state.readyToLogin
+                  ? const SizedBox.shrink()
+                  : Center(
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: SingleChildScrollView(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 16),
+                            child: Column(
+                              children: <Widget>[
+                                TextFieldWidget(
+                                  text: state.username,
+                                  label: usernameHint,
+                                  error: state.errors[AuthorizationCubit.usernameKey],
+                                  onTextChanged:
+                                      BlocProvider.of<AuthorizationCubit>(
+                                              context)
+                                          .setUsername,
+                                ),
+                                PasswordWidget(
+                                  text: state.password,
+                                  label: passwordHint,
+                                  error: state.errors[AuthorizationCubit.passwordKey],
+                                  onTextChanged:
+                                      BlocProvider.of<AuthorizationCubit>(
+                                              context)
+                                          .setPassword,
+                                ),
+                                ButtonWidget(
+                                  text: loginText,
+                                  onClick: BlocProvider.of<AuthorizationCubit>(
+                                          context)
+                                      .onClickLogin,
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                    PasswordWidget(
-                      text: state.password,
-                      label: passwordHint,
-                      onTextChanged: (text) {
-                        BlocProvider.of<AuthorizationCubit>(context).setPassword(text);
-                      },
-                    ),
-                    ButtonWidget(
-                      text: loginText,
-                      onClick: () {
-                        BlocProvider.of<AuthorizationCubit>(context).onClickLogin();
-                      },
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
         ),
       ),
     );
@@ -97,74 +100,80 @@ class AuthorizationState extends State<AuthorizationWidget> {
 }
 
 class AuthorizationLogicState {
-
   final String username;
   final String password;
   final String? snackBar;
   final bool readyToLogin;
   final bool loading;
+  final Map<String, String> errors;
 
-  AuthorizationLogicState({
-    required this.username,
-    required this.password,
-    required this.snackBar,
-    required this.readyToLogin,
-    required this.loading
-  });
+  AuthorizationLogicState(
+      {required this.username,
+      required this.password,
+      required this.snackBar,
+      required this.readyToLogin,
+      required this.loading,
+      required this.errors});
 
-  AuthorizationLogicState copyWith({
-    String? username,
-    String? password,
-    String? snackBar,
-    bool? readyToLogin,
-    bool? loading
-  }) => AuthorizationLogicState(
-      username: username ?? this.username,
-      password: password ?? this.password,
-      snackBar: snackBar,
-      readyToLogin: readyToLogin ?? this.readyToLogin,
-      loading: loading ?? this.loading
-  );
+  AuthorizationLogicState copyWith(
+          {String? username,
+          String? password,
+          String? snackBar,
+          bool? readyToLogin,
+          bool? loading,
+          Map<String, String>? errors}) =>
+      AuthorizationLogicState(
+          username: username ?? this.username,
+          password: password ?? this.password,
+          snackBar: snackBar,
+          readyToLogin: readyToLogin ?? this.readyToLogin,
+          loading: loading ?? this.loading,
+          errors: errors ?? this.errors);
 }
 
 @injectable
 class AuthorizationCubit extends Cubit<AuthorizationLogicState> {
+  static const usernameKey = 'USERNAME';
+  static const passwordKey = 'PASSWORD';
 
   final VerificationInteractor verificationInteractor;
 
-  AuthorizationCubit({
-    required this.verificationInteractor
-  }) : super(
-      AuthorizationLogicState(
-        username: '',
-        password: '',
-        snackBar: null,
-        readyToLogin: false,
-        loading: false
-      )
-  );
+  AuthorizationCubit({required this.verificationInteractor})
+      : super(AuthorizationLogicState(
+            username: '',
+            password: '',
+            snackBar: null,
+            readyToLogin: false,
+            loading: false,
+            errors: {}));
 
   void setUsername(String text) {
-    emit(state.copyWith(username: text));
+    emit(state.copyWith(
+        username: text,
+        errors: Map.from(state.errors)..removeWhere((k, v) => k == usernameKey)
+    ));
   }
 
   void setPassword(String text) {
-    emit(state.copyWith(password: text));
+    emit(state.copyWith(
+        password: text,
+        errors: Map.from(state.errors)..removeWhere((k, v) => k == passwordKey))
+    );
   }
 
   Future<void> onClickLogin() async {
     emit(state.copyWith(loading: true));
-    Result result = await verificationInteractor.login(
-        LoginModel(
-            username: state.username,
-            password: state.password
-        )
-    );
-    if (result is SuccessResult) {
-      emit(state.copyWith(loading: false, readyToLogin: true));
-    } else if (result is ErrorResult) {
-      emit(state.copyWith(loading: false, snackBar: result.description));
-    }
+    await verificationInteractor
+        .login(LoginModel(username: state.username, password: state.password))
+      ..onSuccess((result) {
+        emit(state.copyWith(loading: false, readyToLogin: true, errors: {}));
+      })
+      ..onError((result) {
+        emit(state.copyWith(
+            loading: false,
+            snackBar: result.description,
+            errors: result.errors));
+      });
   }
 
   void onPush() {
