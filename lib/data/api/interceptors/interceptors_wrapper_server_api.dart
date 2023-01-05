@@ -32,7 +32,7 @@ class InterceptorsWrapperServerApi extends InterceptorsWrapper {
 
   @override
   void onError(DioError err, ErrorInterceptorHandler handler) async {
-    if ((err.response?.statusCode == 403)) {
+    if ((err.response?.statusCode == 401)) {
       if (await _tokensStorage.containsRefreshToken()) {
         final refreshToken = await _tokensStorage.getRefreshToken();
         final response = await _dioApi.post(
@@ -58,9 +58,9 @@ class InterceptorsWrapperServerApi extends InterceptorsWrapper {
           return handler.resolve(retryResponse);
         } else {
           await _tokensStorage.deleteAll();
-          return handler.next(err);
         }
       }
     }
+    return handler.next(err);
   }
 }
