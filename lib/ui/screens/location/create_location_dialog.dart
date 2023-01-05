@@ -31,6 +31,7 @@ class _CreateLocationState extends State<CreateLocationWidget> {
   final String nameHint = 'Название';
   final String descriptionHint = 'Описание';
   final String createText = 'Создать';
+  final String cancelText = 'Отмена';
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +40,12 @@ class _CreateLocationState extends State<CreateLocationWidget> {
       child: BlocBuilder<CreateLocationCubit, CreateLocationLogicState>(
         builder: (context, state) => SimpleDialog(
           title: Text(title),
-          contentPadding: const EdgeInsets.all(20),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                  Radius.circular(16.0)
+              )
+          ),
           children: [
             TextFieldWidget(
                 label: nameHint,
@@ -52,6 +58,7 @@ class _CreateLocationState extends State<CreateLocationWidget> {
                 text: state.description,
                 onTextChanged: BlocProvider.of<CreateLocationCubit>(context).setDescription
             ),
+            const SizedBox(height: 16),
             ButtonWidget(
                 text: createText,
                 onClick: () => Navigator.of(context).pop(
@@ -60,6 +67,10 @@ class _CreateLocationState extends State<CreateLocationWidget> {
                         description: state.description
                     )
                 )
+            ),
+            ButtonWidget(
+                text: cancelText,
+                onClick: Navigator.of(context).pop
             )
           ],
         ),

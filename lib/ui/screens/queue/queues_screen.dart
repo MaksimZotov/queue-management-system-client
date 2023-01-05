@@ -30,10 +30,17 @@ class _QueuesState extends State<QueuesWidget> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<QueuesCubit>(
-      create: (context) =>
-          statesAssembler.getQueuesCubit(widget.config)..onStart(),
-      lazy: true,
-      child: BlocBuilder<QueuesCubit, QueuesLogicState>(
+      create: (context) => statesAssembler.getQueuesCubit(widget.config)..onStart(),
+      child: BlocConsumer<QueuesCubit, QueuesLogicState>(
+
+        listener: (context, state) {
+          if (state.snackBar != null) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(state.snackBar!),
+            ));
+          }
+        },
+
         builder: (context, state) => Scaffold(
           appBar: AppBar(
             title: Text(state.locationName.isEmpty ? '' : titleStart + state.locationName),
@@ -174,6 +181,7 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
       })
       ..onError((result) {
         emit(state.copyWith(snackBar: result.description));
+        emit(state.copyWith(snackBar: null));
       });
   }
 
@@ -194,6 +202,7 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
       })
       ..onError((result) {
         emit(state.copyWith(loading: false, snackBar: result.description));
+        emit(state.copyWith(snackBar: null));
       });
   }
 
@@ -202,13 +211,15 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
     await queueInteractor.createQueue(
         state.config.locationId,
         QueueModel(
-            id: null, name: result.name, description: result.description)
+            id: null, name: result.name, description: result.description
+        )
     )
       ..onSuccess((result) {
         _reload();
       })
       ..onError((result) {
         emit(state.copyWith(loading: false, snackBar: result.description));
+        emit(state.copyWith(snackBar: null));
       });
   }
 
@@ -220,15 +231,12 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
       })
       ..onError((result) {
         emit(state.copyWith(loading: false, snackBar: result.description));
+        emit(state.copyWith(snackBar: null));
       });
   }
 
   Future<void> _reload() async {
     emit(state.copyWith(loading: false, queues: [], curPage: 0, isLast: false));
     loadNext();
-  }
-
-  void onSnackBarShowed() {
-    emit(state.copyWith(snackBar: null));
   }
 }

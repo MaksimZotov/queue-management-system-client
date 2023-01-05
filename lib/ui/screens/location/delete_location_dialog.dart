@@ -35,7 +35,12 @@ class _DeleteLocationState extends State<DeleteLocationWidget> {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: Text(title),
-      contentPadding: const EdgeInsets.all(20),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(
+              Radius.circular(16.0)
+          )
+      ),
       children: [
         ButtonWidget(
             text: yesText,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
 import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
@@ -21,18 +23,35 @@ class QueueWidget extends StatefulWidget {
 
 class _QueueState extends State<QueueWidget> {
   final titleStart = 'Очередь: ';
+  final linkCopied = 'Ссылка скопирована';
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<QueueCubit>(
       create: (context) => statesAssembler.getQueueCubit(widget.config)..onStart(),
-      lazy: true,
-      child: BlocBuilder<QueueCubit, QueueLogicState>(
+      child: BlocConsumer<QueueCubit, QueueLogicState>(
+
+        listener: (context, state) {
+          if (state.snackBar != null) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(state.snackBar!),
+            ));
+          }
+        },
+
         builder: (context, state) => Scaffold(
           appBar: AppBar(
             title: Text(
                 state.queueState.name.isEmpty ? '' : titleStart + state.queueState.name
             ),
+            actions: state.queueState.ownerUsername != null
+              ? [
+                IconButton(
+                  icon: const Icon(Icons.share),
+                  onPressed: () => BlocProvider.of<QueueCubit>(context).share(linkCopied),
+                ),
+              ]
+              : null,
           ),
           body: ListView.builder(
             itemBuilder: (context, index) {
@@ -101,7 +120,6 @@ class QueueCubit extends Cubit<QueueLogicState> {
   );
 
   Future<void> onStart() async {
-    print('onStart');
     emit(state.copyWith(loading: true));
     await queueInteractor.getQueueState(state.config.queueId)..onSuccess((result) {
       emit(state.copyWith(loading: false, queueState: result.data));
@@ -111,11 +129,9 @@ class QueueCubit extends Cubit<QueueLogicState> {
 
     queueInteractor.connectToQueueSocket(
       state.config.queueId,
-      () => print("Connected"),
-      (queue) {
-        emit(state.copyWith(queueState: queue));
-      },
-      (error) => print(error)
+      () => { /* Do nothing */ },
+      (queue) => emit(state.copyWith(queueState: queue)),
+      (error) => { /* Do nothing */ }
     );
   }
 
@@ -127,7 +143,16 @@ class QueueCubit extends Cubit<QueueLogicState> {
     await queueInteractor.serveClientInQueue(state.config.queueId, client.email);
   }
 
-  void onSnackBarShowed() {
+  Future<void> share(String notificationText) async {
+    String username = state.queueState.ownerUsername!;
+    int locationId = state.config.locationId;
+    int queueId = state.config.queueId;
+    await Clipboard.setData(
+        ClipboardData(
+            text: '${ServerApi.clientUrl}/$username/locations/$locationId/queues/$queueId/client'
+        )
+    );
+    emit(state.copyWith(snackBar: notificationText));
     emit(state.copyWith(snackBar: null));
   }
 

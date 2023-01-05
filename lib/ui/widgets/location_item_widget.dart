@@ -20,19 +20,34 @@ class LocationItemWidget extends StatefulWidget {
 class _LocationItemState extends State<LocationItemWidget> {
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Card(
-        child: ListTile(
-          title: Text(widget.location.name),
-          subtitle: Text(widget.location.description),
-          trailing: widget.location.hasRules == true
-              ? IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () => widget.onDelete(widget.location),
-              )
-              : null,
-          onTap: () => widget.onClick(widget.location),
+    return Card(
+      child: ListTile(
+        leading: const SizedBox(
+          height: double.infinity,
+          child: Icon(Icons.location_on, color: Colors.teal, size: 35)
         ),
+        title: Text(
+          widget.location.name,
+          maxLines: 1,
+        ),
+        subtitle: SizedBox(
+          width: 5,
+          child: Text(
+            widget.location.description,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        trailing: widget.location.hasRules == true
+            ? SizedBox(
+                height: double.infinity,
+                child: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red, size: 25),
+                  onPressed: () => widget.onDelete(widget.location),
+                ),
+              )
+            : null,
+        onTap: () => widget.onClick(widget.location),
       ),
     );
   }

@@ -22,19 +22,34 @@ class QueueItemWidget extends StatefulWidget {
 class _QueueItemState extends State<QueueItemWidget> {
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Card(
-        child: ListTile(
-          onTap: () => widget.onClick(widget.queue),
-          title: Text(widget.queue.name),
-          subtitle: Text(widget.queue.description),
-          trailing: widget.queue.hasRules == true
-              ? IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () => widget.onDelete(widget.queue),
-              )
-              : null,
+    return Card(
+      child: ListTile(
+        leading: const SizedBox(
+            height: double.infinity,
+            child: Icon(Icons.people_alt_outlined, color: Colors.teal, size: 35)
         ),
+        title: Text(
+          widget.queue.name,
+          maxLines: 1,
+        ),
+        subtitle: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 200),
+          child: Text(
+            widget.queue.description,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        trailing: widget.queue.hasRules == true
+            ? SizedBox(
+          height: double.infinity,
+          child: IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red, size: 25),
+            onPressed: () => widget.onDelete(widget.queue),
+          ),
+        )
+            : null,
+        onTap: () => widget.onClick(widget.queue),
       ),
     );
   }

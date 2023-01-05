@@ -42,6 +42,7 @@ class ServerApi {
   final String noConnectionError = 'Нет соединения';
 
   static const url = 'http://localhost:8080';
+  static const clientUrl = 'http://localhost:64407';
 
   static const signupMethod = '/verification/signup';
   static const confirmMethod = '/verification/confirm';

@@ -6,12 +6,14 @@ class QueueModel {
   final String description;
   final List<ClientInQueueModel>? clients;
   final bool? hasRules;
+  final String? ownerUsername;
 
   QueueModel({
     this.id,
     required this.name,
     required this.description,
     this.clients,
-    this.hasRules
+    this.hasRules,
+    this.ownerUsername
   });
 }

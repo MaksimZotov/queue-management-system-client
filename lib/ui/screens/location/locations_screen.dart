@@ -34,7 +34,6 @@ class _LocationsState extends State<LocationsWidget> {
   Widget build(BuildContext context) {
     return BlocProvider<LocationsCubit>(
       create: (context) => statesAssembler.getLocationsCubit(widget.config)..onStart(),
-      lazy: true,
       child: BlocConsumer<LocationsCubit, LocationsLogicState>(
 
         listener: (context, state) {
