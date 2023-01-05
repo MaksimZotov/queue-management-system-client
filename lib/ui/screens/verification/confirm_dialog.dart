@@ -39,7 +39,6 @@ class _ConfirmState extends State<ConfirmWidget> {
   Widget build(BuildContext context) {
     return BlocProvider<ConfirmCubit>(
       create: (context) => statesAssembler.getConfirmCubit(),
-      lazy: true,
       child: BlocBuilder<ConfirmCubit, ConfirmLogicState>(
         builder: (context, state) => SimpleDialog(
           title: Text(title),

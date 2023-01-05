@@ -44,7 +44,6 @@ class _LocationsState extends State<LocationsWidget> {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(state.snackBar!),
             ));
-            BlocProvider.of<LocationsCubit>(context).onSnackBarShowed();
           }
         },
 
@@ -198,6 +197,7 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
       })
       ..onError((result) {
         emit(state.copyWith(loading: false, snackBar: result.description));
+        emit(state.copyWith(snackBar: null));
       });
     await loadNext();
   }
@@ -205,6 +205,7 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
   Future<void> logout() async {
     await verificationInteractor.logout();
     emit(state.copyWith(readyToLogout: true));
+    emit(state.copyWith(readyToLogout: false));
   }
 
   Future<void> loadNext() async {
@@ -229,6 +230,7 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
       })
       ..onError((result) {
         emit(state.copyWith(loading: false, snackBar: result.description));
+        emit(state.copyWith(snackBar: null));
       });
   }
 
@@ -244,6 +246,7 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
       _reload();
     })..onError((result) {
       emit(state.copyWith(loading: false, snackBar: result.description));
+      emit(state.copyWith(snackBar: null));
     });
   }
 
@@ -253,6 +256,7 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
       _reload();
     })..onError((result) {
       emit(state.copyWith(loading: false, snackBar: result.description));
+      emit(state.copyWith(snackBar: null));
     });
   }
 
@@ -264,9 +268,5 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
       isLast: false
     ));
     loadNext();
-  }
-
-  void onSnackBarShowed() {
-    emit(state.copyWith(snackBar: null));
   }
 }

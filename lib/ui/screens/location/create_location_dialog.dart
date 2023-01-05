@@ -36,7 +36,6 @@ class _CreateLocationState extends State<CreateLocationWidget> {
   Widget build(BuildContext context) {
     return BlocProvider<CreateLocationCubit>(
       create: (context) => statesAssembler.getCreateLocationCubit(),
-      lazy: true,
       child: BlocBuilder<CreateLocationCubit, CreateLocationLogicState>(
         builder: (context, state) => SimpleDialog(
           title: Text(title),

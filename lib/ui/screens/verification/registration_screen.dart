@@ -59,7 +59,6 @@ class RegistrationState extends State<RegistrationWidget> {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(state.snackBar!),
             ));
-            BlocProvider.of<RegistrationCubit>(context).onSnackBarShowed();
           }
         },
 
@@ -198,9 +197,9 @@ class RegistrationCubit extends Cubit<RegistrationLogicState> {
 
   final VerificationInteractor verificationInteractor;
 
-  RegistrationCubit({
-    required this.verificationInteractor,
-  }) : super(
+  RegistrationCubit(
+    this.verificationInteractor,
+  ) : super(
       RegistrationLogicState(
           username: '',
           email: '',
@@ -272,14 +271,16 @@ class RegistrationCubit extends Cubit<RegistrationLogicState> {
     )
       ..onSuccess((result) {
         emit(state.copyWith(loading: false, readyToConfirm: true, errors: {}));
+        emit(state.copyWith(readyToConfirm: false));
       })
       ..onError((result) {
         emit(state.copyWith(loading: false, snackBar: result.description, errors: result.errors));
+        emit(state.copyWith(snackBar: null));
       });
   }
 
   Future<void> confirm(ConfirmResult result) async {
-    emit(state.copyWith(loading: true, readyToConfirm: false));
+    emit(state.copyWith(loading: true));
     await verificationInteractor.confirm(
       ConfirmModel(
           username: state.username,
@@ -295,21 +296,16 @@ class RegistrationCubit extends Cubit<RegistrationLogicState> {
         )
           ..onSuccess((result) {
             emit(state.copyWith(loading: false, readyToLocations: true));
+            emit(state.copyWith(readyToLocations: false));
           })
           ..onError((result) {
             emit(state.copyWith(loading: false, snackBar: result.description));
+            emit(state.copyWith(snackBar: null));
           });
       })
       ..onError((result) {
         emit(state.copyWith(loading: false, snackBar: result.description));
+        emit(state.copyWith(snackBar: null));
       });
-  }
-
-  void onPush() {
-    emit(state.copyWith(readyToConfirm: false));
-  }
-
-  void onSnackBarShowed() {
-    emit(state.copyWith(snackBar: null));
   }
 }

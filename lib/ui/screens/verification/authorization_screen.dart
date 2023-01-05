@@ -41,7 +41,6 @@ class AuthorizationState extends State<AuthorizationWidget> {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(state.snackBar!),
             ));
-            BlocProvider.of<AuthorizationCubit>(context).onSnackBarShowed();
           }
         },
         builder: (context, state) => Scaffold(
@@ -163,24 +162,22 @@ class AuthorizationCubit extends Cubit<AuthorizationLogicState> {
 
   Future<void> onClickLogin() async {
     emit(state.copyWith(loading: true));
-    await verificationInteractor
-        .login(LoginModel(username: state.username, password: state.password))
+    await verificationInteractor.login(LoginModel(username: state.username, password: state.password))
       ..onSuccess((result) {
         emit(state.copyWith(loading: false, readyToLogin: true, errors: {}));
+        emit(state.copyWith(readyToLogin: false));
       })
       ..onError((result) {
         emit(state.copyWith(
             loading: false,
             snackBar: result.description,
-            errors: result.errors));
+            errors: result.errors
+        ));
+        emit(state.copyWith(snackBar: null));
       });
   }
 
   void onPush() {
     emit(state.copyWith(readyToLogin: false));
-  }
-
-  void onSnackBarShowed() {
-    emit(state.copyWith(snackBar: null));
   }
 }

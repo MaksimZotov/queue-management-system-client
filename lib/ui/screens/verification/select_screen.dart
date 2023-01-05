@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
-import 'package:queue_management_system_client/domain/models/base/result.dart';
-import 'package:queue_management_system_client/ui/screens/verification/registration_screen.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../domain/interactors/verification_interactor.dart';
 import '../../router/routes_config.dart';
 import '../location/locations_screen.dart';
 
@@ -20,7 +19,7 @@ class SelectWidget extends StatefulWidget {
 }
 
 class SelectState extends State<SelectWidget> {
-  final String title = 'Выбор способа верификации';
+  final String title = 'Вход в аккаунт';
   final String authorization = 'Авторизация';
   final String registration = 'Регистрация';
 
@@ -32,7 +31,6 @@ class SelectState extends State<SelectWidget> {
 
         listener: (context, state) {
           if (state.selectStateEnum == SelectStateEnum.goToLocations) {
-            BlocProvider.of<SelectCubit>(context).onPush();
             widget.emitConfig(LocationsConfig(username: 'me'));
           }
         },
@@ -86,21 +84,23 @@ class SelectLogicState {
 @injectable
 class SelectCubit extends Cubit<SelectLogicState> {
   final LocationInteractor locationInteractor;
+  final VerificationInteractor verificationInteractor;
 
-  SelectCubit({
-    required this.locationInteractor
-  }) : super(SelectLogicState(SelectStateEnum.stay));
+  SelectCubit(
+     this.locationInteractor,
+     this.verificationInteractor,
+  ) : super(SelectLogicState(SelectStateEnum.loading));
 
   Future<void> onStart() async {
-    //final result = await locationInteractor.getLocations(0, LocationsLogicState.pageSize);
-    //if (result is SuccessResult) {
-    //  //emit(SelectLogicState(SelectStateEnum.goToLocations));
-    //} else if (result is ErrorResult) {
-    //  emit(SelectLogicState(SelectStateEnum.stay));
-    //}
-  }
-
-  void onPush() {
-    emit(SelectLogicState(SelectStateEnum.loading));
+    if (await verificationInteractor.checkToken()) {
+      await locationInteractor.getLocations(0, LocationsLogicState.pageSize, 'me')
+          ..onSuccess((value) {
+            emit(SelectLogicState(SelectStateEnum.goToLocations));
+            emit(SelectLogicState(SelectStateEnum.stay));
+          })
+          ..onError((value) {
+            emit(SelectLogicState(SelectStateEnum.stay));
+          });
+    }
   }
 }
