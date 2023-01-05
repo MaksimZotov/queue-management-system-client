@@ -238,8 +238,8 @@ class ServerApi {
   Future<Result> deleteLocation(int locationId) async {
     return await _execRequest(
         converter: null,
-        request: _dioApi.get(
-            '$url/locations/check'
+        request: _dioApi.delete(
+            '$url/locations/$locationId/delete'
         )
     );
   }

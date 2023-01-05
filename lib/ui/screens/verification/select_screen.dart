@@ -96,11 +96,8 @@ class SelectCubit extends Cubit<SelectLogicState> {
       await locationInteractor.getLocations(0, LocationsLogicState.pageSize, 'me')
           ..onSuccess((value) {
             emit(SelectLogicState(SelectStateEnum.goToLocations));
-            emit(SelectLogicState(SelectStateEnum.stay));
-          })
-          ..onError((value) {
-            emit(SelectLogicState(SelectStateEnum.stay));
           });
     }
+    emit(SelectLogicState(SelectStateEnum.stay));
   }
 }
