@@ -268,7 +268,7 @@ class ClientCubit extends Cubit<ClientLogicState> {
         state.config.queueId
     )
       ..onSuccess((result) {
-        emit(state.copyWith(loading: false, clientState: result.data));
+        emit(state.copyWith(loading: false, clientState: result.data, email: result.data.email));
       })
       ..onError((result) {
         emit(state.copyWith(loading: false, snackBar: result.description));
@@ -290,6 +290,7 @@ class ClientCubit extends Cubit<ClientLogicState> {
     )
       ..onSuccess((result) {
         emit(state.copyWith(loading: false, clientState: result.data, readyToConfirm: true));
+        emit(state.copyWith(readyToConfirm: false));
       })
       ..onError((result) {
         emit(state.copyWith(loading: false, snackBar: result.description));

@@ -23,10 +23,10 @@ class _ClientItemState extends State<ClientItemWidget> {
   Widget build(BuildContext context) {
     return Center(
       child: Card(
+        color: widget.client.status == ClientInQueueStatus.confirmed
+            ? Colors.white
+            : Colors.white54,
         child: ListTile(
-          tileColor: widget.client.status == ClientInQueueStatus.confirmed
-              ? const Color.fromARGB(1, 224, 224, 224)
-              : const Color.fromARGB(1, 130, 130, 130),
           title: Text('${widget.client.firstName} ${widget.client.lastName}'),
           subtitle: Text(widget.client.email),
           leading: IconButton(
