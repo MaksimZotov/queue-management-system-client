@@ -1,6 +1,6 @@
 enum ClientInQueueStatus {
-  confirmed('Подтвержён'),
-  reserved('Не подтвержён');
+  confirmed('CONFIRMED'),
+  reserved('RESERVED');
 
   final String name;
   const ClientInQueueStatus(this.name);

@@ -41,6 +41,9 @@ class _ClientState extends State<ClientWidget> {
   final String updateText = 'Обновить';
   final String confirmWindowText = 'Окно подтверждения';
 
+  final String confirmed = 'Подтверждён';
+  final String reserved = 'Не подтверждён';
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ClientCubit>(
@@ -78,104 +81,109 @@ class _ClientState extends State<ClientWidget> {
               body: state.loading ? const Center(
                 child: CircularProgressIndicator(),
               ) : Center(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 16
-                    ),
-                    child: Column(
-                      children: <Widget>[
-                        Card(
-                          elevation: state.clientState.inQueue ? 5 : 0,
-                          color: state.clientState.inQueue ? Colors.white : Colors.transparent,
-                          child: Column(
-                            children: <Widget>[
-                              ClientInfoFieldWidget(
-                                  fieldName: queueLength,
-                                  fieldValue: state.clientState.queueLength.toString()
-                              )
-                            ] + (state.clientState.inQueue ? [
-                              ClientInfoFieldWidget(
-                                  fieldName: statusStart,
-                                  fieldValue: state.clientState.status!.name
-                              ),
-                              ClientInfoFieldWidget(
-                                  fieldName: emailStart,
-                                  fieldValue: state.clientState.email!
-                              ),
-                              ClientInfoFieldWidget(
-                                  fieldName: firstNameStart,
-                                  fieldValue: state.clientState.firstName!
-                              ),
-                              ClientInfoFieldWidget(
-                                  fieldName: lastNameStart,
-                                  fieldValue: state.clientState.lastName!
-                              ),
-                              ClientInfoFieldWidget(
-                                  fieldName: beforeMeStart,
-                                  fieldValue: state.clientState.beforeMe.toString()
-                              )
-                            ] : []),
-                          )
-                        ),
-                        const SizedBox(height: 10),
-                        Column(
-                          children: (state.clientState.inQueue ? <Widget>[
-                            ButtonWidget(
-                                text: leaveText,
-                                onClick: BlocProvider.of<ClientCubit>(context).leave
+                child: SizedBox(
+                  width: double.infinity,
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 16
+                      ),
+                      child: Column(
+                        children: <Widget>[
+                          Card(
+                            elevation: state.clientState.inQueue ? 5 : 0,
+                            color: state.clientState.inQueue ? Colors.white : Colors.transparent,
+                            child: Column(
+                              children: <Widget>[
+                                ClientInfoFieldWidget(
+                                    fieldName: queueLength,
+                                    fieldValue: state.clientState.queueLength.toString()
+                                )
+                              ] + (state.clientState.inQueue ? [
+                                ClientInfoFieldWidget(
+                                    fieldName: statusStart,
+                                    fieldValue: state.clientState.status == ClientInQueueStatus.confirmed
+                                      ? confirmed
+                                      : reserved
+                                ),
+                                ClientInfoFieldWidget(
+                                    fieldName: emailStart,
+                                    fieldValue: state.clientState.email!
+                                ),
+                                ClientInfoFieldWidget(
+                                    fieldName: firstNameStart,
+                                    fieldValue: state.clientState.firstName!
+                                ),
+                                ClientInfoFieldWidget(
+                                    fieldName: lastNameStart,
+                                    fieldValue: state.clientState.lastName!
+                                ),
+                                ClientInfoFieldWidget(
+                                    fieldName: beforeMeStart,
+                                    fieldValue: state.clientState.beforeMe.toString()
+                                )
+                              ] : []),
                             )
-                          ] : <Widget>[
+                          ),
+                          const SizedBox(height: 10),
+                          Column(
+                            children: (state.clientState.inQueue ? <Widget>[
+                              ButtonWidget(
+                                  text: leaveText,
+                                  onClick: BlocProvider.of<ClientCubit>(context).leave
+                              )
+                            ] : <Widget>[
+                              ButtonWidget(
+                                text: joinText,
+                                onClick: () => showDialog(
+                                    context: context,
+                                    builder: (context) => const ClientJoinWidget()
+                                ).then((result) {
+                                  if (result is ClientJoinResult) {
+                                    BlocProvider.of<ClientCubit>(context).join(result);
+                                  }
+                                }),
+                              )
+                            ]) + (state.clientState.status == ClientInQueueStatus.reserved ? <Widget>[
                             ButtonWidget(
-                              text: joinText,
+                                text: confirmWindowText,
+                                onClick: () {
+                                  if (state.email != '') {
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) =>
+                                            ClientConfirmWidget(
+                                                config: ClientConfirmConfig(
+                                                    email: state.email
+                                                )
+                                            )
+                                    ).then((result) =>
+                                        BlocProvider.of<ClientCubit>(context).confirm(result)
+                                    );
+                                  }
+                                }
+                            )
+                            ] : <Widget>[]) + <Widget>[
+                            ButtonWidget(
+                              text: rejoinText,
                               onClick: () => showDialog(
                                   context: context,
-                                  builder: (context) => const ClientJoinWidget()
+                                  builder: (context) => const ClientRejoinWidget()
                               ).then((result) {
-                                if (result is ClientJoinResult) {
-                                  BlocProvider.of<ClientCubit>(context).join(result);
+                                if (result is ClientRejoinResult) {
+                                  BlocProvider.of<ClientCubit>(context).rejoin(result);
                                 }
                               }),
-                            )
-                          ]) + (state.clientState.status == ClientInQueueStatus.reserved ? <Widget>[
-                          ButtonWidget(
-                              text: confirmWindowText,
-                              onClick: () {
-                                if (state.email != '') {
-                                  showDialog(
-                                      context: context,
-                                      builder: (context) =>
-                                          ClientConfirmWidget(
-                                              config: ClientConfirmConfig(
-                                                  email: state.email
-                                              )
-                                          )
-                                  ).then((result) =>
-                                      BlocProvider.of<ClientCubit>(context).confirm(result)
-                                  );
-                                }
-                              }
-                          )
-                          ] : <Widget>[]) + <Widget>[
-                          ButtonWidget(
-                            text: rejoinText,
-                            onClick: () => showDialog(
-                                context: context,
-                                builder: (context) => const ClientRejoinWidget()
-                            ).then((result) {
-                              if (result is ClientRejoinResult) {
-                                BlocProvider.of<ClientCubit>(context).rejoin(result);
-                              }
-                            }),
+                            ),
+                            ButtonWidget(
+                                text: updateText,
+                                onClick: BlocProvider.of<ClientCubit>(context).onStart
+                            ),
+                            ]
                           ),
-                          ButtonWidget(
-                              text: updateText,
-                              onClick: BlocProvider.of<ClientCubit>(context).onStart
-                          ),
-                          ]
-                        ),
-                      ]
+                        ]
+                      ),
                     ),
                   ),
                 ),
