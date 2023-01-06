@@ -189,6 +189,7 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
       ..onSuccess((result) async {
         emit(
             state.copyWith(
+                ownerUsername: result.data.ownerUsername,
                 locationName: result.data.name,
                 hasRules: result.data.hasRules
             )

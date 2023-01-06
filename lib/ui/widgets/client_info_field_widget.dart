@@ -38,18 +38,15 @@ class ClientInfoFieldState extends State<ClientInfoFieldWidget> {
                 ),
               ),
               const SizedBox(height: 5),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child:  Flexible(
-                  child: Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: Text(
-                      widget.fieldValue,
-                      style: const TextStyle(fontSize: 16, color: Colors.white),
-                    ),
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: Text(
+                    widget.fieldValue,
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),

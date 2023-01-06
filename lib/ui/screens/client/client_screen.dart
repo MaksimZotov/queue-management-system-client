@@ -264,6 +264,7 @@ class ClientCubit extends Cubit<ClientLogicState> {
       })
       ..onError((result) {
         emit(state.copyWith(loading: false, snackBar: result.description));
+        emit(state.copyWith(snackBar: null));
       });
   }
 
@@ -284,6 +285,7 @@ class ClientCubit extends Cubit<ClientLogicState> {
       })
       ..onError((result) {
         emit(state.copyWith(loading: false, snackBar: result.description));
+        emit(state.copyWith(snackBar: null));
       });
   }
 
@@ -298,6 +300,7 @@ class ClientCubit extends Cubit<ClientLogicState> {
       })
       ..onError((result) {
         emit(state.copyWith(loading: false, snackBar: result.description));
+        emit(state.copyWith(snackBar: null));
       });
   }
 
@@ -314,6 +317,7 @@ class ClientCubit extends Cubit<ClientLogicState> {
         })
         ..onError((result) {
           emit(state.copyWith(loading: false, snackBar: result.description));
+          emit(state.copyWith(snackBar: null));
         });
     } else {
       emit(state.copyWith(loading: false, readyToConfirm: false));
@@ -327,10 +331,7 @@ class ClientCubit extends Cubit<ClientLogicState> {
       })
       ..onError((result) {
         emit(state.copyWith(snackBar: result.description));
+        emit(state.copyWith(snackBar: null));
       });
-  }
-
-  void onSnackBarShowed() {
-    emit(state.copyWith(snackBar: null));
   }
 }
