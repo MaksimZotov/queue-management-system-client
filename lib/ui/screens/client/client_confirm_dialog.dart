@@ -36,7 +36,7 @@ class ClientConfirmWidget extends StatefulWidget {
 
 class _ClientConfirmState extends State<ClientConfirmWidget> {
   final String title = 'Подтверждение кода';
-  final String codeHint = 'код';
+  final String codeHint = 'Код';
 
   final String confirmText = 'Подтвердить';
 
