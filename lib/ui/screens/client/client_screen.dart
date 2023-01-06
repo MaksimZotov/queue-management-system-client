@@ -41,12 +41,10 @@ class _ClientState extends State<ClientWidget> {
   final String updateText = 'Обновить';
   final String confirmWindowText = 'Окно подтверждения';
 
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ClientCubit>(
       create: (context) => statesAssembler.getClientCubit(widget.config)..onStart(),
-      lazy: true,
       child: BlocConsumer<ClientCubit, ClientLogicState>(
 
         listener: (context, state) {
@@ -63,6 +61,10 @@ class _ClientState extends State<ClientWidget> {
                 BlocProvider.of<ClientCubit>(context).confirm(result);
               }
             });
+          } else if (state.snackBar != null) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(state.snackBar!),
+            ));
           }
         },
 
@@ -162,7 +164,7 @@ class _ClientState extends State<ClientWidget> {
                                 context: context,
                                 builder: (context) => const ClientRejoinWidget()
                             ).then((result) {
-                              if (result is ClientJoinResult) {
+                              if (result is ClientRejoinResult) {
                                 BlocProvider.of<ClientCubit>(context).rejoin(result);
                               }
                             }),
@@ -285,7 +287,7 @@ class ClientCubit extends Cubit<ClientLogicState> {
       });
   }
 
-  Future<void> rejoin(ClientJoinResult result) async {
+  Future<void> rejoin(ClientRejoinResult result) async {
     emit(state.copyWith(loading: true, email: result.email));
     await clientInteractor.rejoinClientToQueue(
         state.config.queueId,

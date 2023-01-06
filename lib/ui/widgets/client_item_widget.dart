@@ -24,7 +24,7 @@ class _ClientItemState extends State<ClientItemWidget> {
     return Center(
       child: Card(
         child: ListTile(
-          tileColor: widget.client.status == ClientInQueueStatus.inQueue
+          tileColor: widget.client.status == ClientInQueueStatus.confirmed
               ? const Color.fromARGB(1, 224, 224, 224)
               : const Color.fromARGB(1, 130, 130, 130),
           title: Text('${widget.client.firstName} ${widget.client.lastName}'),

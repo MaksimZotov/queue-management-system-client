@@ -39,6 +39,7 @@ class _ClientConfirmState extends State<ClientConfirmWidget> {
   final String codeHint = 'Код';
 
   final String confirmText = 'Подтвердить';
+  final String cancelText = 'Отмена';
 
   @override
   Widget build(BuildContext context) {
@@ -48,13 +49,19 @@ class _ClientConfirmState extends State<ClientConfirmWidget> {
       child: BlocBuilder<ClientConfirmCubit, ClientConfirmLogicState>(
         builder: (context, state) => SimpleDialog(
           title: Text(title),
-          contentPadding: const EdgeInsets.all(20),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                  Radius.circular(16.0)
+              )
+          ),
           children: [
             TextFieldWidget(
                 label: codeHint,
                 text: state.code,
                 onTextChanged: BlocProvider.of<ClientConfirmCubit>(context).setEmail
             ),
+            const SizedBox(height: 16),
             ButtonWidget(
                 text: confirmText,
                 onClick: () => Navigator.of(context).pop(
@@ -63,6 +70,10 @@ class _ClientConfirmState extends State<ClientConfirmWidget> {
                         email: widget.config.email
                     )
                 )
+            ),
+            ButtonWidget(
+                text: cancelText,
+                onClick: Navigator.of(context).pop
             )
           ],
         ),

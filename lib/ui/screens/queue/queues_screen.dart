@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
@@ -6,6 +7,7 @@ import 'package:queue_management_system_client/domain/models/queue/queue_model.d
 import 'package:queue_management_system_client/ui/screens/queue/create_queue_dialog.dart';
 import 'package:queue_management_system_client/ui/widgets/queue_item_widget.dart';
 
+import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../router/routes_config.dart';
@@ -22,8 +24,9 @@ class QueuesWidget extends StatefulWidget {
 }
 
 class _QueuesState extends State<QueuesWidget> {
-  final titleStart = 'Локация: ';
+  final String titleStart = 'Локация: ';
   final String createLocationHint = 'Создать локацию';
+  final String linkCopied = 'Ссылка скопирована';
 
   final ScrollController _scrollController = ScrollController();
 
@@ -44,6 +47,14 @@ class _QueuesState extends State<QueuesWidget> {
         builder: (context, state) => Scaffold(
           appBar: AppBar(
             title: Text(state.locationName.isEmpty ? '' : titleStart + state.locationName),
+            actions: state.ownerUsername != null
+                ? [
+                  IconButton(
+                    icon: const Icon(Icons.share),
+                    onPressed: () => BlocProvider.of<QueuesCubit>(context).share(linkCopied),
+                  ),
+                ]
+                : null,
           ),
           body: ListView.builder(
             controller: _scrollController
@@ -104,6 +115,7 @@ class QueuesLogicState {
 
   final QueuesConfig config;
 
+  final String? ownerUsername;
   final String locationName;
   final bool hasRules;
 
@@ -116,6 +128,7 @@ class QueuesLogicState {
 
   QueuesLogicState({
     required this.config,
+    required this.ownerUsername,
     required this.locationName,
     required this.hasRules,
     required this.queues,
@@ -126,6 +139,7 @@ class QueuesLogicState {
   });
 
   QueuesLogicState copyWith({
+    String? ownerUsername,
     String? locationName,
     List<QueueModel>? queues,
     bool? hasRules,
@@ -136,6 +150,7 @@ class QueuesLogicState {
   }) =>
       QueuesLogicState(
           config: config,
+          ownerUsername: ownerUsername ?? this.ownerUsername,
           locationName: locationName ?? this.locationName,
           hasRules: hasRules ?? this.hasRules,
           queues: queues ?? this.queues,
@@ -156,6 +171,7 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
   }) : super(
       QueuesLogicState(
             config: config,
+            ownerUsername: null,
             locationName: '',
             hasRules: false,
             queues: [],
@@ -238,5 +254,17 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
   Future<void> _reload() async {
     emit(state.copyWith(loading: false, queues: [], curPage: 0, isLast: false));
     loadNext();
+  }
+
+  Future<void> share(String notificationText) async {
+    String username = state.ownerUsername!;
+    int locationId = state.config.locationId;
+    await Clipboard.setData(
+        ClipboardData(
+            text: '${ServerApi.clientUrl}/$username/locations/$locationId/queues'
+        )
+    );
+    emit(state.copyWith(snackBar: notificationText));
+    emit(state.copyWith(snackBar: null));
   }
 }

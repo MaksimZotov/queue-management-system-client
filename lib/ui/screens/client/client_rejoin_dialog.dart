@@ -29,6 +29,7 @@ class _ClientRejoinState extends State<ClientRejoinWidget> {
   final String emailHint = 'Почта';
 
   final String rejoinText = 'Переподключиться';
+  final String cancelText = 'Отмена';
 
   @override
   Widget build(BuildContext context) {
@@ -38,13 +39,19 @@ class _ClientRejoinState extends State<ClientRejoinWidget> {
       child: BlocBuilder<ClientRejoinCubit, ClientRejoinLogicState>(
         builder: (context, state) => SimpleDialog(
           title: Text(title),
-          contentPadding: const EdgeInsets.all(20),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                  Radius.circular(16.0)
+              )
+          ),
           children: [
             TextFieldWidget(
                 label: emailHint,
                 text: state.email,
                 onTextChanged: BlocProvider.of<ClientRejoinCubit>(context).setEmail
             ),
+            const SizedBox(height: 16),
             ButtonWidget(
                 text: rejoinText,
                 onClick: () => Navigator.of(context).pop(
@@ -52,6 +59,10 @@ class _ClientRejoinState extends State<ClientRejoinWidget> {
                         email: state.email
                     )
                 )
+            ),
+            ButtonWidget(
+                text: cancelText,
+                onClick: Navigator.of(context).pop
             )
           ],
         ),

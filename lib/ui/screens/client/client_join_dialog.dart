@@ -35,6 +35,7 @@ class _ClientJoinState extends State<ClientJoinWidget> {
   final String lastNameHint = 'Фамилия';
 
   final String joinText = 'Подключиться';
+  final String cancelText = 'Отмена';
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +45,12 @@ class _ClientJoinState extends State<ClientJoinWidget> {
       child: BlocBuilder<ClientJoinCubit, ClientJoinLogicState>(
         builder: (context, state) => SimpleDialog(
           title: Text(title),
-          contentPadding: const EdgeInsets.all(20),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                  Radius.circular(16.0)
+              )
+          ),
           children: [
             TextFieldWidget(
                 label: emailHint,
@@ -61,6 +67,7 @@ class _ClientJoinState extends State<ClientJoinWidget> {
                 text: state.lastName,
                 onTextChanged: BlocProvider.of<ClientJoinCubit>(context).setLastName
             ),
+            const SizedBox(height: 16),
             ButtonWidget(
                 text: joinText,
                 onClick: () => Navigator.of(context).pop(
@@ -70,6 +77,10 @@ class _ClientJoinState extends State<ClientJoinWidget> {
                         lastName: state.lastName
                     )
                 )
+            ),
+            ButtonWidget(
+                text: cancelText,
+                onClick: Navigator.of(context).pop
             )
           ],
         ),
