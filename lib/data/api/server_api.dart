@@ -34,7 +34,7 @@ import '../converters/verification/signup_converters.dart';
 import '../converters/verification/tokens_converter.dart';
 import '../local/secure_storage.dart';
 
-@lazySingleton
+@singleton
 class ServerApi {
   final String unknownError = 'Неизвестная ошибка';
   final String serverError = 'Ошибка на сервере';
