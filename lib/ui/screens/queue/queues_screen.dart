@@ -1,7 +1,9 @@
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
 import 'package:queue_management_system_client/ui/screens/queue/create_queue_dialog.dart';
@@ -49,6 +51,10 @@ class _QueuesState extends State<QueuesWidget> {
             title: Text(state.locationName.isEmpty ? '' : titleStart + state.locationName),
             actions: state.ownerUsername != null
                 ? [
+                  IconButton(
+                      icon: const Icon(Icons.qr_code),
+                      onPressed: BlocProvider.of<QueuesCubit>(context).downloadQrCode
+                  ),
                   IconButton(
                     icon: const Icon(Icons.share),
                     onPressed: () => BlocProvider.of<QueuesCubit>(context).share(linkCopied),
@@ -267,5 +273,30 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
     );
     emit(state.copyWith(snackBar: notificationText));
     emit(state.copyWith(snackBar: null));
+  }
+
+  Future<void> downloadQrCode() async {
+    String username = state.ownerUsername!;
+    int locationId = state.config.locationId;
+    String url = '${ServerApi.clientUrl}/$username/locations/$locationId/queues';
+
+    final image = await QrPainter(
+      data: url,
+      version: QrVersions.auto,
+      errorCorrectionLevel: QrErrorCorrectLevel.Q,
+      color: Colors.black,
+      emptyColor: Colors.white,
+    ).toImageData(1024);
+
+    image?.buffer.asUint8List();
+
+    if (image != null) {
+      await FileSaver.instance.saveFile(
+          url,
+          image.buffer.asUint8List(),
+          'png',
+          mimeType: MimeType.PNG
+      );
+    }
   }
 }
