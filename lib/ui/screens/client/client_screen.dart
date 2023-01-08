@@ -33,6 +33,7 @@ class _ClientState extends State<ClientWidget> {
   final String emailStart = 'Почта:';
   final String firstNameStart = 'Имя:';
   final String lastNameStart = 'Фамилия:';
+  final String codeStart = 'Код:';
   final String beforeMeStart = 'Перед вами:';
 
   final String joinText = 'Подключиться';
@@ -123,17 +124,17 @@ class _ClientState extends State<ClientWidget> {
                                     fieldName: beforeMeStart,
                                     fieldValue: state.clientState.beforeMe.toString()
                                 )
+                              ] : []) + (state.clientState.status == ClientInQueueStatus.confirmed ? [
+                                ClientInfoFieldWidget(
+                                    fieldName: codeStart,
+                                    fieldValue: state.clientState.accessKey!
+                                )
                               ] : []),
                             )
                           ),
                           const SizedBox(height: 10),
                           Column(
-                            children: (state.clientState.inQueue ? <Widget>[
-                              ButtonWidget(
-                                  text: leaveText,
-                                  onClick: BlocProvider.of<ClientCubit>(context).leave
-                              )
-                            ] : <Widget>[
+                            children: (!state.clientState.inQueue ? <Widget>[
                               ButtonWidget(
                                 text: joinText,
                                 onClick: () => showDialog(
@@ -145,7 +146,12 @@ class _ClientState extends State<ClientWidget> {
                                   }
                                 }),
                               )
-                            ]) + (state.clientState.status == ClientInQueueStatus.reserved ? <Widget>[
+                            ] : <Widget>[]) + (state.clientState.status == ClientInQueueStatus.confirmed ? <Widget>[
+                              ButtonWidget(
+                                  text: leaveText,
+                                  onClick: BlocProvider.of<ClientCubit>(context).leave
+                              )
+                            ] : <Widget>[]) + (state.clientState.status == ClientInQueueStatus.reserved ? <Widget>[
                             ButtonWidget(
                                 text: confirmWindowText,
                                 onClick: () {

@@ -4,6 +4,8 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:injectable/injectable.dart';
+import 'package:queue_management_system_client/domain/models/client/client_join_info_model.dart';
+import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 
 import '../../../data/repositories/repository.dart';
 import '../../models/base/container_for_list.dart';
@@ -45,6 +47,11 @@ class QueueInteractorImpl extends QueueInteractor {
   @override
   Future<Result> serveClientInQueue(int queueId, String email) async {
     return await _repository.serveClientInQueue(queueId, email);
+  }
+
+  @override
+  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, ClientJoinInfo clientJoinInfo) async {
+    return await _repository.addClientToQueue(queueId, clientJoinInfo);
   }
 
   @override

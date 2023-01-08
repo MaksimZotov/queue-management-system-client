@@ -288,8 +288,6 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
       emptyColor: Colors.white,
     ).toImageData(1024);
 
-    image?.buffer.asUint8List();
-
     if (image != null) {
       await FileSaver.instance.saveFile(
           url,

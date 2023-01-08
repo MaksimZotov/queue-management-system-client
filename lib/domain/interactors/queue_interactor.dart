@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 
 import '../models/base/container_for_list.dart';
 import '../models/base/result.dart';
+import '../models/client/client_join_info_model.dart';
+import '../models/queue/client_in_queue_model.dart';
 import '../models/queue/queue_model.dart';
 
 abstract class QueueInteractor {
@@ -11,6 +13,7 @@ abstract class QueueInteractor {
   Future<Result<QueueModel>> getQueueState(int id);
   Future<Result> serveClientInQueue(int queueId, String email);
   Future<Result> notifyClientInQueue(int queueId, String email);
+  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, ClientJoinInfo clientJoinInfo);
   void connectToQueueSocket(int queueId, VoidCallback onConnected, ValueChanged<QueueModel> onQueueChanged, ValueChanged onError);
   void disconnectFromQueueSocket(int queueId);
 }

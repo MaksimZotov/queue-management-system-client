@@ -8,11 +8,13 @@ import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/converters/client/client_converter.dart';
 import 'package:queue_management_system_client/data/converters/client/client_join_info_converter.dart';
 import 'package:queue_management_system_client/data/converters/location/has_rules_converter.dart';
+import 'package:queue_management_system_client/data/converters/queue/client_in_queue_converter.dart';
 import 'package:queue_management_system_client/data/converters/verification/confirm_converter.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
 import 'package:queue_management_system_client/domain/models/client/client_model.dart';
 import 'package:queue_management_system_client/domain/models/location/has_rules_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
+import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 import 'package:queue_management_system_client/domain/models/verification/confirm_model.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
@@ -63,6 +65,7 @@ class ServerApi {
   final HasRulesConverter _hasRulesConverter;
 
   final QueueConverter _queueConverter;
+  final ClientInQueueConverter _clientInQueueConverter;
 
   final ClientConverter _clientConverter;
   final ClientJoinInfoConverter _clientJoinInfoConverter;
@@ -82,6 +85,7 @@ class ServerApi {
       this._locationConverter,
       this._hasRulesConverter,
       this._queueConverter,
+      this._clientInQueueConverter,
       this._clientConverter,
       this._clientJoinInfoConverter
   );
@@ -318,6 +322,16 @@ class ServerApi {
         request: _dioApi.post(
             '$url/queues/$queueId/notify',
             queryParameters: { 'email': email }
+        )
+    );
+  }
+
+  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, ClientJoinInfo clientJoinInfo) async {
+    return await _execRequest(
+        converter: _clientInQueueConverter,
+        request: _dioApi.post(
+            '$url/queues/$queueId/client/add',
+            data: _clientJoinInfoConverter.toJson(clientJoinInfo)
         )
     );
   }

@@ -6,12 +6,16 @@ import 'package:injectable/injectable.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
+import 'package:queue_management_system_client/domain/models/client/client_join_info_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
 import 'package:queue_management_system_client/ui/widgets/client_item_widget.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../router/routes_config.dart';
+import 'add_client_dialog.dart';
 
 
 class QueueWidget extends StatefulWidget {
@@ -68,6 +72,17 @@ class _QueueState extends State<QueueWidget> {
               );
             },
             itemCount: state.queueState.clients!.length,
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => showDialog(
+                context: context,
+                builder: (context) => const AddClientWidget()
+            ).then((result) {
+              if (result is AddClientResult) {
+                BlocProvider.of<QueueCubit>(context).addClient(result);
+              }
+            }),
+            child: const Icon(Icons.add),
           ),
         ),
       ),
@@ -131,6 +146,7 @@ class QueueCubit extends Cubit<QueueLogicState> {
       emit(state.copyWith(loading: false, queueState: result.data));
     })..onError((result) {
       emit(state.copyWith(loading: false, snackBar: result.description));
+      emit(state.copyWith(snackBar: null));
     });
 
     queueInteractor.connectToQueueSocket(
@@ -176,8 +192,6 @@ class QueueCubit extends Cubit<QueueLogicState> {
       emptyColor: Colors.white,
     ).toImageData(1024);
 
-    image?.buffer.asUint8List();
-
     if (image != null) {
       await FileSaver.instance.saveFile(
           url,
@@ -192,5 +206,87 @@ class QueueCubit extends Cubit<QueueLogicState> {
   Future<void> close() async {
     queueInteractor.disconnectFromQueueSocket(state.config.queueId);
     return super.close();
+  }
+
+  Future<void> addClient(AddClientResult addClientResult) async {
+    emit(state.copyWith(loading: true));
+    await queueInteractor.addClientToQueue(
+        state.config.queueId,
+        ClientJoinInfo(
+            email: addClientResult.email,
+            firstName: addClientResult.firstName,
+            lastName: addClientResult.lastName
+        )
+    )
+        ..onSuccess((result) async {
+          if (addClientResult.save) {
+            await downloadClientState(
+                state.queueState.name,
+                addClientResult.email,
+                addClientResult.firstName,
+                addClientResult.lastName,
+                result.data.accessKey
+            );
+          }
+        })
+        ..onError((result) {
+          emit(state.copyWith(loading: false, snackBar: result.description));
+          emit(state.copyWith(snackBar: null));
+        });
+  }
+
+  Future<void> downloadClientState(
+      String queueName,
+      String email,
+      String firstName,
+      String lastName,
+      String accessKey
+  ) async {
+    final pdf = pw.Document();
+    final font = await rootBundle.load("fonts/OpenSans-Regular.ttf");
+    final ttf = pw.Font.ttf(font);
+
+    pdf.addPage(
+        pw.Page(
+            pageFormat: const PdfPageFormat(60 * PdfPageFormat.mm, 58 * PdfPageFormat.mm),
+            build: (pw.Context context) {
+              return pw.Center(
+                child: pw.Padding(
+                    padding: const pw.EdgeInsets.all(5),
+                    child: pw.Column(
+                        mainAxisAlignment: pw.MainAxisAlignment.start,
+                        children: [
+                          pw.Text(
+                              queueName,
+                              style: pw.TextStyle(font: ttf, fontSize: 18)
+                          ),
+                          pw.SizedBox(height: 5),
+                          pw.Text(
+                              email,
+                              style: pw.TextStyle(font: ttf, fontSize: 14)
+                          ),
+                          pw.Text(
+                              '$firstName $lastName',
+                              style: pw.TextStyle(font: ttf, fontSize: 14)
+                          ),
+                          pw.SizedBox(height: 5),
+                          pw.Text(
+                              accessKey,
+                              style: pw.TextStyle(font: ttf, fontSize: 18)
+                          )
+                        ]
+                    )
+                )
+              );
+            }
+        )
+    );
+
+    await FileSaver.instance.saveFile(
+        '$firstName $lastName $queueName',
+        await pdf.save(),
+        'pdf',
+        mimeType: MimeType.PDF
+    );
   }
 }

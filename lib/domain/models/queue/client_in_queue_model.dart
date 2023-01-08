@@ -5,6 +5,7 @@ class ClientInQueueModel {
   final String firstName;
   final String lastName;
   final int orderNumber;
+  final String accessKey;
   final ClientInQueueStatus status;
 
   ClientInQueueModel({
@@ -12,6 +13,7 @@ class ClientInQueueModel {
     required this.firstName,
     required this.lastName,
     required this.orderNumber,
+    required this.accessKey,
     required this.status
   });
 }

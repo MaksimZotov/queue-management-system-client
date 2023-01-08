@@ -12,6 +12,7 @@ import 'package:queue_management_system_client/domain/models/queue/queue_model.d
 
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/client/client_join_info_model.dart';
+import '../../../domain/models/queue/client_in_queue_model.dart';
 import '../../../domain/models/verification/confirm_model.dart';
 import '../../../domain/models/verification/login_model.dart';
 import '../../../domain/models/verification/signup_model.dart';
@@ -122,6 +123,11 @@ class RepositoryImpl extends Repository {
   @override
   Future<Result> serveClientInQueue(int queueId, String email) async {
     return await _serverApi.serveClientInQueue(queueId, email);
+  }
+
+  @override
+  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, ClientJoinInfo clientJoinInfo) async {
+    return await _serverApi.addClientToQueue(queueId, clientJoinInfo);
   }
 
   @override

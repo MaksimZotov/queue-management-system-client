@@ -28,7 +28,7 @@ class _ClientItemState extends State<ClientItemWidget> {
             : Colors.white54,
         child: ListTile(
           title: Text('${widget.client.firstName} ${widget.client.lastName}'),
-          subtitle: Text(widget.client.email),
+          subtitle: Text('${widget.client.email} (${widget.client.accessKey})'),
           leading: IconButton(
             icon: const Icon(Icons.done_outline_rounded),
             onPressed: () => widget.onServe(widget.client),
