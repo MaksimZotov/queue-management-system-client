@@ -168,11 +168,19 @@ class QueueCubit extends Cubit<QueueLogicState> {
   }
 
   Future<void> notify(ClientInQueueModel client) async {
-    await queueInteractor.notifyClientInQueue(state.config.queueId, client.id);
+    await queueInteractor.notifyClientInQueue(state.config.queueId, client.id)
+      ..onError((result) {
+        emit(state.copyWith(snackBar: result.description));
+        emit(state.copyWith(snackBar: null));
+      });
   }
 
   Future<void> serve(ClientInQueueModel client) async {
-    await queueInteractor.serveClientInQueue(state.config.queueId, client.id);
+    await queueInteractor.serveClientInQueue(state.config.queueId, client.id)
+      ..onError((result) {
+        emit(state.copyWith(snackBar: result.description));
+        emit(state.copyWith(snackBar: null));
+    });
   }
 
   Future<void> share(String notificationText) async {
@@ -231,6 +239,7 @@ class QueueCubit extends Cubit<QueueLogicState> {
           if (addClientResult.save) {
             await downloadClientState(
                 state.queueState.name,
+                result.data.publicCode.toString(),
                 addClientResult.firstName,
                 addClientResult.lastName,
                 result.data.accessKey
@@ -245,6 +254,7 @@ class QueueCubit extends Cubit<QueueLogicState> {
 
   Future<void> downloadClientState(
       String queueName,
+      String publicKey,
       String firstName,
       String lastName,
       String accessKey
@@ -265,6 +275,10 @@ class QueueCubit extends Cubit<QueueLogicState> {
                         children: [
                           pw.Text(
                               queueName,
+                              style: pw.TextStyle(font: ttf, fontSize: 18)
+                          ),
+                          pw.Text(
+                              publicKey,
                               style: pw.TextStyle(font: ttf, fontSize: 18)
                           ),
                           pw.SizedBox(height: 5),

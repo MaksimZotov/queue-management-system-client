@@ -11,6 +11,7 @@ class ClientInQueueFields {
   final String firstName = 'first_name';
   final String lastName = 'last_name';
   final String orderNumber = 'order_number';
+  final String publicCode = 'public_code';
   final String accessKey = 'access_key';
   final String status = 'status';
 }
@@ -27,6 +28,7 @@ class ClientInQueueConverter extends JsonConverter<ClientInQueueModel> {
       firstName: json[_clientInQueueField.firstName] as String,
       lastName: json[_clientInQueueField.lastName] as String,
       orderNumber: json[_clientInQueueField.orderNumber] as int,
+      publicCode: json[_clientInQueueField.publicCode] as int,
       accessKey: json[_clientInQueueField.accessKey] as String,
       status: ClientInQueueStatus.get(json[_clientInQueueField.status] as String)!,
   );
@@ -38,6 +40,7 @@ class ClientInQueueConverter extends JsonConverter<ClientInQueueModel> {
     _clientInQueueField.firstName: data.firstName,
     _clientInQueueField.lastName: data.lastName,
     _clientInQueueField.orderNumber: data.orderNumber,
+    _clientInQueueField.publicCode: data.publicCode,
     _clientInQueueField.accessKey: data.accessKey,
     _clientInQueueField.status: data.status.name
   };
