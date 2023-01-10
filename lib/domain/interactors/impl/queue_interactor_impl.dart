@@ -10,6 +10,7 @@ import 'package:queue_management_system_client/domain/models/queue/client_in_que
 import '../../../data/repositories/repository.dart';
 import '../../models/base/container_for_list.dart';
 import '../../models/base/result.dart';
+import '../../models/queue/add_client_info.dart';
 import '../../models/queue/queue_model.dart';
 import '../queue_interactor.dart';
 
@@ -20,8 +21,8 @@ class QueueInteractorImpl extends QueueInteractor {
   QueueInteractorImpl(this._repository);
 
   @override
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, int page, int pageSize, String? username) async {
-    return await _repository.getQueues(locationId, page, pageSize, username);
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String? username) async {
+    return await _repository.getQueues(locationId, username);
   }
 
   @override
@@ -40,27 +41,17 @@ class QueueInteractorImpl extends QueueInteractor {
   }
 
   @override
-  Future<Result> notifyClientInQueue(int queueId, String email) async {
-    return await _repository.notifyClientInQueue(queueId, email);
+  Future<Result> notifyClientInQueue(int queueId, int clientId) async {
+    return await _repository.notifyClientInQueue(queueId, clientId);
   }
 
   @override
-  Future<Result> serveClientInQueue(int queueId, String email) async {
-    return await _repository.serveClientInQueue(queueId, email);
+  Future<Result> serveClientInQueue(int queueId, int clientId) async {
+    return await _repository.serveClientInQueue(queueId, clientId);
   }
 
   @override
-  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, ClientJoinInfo clientJoinInfo) async {
-    return await _repository.addClientToQueue(queueId, clientJoinInfo);
-  }
-
-  @override
-  void connectToQueueSocket(int queueId, VoidCallback onConnected, ValueChanged<QueueModel> onQueueChanged, ValueChanged onError) {
-    _repository.connectToQueueSocket(queueId, onConnected, onQueueChanged, onError);
-  }
-
-  @override
-  void disconnectFromQueueSocket(int queueId) {
-    _repository.disconnectFromQueueSocket(queueId);
+  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, AddClientInfo addClientInfo) async {
+    return await _repository.addClientToQueue(queueId, addClientInfo);
   }
 }

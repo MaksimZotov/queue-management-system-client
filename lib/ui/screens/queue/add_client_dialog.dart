@@ -7,13 +7,11 @@ import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart
 import '../../../di/assemblers/states_assembler.dart';
 
 class AddClientResult {
-  final String email;
   final String firstName;
   final String lastName;
   final bool save;
 
   AddClientResult({
-    required this.email,
     required this.firstName,
     required this.lastName,
     required this.save
@@ -55,11 +53,6 @@ class _AddClientState extends State<AddClientWidget> {
           ),
           children: [
             TextFieldWidget(
-                label: emailHint,
-                text: state.email,
-                onTextChanged: BlocProvider.of<AddClientCubit>(context).setEmail
-            ),
-            TextFieldWidget(
                 label: firstNameHint,
                 text: state.firstName,
                 onTextChanged: BlocProvider.of<AddClientCubit>(context).setFirstName
@@ -74,7 +67,6 @@ class _AddClientState extends State<AddClientWidget> {
                 text: addText,
                 onClick: () => Navigator.of(context).pop(
                     AddClientResult(
-                        email: state.email,
                         firstName: state.firstName,
                         lastName: state.lastName,
                         save: false
@@ -85,7 +77,6 @@ class _AddClientState extends State<AddClientWidget> {
                 text: addAndSaveText,
                 onClick: () => Navigator.of(context).pop(
                     AddClientResult(
-                        email: state.email,
                         firstName: state.firstName,
                         lastName: state.lastName,
                         save: true
@@ -105,12 +96,10 @@ class _AddClientState extends State<AddClientWidget> {
 
 class AddClientLogicState {
 
-  final String email;
   final String firstName;
   final String lastName;
 
   AddClientLogicState({
-    required this.email,
     required this.firstName,
     required this.lastName
   });
@@ -120,7 +109,6 @@ class AddClientLogicState {
     String? firstName,
     String? lastName,
   }) => AddClientLogicState(
-    email: email ?? this.email,
     firstName: firstName ?? this.firstName,
     lastName: lastName ?? this.lastName,
   );
@@ -131,7 +119,6 @@ class AddClientCubit extends Cubit<AddClientLogicState> {
 
   AddClientCubit() : super(
       AddClientLogicState(
-          email: '',
           firstName: '',
           lastName: ''
       )

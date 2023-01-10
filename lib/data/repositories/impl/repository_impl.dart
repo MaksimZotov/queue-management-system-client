@@ -5,13 +5,16 @@ import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/data/repositories/repository.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
+import 'package:queue_management_system_client/domain/models/board/board_model.dart';
 import 'package:queue_management_system_client/domain/models/client/client_model.dart';
 import 'package:queue_management_system_client/domain/models/location/has_rules_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
+import 'package:queue_management_system_client/domain/models/rules/rules_model.dart';
 
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/client/client_join_info_model.dart';
+import '../../../domain/models/queue/add_client_info.dart';
 import '../../../domain/models/queue/client_in_queue_model.dart';
 import '../../../domain/models/verification/confirm_model.dart';
 import '../../../domain/models/verification/login_model.dart';
@@ -67,8 +70,8 @@ class RepositoryImpl extends Repository {
 
 
   @override
-  Future<Result<ContainerForList<LocationModel>>> getLocations(int page, int pageSize, String username) async {
-    return await _serverApi.getLocations(page, pageSize, username);
+  Future<Result<ContainerForList<LocationModel>>> getLocations(String username) async {
+    return await _serverApi.getLocations(username);
   }
 
   @override
@@ -106,8 +109,8 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, int page, int pageSize, String? username) async {
-    return await _serverApi.getQueues(locationId, page, pageSize, username);
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String? username) async {
+    return await _serverApi.getQueues(locationId, username);
   }
 
   @override
@@ -116,28 +119,28 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result> notifyClientInQueue(int queueId, String email) async {
-    return await _serverApi.notifyClientInQueue(queueId, email);
+  Future<Result> notifyClientInQueue(int queueId, int clientId) async {
+    return await _serverApi.notifyClientInQueue(queueId, clientId);
   }
 
   @override
-  Future<Result> serveClientInQueue(int queueId, String email) async {
-    return await _serverApi.serveClientInQueue(queueId, email);
+  Future<Result> serveClientInQueue(int queueId, int clientId) async {
+    return await _serverApi.serveClientInQueue(queueId, clientId);
   }
 
   @override
-  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, ClientJoinInfo clientJoinInfo) async {
-    return await _serverApi.addClientToQueue(queueId, clientJoinInfo);
+  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, AddClientInfo addClientInfo) async {
+    return await _serverApi.addClientToQueue(queueId, addClientInfo);
   }
 
   @override
-  void connectToQueueSocket(int queueId, VoidCallback onConnected, ValueChanged<QueueModel> onQueueChanged, ValueChanged onError) {
-    _serverApi.connectToQueueSocket(queueId, onConnected, onQueueChanged, onError);
+  void connectToSocket<T>(String destination, VoidCallback onConnected, ValueChanged<T> onQueueChanged, ValueChanged onError) {
+    _serverApi.connectToSocket(destination, onConnected, onQueueChanged, onError);
   }
 
   @override
-  void disconnectFromQueueSocket(int queueId) {
-    _serverApi.disconnectFromQueueSocket(queueId);
+  void disconnectFromQueueSocket(String destination) {
+    _serverApi.disconnectFromSocket(destination);
   }
 
 
@@ -191,6 +194,34 @@ class RepositoryImpl extends Repository {
         await _sharedPreferencesStorage.setClientInQueueEmail(email: result.data.email);
         await _sharedPreferencesStorage.setClientInQueueAccessKey(accessKey: result.data.accessKey);
       });
+  }
+
+
+
+
+
+  @override
+  Future<Result> addRules(int locationId, String email) {
+    return _serverApi.addRules(locationId, email);
+  }
+
+  @override
+  Future<Result> deleteRules(int locationId, String email) {
+    return _serverApi.deleteRules(locationId, email);
+  }
+
+  @override
+  Future<Result<ContainerForList<RulesModel>>> getRules(int locationId) {
+    return _serverApi.getRules(locationId);
+  }
+
+
+
+
+
+  @override
+  Future<Result<BoardModel>> getBoard(int locationId) {
+    return _serverApi.getBoard(locationId);
   }
 
 }

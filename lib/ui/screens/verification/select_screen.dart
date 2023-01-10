@@ -93,7 +93,7 @@ class SelectCubit extends Cubit<SelectLogicState> {
 
   Future<void> onStart() async {
     if (await verificationInteractor.checkToken()) {
-      await locationInteractor.getLocations(0, LocationsLogicState.pageSize, 'me')
+      await locationInteractor.getLocations('me')
           ..onSuccess((value) {
             emit(SelectLogicState(SelectStateEnum.goToLocations));
           });

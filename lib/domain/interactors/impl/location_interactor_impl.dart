@@ -14,8 +14,8 @@ class LocationInteractorImpl extends LocationInteractor {
   LocationInteractorImpl(this._repository);
 
   @override
-  Future<Result<ContainerForList<LocationModel>>> getLocations(int page, int pageSize, String username) async {
-    return await _repository.getLocations(page, pageSize, username);
+  Future<Result<ContainerForList<LocationModel>>> getLocations(String username) async {
+    return await _repository.getLocations(username);
   }
 
   @override

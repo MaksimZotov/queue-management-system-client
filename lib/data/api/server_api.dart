@@ -5,16 +5,19 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:injectable/injectable.dart';
+import 'package:queue_management_system_client/data/converters/board/board_model_converter.dart';
 import 'package:queue_management_system_client/data/converters/client/client_converter.dart';
 import 'package:queue_management_system_client/data/converters/client/client_join_info_converter.dart';
 import 'package:queue_management_system_client/data/converters/location/has_rules_converter.dart';
 import 'package:queue_management_system_client/data/converters/queue/client_in_queue_converter.dart';
 import 'package:queue_management_system_client/data/converters/verification/confirm_converter.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
+import 'package:queue_management_system_client/domain/models/board/board_model.dart';
 import 'package:queue_management_system_client/domain/models/client/client_model.dart';
 import 'package:queue_management_system_client/domain/models/location/has_rules_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
+import 'package:queue_management_system_client/domain/models/rules/rules_model.dart';
 import 'package:queue_management_system_client/domain/models/verification/confirm_model.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
@@ -22,6 +25,7 @@ import 'package:stomp_dart_client/stomp_frame.dart';
 
 import '../../domain/models/base/result.dart';
 import '../../domain/models/client/client_join_info_model.dart';
+import '../../domain/models/queue/add_client_info.dart';
 import '../../domain/models/queue/queue_model.dart';
 import '../../domain/models/verification/login_model.dart';
 import '../../domain/models/verification/signup_model.dart';
@@ -30,7 +34,9 @@ import '../converters/base/container_for_list_converter.dart';
 import '../converters/base/error_result_converter.dart';
 import '../converters/json_converter.dart';
 import '../converters/location/location_converter.dart';
+import '../converters/queue/add_client_info_converter.dart';
 import '../converters/queue/queue_converter.dart';
+import '../converters/rules/rules_converter.dart';
 import '../converters/verification/login_converter.dart';
 import '../converters/verification/signup_converters.dart';
 import '../converters/verification/tokens_converter.dart';
@@ -66,28 +72,43 @@ class ServerApi {
 
   final QueueConverter _queueConverter;
   final ClientInQueueConverter _clientInQueueConverter;
+  final AddClientInfoConverter _addClientInfoConverter;
 
   final ClientConverter _clientConverter;
   final ClientJoinInfoConverter _clientJoinInfoConverter;
 
-  Map<int, StompClient> stompClients = {};
+  final RulesConverter _rulesConverter;
+
+  final BoardConverter _boardConverter;
+
+  Map<String, StompClient> stompClients = {};
   final socketUrl = '$url/our-websocket';
 
   ServerApi(
       this._dioApi,
       this._tokensStorage,
+
       this._errorResultConverter,
       this._containerForListConverter,
+
       this._tokensConverter,
       this._signupConverter,
       this._confirmConverter,
       this._loginConverter,
+
       this._locationConverter,
       this._hasRulesConverter,
+
       this._queueConverter,
       this._clientInQueueConverter,
+      this._addClientInfoConverter,
+
       this._clientConverter,
-      this._clientJoinInfoConverter
+      this._clientJoinInfoConverter,
+
+      this._rulesConverter,
+
+      this._boardConverter
   );
 
   Future<Result<ContainerForList<T>>> _execRequestForList<T>({
@@ -206,15 +227,13 @@ class ServerApi {
 
 
 
-  Future<Result<ContainerForList<LocationModel>>> getLocations(int page, int pageSize, String? username) async {
+  Future<Result<ContainerForList<LocationModel>>> getLocations(String? username) async {
     return await _execRequestForList(
         converter: _locationConverter,
         request: _dioApi.get(
           '$url/locations',
           queryParameters: {
             'username': username,
-            'page': page,
-            'page_size': pageSize
           }
         )
     );
@@ -262,7 +281,7 @@ class ServerApi {
 
 
 
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, int page, int pageSize, String? username) async {
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String? username) async {
     return await _execRequestForList(
         converter: _queueConverter,
         request: _dioApi.get(
@@ -270,8 +289,6 @@ class ServerApi {
             queryParameters: {
               'username': username,
               'location_id': locationId,
-              'page': page,
-              'page_size': pageSize
             }
         )
     );
@@ -308,30 +325,30 @@ class ServerApi {
     );
   }
 
-  Future<Result> serveClientInQueue(int queueId, String email) async {
+  Future<Result> serveClientInQueue(int queueId, int clientId) async {
     return await _execRequest(
         request: _dioApi.post(
             '$url/queues/$queueId/serve',
-            queryParameters: { 'email': email }
+            queryParameters: { 'client_id': clientId }
         )
     );
   }
 
-  Future<Result> notifyClientInQueue(int queueId, String email) async {
+  Future<Result> notifyClientInQueue(int queueId, int clientId) async {
     return await _execRequest(
         request: _dioApi.post(
             '$url/queues/$queueId/notify',
-            queryParameters: { 'email': email }
+            queryParameters: { 'client_id': clientId }
         )
     );
   }
 
-  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, ClientJoinInfo clientJoinInfo) async {
+  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, AddClientInfo addClientInfo) async {
     return await _execRequest(
         converter: _clientInQueueConverter,
         request: _dioApi.post(
             '$url/queues/$queueId/client/add',
-            data: _clientJoinInfoConverter.toJson(clientJoinInfo)
+            data: _addClientInfoConverter.toJson(addClientInfo)
         )
     );
   }
@@ -408,44 +425,102 @@ class ServerApi {
 
 
 
-  void connectToQueueSocket(
-      int queueId,
+  void connectToSocket<T>(
+      String destination,
       VoidCallback onConnected,
-      ValueChanged<QueueModel> onQueueChanged,
+      ValueChanged<T> onQueueChanged,
       ValueChanged<dynamic> onError
   ) {
-    if (stompClients.containsKey(queueId)) {
-      stompClients.remove(queueId)?.deactivate();
+    if (stompClients.containsKey(destination)) {
+      stompClients.remove(destination)?.deactivate();
     }
     StompClient client = StompClient(
         config: StompConfig.SockJS(
           url: socketUrl,
-          onConnect: (frame) => _onConnect(queueId, onConnected, onQueueChanged),
+          onConnect: (frame) => _onConnect(destination, onConnected, onQueueChanged),
           onWebSocketError: onError,
         )
     );
     client.activate();
-    stompClients[queueId] = client;
+    stompClients[destination] = client;
   }
 
-  void disconnectFromQueueSocket(int queueId) {
-    stompClients[queueId]?.deactivate();
-    stompClients.remove(queueId);
+  void disconnectFromSocket(String destination) {
+    stompClients[destination]?.deactivate();
+    stompClients.remove(destination);
   }
 
-  void _onConnect(
-      int queueId,
+  void _onConnect<T>(
+      String destination,
       VoidCallback onConnected,
-      ValueChanged<QueueModel> onQueueChanged
+      ValueChanged<T> onQueueChanged
   ) {
     onConnected.call();
-    stompClients[queueId]?.subscribe(
-      destination: '/topic/queues/$queueId',
+    stompClients[destination]?.subscribe(
+      destination: destination,
       callback: (StompFrame frame) {
-        onQueueChanged.call(
-            _queueConverter.fromJson(json.decode(frame.body!))
-        );
+        if (T == QueueModel) {
+          onQueueChanged.call(_queueConverter.fromJson(json.decode(frame.body!)) as T);
+        } else if (T == BoardModel) {
+          onQueueChanged.call(_boardConverter.fromJson(json.decode(frame.body!)) as T);
+        }
       }
+    );
+  }
+
+
+
+
+
+  Future<Result> addRules(int locationId, String email) {
+    return _execRequest(
+        request: _dioApi.post(
+            '$url/rules/add',
+            queryParameters: {
+              'location_id': locationId,
+              'email': email
+            }
+        )
+    );
+  }
+
+  Future<Result> deleteRules(int locationId, String email) {
+    return _execRequest(
+        request: _dioApi.delete(
+            '$url/rules/delete',
+            queryParameters: {
+              'location_id': locationId,
+              'email': email
+            }
+        )
+    );
+  }
+
+  Future<Result<ContainerForList<RulesModel>>> getRules(int locationId) {
+    return _execRequestForList(
+        converter: _rulesConverter,
+        request: _dioApi.get(
+            '$url/rules',
+            queryParameters: {
+              'location_id': locationId
+            }
+        )
+    );
+  }
+
+
+
+
+
+  Future<Result<BoardModel>> getBoard(int locationId) {
+    return _execRequest(
+        converter: _boardConverter,
+        request: _dioApi.get(
+            '$url/board',
+            queryParameters: {
+              'location_id': locationId,
+            }
+        )
     );
   }
 }

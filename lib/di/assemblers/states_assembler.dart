@@ -1,4 +1,5 @@
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
+import 'package:queue_management_system_client/ui/screens/board/board_screen.dart';
 import 'package:queue_management_system_client/ui/screens/client/client_screen.dart';
 import 'package:queue_management_system_client/ui/screens/client/client_confirm_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/client/client_join_dialog.dart';
@@ -7,6 +8,7 @@ import 'package:queue_management_system_client/ui/screens/location/delete_locati
 import 'package:queue_management_system_client/ui/screens/queue/add_client_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queue_screen.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queues_screen.dart';
+import 'package:queue_management_system_client/ui/screens/rules/add_rule_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/verification/authorization_screen.dart';
 import 'package:queue_management_system_client/ui/screens/verification/registration_screen.dart';
 import 'package:queue_management_system_client/ui/screens/verification/select_screen.dart';
@@ -14,6 +16,7 @@ import 'package:queue_management_system_client/ui/screens/verification/select_sc
 import '../../ui/screens/client/client_rejoin_dialog.dart';
 import '../../ui/screens/location/locations_screen.dart';
 import '../../ui/screens/queue/create_queue_dialog.dart';
+import '../../ui/screens/rules/rules_screen.dart';
 import '../../ui/screens/verification/confirm_dialog.dart';
 import '../main/main.dart';
 
@@ -37,6 +40,12 @@ class StatesAssembler {
   ClientJoinCubit getClientJoinCubit() => getIt.get();
   ClientRejoinCubit getClientRejoinCubit() => getIt.get();
   ClientConfirmCubit getClientConfirmCubit() => getIt.get();
+
+  BoardCubit getBoardCubit(BoardConfig config) => getIt.get(param1: config);
+
+  RulesCubit getRulesCubit(RulesConfig config) => getIt.get(param1: config);
+
+  AddRuleCubit getAddRuleCubit() => getIt.get();
 }
 
 const statesAssembler = StatesAssembler._();

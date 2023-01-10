@@ -6,6 +6,7 @@ import '../../../domain/enums/client_in_queue_status.dart';
 
 @singleton
 class ClientInQueueFields {
+  final String id = 'id';
   final String email = 'email';
   final String firstName = 'first_name';
   final String lastName = 'last_name';
@@ -21,7 +22,8 @@ class ClientInQueueConverter extends JsonConverter<ClientInQueueModel> {
 
   @override
   ClientInQueueModel fromJson(Map<String, dynamic> json) => ClientInQueueModel(
-      email: json[_clientInQueueField.email] as String,
+      id: json[_clientInQueueField.id] as int,
+      email: json[_clientInQueueField.email] as String?,
       firstName: json[_clientInQueueField.firstName] as String,
       lastName: json[_clientInQueueField.lastName] as String,
       orderNumber: json[_clientInQueueField.orderNumber] as int,
@@ -31,6 +33,7 @@ class ClientInQueueConverter extends JsonConverter<ClientInQueueModel> {
 
   @override
   Map<String, dynamic> toJson(ClientInQueueModel data) => {
+    _clientInQueueField.email: data.id,
     _clientInQueueField.email: data.email,
     _clientInQueueField.firstName: data.firstName,
     _clientInQueueField.lastName: data.lastName,

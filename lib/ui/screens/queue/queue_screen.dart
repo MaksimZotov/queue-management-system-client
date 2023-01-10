@@ -7,6 +7,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
 import 'package:queue_management_system_client/domain/models/client/client_join_info_model.dart';
+import 'package:queue_management_system_client/domain/models/queue/add_client_info.dart';
 import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
 import 'package:queue_management_system_client/ui/widgets/client_item_widget.dart';
@@ -14,14 +15,16 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../domain/interactors/socket_interactor.dart';
 import '../../router/routes_config.dart';
 import 'add_client_dialog.dart';
 
 
 class QueueWidget extends StatefulWidget {
+  ValueChanged<BaseConfig> emitConfig;
   final QueueConfig config;
 
-  const QueueWidget({super.key, required this.config});
+  QueueWidget({super.key, required this.config, required this.emitConfig});
 
   @override
   State<QueueWidget> createState() => _QueueState();
@@ -121,12 +124,17 @@ class QueueLogicState {
 @injectable
 class QueueCubit extends Cubit<QueueLogicState> {
 
-  final QueueInteractor queueInteractor;
+  static String _queueTopic = '/topic/queues/';
 
-  QueueCubit({
-    required this.queueInteractor,
-    @factoryParam required QueueConfig config
-  }) : super(
+  final QueueInteractor queueInteractor;
+  final SocketInteractor socketInteractor;
+
+
+  QueueCubit(
+    this.queueInteractor,
+    this.socketInteractor,
+    @factoryParam QueueConfig config
+  ) : super(
       QueueLogicState(
           config: config,
           queueState: QueueModel(
@@ -149,20 +157,22 @@ class QueueCubit extends Cubit<QueueLogicState> {
       emit(state.copyWith(snackBar: null));
     });
 
-    queueInteractor.connectToQueueSocket(
-      state.config.queueId,
+    socketInteractor.connectToSocket<QueueModel>(
+      _queueTopic + state.config.queueId.toString(),
       () => { /* Do nothing */ },
-      (queue) => emit(state.copyWith(queueState: queue)),
+      (queue) => {
+        emit(state.copyWith(queueState: queue))
+      },
       (error) => { /* Do nothing */ }
     );
   }
 
   Future<void> notify(ClientInQueueModel client) async {
-    await queueInteractor.notifyClientInQueue(state.config.queueId, client.email);
+    await queueInteractor.notifyClientInQueue(state.config.queueId, client.id);
   }
 
   Future<void> serve(ClientInQueueModel client) async {
-    await queueInteractor.serveClientInQueue(state.config.queueId, client.email);
+    await queueInteractor.serveClientInQueue(state.config.queueId, client.id);
   }
 
   Future<void> share(String notificationText) async {
@@ -204,7 +214,7 @@ class QueueCubit extends Cubit<QueueLogicState> {
 
   @override
   Future<void> close() async {
-    queueInteractor.disconnectFromQueueSocket(state.config.queueId);
+    socketInteractor.disconnectFromSocket(_queueTopic + state.config.queueId.toString());
     return super.close();
   }
 
@@ -212,8 +222,7 @@ class QueueCubit extends Cubit<QueueLogicState> {
     emit(state.copyWith(loading: true));
     await queueInteractor.addClientToQueue(
         state.config.queueId,
-        ClientJoinInfo(
-            email: addClientResult.email,
+        AddClientInfo(
             firstName: addClientResult.firstName,
             lastName: addClientResult.lastName
         )
@@ -222,7 +231,6 @@ class QueueCubit extends Cubit<QueueLogicState> {
           if (addClientResult.save) {
             await downloadClientState(
                 state.queueState.name,
-                addClientResult.email,
                 addClientResult.firstName,
                 addClientResult.lastName,
                 result.data.accessKey
@@ -237,7 +245,6 @@ class QueueCubit extends Cubit<QueueLogicState> {
 
   Future<void> downloadClientState(
       String queueName,
-      String email,
       String firstName,
       String lastName,
       String accessKey
@@ -262,12 +269,8 @@ class QueueCubit extends Cubit<QueueLogicState> {
                           ),
                           pw.SizedBox(height: 5),
                           pw.Text(
-                              email,
-                              style: pw.TextStyle(font: ttf, fontSize: 14)
-                          ),
-                          pw.Text(
                               '$firstName $lastName',
-                              style: pw.TextStyle(font: ttf, fontSize: 14)
+                              style: pw.TextStyle(font: ttf, fontSize: 18)
                           ),
                           pw.SizedBox(height: 5),
                           pw.Text(

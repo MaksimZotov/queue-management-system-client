@@ -28,8 +28,6 @@ class _LocationsState extends State<LocationsWidget> {
   final String title = 'Локации';
   final String createLocationHint = 'Создать локацию';
 
-  final ScrollController _scrollController = ScrollController();
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider<LocationsCubit>(
@@ -57,14 +55,6 @@ class _LocationsState extends State<LocationsWidget> {
             ],
           ),
           body: ListView.builder(
-            controller: _scrollController
-              ..addListener(() {
-                if (_scrollController.offset ==
-                    _scrollController.position.maxScrollExtent
-                ) {
-                  BlocProvider.of<LocationsCubit>(context).loadNext();
-                }
-              }),
             itemBuilder: (context, index) {
               return LocationItemWidget(
                 location: state.locations[index],
@@ -115,8 +105,6 @@ class LocationsLogicState {
   final LocationsConfig config;
 
   final List<LocationModel> locations;
-  final int curPage;
-  final bool isLast;
 
   final bool hasRules;
   final bool hasToken;
@@ -130,8 +118,6 @@ class LocationsLogicState {
   LocationsLogicState({
     required this.config,
     required this.locations,
-    required this.curPage,
-    required this.isLast,
     required this.hasRules,
     required this.hasToken,
     required this.readyToLogout,
@@ -141,8 +127,6 @@ class LocationsLogicState {
 
   LocationsLogicState copyWith({
     List<LocationModel>? locations,
-    int? curPage,
-    bool? isLast,
     bool? hasRules,
     bool? hasToken,
     bool? readyToLogout,
@@ -151,8 +135,6 @@ class LocationsLogicState {
   }) => LocationsLogicState(
       config: config,
       locations: locations ?? this.locations,
-      curPage: curPage ?? this.curPage,
-      isLast: isLast ?? this.isLast,
       hasRules: hasRules ?? this.hasRules,
       hasToken: hasToken ?? this.hasToken,
       readyToLogout: readyToLogout ?? this.readyToLogout,
@@ -175,8 +157,6 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
     LocationsLogicState(
       config: config,
       locations: [],
-      curPage: 0,
-      isLast: false,
       hasRules: false,
       hasToken: false,
       readyToLogout: false,
@@ -191,14 +171,15 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
       emit(state.copyWith(hasToken: true));
     }
     await locationInteractor.checkHasRules(state.config.username)
-      ..onSuccess((result) {
-        emit(state.copyWith(loading: false, hasRules: result.data.hasRules));
+      ..onSuccess((result) async {
+        emit(state.copyWith(hasRules: result.data.hasRules));
+
       })
       ..onError((result) {
         emit(state.copyWith(loading: false, snackBar: result.description));
         emit(state.copyWith(snackBar: null));
       });
-    await loadNext();
+    await _reload();
   }
 
   Future<void> logout() async {
@@ -207,33 +188,7 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
     emit(state.copyWith(readyToLogout: false));
   }
 
-  Future<void> loadNext() async {
-    if (state.loading || state.isLast) {
-      return;
-    }
-    emit(state.copyWith(loading: true));
-    await locationInteractor.getLocations(
-        state.curPage,
-        LocationsLogicState.pageSize,
-        state.config.username
-    )
-      ..onSuccess((result) {
-        emit(
-            state.copyWith(
-                loading: false,
-                locations: state.locations + result.data.results,
-                curPage: state.curPage + 1,
-                isLast: result.data.isLast
-            )
-        );
-      })
-      ..onError((result) {
-        emit(state.copyWith(loading: false, snackBar: result.description));
-        emit(state.copyWith(snackBar: null));
-      });
-  }
-
-  Future<void> createLocation(CreateLocationResult result) async {
+  Future createLocation(CreateLocationResult result) async {
     emit(state.copyWith(loading: true));
     await locationInteractor.createLocation(
         LocationModel(
@@ -259,13 +214,14 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
     });
   }
 
-  Future<void> _reload() async {
-    emit(state.copyWith(
-      loading: false,
-      locations: [],
-      curPage: 0,
-      isLast: false
-    ));
-    loadNext();
+  Future _reload() async {
+    await locationInteractor.getLocations(state.config.username)
+      ..onSuccess((result) {
+        emit(state.copyWith(loading: false, locations: result.data.results));
+      })
+      ..onError((result) {
+        emit(state.copyWith(loading: false, snackBar: result.description));
+        emit(state.copyWith(snackBar: null));
+      });
   }
 }

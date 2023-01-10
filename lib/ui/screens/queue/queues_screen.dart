@@ -52,6 +52,24 @@ class _QueuesState extends State<QueuesWidget> {
             actions: state.ownerUsername != null
                 ? [
                   IconButton(
+                      icon: const Icon(Icons.desktop_windows_outlined),
+                      onPressed: () => widget.emitConfig(
+                          BoardConfig(
+                              username: widget.config.username,
+                              locationId: widget.config.locationId
+                          )
+                      )
+                  ),
+                  IconButton(
+                      icon: const Icon(Icons.settings),
+                      onPressed: () => widget.emitConfig(
+                          RulesConfig(
+                              username: widget.config.username,
+                              locationId: widget.config.locationId
+                          )
+                      )
+                  ),
+                  IconButton(
                       icon: const Icon(Icons.qr_code),
                       onPressed: BlocProvider.of<QueuesCubit>(context).downloadQrCode
                   ),
@@ -63,13 +81,6 @@ class _QueuesState extends State<QueuesWidget> {
                 : null,
           ),
           body: ListView.builder(
-            controller: _scrollController
-              ..addListener(() {
-                if (_scrollController.offset ==
-                    _scrollController.position.maxScrollExtent) {
-                  BlocProvider.of<QueuesCubit>(context).loadNext();
-                }
-              }),
             itemBuilder: (context, index) {
               return QueueItemWidget(
                 queue: state.queues[index],
@@ -117,7 +128,6 @@ class _QueuesState extends State<QueuesWidget> {
 }
 
 class QueuesLogicState {
-  static const int pageSize = 30;
 
   final QueuesConfig config;
 
@@ -126,8 +136,6 @@ class QueuesLogicState {
   final bool hasRules;
 
   final List<QueueModel> queues;
-  final int curPage;
-  final bool isLast;
 
   final String? snackBar;
   final bool loading;
@@ -138,8 +146,6 @@ class QueuesLogicState {
     required this.locationName,
     required this.hasRules,
     required this.queues,
-    required this.curPage,
-    required this.isLast,
     required this.snackBar,
     required this.loading,
   });
@@ -149,8 +155,6 @@ class QueuesLogicState {
     String? locationName,
     List<QueueModel>? queues,
     bool? hasRules,
-    int? curPage,
-    bool? isLast,
     String? snackBar,
     bool? loading,
   }) =>
@@ -160,8 +164,6 @@ class QueuesLogicState {
           locationName: locationName ?? this.locationName,
           hasRules: hasRules ?? this.hasRules,
           queues: queues ?? this.queues,
-          curPage: curPage ?? this.curPage,
-          isLast: isLast ?? this.isLast,
           snackBar: snackBar,
           loading: loading ?? this.loading);
 }
@@ -181,8 +183,6 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
             locationName: '',
             hasRules: false,
             queues: [],
-            curPage: 0,
-            isLast: false,
             snackBar: null,
             loading: false
       )
@@ -200,31 +200,10 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
                 hasRules: result.data.hasRules
             )
         );
-        await loadNext();
+        await _reload();
       })
       ..onError((result) {
         emit(state.copyWith(snackBar: result.description));
-        emit(state.copyWith(snackBar: null));
-      });
-  }
-
-  Future<void> loadNext() async {
-    if (state.loading || state.isLast) {
-      return;
-    }
-    emit(state.copyWith(loading: true));
-    await queueInteractor.getQueues(state.config.locationId, state.curPage,
-        QueuesLogicState.pageSize, state.config.username
-    )
-      ..onSuccess((result) {
-        emit(state.copyWith(
-            loading: false,
-            queues: state.queues + result.data.results,
-            curPage: state.curPage + 1,
-            isLast: result.data.isLast));
-      })
-      ..onError((result) {
-        emit(state.copyWith(loading: false, snackBar: result.description));
         emit(state.copyWith(snackBar: null));
       });
   }
@@ -234,7 +213,9 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
     await queueInteractor.createQueue(
         state.config.locationId,
         QueueModel(
-            id: null, name: result.name, description: result.description
+            id: null,
+            name: result.name,
+            description: result.description
         )
     )
       ..onSuccess((result) {
@@ -259,8 +240,17 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
   }
 
   Future<void> _reload() async {
-    emit(state.copyWith(loading: false, queues: [], curPage: 0, isLast: false));
-    loadNext();
+    await queueInteractor.getQueues(state.config.locationId, state.config.username)
+      ..onSuccess((result) {
+        emit(state.copyWith(
+          loading: false,
+          queues: result.data.results,
+        ));
+      })
+      ..onError((result) {
+        emit(state.copyWith(loading: false, snackBar: result.description));
+        emit(state.copyWith(snackBar: null));
+      });
   }
 
   Future<void> share(String notificationText) async {

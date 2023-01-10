@@ -35,11 +35,23 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
            break;
         case 4:
           switch (segments[1]) {
-            // "/{username}/locations/{location_id}/queues"
             case 'locations':
               switch (segments[3]) {
+                // "/{username}/locations/{location_id}/queues"
                 case 'queues':
                   return QueuesConfig(
+                      username: segments[0],
+                      locationId: int.parse(segments[2])
+                  );
+                // "/{username}/locations/{location_id}/rules"
+                case 'rules':
+                  return RulesConfig(
+                      username: segments[0],
+                      locationId: int.parse(segments[2])
+                  );
+                // "/{username}/locations/{location_id}/board"
+                case 'board':
+                  return BoardConfig(
                       username: segments[0],
                       locationId: int.parse(segments[2])
                   );
@@ -121,6 +133,20 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
       int queueId = configuration.queueId;
       return RouteInformation(
           location: '/$username/locations/$locationId/queues/$queueId/client'
+      );
+    }
+    if (configuration is RulesConfig) {
+      String username = configuration.username;
+      int locationId = configuration.locationId;
+      return RouteInformation(
+          location: '/$username/locations/$locationId/rules'
+      );
+    }
+    if (configuration is BoardConfig) {
+      String username = configuration.username;
+      int locationId = configuration.locationId;
+      return RouteInformation(
+          location: '/$username/locations/$locationId/board'
       );
     }
     return null;

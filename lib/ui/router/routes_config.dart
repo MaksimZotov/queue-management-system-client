@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:queue_management_system_client/ui/router/router_page.dart';
+import 'package:queue_management_system_client/ui/screens/board/board_screen.dart';
 import 'package:queue_management_system_client/ui/screens/client/client_screen.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queues_screen.dart';
+import 'package:queue_management_system_client/ui/screens/rules/rules_screen.dart';
 import 'package:queue_management_system_client/ui/screens/verification/authorization_screen.dart';
 import 'package:queue_management_system_client/ui/screens/verification/registration_screen.dart';
 import 'package:queue_management_system_client/ui/screens/verification/select_screen.dart';
@@ -138,6 +140,7 @@ class QueueConfig extends BaseConfig {
         key: ValueKey('Queue Page $queueId'),
         child: QueueWidget(
           config: this,
+          emitConfig: emitConfig,
         )
     );
   }
@@ -169,6 +172,63 @@ class ClientConfig extends BaseConfig {
         child: ClientWidget(
           config: this,
           emitConfig: emitConfig
+        )
+    );
+  }
+
+  @override
+  BaseConfig? getPrevConfig() {
+    return QueuesConfig(
+        username: username,
+        locationId: locationId
+    );
+  }
+}
+
+class BoardConfig extends BaseConfig {
+  String username;
+  int locationId;
+
+  BoardConfig({
+    required this.username,
+    required this.locationId,
+  });
+
+  @override
+  Page getPage(ValueChanged<BaseConfig> emitConfig) {
+    return RouterPage(
+        key: ValueKey('Board Page $locationId'),
+        child: BoardWidget(
+            config: this
+        )
+    );
+  }
+
+  @override
+  BaseConfig? getPrevConfig() {
+    return QueuesConfig(
+        username: username,
+        locationId: locationId
+    );
+  }
+}
+
+class RulesConfig extends BaseConfig {
+  String username;
+  int locationId;
+
+  RulesConfig({
+    required this.username,
+    required this.locationId,
+  });
+
+  @override
+  Page getPage(ValueChanged<BaseConfig> emitConfig) {
+    return RouterPage(
+        key: ValueKey('Rules Page $locationId'),
+        child: RulesWidget(
+            config: this,
+            emitConfig: emitConfig
         )
     );
   }
