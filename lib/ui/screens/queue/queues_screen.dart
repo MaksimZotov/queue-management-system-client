@@ -50,20 +50,22 @@ class _QueuesState extends State<QueuesWidget> {
           appBar: AppBar(
             title: Text(state.locationName.isEmpty ? '' : titleStart + state.locationName),
             actions: state.ownerUsername != null
-                ? [
-                  IconButton(
-                      icon: const Icon(Icons.desktop_windows_outlined),
-                      onPressed: () => widget.emitConfig(
-                          BoardConfig(
-                              username: widget.config.username,
-                              locationId: widget.config.locationId
-                          )
-                      )
-                  ),
+                ? (state.hasRules ? <Widget>[
                   IconButton(
                       icon: const Icon(Icons.settings),
                       onPressed: () => widget.emitConfig(
                           RulesConfig(
+                              username: widget.config.username,
+                              locationId: widget.config.locationId
+                          )
+                      )
+                  )
+                ] : <Widget>[]) +
+                [
+                  IconButton(
+                      icon: const Icon(Icons.desktop_windows_outlined),
+                      onPressed: () => widget.emitConfig(
+                          BoardConfig(
                               username: widget.config.username,
                               locationId: widget.config.locationId
                           )

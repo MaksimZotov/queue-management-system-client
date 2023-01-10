@@ -173,7 +173,6 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
     await locationInteractor.checkHasRules(state.config.username)
       ..onSuccess((result) async {
         emit(state.copyWith(hasRules: result.data.hasRules));
-
       })
       ..onError((result) {
         emit(state.copyWith(loading: false, snackBar: result.description));

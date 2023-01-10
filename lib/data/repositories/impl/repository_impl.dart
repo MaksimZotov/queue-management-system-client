@@ -65,13 +65,26 @@ class RepositoryImpl extends Repository {
     await _secureStorage.deleteAll();
   }
 
+  @override
+  Future<String?> getCurrentUsername() async {
+    if (!(await _secureStorage.containsUsername())) {
+      return null;
+    }
+    return (await _secureStorage.getUsername());
+  }
 
 
 
 
   @override
-  Future<Result<ContainerForList<LocationModel>>> getLocations(String username) async {
-    return await _serverApi.getLocations(username);
+  Future<Result<ContainerForList<LocationModel>>> getLocations(String? username) async {
+    if (username == null && await _secureStorage.containsUsername()) {
+      return await _serverApi.getLocations((await _secureStorage.getUsername())!);
+    }
+    if (username != null) {
+      return await _serverApi.getLocations(username);
+    }
+    return ErrorResult();
   }
 
   @override
@@ -90,8 +103,11 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result<HasRulesModel>> checkHasRules(String username) async {
-    return await _serverApi.checkHasRules(username);
+  Future<Result<HasRulesModel>> checkHasRules(String? username) async {
+    if (username == null && !(await _secureStorage.containsUsername())) {
+      return SuccessResult(data: HasRulesModel(hasRules: false));
+    }
+    return await _serverApi.checkHasRules(username ?? (await _secureStorage.getUsername())!);
   }
 
 
@@ -109,7 +125,7 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String? username) async {
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String username) async {
     return await _serverApi.getQueues(locationId, username);
   }
 

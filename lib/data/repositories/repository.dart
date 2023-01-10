@@ -22,14 +22,15 @@ abstract class Repository {
   Future<Result<TokensModel>> login(LoginModel login);
   Future<bool> checkToken();
   Future logout();
+  Future<String?> getCurrentUsername();
 
-  Future<Result<ContainerForList<LocationModel>>> getLocations(String username);
+  Future<Result<ContainerForList<LocationModel>>> getLocations(String? username);
   Future<Result<LocationModel>> createLocation(LocationModel location);
   Future<Result<LocationModel>> getLocation(int id, String? username);
   Future<Result> deleteLocation(int locationId);
-  Future<Result<HasRulesModel>> checkHasRules(String username);
+  Future<Result<HasRulesModel>> checkHasRules(String? username);
 
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String? username);
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String username);
   Future<Result<QueueModel>> createQueue(int locationId, QueueModel location);
   Future<Result> deleteQueue(int id);
   Future<Result<QueueModel>> getQueueState(int id);

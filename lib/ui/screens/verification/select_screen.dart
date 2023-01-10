@@ -31,7 +31,10 @@ class SelectState extends State<SelectWidget> {
 
         listener: (context, state) {
           if (state.selectStateEnum == SelectStateEnum.goToLocations) {
-            widget.emitConfig(LocationsConfig(username: 'me'));
+            String? username = state.username;
+            if (username != null) {
+              widget.emitConfig(LocationsConfig(username: username));
+            }
           }
         },
 
@@ -78,7 +81,12 @@ enum SelectStateEnum {
 
 class SelectLogicState {
   final SelectStateEnum selectStateEnum;
-  SelectLogicState(this.selectStateEnum);
+  final String? username;
+
+  SelectLogicState({
+    required this.selectStateEnum,
+    required this.username
+  });
 }
 
 @injectable
@@ -89,15 +97,33 @@ class SelectCubit extends Cubit<SelectLogicState> {
   SelectCubit(
      this.locationInteractor,
      this.verificationInteractor,
-  ) : super(SelectLogicState(SelectStateEnum.loading));
+  ) : super(
+      SelectLogicState(
+          selectStateEnum: SelectStateEnum.loading,
+          username: null
+      )
+  );
 
   Future<void> onStart() async {
     if (await verificationInteractor.checkToken()) {
-      await locationInteractor.getLocations('me')
-          ..onSuccess((value) {
-            emit(SelectLogicState(SelectStateEnum.goToLocations));
+      await locationInteractor.getLocations(null)
+          ..onSuccess((value) async {
+            String? username = await verificationInteractor.getCurrentUsername();
+            if (username != null) {
+              emit(
+                  SelectLogicState(
+                      selectStateEnum: SelectStateEnum.goToLocations,
+                      username: username
+                  )
+              );
+            }
           });
     }
-    emit(SelectLogicState(SelectStateEnum.stay));
+    emit(
+        SelectLogicState(
+            selectStateEnum: SelectStateEnum.stay,
+            username: null
+        )
+    );
   }
 }

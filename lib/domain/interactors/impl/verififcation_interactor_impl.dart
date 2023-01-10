@@ -38,4 +38,9 @@ class VerificationInteractorImpl extends VerificationInteractor {
   Future logout() async {
     await _repository.logout();
   }
+
+  @override
+  Future<String?> getCurrentUsername() async {
+    return await _repository.getCurrentUsername();
+  }
 }

@@ -35,7 +35,7 @@ class AuthorizationState extends State<AuthorizationWidget> {
         listener: (context, state) {
           if (state.readyToLogin) {
             BlocProvider.of<AuthorizationCubit>(context).onPush();
-            widget.emitConfig(LocationsConfig(username: 'me'));
+            widget.emitConfig(LocationsConfig(username: state.username));
           }
           if (state.snackBar != null) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(

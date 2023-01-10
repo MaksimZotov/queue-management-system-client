@@ -53,7 +53,7 @@ class RegistrationState extends State<RegistrationWidget> {
             });
           } else if (state.readyToLocations) {
             widget.emitConfig(
-              LocationsConfig(username: "me")
+              LocationsConfig(username: state.username)
             );
           } else if (state.snackBar != null) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(

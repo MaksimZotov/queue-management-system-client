@@ -9,4 +9,5 @@ abstract class VerificationInteractor {
   Future<Result> login(LoginModel login);
   Future<bool> checkToken();
   Future logout();
+  Future<String?> getCurrentUsername();
 }

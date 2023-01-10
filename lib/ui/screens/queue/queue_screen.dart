@@ -55,15 +55,15 @@ class _QueueState extends State<QueueWidget> {
             ),
             actions: state.queueState.ownerUsername != null
               ? [
-                IconButton(
-                    icon: const Icon(Icons.qr_code),
-                    onPressed: BlocProvider.of<QueueCubit>(context).downloadQrCode
-                ),
-                IconButton(
-                  icon: const Icon(Icons.share),
-                  onPressed: () => BlocProvider.of<QueueCubit>(context).share(linkCopied),
-                ),
-              ]
+                  IconButton(
+                      icon: const Icon(Icons.qr_code),
+                      onPressed: BlocProvider.of<QueueCubit>(context).downloadQrCode
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.share),
+                    onPressed: () => BlocProvider.of<QueueCubit>(context).share(linkCopied),
+                  ),
+                ]
               : null,
           ),
           body: ListView.builder(

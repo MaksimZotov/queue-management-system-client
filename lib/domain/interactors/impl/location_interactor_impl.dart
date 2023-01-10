@@ -14,7 +14,7 @@ class LocationInteractorImpl extends LocationInteractor {
   LocationInteractorImpl(this._repository);
 
   @override
-  Future<Result<ContainerForList<LocationModel>>> getLocations(String username) async {
+  Future<Result<ContainerForList<LocationModel>>> getLocations(String? username) async {
     return await _repository.getLocations(username);
   }
 
@@ -34,7 +34,7 @@ class LocationInteractorImpl extends LocationInteractor {
   }
 
   @override
-  Future<Result<HasRulesModel>> checkHasRules(String username) async {
+  Future<Result<HasRulesModel>> checkHasRules(String? username) async {
     return await _repository.checkHasRules(username);
   }
 }

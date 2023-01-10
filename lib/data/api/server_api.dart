@@ -180,9 +180,10 @@ class ServerApi {
   }
 
   Future<void> _saveTokens(SuccessResult<TokensModel> result) async {
-    final tokens = (result).data;
+    final tokens = result.data;
     await _tokensStorage.setAccessToken(accessToken: tokens.access);
     await _tokensStorage.setRefreshToken(refreshToken: tokens.refresh);
+    await _tokensStorage.setUsername(username: tokens.username);
   }
 
 
@@ -227,7 +228,7 @@ class ServerApi {
 
 
 
-  Future<Result<ContainerForList<LocationModel>>> getLocations(String? username) async {
+  Future<Result<ContainerForList<LocationModel>>> getLocations(String username) async {
     return await _execRequestForList(
         converter: _locationConverter,
         request: _dioApi.get(
@@ -281,7 +282,7 @@ class ServerApi {
 
 
 
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String? username) async {
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String username) async {
     return await _execRequestForList(
         converter: _queueConverter,
         request: _dioApi.get(
