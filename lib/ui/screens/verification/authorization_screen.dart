@@ -23,7 +23,7 @@ class AuthorizationWidget extends StatefulWidget {
 
 class AuthorizationState extends State<AuthorizationWidget> {
   final String title = 'Авторизация';
-  final String usernameHint = "Логин";
+  final String addressHint = "Адрес";
   final String passwordHint = "Пароль";
   final String loginText = "Войти";
 
@@ -64,7 +64,7 @@ class AuthorizationState extends State<AuthorizationWidget> {
                               children: <Widget>[
                                 TextFieldWidget(
                                   text: state.username,
-                                  label: usernameHint,
+                                  label: addressHint,
                                   error: state.errors[AuthorizationCubit.usernameKey],
                                   onTextChanged:
                                       BlocProvider.of<AuthorizationCubit>(

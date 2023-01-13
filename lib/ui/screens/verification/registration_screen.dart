@@ -26,7 +26,7 @@ class RegistrationWidget extends StatefulWidget {
 class RegistrationState extends State<RegistrationWidget> {
 
   final String title = 'Регистрация';
-  final String usernameHint = 'Логин';
+  final String addressHint = 'Адрес';
   final String emailHint = 'Почта';
   final String firstNameHint = 'Имя';
   final String lastNameHint = 'Фамилия';
@@ -79,7 +79,7 @@ class RegistrationState extends State<RegistrationWidget> {
                     children: <Widget>[
                       TextFieldWidget(
                         text: state.username,
-                        label: usernameHint,
+                        label: addressHint,
                         error: state.errors[RegistrationCubit.usernameKey],
                         onTextChanged: BlocProvider.of<RegistrationCubit>(context).setUsername,
                       ),
