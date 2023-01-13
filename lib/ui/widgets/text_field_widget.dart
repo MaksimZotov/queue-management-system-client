@@ -28,7 +28,7 @@ class _TextFieldState extends State<TextFieldWidget> {
       width: (
           defaultTargetPlatform != TargetPlatform.iOS &&
           defaultTargetPlatform != TargetPlatform.android
-      ) ? 300 : null,
+      ) ? 400 : null,
       child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Column(
@@ -37,6 +37,7 @@ class _TextFieldState extends State<TextFieldWidget> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   widget.label,
+                  style: const TextStyle(fontSize: 20),
                 ),
               ),
               const SizedBox(height: 5),
@@ -47,8 +48,9 @@ class _TextFieldState extends State<TextFieldWidget> {
                     borderRadius: BorderRadius.circular(12)
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: TextFormField(
+                    style: const TextStyle(fontSize: 24),
                     maxLines: widget.maxLines,
                     initialValue: widget.text,
                     decoration: const InputDecoration(
@@ -64,7 +66,7 @@ class _TextFieldState extends State<TextFieldWidget> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   widget.error!,
-                  style: const TextStyle(color: Colors.red),
+                  style: const TextStyle(fontSize: 18, color: Colors.red),
                 ),
               ),
             ] : []),

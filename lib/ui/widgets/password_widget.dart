@@ -26,7 +26,7 @@ class _PasswordState extends State<PasswordWidget> {
       width: (
           defaultTargetPlatform != TargetPlatform.iOS &&
           defaultTargetPlatform != TargetPlatform.android
-      ) ? 300 : null,
+      ) ? 400 : null,
       child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Column(
@@ -34,7 +34,8 @@ class _PasswordState extends State<PasswordWidget> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  widget.label
+                  widget.label,
+                  style: const TextStyle(fontSize: 20),
                 ),
               ),
               const SizedBox(height: 5),
@@ -45,11 +46,12 @@ class _PasswordState extends State<PasswordWidget> {
                     borderRadius: BorderRadius.circular(12)
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: TextFormField(
+                    style: const TextStyle(fontSize: 24),
                     initialValue: widget.text,
                     decoration: const InputDecoration(
-                      border: InputBorder.none
+                      border: InputBorder.none,
                     ),
                     obscureText: true,
                     enableSuggestions: false,
@@ -64,7 +66,7 @@ class _PasswordState extends State<PasswordWidget> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   widget.error!,
-                  style: const TextStyle(color: Colors.red),
+                  style: const TextStyle(fontSize: 18, color: Colors.red),
                 ),
               ),
             ] : []),

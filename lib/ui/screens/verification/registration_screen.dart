@@ -113,6 +113,7 @@ class RegistrationState extends State<RegistrationWidget> {
                         error: state.errors[RegistrationCubit.repeatPasswordKey],
                         onTextChanged: BlocProvider.of<RegistrationCubit>(context).setRepeatPassword,
                       ),
+                      const SizedBox(height: 16),
                       ButtonWidget(
                         text: signupText,
                         onClick: BlocProvider.of<RegistrationCubit>(context).onClickSignup,

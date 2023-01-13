@@ -80,6 +80,7 @@ class AuthorizationState extends State<AuthorizationWidget> {
                                               context)
                                           .setPassword,
                                 ),
+                                const SizedBox(height: 16),
                                 ButtonWidget(
                                   text: loginText,
                                   onClick: BlocProvider.of<AuthorizationCubit>(

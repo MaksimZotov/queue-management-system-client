@@ -23,20 +23,24 @@ class _QueueItemState extends State<QueueItemWidget> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: ListTile(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 5, vertical: 16),
+        child: ListTile(
         leading: const SizedBox(
             height: double.infinity,
-            child: Icon(Icons.people_alt_outlined, color: Colors.teal, size: 35)
+            child: Icon(Icons.people_alt_outlined, color: Colors.teal, size: 50)
         ),
         title: Text(
           widget.queue.name,
           maxLines: 1,
+          style: TextStyle(fontSize: 24),
         ),
         subtitle: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 200),
           child: Text(
             widget.queue.description,
             maxLines: 3,
+            style: TextStyle(fontSize: 18),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -44,12 +48,13 @@ class _QueueItemState extends State<QueueItemWidget> {
             ? SizedBox(
           height: double.infinity,
           child: IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red, size: 25),
+            icon: const Icon(Icons.delete, color: Colors.red, size: 30),
             onPressed: () => widget.onDelete(widget.queue),
           ),
         )
             : null,
         onTap: () => widget.onClick(widget.queue),
+      ),
       ),
     );
   }

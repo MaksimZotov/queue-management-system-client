@@ -21,7 +21,7 @@ class ClientInfoFieldState extends State<ClientInfoFieldWidget> {
     return SizedBox(
       width: (defaultTargetPlatform != TargetPlatform.iOS &&
               defaultTargetPlatform != TargetPlatform.android)
-          ? 300
+          ? 400
           : null,
       child: Card(
         elevation: 4,
@@ -34,7 +34,7 @@ class ClientInfoFieldState extends State<ClientInfoFieldWidget> {
                 padding: const EdgeInsets.all(5),
                 child: Text(
                   widget.fieldName,
-                  style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 5),
@@ -43,7 +43,7 @@ class ClientInfoFieldState extends State<ClientInfoFieldWidget> {
                   padding: const EdgeInsets.all(5),
                   child: Text(
                     widget.fieldValue,
-                    style: const TextStyle(fontSize: 16, color: Colors.white),
+                    style: const TextStyle(fontSize: 22, color: Colors.white),
                   ),
                 ),
               ),

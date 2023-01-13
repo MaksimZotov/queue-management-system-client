@@ -26,22 +26,32 @@ class _ClientItemState extends State<ClientItemWidget> {
         color: widget.client.status == ClientInQueueStatus.confirmed
             ? Colors.white
             : Colors.white54,
+        child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
         child: ListTile(
-          title: Text('${widget.client.firstName} ${widget.client.lastName}'),
-          subtitle: Text(
+          title: Transform.translate(
+            offset: Offset(16, 0),
+            child: Text('${widget.client.firstName} ${widget.client.lastName}', style: TextStyle(fontSize: 18),),
+          ),
+          subtitle: Transform.translate(
+            offset: Offset(16, 0),
+            child: Text(
               (widget.client.email == null
                   ? ''
                   : '${widget.client.email} '
-              ) + '(${widget.client.accessKey})'
+              ) + '(${widget.client.accessKey})',
+              style: TextStyle(fontSize: 18),
+            ),
           ),
           leading: IconButton(
-            icon: const Icon(Icons.done_outline_rounded),
+            icon: const Icon(Icons.done_outline_rounded, size: 30),
             onPressed: () => widget.onServe(widget.client),
           ),
           trailing: IconButton(
-            icon: const Icon(Icons.notifications),
+            icon: const Icon(Icons.notifications, size: 35),
             onPressed: () => widget.onNotify(widget.client),
           ),
+        ),
         ),
       ),
     );

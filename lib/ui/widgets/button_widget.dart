@@ -22,14 +22,14 @@ class _ButtonState extends State<ButtonWidget> {
       width: (
           defaultTargetPlatform != TargetPlatform.iOS &&
           defaultTargetPlatform != TargetPlatform.android
-      ) ? 300 : null,
+      ) ? 400 : null,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: ElevatedButton(
           onPressed: widget.onClick,
           style: ElevatedButton.styleFrom(
-            textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            minimumSize: const Size.fromHeight(64),
+            textStyle: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            minimumSize: const Size.fromHeight(80),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
