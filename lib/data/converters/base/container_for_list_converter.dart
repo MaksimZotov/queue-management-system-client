@@ -6,7 +6,6 @@ import '../json_converter.dart';
 @singleton
 class ContainerForListFields {
   final String results = 'results';
-  final String isLast = 'last';
 }
 
 @singleton
@@ -20,8 +19,7 @@ class ContainerForListConverter {
   }) {
     List items = json[_containerForListFields.results];
     return ContainerForList<T>(
-      results: items.map((item) => converter.fromJson(item)).toList(),
-      isLast: json[_containerForListFields.isLast]
+      results: items.map((item) => converter.fromJson(item)).toList()
     );
   }
 }

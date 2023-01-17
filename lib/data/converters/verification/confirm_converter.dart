@@ -1,6 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/converters/json_converter.dart';
-import 'package:queue_management_system_client/domain/models/verification/Confirm.dart';
+import 'package:queue_management_system_client/domain/models/verification/confirm_model.dart';
 
 @singleton
 class ConfirmFields {

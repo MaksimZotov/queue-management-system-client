@@ -4,11 +4,14 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:injectable/injectable.dart';
+import 'package:queue_management_system_client/domain/models/client/client_join_info_model.dart';
+import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 
 import '../../../data/repositories/repository.dart';
 import '../../models/base/container_for_list.dart';
 import '../../models/base/result.dart';
-import '../../models/queue/queue.dart';
+import '../../models/queue/add_client_info.dart';
+import '../../models/queue/queue_model.dart';
 import '../queue_interactor.dart';
 
 @Singleton(as: QueueInteractor)
@@ -18,8 +21,8 @@ class QueueInteractorImpl extends QueueInteractor {
   QueueInteractorImpl(this._repository);
 
   @override
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, int page, int pageSize) async {
-    return await _repository.getQueues(locationId, page, pageSize);
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String username) async {
+    return await _repository.getQueues(locationId, username);
   }
 
   @override
@@ -48,12 +51,7 @@ class QueueInteractorImpl extends QueueInteractor {
   }
 
   @override
-  void connectToQueueSocket(int queueId, VoidCallback onConnected, ValueChanged<QueueModel> onQueueChanged, ValueChanged onError) {
-    _repository.connectToQueueSocket(queueId, onConnected, onQueueChanged, onError);
-  }
-
-  @override
-  void disconnectFromQueueSocket(int queueId) {
-    _repository.disconnectFromQueueSocket(queueId);
+  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, AddClientInfo addClientInfo) async {
+    return await _repository.addClientToQueue(queueId, addClientInfo);
   }
 }

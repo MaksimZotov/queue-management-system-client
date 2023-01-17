@@ -1,13 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:queue_management_system_client/ui/screens/client/client.dart';
-import 'package:queue_management_system_client/ui/screens/queue/queues.dart';
-import 'package:queue_management_system_client/ui/screens/verification/authorization.dart';
-import 'package:queue_management_system_client/ui/screens/verification/registration.dart';
-import 'package:queue_management_system_client/ui/screens/verification/select.dart';
+import 'package:queue_management_system_client/ui/router/router_page.dart';
+import 'package:queue_management_system_client/ui/screens/board/board_screen.dart';
+import 'package:queue_management_system_client/ui/screens/client/client_screen.dart';
+import 'package:queue_management_system_client/ui/screens/queue/queues_screen.dart';
+import 'package:queue_management_system_client/ui/screens/rules/rules_screen.dart';
+import 'package:queue_management_system_client/ui/screens/verification/authorization_screen.dart';
+import 'package:queue_management_system_client/ui/screens/verification/registration_screen.dart';
+import 'package:queue_management_system_client/ui/screens/verification/select_screen.dart';
 
-import '../screens/location/locations.dart';
-import '../screens/queue/queue.dart';
+import '../screens/location/locations_screen.dart';
+import '../screens/queue/queue_screen.dart';
 
 abstract class BaseConfig {
   Page getPage(ValueChanged<BaseConfig> emitConfig);
@@ -20,7 +23,7 @@ abstract class BaseConfig {
 class ErrorConfig extends BaseConfig {
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
-    return const MaterialPage(
+    return const RouterPage(
       key: ValueKey('Error Page'),
       child: Center(
         child: Text('404'),
@@ -32,7 +35,7 @@ class ErrorConfig extends BaseConfig {
 class InitialConfig extends BaseConfig {
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
-    return MaterialPage(
+    return RouterPage(
         key: const ValueKey('Initial Page'),
         child: SelectWidget(
           emitConfig: emitConfig,
@@ -44,7 +47,7 @@ class InitialConfig extends BaseConfig {
 class AuthorizationConfig extends BaseConfig {
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
-    return MaterialPage(
+    return RouterPage(
         key: const ValueKey('Authorization Page'),
         child: AuthorizationWidget(
           emitConfig: emitConfig,
@@ -61,7 +64,7 @@ class AuthorizationConfig extends BaseConfig {
 class RegistrationConfig extends BaseConfig {
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
-    return MaterialPage(
+    return RouterPage(
         key: const ValueKey('Registration Page'),
         child: RegistrationWidget(
           emitConfig: emitConfig,
@@ -84,7 +87,7 @@ class LocationsConfig extends BaseConfig {
 
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
-    return MaterialPage(
+    return RouterPage(
         key: ValueKey('Locations Page $username'),
         child: LocationsWidget(
           config: this,
@@ -105,7 +108,7 @@ class QueuesConfig extends BaseConfig {
 
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
-    return MaterialPage(
+    return RouterPage(
         key: ValueKey('Queues Page $locationId'),
         child: QueuesWidget(
           config: this,
@@ -133,17 +136,21 @@ class QueueConfig extends BaseConfig {
 
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
-    return MaterialPage(
+    return RouterPage(
         key: ValueKey('Queue Page $queueId'),
         child: QueueWidget(
           config: this,
+          emitConfig: emitConfig,
         )
     );
   }
 
   @override
   BaseConfig getPrevConfig() {
-    return QueuesConfig(username: username, locationId: locationId);
+    return QueuesConfig(
+        username: username,
+        locationId: locationId
+    );
   }
 }
 
@@ -160,7 +167,7 @@ class ClientConfig extends BaseConfig {
 
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
-    return MaterialPage(
+    return RouterPage(
         key: ValueKey('Client Page $queueId'),
         child: ClientWidget(
           config: this,
@@ -171,6 +178,66 @@ class ClientConfig extends BaseConfig {
 
   @override
   BaseConfig? getPrevConfig() {
-    return null;//QueuesConfig(username: username, locationId: locationId);
+    return QueuesConfig(
+        username: username,
+        locationId: locationId
+    );
+  }
+}
+
+class BoardConfig extends BaseConfig {
+  String username;
+  int locationId;
+
+  BoardConfig({
+    required this.username,
+    required this.locationId,
+  });
+
+  @override
+  Page getPage(ValueChanged<BaseConfig> emitConfig) {
+    return RouterPage(
+        key: ValueKey('Board Page $locationId'),
+        child: BoardWidget(
+            config: this
+        )
+    );
+  }
+
+  @override
+  BaseConfig? getPrevConfig() {
+    return QueuesConfig(
+        username: username,
+        locationId: locationId
+    );
+  }
+}
+
+class RulesConfig extends BaseConfig {
+  String username;
+  int locationId;
+
+  RulesConfig({
+    required this.username,
+    required this.locationId,
+  });
+
+  @override
+  Page getPage(ValueChanged<BaseConfig> emitConfig) {
+    return RouterPage(
+        key: ValueKey('Rules Page $locationId'),
+        child: RulesWidget(
+            config: this,
+            emitConfig: emitConfig
+        )
+    );
+  }
+
+  @override
+  BaseConfig? getPrevConfig() {
+    return QueuesConfig(
+        username: username,
+        locationId: locationId
+    );
   }
 }

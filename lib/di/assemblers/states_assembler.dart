@@ -1,17 +1,23 @@
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
-import 'package:queue_management_system_client/ui/screens/client/client.dart';
-import 'package:queue_management_system_client/ui/screens/client/client_join.dart';
-import 'package:queue_management_system_client/ui/screens/location/create_location.dart';
-import 'package:queue_management_system_client/ui/screens/location/delete_location.dart';
-import 'package:queue_management_system_client/ui/screens/queue/queue.dart';
-import 'package:queue_management_system_client/ui/screens/queue/queues.dart';
-import 'package:queue_management_system_client/ui/screens/verification/authorization.dart';
-import 'package:queue_management_system_client/ui/screens/verification/registration.dart';
-import 'package:queue_management_system_client/ui/screens/verification/select.dart';
+import 'package:queue_management_system_client/ui/screens/board/board_screen.dart';
+import 'package:queue_management_system_client/ui/screens/client/client_screen.dart';
+import 'package:queue_management_system_client/ui/screens/client/client_confirm_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/client/client_join_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/location/create_location_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/location/delete_location_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/queue/add_client_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/queue/queue_screen.dart';
+import 'package:queue_management_system_client/ui/screens/queue/queues_screen.dart';
+import 'package:queue_management_system_client/ui/screens/rules/add_rule_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/verification/authorization_screen.dart';
+import 'package:queue_management_system_client/ui/screens/verification/registration_screen.dart';
+import 'package:queue_management_system_client/ui/screens/verification/select_screen.dart';
 
-import '../../ui/screens/location/locations.dart';
-import '../../ui/screens/queue/create_queue.dart';
-import '../../ui/screens/verification/confirmation.dart';
+import '../../ui/screens/client/client_rejoin_dialog.dart';
+import '../../ui/screens/location/locations_screen.dart';
+import '../../ui/screens/queue/create_queue_dialog.dart';
+import '../../ui/screens/rules/rules_screen.dart';
+import '../../ui/screens/verification/confirm_dialog.dart';
 import '../main/main.dart';
 
 class StatesAssembler {
@@ -19,7 +25,7 @@ class StatesAssembler {
 
   SelectCubit getSelectCubit() => getIt.get();
   RegistrationCubit getRegistrationCubit() => getIt.get();
-  ConfirmationCubit getConfirmationCubit(ConfirmationConfig params) => getIt.get(param1: params);
+  ConfirmCubit getConfirmCubit() => getIt.get();
   AuthorizationCubit getAuthorizationCubit() => getIt.get();
 
   LocationsCubit getLocationsCubit(LocationsConfig config) => getIt.get(param1: config);
@@ -28,9 +34,18 @@ class StatesAssembler {
   QueuesCubit getQueuesCubit(QueuesConfig config) => getIt.get(param1: config);
   CreateQueueCubit getCreateQueueCubit() => getIt.get();
   QueueCubit getQueueCubit(QueueConfig config) => getIt.get(param1: config);
+  AddClientCubit getAddClientCubit() => getIt.get();
 
   ClientCubit getClientCubit(ClientConfig config) => getIt.get(param1: config);
   ClientJoinCubit getClientJoinCubit() => getIt.get();
+  ClientRejoinCubit getClientRejoinCubit() => getIt.get();
+  ClientConfirmCubit getClientConfirmCubit() => getIt.get();
+
+  BoardCubit getBoardCubit(BoardConfig config) => getIt.get(param1: config);
+
+  RulesCubit getRulesCubit(RulesConfig config) => getIt.get(param1: config);
+
+  AddRuleCubit getAddRuleCubit() => getIt.get();
 }
 
 const statesAssembler = StatesAssembler._();

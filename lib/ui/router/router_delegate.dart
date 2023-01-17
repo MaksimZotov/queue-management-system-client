@@ -12,15 +12,16 @@ class AppRouterDelegate extends RouterDelegate<BaseConfig>
   BaseConfig? config;
 
   List<Page> get pages {
-    List<Page> pages = [
-      config?.getPrevConfig()?.getPage(emitConfig),
-      config?.getPage(emitConfig)
-    ].whereType<Page>().toList();
+    List<Page> pages = [];
+    BaseConfig? curConfig = config;
+    while (curConfig != null) {
+      pages.add(curConfig.getPage(emitConfig));
+      curConfig = curConfig.getPrevConfig();
+    }
     if (pages.isEmpty) {
       return [InitialConfig().getPage(emitConfig)];
-    } else {
-      return pages;
     }
+    return pages.reversed.toList();
   }
 
   @override

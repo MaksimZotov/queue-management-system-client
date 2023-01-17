@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 class ButtonWidget extends StatefulWidget {
   const ButtonWidget({
@@ -17,15 +18,24 @@ class ButtonWidget extends StatefulWidget {
 class _ButtonState extends State<ButtonWidget> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          minimumSize: const Size.fromHeight(50),
-        ),
-        onPressed: widget.onClick,
-        child: Text(
-            widget.text
+    return SizedBox(
+      width: (
+          defaultTargetPlatform != TargetPlatform.iOS &&
+          defaultTargetPlatform != TargetPlatform.android
+      ) ? 400 : null,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: ElevatedButton(
+          onPressed: widget.onClick,
+          style: ElevatedButton.styleFrom(
+            textStyle: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            minimumSize: const Size.fromHeight(80),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            tapTargetSize: MaterialTapTargetSize.padded,
+          ),
+          child: Text(widget.text),
         ),
       ),
     );

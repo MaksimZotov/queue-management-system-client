@@ -1,16 +1,17 @@
 import 'package:dio/dio.dart';
+import 'package:queue_management_system_client/data/converters/verification/tokens_converter.dart';
 
-import '../../../domain/models/verification/tokens.dart';
+import '../../../domain/models/verification/tokens_model.dart';
 import '../../local/secure_storage.dart';
 import '../server_api.dart';
 
 class InterceptorsWrapperServerApi extends InterceptorsWrapper {
 
-  final SecureStorage _tokensStorage;
+  final SecureStorage _secureStorage;
   final Dio _dioApi;
 
   InterceptorsWrapperServerApi(
-      this._tokensStorage,
+      this._secureStorage,
       this._dioApi
   );
 
@@ -24,7 +25,7 @@ class InterceptorsWrapperServerApi extends InterceptorsWrapper {
         !path.endsWith(ServerApi.loginMethod) &&
         !path.endsWith(ServerApi.confirmMethod)
     ) {
-      options.headers['Authorization'] = 'Bearer ${ await _tokensStorage.getAccessToken() }';
+      options.headers['Authorization'] = 'Bearer ${ await _secureStorage.getAccessToken() }';
     }
     return handler.next(options);
   }
@@ -32,17 +33,18 @@ class InterceptorsWrapperServerApi extends InterceptorsWrapper {
   @override
   void onError(DioError err, ErrorInterceptorHandler handler) async {
     if ((err.response?.statusCode == 401)) {
-      if (await _tokensStorage.containsRefreshToken()) {
-        final refreshToken = await _tokensStorage.getRefreshToken();
-        final response = await _dioApi.post<TokensModel>(
-            _refreshTokenMethod,
-            queryParameters: { 'refresh_token': refreshToken }
+      if (await _secureStorage.containsRefreshToken()) {
+        final refreshToken = await _secureStorage.getRefreshToken();
+        final response = await _dioApi.post(
+            '${ServerApi.url}$_refreshTokenMethod',
+            queryParameters: { 'refresh_token': 'Bearer $refreshToken' }
         );
         int? code = response.statusCode;
         if (code != null && code >= 200 && code < 300) {
-          final tokens = response.data!;
-          await _tokensStorage.setAccessToken(accessToken: tokens.access);
-          await _tokensStorage.setRefreshToken(refreshToken: tokens.refresh);
+          final tokens = TokensConverter(TokensFields()).fromJson(response.data!);
+          await _secureStorage.setAccessToken(accessToken: tokens.access);
+          await _secureStorage.setRefreshToken(refreshToken: tokens.refresh);
+          await _secureStorage.setUsername(username: tokens.username);
           final requestOptions = err.requestOptions;
           final options = Options(
             method: requestOptions.method,
@@ -56,7 +58,7 @@ class InterceptorsWrapperServerApi extends InterceptorsWrapper {
           );
           return handler.resolve(retryResponse);
         } else {
-          await _tokensStorage.deleteAll();
+          await _secureStorage.deleteAll();
         }
       }
     }

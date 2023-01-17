@@ -2,15 +2,17 @@ import 'package:flutter/cupertino.dart';
 
 import '../models/base/container_for_list.dart';
 import '../models/base/result.dart';
-import '../models/queue/queue.dart';
+import '../models/client/client_join_info_model.dart';
+import '../models/queue/add_client_info.dart';
+import '../models/queue/client_in_queue_model.dart';
+import '../models/queue/queue_model.dart';
 
 abstract class QueueInteractor {
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, int page, int pageSize);
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String username);
   Future<Result<QueueModel>> createQueue(int locationId, QueueModel queue);
   Future<Result> deleteQueue(int id);
   Future<Result<QueueModel>> getQueueState(int id);
   Future<Result> serveClientInQueue(int queueId, int clientId);
   Future<Result> notifyClientInQueue(int queueId, int clientId);
-  void connectToQueueSocket(int queueId, VoidCallback onConnected, ValueChanged<QueueModel> onQueueChanged, ValueChanged onError);
-  void disconnectFromQueueSocket(int queueId);
+  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, AddClientInfo addClientInfo);
 }

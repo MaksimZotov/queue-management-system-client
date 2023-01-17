@@ -1,10 +1,12 @@
 import '../models/base/container_for_list.dart';
 import '../models/base/result.dart';
-import '../models/location/location.dart';
+import '../models/location/has_rules_model.dart';
+import '../models/location/location_model.dart';
 
 abstract class LocationInteractor {
-  Future<Result<ContainerForList<LocationModel>>> getMyLocations(int page, int pageSize);
+  Future<Result<ContainerForList<LocationModel>>> getLocations(String? username);
   Future<Result<LocationModel>> createLocation(LocationModel location);
-  Future<Result<LocationModel>> getLocation(int id);
-  Future<Result> deleteLocation(int id);
+  Future<Result<LocationModel>> getLocation(int id, String? username);
+  Future<Result> deleteLocation(int locationId);
+  Future<Result<HasRulesModel>> checkHasRules(String? username);
 }

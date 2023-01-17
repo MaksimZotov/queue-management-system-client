@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'routes_config.dart';
 
-class AppRouterInformationParser
-    extends RouteInformationParser<BaseConfig> {
+class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
 
   @override
   Future<BaseConfig> parseRouteInformation(
@@ -14,49 +13,80 @@ class AppRouterInformationParser
       List<String> segments = uri.pathSegments;
 
       switch (segments.length) {
+        // "/"
         case 0:
           return InitialConfig();
         case 1:
           switch (segments[0]) {
+            // "/authorization"
             case 'authorization':
               return AuthorizationConfig();
+            // "/registration"
             case 'registration':
               return RegistrationConfig();
           }
           break;
         case 2:
-           switch (segments[0]) {
+           switch (segments[1]) {
+             // "/{username}/locations"
              case 'locations':
-               return LocationsConfig(username: segments[1]);
+               return LocationsConfig(username: segments[0]);
            }
            break;
-        case 3:
-          switch (segments[0]) {
+        case 4:
+          switch (segments[1]) {
             case 'locations':
-              return QueuesConfig(
-                  username: segments[1],
-                  locationId: int.parse(segments[2])
-              );
+              switch (segments[3]) {
+                // "/{username}/locations/{location_id}/queues"
+                case 'queues':
+                  return QueuesConfig(
+                      username: segments[0],
+                      locationId: int.parse(segments[2])
+                  );
+                // "/{username}/locations/{location_id}/rules"
+                case 'rules':
+                  return RulesConfig(
+                      username: segments[0],
+                      locationId: int.parse(segments[2])
+                  );
+                // "/{username}/locations/{location_id}/board"
+                case 'board':
+                  return BoardConfig(
+                      username: segments[0],
+                      locationId: int.parse(segments[2])
+                  );
+              }
           }
           break;
-        case 4:
-          switch (segments[0]) {
+        case 5:
+          switch (segments[1]) {
             case 'locations':
-              return QueueConfig(
-                  username: segments[1],
-                  locationId: int.parse(segments[2]),
-                  queueId: int.parse(segments[3])
-              );
+              switch (segments[3]) {
+                // "/{username}/locations/{location_id}/queues/{queue_id}"
+                case 'queues':
+                  return QueueConfig(
+                      username: segments[0],
+                      locationId: int.parse(segments[2]),
+                      queueId: int.parse(segments[4])
+                  );
+              }
           }
           break;
         case 6:
           switch (segments[1]) {
             case 'locations':
-              return ClientConfig(
-                  username: segments[0],
-                  locationId: int.parse(segments[2]),
-                  queueId: int.parse(segments[4])
-              );
+              switch (segments[3]) {
+                case 'queues':
+                  switch (segments[5]) {
+                    // "/{username}/locations/{location_id}/queues/{queue_id}/client"
+                    case 'client':
+                      return ClientConfig(
+                          username: segments[0],
+                          locationId: int.parse(segments[2]),
+                          queueId: int.parse(segments[4])
+                      );
+                  }
+              }
           }
       }
     } on Exception {
@@ -79,14 +109,14 @@ class AppRouterInformationParser
     if (configuration is LocationsConfig) {
       String username = configuration.username;
       return RouteInformation(
-          location: '/locations/$username'
+          location: '/$username/locations'
       );
     }
     if (configuration is QueuesConfig) {
       String username = configuration.username;
       int locationId = configuration.locationId;
       return RouteInformation(
-          location: '/locations/$username/$locationId'
+          location: '/$username/locations/$locationId/queues'
       );
     }
     if (configuration is QueueConfig) {
@@ -94,7 +124,7 @@ class AppRouterInformationParser
       int locationId = configuration.locationId;
       int queueId = configuration.queueId;
       return RouteInformation(
-          location: '/locations/$username/$locationId/$queueId'
+          location: '/$username/locations/$locationId/queues/$queueId'
       );
     }
     if (configuration is ClientConfig) {
@@ -103,6 +133,20 @@ class AppRouterInformationParser
       int queueId = configuration.queueId;
       return RouteInformation(
           location: '/$username/locations/$locationId/queues/$queueId/client'
+      );
+    }
+    if (configuration is RulesConfig) {
+      String username = configuration.username;
+      int locationId = configuration.locationId;
+      return RouteInformation(
+          location: '/$username/locations/$locationId/rules'
+      );
+    }
+    if (configuration is BoardConfig) {
+      String username = configuration.username;
+      int locationId = configuration.locationId;
+      return RouteInformation(
+          location: '/$username/locations/$locationId/board'
       );
     }
     return null;

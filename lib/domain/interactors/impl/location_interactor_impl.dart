@@ -1,7 +1,8 @@
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
-import 'package:queue_management_system_client/domain/models/location/location.dart';
+import 'package:queue_management_system_client/domain/models/location/has_rules_model.dart';
+import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 
 import '../../../data/repositories/repository.dart';
 import '../../models/base/container_for_list.dart';
@@ -13,8 +14,8 @@ class LocationInteractorImpl extends LocationInteractor {
   LocationInteractorImpl(this._repository);
 
   @override
-  Future<Result<ContainerForList<LocationModel>>> getMyLocations(int page, int pageSize) async {
-    return await _repository.getMyLocations(page, pageSize);
+  Future<Result<ContainerForList<LocationModel>>> getLocations(String? username) async {
+    return await _repository.getLocations(username);
   }
 
   @override
@@ -23,12 +24,17 @@ class LocationInteractorImpl extends LocationInteractor {
   }
 
   @override
-  Future<Result<LocationModel>> getLocation(int id) async {
-    return await _repository.getLocation(id);
+  Future<Result<LocationModel>> getLocation(int id, String? username) async {
+    return await _repository.getLocation(id, username);
   }
 
   @override
-  Future<Result> deleteLocation(int id) async {
-    return await _repository.deleteLocation(id);
+  Future<Result> deleteLocation(int locationId) async {
+    return await _repository.deleteLocation(locationId);
+  }
+
+  @override
+  Future<Result<HasRulesModel>> checkHasRules(String? username) async {
+    return await _repository.checkHasRules(username);
   }
 }
