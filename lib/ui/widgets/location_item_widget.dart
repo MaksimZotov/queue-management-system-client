@@ -42,7 +42,7 @@ class _LocationItemState extends State<LocationItemWidget> {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          trailing: widget.location.hasRules == true
+          trailing: widget.location.hasRights == true
               ? SizedBox(
             height: double.infinity,
             child: IconButton(

@@ -80,7 +80,7 @@ class _LocationsState extends State<LocationsWidget> {
             },
             itemCount: state.locations.length,
           ),
-          floatingActionButton: state.hasRules
+          floatingActionButton: state.hasRights
             ? FloatingActionButton(
               onPressed: () => showDialog(
                   context: context,
@@ -106,7 +106,7 @@ class LocationsLogicState {
 
   final List<LocationModel> locations;
 
-  final bool hasRules;
+  final bool hasRights;
   final bool hasToken;
 
   final bool readyToLogout;
@@ -118,7 +118,7 @@ class LocationsLogicState {
   LocationsLogicState({
     required this.config,
     required this.locations,
-    required this.hasRules,
+    required this.hasRights,
     required this.hasToken,
     required this.readyToLogout,
     required this.snackBar,
@@ -127,7 +127,7 @@ class LocationsLogicState {
 
   LocationsLogicState copyWith({
     List<LocationModel>? locations,
-    bool? hasRules,
+    bool? hasRights,
     bool? hasToken,
     bool? readyToLogout,
     String? snackBar,
@@ -135,7 +135,7 @@ class LocationsLogicState {
   }) => LocationsLogicState(
       config: config,
       locations: locations ?? this.locations,
-      hasRules: hasRules ?? this.hasRules,
+      hasRights: hasRights ?? this.hasRights,
       hasToken: hasToken ?? this.hasToken,
       readyToLogout: readyToLogout ?? this.readyToLogout,
       snackBar: snackBar,
@@ -157,7 +157,7 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
     LocationsLogicState(
       config: config,
       locations: [],
-      hasRules: false,
+      hasRights: false,
       hasToken: false,
       readyToLogout: false,
       snackBar: null,
@@ -170,9 +170,9 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
     if (await verificationInteractor.checkToken()) {
       emit(state.copyWith(hasToken: true));
     }
-    await locationInteractor.checkHasRules(state.config.username)
+    await locationInteractor.checkHasRights(state.config.username)
       ..onSuccess((result) async {
-        emit(state.copyWith(hasRules: result.data.hasRules));
+        emit(state.copyWith(hasRights: result.data.hasRights));
       })
       ..onError((result) {
         emit(state.copyWith(loading: false, snackBar: result.description));

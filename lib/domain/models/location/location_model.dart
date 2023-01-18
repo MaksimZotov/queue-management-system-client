@@ -3,13 +3,13 @@ class LocationModel {
   final String? ownerUsername;
   final String name;
   final String description;
-  final bool? hasRules;
+  final bool? hasRights;
 
   LocationModel({
     required this.id,
     this.ownerUsername,
     required this.name,
     required this.description,
-    this.hasRules
+    this.hasRights
   });
 }

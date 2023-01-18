@@ -7,10 +7,10 @@ import 'package:queue_management_system_client/data/repositories/repository.dart
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
 import 'package:queue_management_system_client/domain/models/board/board_model.dart';
 import 'package:queue_management_system_client/domain/models/client/client_model.dart';
-import 'package:queue_management_system_client/domain/models/location/has_rules_model.dart';
+import 'package:queue_management_system_client/domain/models/location/has_rights_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
-import 'package:queue_management_system_client/domain/models/rules/rules_model.dart';
+import 'package:queue_management_system_client/domain/models/rights/rights_model.dart';
 
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/client/client_join_info_model.dart';
@@ -103,11 +103,11 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result<HasRulesModel>> checkHasRules(String? username) async {
+  Future<Result<HasRightsModel>> checkHasRights(String? username) async {
     if (username == null && !(await _secureStorage.containsUsername())) {
-      return SuccessResult(data: HasRulesModel(hasRules: false));
+      return SuccessResult(data: HasRightsModel(hasRights: false));
     }
-    return await _serverApi.checkHasRules(username ?? (await _secureStorage.getUsername())!);
+    return await _serverApi.checkHasRights(username ?? (await _secureStorage.getUsername())!);
   }
 
 
@@ -155,7 +155,7 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  void disconnectFromQueueSocket(String destination) {
+  void disconnectFromSocket(String destination) {
     _serverApi.disconnectFromSocket(destination);
   }
 
@@ -217,18 +217,18 @@ class RepositoryImpl extends Repository {
 
 
   @override
-  Future<Result> addRules(int locationId, String email) {
-    return _serverApi.addRules(locationId, email);
+  Future<Result> addRights(int locationId, String email) {
+    return _serverApi.addRights(locationId, email);
   }
 
   @override
-  Future<Result> deleteRules(int locationId, String email) {
-    return _serverApi.deleteRules(locationId, email);
+  Future<Result> deleteRights(int locationId, String email) {
+    return _serverApi.deleteRights(locationId, email);
   }
 
   @override
-  Future<Result<ContainerForList<RulesModel>>> getRules(int locationId) {
-    return _serverApi.getRules(locationId);
+  Future<Result<ContainerForList<RightsModel>>> getRights(int locationId) {
+    return _serverApi.getRights(locationId);
   }
 
 

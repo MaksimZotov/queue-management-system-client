@@ -8,7 +8,7 @@ class LocationFields {
   final String ownerUsername = 'owner_username';
   final String name = 'name';
   final String description = 'description';
-  final String hasRules = 'has_rules';
+  final String hasRights = 'has_rights';
 }
 
 @singleton
@@ -22,7 +22,7 @@ class LocationConverter extends JsonConverter<LocationModel> {
     ownerUsername: json[_locationFields.ownerUsername] as String?,
     name: json[_locationFields.name] as String,
     description: json[_locationFields.description] as String,
-    hasRules: json[_locationFields.hasRules] as bool?
+    hasRights: json[_locationFields.hasRights] as bool?
   );
 
   @override
@@ -31,6 +31,6 @@ class LocationConverter extends JsonConverter<LocationModel> {
     _locationFields.ownerUsername: data.ownerUsername,
     _locationFields.name: data.name,
     _locationFields.description: data.description,
-    _locationFields.hasRules: data.hasRules
+    _locationFields.hasRights: data.hasRights
   };
 }

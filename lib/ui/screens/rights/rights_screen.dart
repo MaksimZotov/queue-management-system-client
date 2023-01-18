@@ -2,42 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
-import 'package:queue_management_system_client/domain/models/rules/rules_model.dart';
+import 'package:queue_management_system_client/domain/models/rights/rights_model.dart';
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
 import 'package:queue_management_system_client/ui/screens/location/create_location_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/delete_location_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queues_screen.dart';
-import 'package:queue_management_system_client/ui/screens/rules/add_rule_dialog.dart';
-import 'package:queue_management_system_client/ui/screens/rules/delete_rule_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/rights/add_rule_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/rights/delete_rule_dialog.dart';
 import 'package:queue_management_system_client/ui/widgets/location_item_widget.dart';
-import 'package:queue_management_system_client/ui/widgets/rules_item_widget.dart';
+import 'package:queue_management_system_client/ui/widgets/rights_item_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';
-import '../../../domain/interactors/rules_interactor.dart';
+import '../../../domain/interactors/rights_interactor.dart';
 import '../../../domain/interactors/verification_interactor.dart';
 import '../../../domain/models/base/container_for_list.dart';
 import '../../../domain/models/base/result.dart';
 
-class RulesWidget extends StatefulWidget {
+class RightsWidget extends StatefulWidget {
   ValueChanged<BaseConfig> emitConfig;
-  final RulesConfig config;
+  final RightsConfig config;
 
-  RulesWidget({super.key, required this.config, required this.emitConfig});
+  RightsWidget({super.key, required this.config, required this.emitConfig});
 
   @override
-  State<RulesWidget> createState() => _RulesState();
+  State<RightsWidget> createState() => _RightsState();
 }
 
-class _RulesState extends State<RulesWidget> {
+class _RightsState extends State<RightsWidget> {
   final String title = 'Настройки доступа';
   final String createLocationHint = 'Создать локацию';
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<RulesCubit>(
-      create: (context) => statesAssembler.getRulesCubit(widget.config)..onStart(),
-      child: BlocConsumer<RulesCubit, RulesLogicState>(
+    return BlocProvider<RightsCubit>(
+      create: (context) => statesAssembler.getRightsCubit(widget.config)..onStart(),
+      child: BlocConsumer<RightsCubit, RightsLogicState>(
 
         listener: (context, state) {
            if (state.snackBar != null) {
@@ -53,23 +53,23 @@ class _RulesState extends State<RulesWidget> {
           ),
           body: ListView.builder(
             itemBuilder: (context, index) {
-              return RulesItemWidget(
-                rules: state.rules[index],
-                onDelete: (rules) => showDialog(
+              return RightsItemWidget(
+                rights: state.rights[index],
+                onDelete: (rights) => showDialog(
                     context: context,
                     builder: (context) => DeleteRuleWidget(
                         config: DeleteRuleConfig(
-                            email: rules.email
+                            email: rights.email
                         )
                     )
                 ).then((result) {
                   if (result is DeleteRuleResult) {
-                    BlocProvider.of<RulesCubit>(context).deleteRule(result);
+                    BlocProvider.of<RightsCubit>(context).deleteRule(result);
                   }
                 }),
               );
             },
-            itemCount: state.rules.length,
+            itemCount: state.rights.length,
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () => showDialog(
@@ -77,7 +77,7 @@ class _RulesState extends State<RulesWidget> {
                 builder: (context) => const AddRuleWidget()
             ).then((result) {
               if (result is AddRuleResult) {
-                BlocProvider.of<RulesCubit>(context).addRule(result);
+                BlocProvider.of<RightsCubit>(context).addRule(result);
               }
             }),
             child: const Icon(Icons.add),
@@ -88,13 +88,13 @@ class _RulesState extends State<RulesWidget> {
   }
 }
 
-class RulesLogicState {
+class RightsLogicState {
 
   static const int pageSize = 30;
 
-  final RulesConfig config;
+  final RightsConfig config;
 
-  final List<RulesModel> rules;
+  final List<RightsModel> rights;
 
   final bool hasToken;
   
@@ -102,22 +102,22 @@ class RulesLogicState {
   final bool loading;
 
 
-  RulesLogicState({
+  RightsLogicState({
     required this.config,
-    required this.rules,
+    required this.rights,
     required this.hasToken,
     required this.snackBar,
     required this.loading,
   });
 
-  RulesLogicState copyWith({
-    List<RulesModel>? rules,
+  RightsLogicState copyWith({
+    List<RightsModel>? rights,
     bool? hasToken,
     String? snackBar,
     bool? loading,
-  }) => RulesLogicState(
+  }) => RightsLogicState(
       config: config,
-      rules: rules ?? this.rules,
+      rights: rights ?? this.rights,
       hasToken: hasToken ?? this.hasToken,
       snackBar: snackBar,
       loading: loading ?? this.loading
@@ -125,19 +125,19 @@ class RulesLogicState {
 }
 
 @injectable
-class RulesCubit extends Cubit<RulesLogicState> {
+class RightsCubit extends Cubit<RightsLogicState> {
 
   final VerificationInteractor verificationInteractor;
-  final RulesInteractor rulesInteractor;
+  final RightsInteractor rightsInteractor;
 
-  RulesCubit(
-    this.rulesInteractor,
+  RightsCubit(
+    this.rightsInteractor,
     this.verificationInteractor,
-    @factoryParam RulesConfig config
+    @factoryParam RightsConfig config
   ) : super(
-    RulesLogicState(
+    RightsLogicState(
       config: config,
-      rules: [],
+      rights: [],
       hasToken: false,
       snackBar: null,
       loading: false
@@ -150,7 +150,7 @@ class RulesCubit extends Cubit<RulesLogicState> {
 
   Future addRule(AddRuleResult addRuleResult) async {
     emit(state.copyWith(loading: true));
-    await rulesInteractor.addRules(state.config.locationId, addRuleResult.email)
+    await rightsInteractor.addRights(state.config.locationId, addRuleResult.email)
       ..onSuccess((result) {
         _reload();
       })..onError((result) {
@@ -161,7 +161,7 @@ class RulesCubit extends Cubit<RulesLogicState> {
 
   Future deleteRule(DeleteRuleResult deleteRuleResult) async {
     emit(state.copyWith(loading: true));
-    await rulesInteractor.deleteRules(state.config.locationId, deleteRuleResult.email)
+    await rightsInteractor.deleteRights(state.config.locationId, deleteRuleResult.email)
       ..onSuccess((result) {
         _reload();
       })..onError((result) {
@@ -171,13 +171,13 @@ class RulesCubit extends Cubit<RulesLogicState> {
   }
 
   Future _reload() async {
-    await rulesInteractor.getRules(
+    await rightsInteractor.getRights(
         state.config.locationId
     )
       ..onSuccess((result) async {
         emit(
             state.copyWith(
-                rules: result.data.results
+                rights: result.data.results
             )
         );
       })

@@ -28,6 +28,6 @@ class SocketInteractorImpl extends SocketInteractor {
 
   @override
   void disconnectFromSocket(String destination) {
-    _repository.disconnectFromQueueSocket(destination);
+    _repository.disconnectFromSocket(destination);
   }
 }

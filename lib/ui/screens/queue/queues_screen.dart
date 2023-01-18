@@ -50,11 +50,11 @@ class _QueuesState extends State<QueuesWidget> {
           appBar: AppBar(
             title: Text(state.locationName.isEmpty ? '' : titleStart + state.locationName),
             actions: state.ownerUsername != null
-                ? (state.hasRules ? <Widget>[
+                ? (state.hasRights ? <Widget>[
                   IconButton(
                       icon: const Icon(Icons.settings),
                       onPressed: () => widget.emitConfig(
-                          RulesConfig(
+                          RightsConfig(
                               username: widget.config.username,
                               locationId: widget.config.locationId
                           )
@@ -87,7 +87,7 @@ class _QueuesState extends State<QueuesWidget> {
               return QueueItemWidget(
                 queue: state.queues[index],
                 onClick: (queue) => widget.emitConfig(
-                  state.hasRules ? QueueConfig(
+                  state.hasRights ? QueueConfig(
                     username: state.config.username,
                     locationId: state.config.locationId,
                     queueId: queue.id!
@@ -112,7 +112,7 @@ class _QueuesState extends State<QueuesWidget> {
             },
             itemCount: state.queues.length,
           ),
-          floatingActionButton: state.hasRules
+          floatingActionButton: state.hasRights
             ? FloatingActionButton(
               onPressed: () => showDialog(
                   context: context,
@@ -135,7 +135,7 @@ class QueuesLogicState {
 
   final String? ownerUsername;
   final String locationName;
-  final bool hasRules;
+  final bool hasRights;
 
   final List<QueueModel> queues;
 
@@ -146,7 +146,7 @@ class QueuesLogicState {
     required this.config,
     required this.ownerUsername,
     required this.locationName,
-    required this.hasRules,
+    required this.hasRights,
     required this.queues,
     required this.snackBar,
     required this.loading,
@@ -156,7 +156,7 @@ class QueuesLogicState {
     String? ownerUsername,
     String? locationName,
     List<QueueModel>? queues,
-    bool? hasRules,
+    bool? hasRights,
     String? snackBar,
     bool? loading,
   }) =>
@@ -164,7 +164,7 @@ class QueuesLogicState {
           config: config,
           ownerUsername: ownerUsername ?? this.ownerUsername,
           locationName: locationName ?? this.locationName,
-          hasRules: hasRules ?? this.hasRules,
+          hasRights: hasRights ?? this.hasRights,
           queues: queues ?? this.queues,
           snackBar: snackBar,
           loading: loading ?? this.loading);
@@ -183,7 +183,7 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
             config: config,
             ownerUsername: null,
             locationName: '',
-            hasRules: false,
+            hasRights: false,
             queues: [],
             snackBar: null,
             loading: false
@@ -199,7 +199,7 @@ class QueuesCubit extends Cubit<QueuesLogicState> {
             state.copyWith(
                 ownerUsername: result.data.ownerUsername,
                 locationName: result.data.name,
-                hasRules: result.data.hasRules
+                hasRights: result.data.hasRights
             )
         );
         await _reload();

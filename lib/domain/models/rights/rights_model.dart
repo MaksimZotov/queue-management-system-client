@@ -1,8 +1,8 @@
-class RulesModel {
+class RightsModel {
   final int locationId;
   final String email;
 
-  RulesModel({
+  RightsModel({
     required this.locationId,
     required this.email
   });

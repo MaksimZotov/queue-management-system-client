@@ -8,16 +8,16 @@ import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/converters/board/board_model_converter.dart';
 import 'package:queue_management_system_client/data/converters/client/client_converter.dart';
 import 'package:queue_management_system_client/data/converters/client/client_join_info_converter.dart';
-import 'package:queue_management_system_client/data/converters/location/has_rules_converter.dart';
+import 'package:queue_management_system_client/data/converters/location/has_rights_converter.dart';
 import 'package:queue_management_system_client/data/converters/queue/client_in_queue_converter.dart';
 import 'package:queue_management_system_client/data/converters/verification/confirm_converter.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
 import 'package:queue_management_system_client/domain/models/board/board_model.dart';
 import 'package:queue_management_system_client/domain/models/client/client_model.dart';
-import 'package:queue_management_system_client/domain/models/location/has_rules_model.dart';
+import 'package:queue_management_system_client/domain/models/location/has_rights_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
-import 'package:queue_management_system_client/domain/models/rules/rules_model.dart';
+import 'package:queue_management_system_client/domain/models/rights/rights_model.dart';
 import 'package:queue_management_system_client/domain/models/verification/confirm_model.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
@@ -36,7 +36,7 @@ import '../converters/json_converter.dart';
 import '../converters/location/location_converter.dart';
 import '../converters/queue/add_client_info_converter.dart';
 import '../converters/queue/queue_converter.dart';
-import '../converters/rules/rules_converter.dart';
+import '../converters/rights/rights_converter.dart';
 import '../converters/verification/login_converter.dart';
 import '../converters/verification/signup_converters.dart';
 import '../converters/verification/tokens_converter.dart';
@@ -68,7 +68,7 @@ class ServerApi {
   final LoginConverter _loginConverter;
 
   final LocationConverter _locationConverter;
-  final HasRulesConverter _hasRulesConverter;
+  final HasRightsConverter _hasRightsConverter;
 
   final QueueConverter _queueConverter;
   final ClientInQueueConverter _clientInQueueConverter;
@@ -77,7 +77,7 @@ class ServerApi {
   final ClientConverter _clientConverter;
   final ClientJoinInfoConverter _clientJoinInfoConverter;
 
-  final RulesConverter _rulesConverter;
+  final RightsConverter _rightsConverter;
 
   final BoardConverter _boardConverter;
 
@@ -97,7 +97,7 @@ class ServerApi {
       this._loginConverter,
 
       this._locationConverter,
-      this._hasRulesConverter,
+      this._hasRightsConverter,
 
       this._queueConverter,
       this._clientInQueueConverter,
@@ -106,7 +106,7 @@ class ServerApi {
       this._clientConverter,
       this._clientJoinInfoConverter,
 
-      this._rulesConverter,
+      this._rightsConverter,
 
       this._boardConverter
   );
@@ -269,9 +269,9 @@ class ServerApi {
     );
   }
 
-  Future<Result<HasRulesModel>> checkHasRules(String username) async {
+  Future<Result<HasRightsModel>> checkHasRights(String username) async {
     return await _execRequest(
-        converter: _hasRulesConverter,
+        converter: _hasRightsConverter,
         request: _dioApi.get(
             '$url/locations/check',
             queryParameters: { 'username': username }
@@ -473,10 +473,10 @@ class ServerApi {
 
 
 
-  Future<Result> addRules(int locationId, String email) {
+  Future<Result> addRights(int locationId, String email) {
     return _execRequest(
         request: _dioApi.post(
-            '$url/rules/add',
+            '$url/rights/add',
             queryParameters: {
               'location_id': locationId,
               'email': email
@@ -485,10 +485,10 @@ class ServerApi {
     );
   }
 
-  Future<Result> deleteRules(int locationId, String email) {
+  Future<Result> deleteRights(int locationId, String email) {
     return _execRequest(
         request: _dioApi.delete(
-            '$url/rules/delete',
+            '$url/rights/delete',
             queryParameters: {
               'location_id': locationId,
               'email': email
@@ -497,11 +497,11 @@ class ServerApi {
     );
   }
 
-  Future<Result<ContainerForList<RulesModel>>> getRules(int locationId) {
+  Future<Result<ContainerForList<RightsModel>>> getRights(int locationId) {
     return _execRequestForList(
-        converter: _rulesConverter,
+        converter: _rightsConverter,
         request: _dioApi.get(
-            '$url/rules',
+            '$url/rights',
             queryParameters: {
               'location_id': locationId
             }

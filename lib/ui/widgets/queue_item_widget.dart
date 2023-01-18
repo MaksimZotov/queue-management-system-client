@@ -44,7 +44,7 @@ class _QueueItemState extends State<QueueItemWidget> {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        trailing: widget.queue.hasRules == true
+        trailing: widget.queue.hasRights == true
             ? SizedBox(
           height: double.infinity,
           child: IconButton(

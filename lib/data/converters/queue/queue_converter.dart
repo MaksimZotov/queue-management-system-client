@@ -10,7 +10,7 @@ class QueueFields {
   final String name = 'name';
   final String description = 'description';
   final String clients = 'clients';
-  final String hasRules = 'has_rules';
+  final String hasRights = 'has_rights';
   final String ownerUsername = 'owner_username';
 }
 
@@ -34,7 +34,7 @@ class QueueConverter extends JsonConverter<QueueModel> {
             ?.map((client) =>
                 _clientInQueueConverter.fromJson(client as Map<String, dynamic>)
             ).toList(),
-        hasRules: json[_queueFields.hasRules] as bool?,
+        hasRights: json[_queueFields.hasRights] as bool?,
         ownerUsername: json[_queueFields.ownerUsername] as String?
     );
   }
@@ -45,7 +45,7 @@ class QueueConverter extends JsonConverter<QueueModel> {
     _queueFields.name: data.name,
     _queueFields.description: data.description,
     _queueFields.clients: data.clients?.map(_clientInQueueConverter.toJson),
-    _queueFields.hasRules: data.hasRules,
+    _queueFields.hasRights: data.hasRights,
     _queueFields.ownerUsername: data.ownerUsername
   };
 }
