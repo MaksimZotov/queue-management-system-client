@@ -199,7 +199,7 @@ class BoardLogicState {
 @injectable
 class BoardCubit extends Cubit<BoardLogicState> {
 
-  static String _locationTopic = '/topic/locations/';
+  static String _locationTopic = '/topic/boards/';
 
   final BoardInteractor boardInteractor;
   final SocketInteractor socketInteractor;

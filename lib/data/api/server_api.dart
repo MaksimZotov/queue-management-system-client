@@ -82,7 +82,7 @@ class ServerApi {
   final BoardConverter _boardConverter;
 
   Map<String, StompClient> stompClients = {};
-  final socketUrl = '$url/our-websocket';
+  final socketUrl = '$url/socket';
 
   ServerApi(
       this._dioApi,
