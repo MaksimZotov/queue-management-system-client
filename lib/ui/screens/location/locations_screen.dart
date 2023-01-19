@@ -10,7 +10,7 @@ import 'package:queue_management_system_client/ui/widgets/location_item_widget.d
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';
-import '../../../domain/interactors/verification_interactor.dart';
+import '../../../domain/interactors/account_interactor.dart';
 import '../../../domain/models/base/container_for_list.dart';
 import '../../../domain/models/base/result.dart';
 
@@ -147,11 +147,11 @@ class LocationsLogicState {
 class LocationsCubit extends Cubit<LocationsLogicState> {
 
   final LocationInteractor locationInteractor;
-  final VerificationInteractor verificationInteractor;
+  final AccountInteractor accountInteractor;
 
   LocationsCubit({
     required this.locationInteractor,
-    required this.verificationInteractor,
+    required this.accountInteractor,
     @factoryParam required LocationsConfig config
   }) : super(
     LocationsLogicState(
@@ -167,7 +167,7 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
 
   Future<void> onStart() async {
     emit(state.copyWith(loading: true));
-    if (await verificationInteractor.checkToken()) {
+    if (await accountInteractor.checkToken()) {
       emit(state.copyWith(hasToken: true));
     }
     await locationInteractor.checkHasRights(state.config.username)
@@ -182,7 +182,7 @@ class LocationsCubit extends Cubit<LocationsLogicState> {
   }
 
   Future<void> logout() async {
-    await verificationInteractor.logout();
+    await accountInteractor.logout();
     emit(state.copyWith(readyToLogout: true));
     emit(state.copyWith(readyToLogout: false));
   }

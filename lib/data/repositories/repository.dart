@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
-import 'package:queue_management_system_client/domain/models/verification/confirm_model.dart';
+import 'package:queue_management_system_client/domain/models/account/confirm_model.dart';
 
 import '../../domain/models/base/result.dart';
 import '../../domain/models/board/board_model.dart';
@@ -12,9 +12,9 @@ import '../../domain/models/queue/add_client_info.dart';
 import '../../domain/models/queue/client_in_queue_model.dart';
 import '../../domain/models/queue/queue_model.dart';
 import '../../domain/models/rights/rights_model.dart';
-import '../../domain/models/verification/login_model.dart';
-import '../../domain/models/verification/signup_model.dart';
-import '../../domain/models/verification/tokens_model.dart';
+import '../../domain/models/account/login_model.dart';
+import '../../domain/models/account/signup_model.dart';
+import '../../domain/models/account/tokens_model.dart';
 
 abstract class Repository {
   Future<Result> signup(SignupModel signup);

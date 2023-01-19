@@ -5,7 +5,7 @@ import 'package:queue_management_system_client/domain/interactors/location_inter
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
-import '../../../domain/interactors/verification_interactor.dart';
+import '../../../domain/interactors/account_interactor.dart';
 import '../../router/routes_config.dart';
 import '../location/locations_screen.dart';
 
@@ -92,11 +92,11 @@ class SelectLogicState {
 @injectable
 class SelectCubit extends Cubit<SelectLogicState> {
   final LocationInteractor locationInteractor;
-  final VerificationInteractor verificationInteractor;
+  final AccountInteractor accountInteractor;
 
   SelectCubit(
      this.locationInteractor,
-     this.verificationInteractor,
+     this.accountInteractor,
   ) : super(
       SelectLogicState(
           selectStateEnum: SelectStateEnum.loading,
@@ -105,10 +105,10 @@ class SelectCubit extends Cubit<SelectLogicState> {
   );
 
   Future<void> onStart() async {
-    if (await verificationInteractor.checkToken()) {
+    if (await accountInteractor.checkToken()) {
       await locationInteractor.getLocations(null)
           ..onSuccess((value) async {
-            String? username = await verificationInteractor.getCurrentUsername();
+            String? username = await accountInteractor.getCurrentUsername();
             if (username != null) {
               emit(
                   SelectLogicState(

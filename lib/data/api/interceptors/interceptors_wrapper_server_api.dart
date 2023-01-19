@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:queue_management_system_client/data/converters/verification/tokens_converter.dart';
+import 'package:queue_management_system_client/data/converters/account/tokens_converter.dart';
 
-import '../../../domain/models/verification/tokens_model.dart';
+import '../../../domain/models/account/tokens_model.dart';
 import '../../local/secure_storage.dart';
 import '../server_api.dart';
 
@@ -15,7 +15,7 @@ class InterceptorsWrapperServerApi extends InterceptorsWrapper {
       this._dioApi
   );
 
-  static const _refreshTokenMethod = '/verification/token/refresh';
+  static const _refreshTokenMethod = '/account/token/refresh';
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {

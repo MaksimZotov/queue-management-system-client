@@ -5,9 +5,9 @@ import 'package:queue_management_system_client/ui/screens/board/board_screen.dar
 import 'package:queue_management_system_client/ui/screens/client/client_screen.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queues_screen.dart';
 import 'package:queue_management_system_client/ui/screens/rights/rights_screen.dart';
-import 'package:queue_management_system_client/ui/screens/verification/authorization_screen.dart';
-import 'package:queue_management_system_client/ui/screens/verification/registration_screen.dart';
-import 'package:queue_management_system_client/ui/screens/verification/select_screen.dart';
+import 'package:queue_management_system_client/ui/screens/account/authorization_screen.dart';
+import 'package:queue_management_system_client/ui/screens/account/registration_screen.dart';
+import 'package:queue_management_system_client/ui/screens/account/select_screen.dart';
 
 import '../screens/location/locations_screen.dart';
 import '../screens/queue/queue_screen.dart';

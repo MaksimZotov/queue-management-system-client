@@ -1,6 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/converters/json_converter.dart';
-import 'package:queue_management_system_client/domain/models/verification/tokens_model.dart';
+import 'package:queue_management_system_client/domain/models/account/tokens_model.dart';
 
 @singleton
 class TokensFields {

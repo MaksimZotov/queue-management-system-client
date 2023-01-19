@@ -16,10 +16,10 @@ import '../../../domain/models/base/result.dart';
 import '../../../domain/models/client/client_join_info_model.dart';
 import '../../../domain/models/queue/add_client_info.dart';
 import '../../../domain/models/queue/client_in_queue_model.dart';
-import '../../../domain/models/verification/confirm_model.dart';
-import '../../../domain/models/verification/login_model.dart';
-import '../../../domain/models/verification/signup_model.dart';
-import '../../../domain/models/verification/tokens_model.dart';
+import '../../../domain/models/account/confirm_model.dart';
+import '../../../domain/models/account/login_model.dart';
+import '../../../domain/models/account/signup_model.dart';
+import '../../../domain/models/account/tokens_model.dart';
 import '../../local/secure_storage.dart';
 import '../../local/shared_preferences_storage.dart';
 

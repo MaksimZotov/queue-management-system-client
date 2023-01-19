@@ -1,18 +1,18 @@
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/repositories/repository.dart';
-import 'package:queue_management_system_client/domain/interactors/verification_interactor.dart';
-import 'package:queue_management_system_client/domain/models/verification/login_model.dart';
-import 'package:queue_management_system_client/domain/models/verification/signup_model.dart';
-import 'package:queue_management_system_client/domain/models/verification/tokens_model.dart';
+import 'package:queue_management_system_client/domain/interactors/account_interactor.dart';
+import 'package:queue_management_system_client/domain/models/account/login_model.dart';
+import 'package:queue_management_system_client/domain/models/account/signup_model.dart';
+import 'package:queue_management_system_client/domain/models/account/tokens_model.dart';
 
 import '../../models/base/result.dart';
-import '../../models/verification/confirm_model.dart';
+import '../../models/account/confirm_model.dart';
 
-@Singleton(as: VerificationInteractor)
-class VerificationInteractorImpl extends VerificationInteractor {
+@Singleton(as: AccountInteractor)
+class AccountInteractorImpl extends AccountInteractor {
   final Repository _repository;
 
-  VerificationInteractorImpl(this._repository);
+  AccountInteractorImpl(this._repository);
 
   @override
   Future<Result> signup(SignupModel signup) async {

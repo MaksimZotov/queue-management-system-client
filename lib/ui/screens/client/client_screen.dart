@@ -10,7 +10,7 @@ import 'package:queue_management_system_client/ui/router/routes_config.dart';
 import 'package:queue_management_system_client/ui/screens/client/client_confirm_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/client/client_join_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/client/client_rejoin_dialog.dart';
-import 'package:queue_management_system_client/ui/screens/verification/confirm_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/account/confirm_dialog.dart';
 import 'package:queue_management_system_client/ui/widgets/client_info_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';

@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/models/verification/confirm_model.dart';
-import 'package:queue_management_system_client/domain/models/verification/signup_model.dart';
-import 'package:queue_management_system_client/ui/screens/verification/confirm_dialog.dart';
+import 'package:queue_management_system_client/domain/models/account/confirm_model.dart';
+import 'package:queue_management_system_client/domain/models/account/signup_model.dart';
+import 'package:queue_management_system_client/ui/screens/account/confirm_dialog.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/password_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
-import '../../../domain/interactors/verification_interactor.dart';
+import '../../../domain/interactors/account_interactor.dart';
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/verification/login_model.dart';
+import '../../../domain/models/account/login_model.dart';
 import '../../router/routes_config.dart';
 
 class RegistrationWidget extends StatefulWidget {
@@ -196,10 +196,10 @@ class RegistrationCubit extends Cubit<RegistrationLogicState> {
   static const passwordKey = 'PASSWORD';
   static const repeatPasswordKey = 'REPEAT_PASSWORD';
 
-  final VerificationInteractor verificationInteractor;
+  final AccountInteractor accountInteractor;
 
   RegistrationCubit(
-    this.verificationInteractor,
+    this.accountInteractor,
   ) : super(
       RegistrationLogicState(
           username: '',
@@ -260,7 +260,7 @@ class RegistrationCubit extends Cubit<RegistrationLogicState> {
 
   Future<void> onClickSignup() async {
     emit(state.copyWith(loading: true));
-    await verificationInteractor.signup(
+    await accountInteractor.signup(
       SignupModel(
         username: state.username,
         email: state.email,
@@ -282,14 +282,14 @@ class RegistrationCubit extends Cubit<RegistrationLogicState> {
 
   Future<void> confirm(ConfirmResult result) async {
     emit(state.copyWith(loading: true));
-    await verificationInteractor.confirm(
+    await accountInteractor.confirm(
       ConfirmModel(
           username: state.username,
           code: result.code
       )
     )
       ..onSuccess((result) async {
-        await verificationInteractor.login(
+        await accountInteractor.login(
           LoginModel(
             username: state.username,
             password: state.password

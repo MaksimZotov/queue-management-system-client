@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/interactors/verification_interactor.dart';
-import 'package:queue_management_system_client/domain/models/verification/login_model.dart';
+import 'package:queue_management_system_client/domain/interactors/account_interactor.dart';
+import 'package:queue_management_system_client/domain/models/account/login_model.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/password_widget.dart';
 import '../../../di/assemblers/states_assembler.dart';
@@ -136,9 +136,9 @@ class AuthorizationCubit extends Cubit<AuthorizationLogicState> {
   static const usernameKey = 'USERNAME';
   static const passwordKey = 'PASSWORD';
 
-  final VerificationInteractor verificationInteractor;
+  final AccountInteractor accountInteractor;
 
-  AuthorizationCubit({required this.verificationInteractor})
+  AuthorizationCubit({required this.accountInteractor})
       : super(AuthorizationLogicState(
             username: '',
             password: '',
@@ -163,7 +163,7 @@ class AuthorizationCubit extends Cubit<AuthorizationLogicState> {
 
   Future<void> onClickLogin() async {
     emit(state.copyWith(loading: true));
-    await verificationInteractor.login(LoginModel(username: state.username, password: state.password))
+    await accountInteractor.login(LoginModel(username: state.username, password: state.password))
       ..onSuccess((result) {
         emit(state.copyWith(loading: false, readyToLogin: true, errors: {}));
         emit(state.copyWith(readyToLogin: false));

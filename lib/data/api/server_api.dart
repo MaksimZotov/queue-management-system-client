@@ -10,7 +10,7 @@ import 'package:queue_management_system_client/data/converters/client/client_con
 import 'package:queue_management_system_client/data/converters/client/client_join_info_converter.dart';
 import 'package:queue_management_system_client/data/converters/location/has_rights_converter.dart';
 import 'package:queue_management_system_client/data/converters/queue/client_in_queue_converter.dart';
-import 'package:queue_management_system_client/data/converters/verification/confirm_converter.dart';
+import 'package:queue_management_system_client/data/converters/account/confirm_converter.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
 import 'package:queue_management_system_client/domain/models/board/board_model.dart';
 import 'package:queue_management_system_client/domain/models/client/client_model.dart';
@@ -18,7 +18,7 @@ import 'package:queue_management_system_client/domain/models/location/has_rights
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 import 'package:queue_management_system_client/domain/models/rights/rights_model.dart';
-import 'package:queue_management_system_client/domain/models/verification/confirm_model.dart';
+import 'package:queue_management_system_client/domain/models/account/confirm_model.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
@@ -27,9 +27,9 @@ import '../../domain/models/base/result.dart';
 import '../../domain/models/client/client_join_info_model.dart';
 import '../../domain/models/queue/add_client_info.dart';
 import '../../domain/models/queue/queue_model.dart';
-import '../../domain/models/verification/login_model.dart';
-import '../../domain/models/verification/signup_model.dart';
-import '../../domain/models/verification/tokens_model.dart';
+import '../../domain/models/account/login_model.dart';
+import '../../domain/models/account/signup_model.dart';
+import '../../domain/models/account/tokens_model.dart';
 import '../converters/base/container_for_list_converter.dart';
 import '../converters/base/error_result_converter.dart';
 import '../converters/json_converter.dart';
@@ -37,9 +37,9 @@ import '../converters/location/location_converter.dart';
 import '../converters/queue/add_client_info_converter.dart';
 import '../converters/queue/queue_converter.dart';
 import '../converters/rights/rights_converter.dart';
-import '../converters/verification/login_converter.dart';
-import '../converters/verification/signup_converters.dart';
-import '../converters/verification/tokens_converter.dart';
+import '../converters/account/login_converter.dart';
+import '../converters/account/signup_converters.dart';
+import '../converters/account/tokens_converter.dart';
 import '../local/secure_storage.dart';
 
 @singleton
@@ -52,9 +52,9 @@ class ServerApi {
   static const url = 'http://localhost:8080';
   static const clientUrl = 'http://localhost:64407';
 
-  static const signupMethod = '/verification/signup';
-  static const confirmMethod = '/verification/confirm';
-  static const loginMethod = '/verification/login';
+  static const signupMethod = '/account/signup';
+  static const confirmMethod = '/account/confirm';
+  static const loginMethod = '/account/login';
 
   final Dio _dioApi;
   final SecureStorage _tokensStorage;

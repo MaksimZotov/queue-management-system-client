@@ -1,6 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/converters/json_converter.dart';
-import 'package:queue_management_system_client/domain/models/verification/signup_model.dart';
+import 'package:queue_management_system_client/domain/models/account/signup_model.dart';
 
 @singleton
 class SignupFields {

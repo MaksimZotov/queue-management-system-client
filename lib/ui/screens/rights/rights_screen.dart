@@ -15,7 +15,7 @@ import 'package:queue_management_system_client/ui/widgets/rights_item_widget.dar
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/rights_interactor.dart';
-import '../../../domain/interactors/verification_interactor.dart';
+import '../../../domain/interactors/account_interactor.dart';
 import '../../../domain/models/base/container_for_list.dart';
 import '../../../domain/models/base/result.dart';
 
@@ -127,12 +127,12 @@ class RightsLogicState {
 @injectable
 class RightsCubit extends Cubit<RightsLogicState> {
 
-  final VerificationInteractor verificationInteractor;
+  final AccountInteractor accountInteractor;
   final RightsInteractor rightsInteractor;
 
   RightsCubit(
     this.rightsInteractor,
-    this.verificationInteractor,
+    this.accountInteractor,
     @factoryParam RightsConfig config
   ) : super(
     RightsLogicState(

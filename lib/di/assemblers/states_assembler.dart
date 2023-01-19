@@ -9,15 +9,15 @@ import 'package:queue_management_system_client/ui/screens/queue/add_client_dialo
 import 'package:queue_management_system_client/ui/screens/queue/queue_screen.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queues_screen.dart';
 import 'package:queue_management_system_client/ui/screens/rights/add_rule_dialog.dart';
-import 'package:queue_management_system_client/ui/screens/verification/authorization_screen.dart';
-import 'package:queue_management_system_client/ui/screens/verification/registration_screen.dart';
-import 'package:queue_management_system_client/ui/screens/verification/select_screen.dart';
+import 'package:queue_management_system_client/ui/screens/account/authorization_screen.dart';
+import 'package:queue_management_system_client/ui/screens/account/registration_screen.dart';
+import 'package:queue_management_system_client/ui/screens/account/select_screen.dart';
 
 import '../../ui/screens/client/client_rejoin_dialog.dart';
 import '../../ui/screens/location/locations_screen.dart';
 import '../../ui/screens/queue/create_queue_dialog.dart';
 import '../../ui/screens/rights/rights_screen.dart';
-import '../../ui/screens/verification/confirm_dialog.dart';
+import '../../ui/screens/account/confirm_dialog.dart';
 import '../main/main.dart';
 
 class StatesAssembler {
