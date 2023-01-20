@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
@@ -35,11 +36,6 @@ class ClientConfirmWidget extends StatefulWidget {
 }
 
 class _ClientConfirmState extends State<ClientConfirmWidget> {
-  final String title = 'Подтверждение кода';
-  final String codeHint = 'Код';
-
-  final String confirmText = 'Подтвердить';
-  final String cancelText = 'Отмена';
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +44,7 @@ class _ClientConfirmState extends State<ClientConfirmWidget> {
       lazy: true,
       child: BlocBuilder<ClientConfirmCubit, ClientConfirmLogicState>(
         builder: (context, state) => SimpleDialog(
-          title: Text(title),
+          title: Text(AppLocalizations.of(context)!.codeConfirmation),
           contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(
@@ -57,13 +53,13 @@ class _ClientConfirmState extends State<ClientConfirmWidget> {
           ),
           children: [
             TextFieldWidget(
-                label: codeHint,
+                label: AppLocalizations.of(context)!.code,
                 text: state.code,
                 onTextChanged: BlocProvider.of<ClientConfirmCubit>(context).setEmail
             ),
             const SizedBox(height: 16),
             ButtonWidget(
-                text: confirmText,
+                text: AppLocalizations.of(context)!.confirm,
                 onClick: () => Navigator.of(context).pop(
                     ClientConfirmResult(
                         code: state.code,
@@ -72,7 +68,7 @@ class _ClientConfirmState extends State<ClientConfirmWidget> {
                 )
             ),
             ButtonWidget(
-                text: cancelText,
+                text: AppLocalizations.of(context)!.cancel,
                 onClick: Navigator.of(context).pop
             )
           ],

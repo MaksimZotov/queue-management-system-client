@@ -47,7 +47,7 @@ class _QueuesState extends State<QueuesWidget> {
             title: Text(
                 state.locationName.isEmpty
                     ? ''
-                    : '${AppLocalizations.of(context)!.location}: ${state.locationName}'
+                    : AppLocalizations.of(context)!.locationPattern(state.locationName)
             ),
             actions: state.ownerUsername != null
                 ? (state.hasRights ? <Widget>[

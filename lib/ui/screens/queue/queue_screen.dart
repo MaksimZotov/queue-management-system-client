@@ -51,7 +51,7 @@ class _QueueState extends State<QueueWidget> {
             title: Text(
                 state.queueState.name.isEmpty
                     ? ''
-                    : '${AppLocalizations.of(context)!.queue}: ${state.queueState.name}'
+                    : AppLocalizations.of(context)!.queuePattern(state.queueState.name)
             ),
             actions: state.queueState.ownerUsername != null
               ? [

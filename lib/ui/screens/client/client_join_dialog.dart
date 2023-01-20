@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
-import '../../../domain/interactors/location_interactor.dart';
 
 class ClientJoinResult {
   final String email;
@@ -29,13 +29,6 @@ class ClientJoinWidget extends StatefulWidget {
 }
 
 class _ClientJoinState extends State<ClientJoinWidget> {
-  final String title = 'Подключение к очереди';
-  final String emailHint = 'Почта';
-  final String firstNameHint = 'Имя';
-  final String lastNameHint = 'Фамилия';
-
-  final String joinText = 'Подключиться';
-  final String cancelText = 'Отмена';
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +37,7 @@ class _ClientJoinState extends State<ClientJoinWidget> {
       lazy: true,
       child: BlocBuilder<ClientJoinCubit, ClientJoinLogicState>(
         builder: (context, state) => SimpleDialog(
-          title: Text(title),
+          title: Text(AppLocalizations.of(context)!.connectionToQueue),
           contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(
@@ -53,23 +46,23 @@ class _ClientJoinState extends State<ClientJoinWidget> {
           ),
           children: [
             TextFieldWidget(
-                label: emailHint,
+                label: AppLocalizations.of(context)!.email,
                 text: state.email,
                 onTextChanged: BlocProvider.of<ClientJoinCubit>(context).setEmail
             ),
             TextFieldWidget(
-                label: firstNameHint,
+                label: AppLocalizations.of(context)!.firstName,
                 text: state.firstName,
                 onTextChanged: BlocProvider.of<ClientJoinCubit>(context).setFirstName
             ),
             TextFieldWidget(
-                label: lastNameHint,
+                label: AppLocalizations.of(context)!.lastName,
                 text: state.lastName,
                 onTextChanged: BlocProvider.of<ClientJoinCubit>(context).setLastName
             ),
             const SizedBox(height: 16),
             ButtonWidget(
-                text: joinText,
+                text: AppLocalizations.of(context)!.join,
                 onClick: () => Navigator.of(context).pop(
                     ClientJoinResult(
                         email: state.email,
@@ -79,7 +72,7 @@ class _ClientJoinState extends State<ClientJoinWidget> {
                 )
             ),
             ButtonWidget(
-                text: cancelText,
+                text: AppLocalizations.of(context)!.cancel,
                 onClick: Navigator.of(context).pop
             )
           ],

@@ -21,9 +21,7 @@
     "create": "Создать",
     "delete": "Удалить",
     "deleteLocationQuestion": "Удалить локацию?",
-    "location": "Локация",
     "linkCopied": "Ссылка скопирована",
-    "queue": "Очередь",
     "deleteQueueQuestion": "Удалить очередь?",
     "creationOfQueue": "Создание очереди",
     "connectionOfClientToQueue": "Подключение клиента к очереди",
@@ -32,5 +30,37 @@
     "rightsSettings": "Настройки доступа",
     "revokeRightsQuestion": "Лишить прав?",
     "revoke": "Лишить",
-    "addingOfEmployee": "Добавление сотрудника"
+    "addingOfEmployee": "Добавление сотрудника",
+    "connectionToQueue": "Подключение к очереди",
+    "join": "Подключиться",
+    "reconnectionToQueue": "Переодключение к очереди",
+    "rejoin": "Переподключиться",
+    "leave": "Покинуть",
+    "update": "Обновить",
+    "windowConfirmation": "Окно подтверждения",
+    "confirmed": "Подтверждён",
+    "reserved": "Зарезервирован",
+    "queueLengthWithColon": "В очереди:",
+    "statusWithColon": "Статус:",
+    "emailWithColon": "Почта:",
+    "firstNameWithColon": "Имя:",
+    "lastNameWithColon": "Фамилия:",
+    "codeWithColon": "Код:",
+    "beforeMeWithColon": "Перед вами:",
+    "queuePattern": "Очередь: {name}",
+    "@queuePattern": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "locationPattern": "Локация: {name}",
+    "@locationPattern": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    }
 }
