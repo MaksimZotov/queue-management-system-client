@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
@@ -7,7 +8,6 @@ import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/account_interactor.dart';
 import '../../router/routes_config.dart';
-import '../location/locations_screen.dart';
 
 class SelectWidget extends StatefulWidget {
   ValueChanged<BaseConfig> emitConfig;
@@ -19,7 +19,6 @@ class SelectWidget extends StatefulWidget {
 }
 
 class SelectState extends State<SelectWidget> {
-  final String title = 'Вход в аккаунт';
   final String authorization = 'Авторизация';
   final String registration = 'Регистрация';
 
@@ -44,7 +43,7 @@ class SelectState extends State<SelectWidget> {
             child: CircularProgressIndicator(),
           ) : Scaffold(
             appBar: AppBar(
-              title: Text(title),
+              title: Text(AppLocalizations.of(context)!.enter_account),
             ),
             body: Center(
               child: Padding(

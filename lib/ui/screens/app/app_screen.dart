@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../router/router_delegate.dart';
 import '../../router/router_info_parser.dart';
@@ -27,6 +28,8 @@ class _AppWidgetState extends State<AppWidget> {
           ),
       ),
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       routerDelegate: routerDelegate,
       routeInformationParser: routerInformationParser,
     );
