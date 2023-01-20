@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/account_interactor.dart';
 import 'package:queue_management_system_client/domain/models/account/login_model.dart';
@@ -30,10 +31,6 @@ class ConfirmWidget extends StatefulWidget {
 }
 
 class _ConfirmState extends State<ConfirmWidget> {
-  final String title = 'Подтверждение кода';
-  final String codeHint = 'Код';
-  final String confirmText = 'Подтвердить';
-  final String cancelText = 'Отмена';
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +38,7 @@ class _ConfirmState extends State<ConfirmWidget> {
       create: (context) => statesAssembler.getConfirmCubit(),
       child: BlocBuilder<ConfirmCubit, ConfirmLogicState>(
         builder: (context, state) => SimpleDialog(
-          title: Text(title),
+          title: Text(AppLocalizations.of(context)!.codeConfirmation),
           contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(
@@ -50,13 +47,13 @@ class _ConfirmState extends State<ConfirmWidget> {
           ),
           children: [
             TextFieldWidget(
-                label: codeHint,
+                label: AppLocalizations.of(context)!.code,
                 text: state.code,
                 onTextChanged: BlocProvider.of<ConfirmCubit>(context).setCode
             ),
             const SizedBox(height: 16),
             ButtonWidget(
-                text: confirmText,
+                text: AppLocalizations.of(context)!.confirm,
                 onClick: () => Navigator.of(context).pop(
                     ConfirmResult(
                         code: state.code
@@ -64,7 +61,7 @@ class _ConfirmState extends State<ConfirmWidget> {
                 )
             ),
             ButtonWidget(
-                text: cancelText,
+                text: AppLocalizations.of(context)!.cancel,
                 onClick: Navigator.of(context).pop
             )
           ],

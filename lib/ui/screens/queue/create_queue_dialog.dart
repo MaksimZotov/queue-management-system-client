@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
@@ -27,11 +28,6 @@ class CreateQueueWidget extends StatefulWidget {
 }
 
 class _CreateQueueState extends State<CreateQueueWidget> {
-  final String title = 'Создание очереди';
-  final String nameHint = 'Название';
-  final String descriptionHint = 'Описание';
-  final String createText = 'Создать';
-  final String cancelText = 'Отмена';
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +36,7 @@ class _CreateQueueState extends State<CreateQueueWidget> {
       lazy: true,
       child: BlocBuilder<CreateQueueCubit, CreateQueueLogicState>(
         builder: (context, state) => SimpleDialog(
-          title: Text(title),
+          title: Text(AppLocalizations.of(context)!.creationOfQueue),
           contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(
@@ -49,19 +45,19 @@ class _CreateQueueState extends State<CreateQueueWidget> {
           ),
           children: [
             TextFieldWidget(
-                label: nameHint,
+                label: AppLocalizations.of(context)!.name,
                 text: state.name,
                 onTextChanged: BlocProvider.of<CreateQueueCubit>(context).setName
             ),
             TextFieldWidget(
                 maxLines: null,
-                label: descriptionHint,
+                label: AppLocalizations.of(context)!.description,
                 text: state.description,
                 onTextChanged: BlocProvider.of<CreateQueueCubit>(context).setDescription
             ),
             const SizedBox(height: 16),
             ButtonWidget(
-                text: createText,
+                text: AppLocalizations.of(context)!.create,
                 onClick: () => Navigator.of(context).pop(
                     CreateQueueResult(
                         name: state.name,
@@ -70,7 +66,7 @@ class _CreateQueueState extends State<CreateQueueWidget> {
                 )
             ),
             ButtonWidget(
-                text: cancelText,
+                text: AppLocalizations.of(context)!.cancel,
                 onClick: Navigator.of(context).pop
             )
           ],

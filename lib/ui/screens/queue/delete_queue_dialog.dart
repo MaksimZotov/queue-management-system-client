@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 
 class DeleteQueueConfig {
@@ -27,14 +28,11 @@ class DeleteQueueWidget extends StatefulWidget {
 }
 
 class _DeleteQueueState extends State<DeleteQueueWidget> {
-  final String title = 'Удалить очередь?';
-  final String yesText = 'Удалить';
-  final String cancelText = 'Отмена';
 
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: Text(title),
+      title: Text(AppLocalizations.of(context)!.deleteQueueQuestion),
       contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
@@ -43,7 +41,7 @@ class _DeleteQueueState extends State<DeleteQueueWidget> {
       ),
       children: [
         ButtonWidget(
-            text: yesText,
+            text: AppLocalizations.of(context)!.delete,
             onClick: () => Navigator.of(context).pop(
                 DeleteQueueResult(
                     id: widget.config.id
@@ -51,7 +49,7 @@ class _DeleteQueueState extends State<DeleteQueueWidget> {
             )
         ),
         ButtonWidget(
-            text: cancelText,
+            text: AppLocalizations.of(context)!.cancel,
             onClick: Navigator.of(context).pop
         )
       ],

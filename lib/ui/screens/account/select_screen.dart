@@ -19,8 +19,6 @@ class SelectWidget extends StatefulWidget {
 }
 
 class SelectState extends State<SelectWidget> {
-  final String authorization = 'Авторизация';
-  final String registration = 'Регистрация';
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +41,7 @@ class SelectState extends State<SelectWidget> {
             child: CircularProgressIndicator(),
           ) : Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.enter_account),
+              title: Text(AppLocalizations.of(context)!.enterAccount),
             ),
             body: Center(
               child: Padding(
@@ -53,13 +51,13 @@ class SelectState extends State<SelectWidget> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     ButtonWidget(
-                      text: authorization,
+                      text: AppLocalizations.of(context)!.authorization,
                       onClick: () {
                         widget.emitConfig(AuthorizationConfig());
                       },
                     ),
                     ButtonWidget(
-                      text: registration,
+                      text: AppLocalizations.of(context)!.registration,
                       onClick: () {
                         widget.emitConfig(RegistrationConfig());
                       },

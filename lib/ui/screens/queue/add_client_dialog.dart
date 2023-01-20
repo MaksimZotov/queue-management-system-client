@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
@@ -28,14 +29,6 @@ class AddClientWidget extends StatefulWidget {
 }
 
 class _AddClientState extends State<AddClientWidget> {
-  final String title = 'Подключение клиента к очереди';
-  final String emailHint = 'Почта';
-  final String firstNameHint = 'Имя';
-  final String lastNameHint = 'Фамилия';
-
-  final String addText = 'Добавить';
-  final String addAndSaveText = 'Добавить и сохранить';
-  final String cancelText = 'Отмена';
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +37,7 @@ class _AddClientState extends State<AddClientWidget> {
       lazy: true,
       child: BlocBuilder<AddClientCubit, AddClientLogicState>(
         builder: (context, state) => SimpleDialog(
-          title: Text(title),
+          title: Text(AppLocalizations.of(context)!.connectionOfClientToQueue),
           contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(
@@ -53,18 +46,18 @@ class _AddClientState extends State<AddClientWidget> {
           ),
           children: [
             TextFieldWidget(
-                label: firstNameHint,
+                label: AppLocalizations.of(context)!.firstName,
                 text: state.firstName,
                 onTextChanged: BlocProvider.of<AddClientCubit>(context).setFirstName
             ),
             TextFieldWidget(
-                label: lastNameHint,
+                label: AppLocalizations.of(context)!.lastName,
                 text: state.lastName,
                 onTextChanged: BlocProvider.of<AddClientCubit>(context).setLastName
             ),
             const SizedBox(height: 16),
             ButtonWidget(
-                text: addText,
+                text: AppLocalizations.of(context)!.add,
                 onClick: () => Navigator.of(context).pop(
                     AddClientResult(
                         firstName: state.firstName,
@@ -74,7 +67,7 @@ class _AddClientState extends State<AddClientWidget> {
                 )
             ),
             ButtonWidget(
-                text: addAndSaveText,
+                text: AppLocalizations.of(context)!.addAndSave,
                 onClick: () => Navigator.of(context).pop(
                     AddClientResult(
                         firstName: state.firstName,
@@ -84,7 +77,7 @@ class _AddClientState extends State<AddClientWidget> {
                 )
             ),
             ButtonWidget(
-                text: cancelText,
+                text: AppLocalizations.of(context)!.cancel,
                 onClick: Navigator.of(context).pop
             )
           ],

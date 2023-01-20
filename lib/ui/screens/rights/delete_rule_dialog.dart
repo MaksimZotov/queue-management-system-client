@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 
 class DeleteRuleConfig {
@@ -27,14 +28,11 @@ class DeleteRuleWidget extends StatefulWidget {
 }
 
 class _DeleteRuleState extends State<DeleteRuleWidget> {
-  final String title = 'Отозвать права?';
-  final String yesText = 'Отозвать';
-  final String cancelText = 'Отмена';
 
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: Text(title),
+      title: Text(AppLocalizations.of(context)!.revokeRightsQuestion),
       contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
@@ -43,7 +41,7 @@ class _DeleteRuleState extends State<DeleteRuleWidget> {
       ),
       children: [
         ButtonWidget(
-            text: yesText,
+            text: AppLocalizations.of(context)!.revoke,
             onClick: () => Navigator.of(context).pop(
                 DeleteRuleResult(
                     email: widget.config.email
@@ -51,7 +49,7 @@ class _DeleteRuleState extends State<DeleteRuleWidget> {
             )
         ),
         ButtonWidget(
-            text: cancelText,
+            text: AppLocalizations.of(context)!.cancel,
             onClick: Navigator.of(context).pop
         )
       ],

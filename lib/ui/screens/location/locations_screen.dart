@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
@@ -11,8 +12,6 @@ import 'package:queue_management_system_client/ui/widgets/location_item_widget.d
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/account_interactor.dart';
-import '../../../domain/models/base/container_for_list.dart';
-import '../../../domain/models/base/result.dart';
 
 class LocationsWidget extends StatefulWidget {
   ValueChanged<BaseConfig> emitConfig;
@@ -25,8 +24,6 @@ class LocationsWidget extends StatefulWidget {
 }
 
 class _LocationsState extends State<LocationsWidget> {
-  final String title = 'Локации';
-  final String createLocationHint = 'Создать локацию';
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +43,7 @@ class _LocationsState extends State<LocationsWidget> {
 
         builder: (context, state) => Scaffold(
           appBar: AppBar(
-            title: Text(title),
+            title: Text(AppLocalizations.of(context)!.locations),
             actions: <Widget>[
               IconButton(
                 icon: Icon(state.hasToken ? Icons.logout : Icons.login),

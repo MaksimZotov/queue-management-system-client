@@ -2,11 +2,11 @@ import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
-import 'package:queue_management_system_client/domain/models/client/client_join_info_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/add_client_info.dart';
 import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
@@ -31,8 +31,6 @@ class QueueWidget extends StatefulWidget {
 }
 
 class _QueueState extends State<QueueWidget> {
-  final titleStart = 'Очередь: ';
-  final linkCopied = 'Ссылка скопирована';
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +49,9 @@ class _QueueState extends State<QueueWidget> {
         builder: (context, state) => Scaffold(
           appBar: AppBar(
             title: Text(
-                state.queueState.name.isEmpty ? '' : titleStart + state.queueState.name
+                state.queueState.name.isEmpty
+                    ? ''
+                    : '${AppLocalizations.of(context)!.queue}: ${state.queueState.name}'
             ),
             actions: state.queueState.ownerUsername != null
               ? [
@@ -61,7 +61,9 @@ class _QueueState extends State<QueueWidget> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.share),
-                    onPressed: () => BlocProvider.of<QueueCubit>(context).share(linkCopied),
+                    onPressed: () => BlocProvider.of<QueueCubit>(context).share(
+                        AppLocalizations.of(context)!.linkCopied
+                    ),
                   ),
                 ]
               : null,

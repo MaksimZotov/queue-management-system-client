@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/models/account/confirm_model.dart';
 import 'package:queue_management_system_client/domain/models/account/signup_model.dart';
@@ -10,7 +11,6 @@ import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/account_interactor.dart';
-import '../../../domain/models/base/result.dart';
 import '../../../domain/models/account/login_model.dart';
 import '../../router/routes_config.dart';
 
@@ -24,15 +24,6 @@ class RegistrationWidget extends StatefulWidget {
 }
 
 class RegistrationState extends State<RegistrationWidget> {
-
-  final String title = 'Регистрация';
-  final String uniqueName = 'Уникальное имя';
-  final String emailHint = 'Почта';
-  final String firstNameHint = 'Имя';
-  final String lastNameHint = 'Фамилия';
-  final String passwordHint = 'Пароль';
-  final String repeatPasswordHint = 'Повторите пароль';
-  final String signupText = 'Зарегистрироваться';
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +55,7 @@ class RegistrationState extends State<RegistrationWidget> {
 
         builder: (context, state) => Scaffold(
           appBar: AppBar(
-            title: Text(title),
+            title: Text(AppLocalizations.of(context)!.registration),
           ),
           body: state.loading ? const Center(
             child: CircularProgressIndicator(),
@@ -79,43 +70,43 @@ class RegistrationState extends State<RegistrationWidget> {
                     children: <Widget>[
                       TextFieldWidget(
                         text: state.username,
-                        label: uniqueName,
+                        label: AppLocalizations.of(context)!.uniqueName,
                         error: state.errors[RegistrationCubit.usernameKey],
                         onTextChanged: BlocProvider.of<RegistrationCubit>(context).setUsername,
                       ),
                       TextFieldWidget(
                         text: state.email,
-                        label: emailHint,
+                        label: AppLocalizations.of(context)!.email,
                         error: state.errors[RegistrationCubit.emailKey],
                         onTextChanged: BlocProvider.of<RegistrationCubit>(context).setEmail,
                       ),
                       TextFieldWidget(
                         text: state.firstName,
-                        label: firstNameHint,
+                        label: AppLocalizations.of(context)!.firstName,
                         error: state.errors[RegistrationCubit.firstNameKey],
                         onTextChanged:  BlocProvider.of<RegistrationCubit>(context).setFirstName,
                       ),
                       TextFieldWidget(
                         text: state.lastName,
-                        label: lastNameHint,
+                        label: AppLocalizations.of(context)!.lastName,
                         error: state.errors[RegistrationCubit.lastNameKey],
                         onTextChanged: BlocProvider.of<RegistrationCubit>(context).setLastName,
                       ),
                       PasswordWidget(
                         text: state.password,
-                        label: passwordHint,
+                        label: AppLocalizations.of(context)!.password,
                         error: state.errors[RegistrationCubit.passwordKey],
                         onTextChanged: BlocProvider.of<RegistrationCubit>(context).setPassword,
                       ),
                       PasswordWidget(
                         text: state.repeatPassword,
-                        label: repeatPasswordHint,
+                        label: AppLocalizations.of(context)!.repeatPassword,
                         error: state.errors[RegistrationCubit.repeatPasswordKey],
                         onTextChanged: BlocProvider.of<RegistrationCubit>(context).setRepeatPassword,
                       ),
                       const SizedBox(height: 16),
                       ButtonWidget(
-                        text: signupText,
+                        text: AppLocalizations.of(context)!.signup,
                         onClick: BlocProvider.of<RegistrationCubit>(context).onClickSignup,
                       ),
                     ],

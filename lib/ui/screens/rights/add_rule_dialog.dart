@@ -5,6 +5,7 @@ import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AddRuleResult {
   final String email;
@@ -24,11 +25,6 @@ class AddRuleWidget extends StatefulWidget {
 }
 
 class _AddRuleState extends State<AddRuleWidget> {
-  final String title = 'Добавление сотрудника';
-  final String emailHint = 'Почта';
-
-  final String addText = 'Добавить';
-  final String cancelText = 'Отмена';
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +33,7 @@ class _AddRuleState extends State<AddRuleWidget> {
       lazy: true,
       child: BlocBuilder<AddRuleCubit, AddRuleLogicState>(
         builder: (context, state) => SimpleDialog(
-          title: Text(title),
+          title: Text(AppLocalizations.of(context)!.addingOfEmployee),
           contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(
@@ -46,13 +42,13 @@ class _AddRuleState extends State<AddRuleWidget> {
           ),
           children: [
             TextFieldWidget(
-                label: emailHint,
+                label: AppLocalizations.of(context)!.email,
                 text: state.email,
                 onTextChanged: BlocProvider.of<AddRuleCubit>(context).setEmail
             ),
             const SizedBox(height: 16),
             ButtonWidget(
-                text: addText,
+                text: AppLocalizations.of(context)!.add,
                 onClick: () => Navigator.of(context).pop(
                     AddRuleResult(
                         email: state.email,
@@ -60,7 +56,7 @@ class _AddRuleState extends State<AddRuleWidget> {
                 )
             ),
             ButtonWidget(
-                text: cancelText,
+                text: AppLocalizations.of(context)!.cancel,
                 onClick: Navigator.of(context).pop
             )
           ],

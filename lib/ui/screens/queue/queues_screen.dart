@@ -2,6 +2,7 @@ import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
@@ -26,11 +27,6 @@ class QueuesWidget extends StatefulWidget {
 }
 
 class _QueuesState extends State<QueuesWidget> {
-  final String titleStart = 'Локация: ';
-  final String createLocationHint = 'Создать локацию';
-  final String linkCopied = 'Ссылка скопирована';
-
-  final ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +44,11 @@ class _QueuesState extends State<QueuesWidget> {
 
         builder: (context, state) => Scaffold(
           appBar: AppBar(
-            title: Text(state.locationName.isEmpty ? '' : titleStart + state.locationName),
+            title: Text(
+                state.locationName.isEmpty
+                    ? ''
+                    : '${AppLocalizations.of(context)!.location}: ${state.locationName}'
+            ),
             actions: state.ownerUsername != null
                 ? (state.hasRights ? <Widget>[
                   IconButton(
@@ -77,7 +77,9 @@ class _QueuesState extends State<QueuesWidget> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.share),
-                    onPressed: () => BlocProvider.of<QueuesCubit>(context).share(linkCopied),
+                    onPressed: () => BlocProvider.of<QueuesCubit>(context).share(
+                        AppLocalizations.of(context)!.linkCopied
+                    ),
                   ),
                 ]
                 : null,

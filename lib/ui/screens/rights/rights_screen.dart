@@ -11,13 +11,10 @@ import 'package:queue_management_system_client/ui/screens/rights/add_rule_dialog
 import 'package:queue_management_system_client/ui/screens/rights/delete_rule_dialog.dart';
 import 'package:queue_management_system_client/ui/widgets/location_item_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/rights_item_widget.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../di/assemblers/states_assembler.dart';
-import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/rights_interactor.dart';
 import '../../../domain/interactors/account_interactor.dart';
-import '../../../domain/models/base/container_for_list.dart';
-import '../../../domain/models/base/result.dart';
 
 class RightsWidget extends StatefulWidget {
   ValueChanged<BaseConfig> emitConfig;
@@ -30,8 +27,6 @@ class RightsWidget extends StatefulWidget {
 }
 
 class _RightsState extends State<RightsWidget> {
-  final String title = 'Настройки доступа';
-  final String createLocationHint = 'Создать локацию';
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +44,7 @@ class _RightsState extends State<RightsWidget> {
 
         builder: (context, state) => Scaffold(
           appBar: AppBar(
-            title: Text(title),
+            title: Text(AppLocalizations.of(context)!.rightsSettings),
           ),
           body: ListView.builder(
             itemBuilder: (context, index) {

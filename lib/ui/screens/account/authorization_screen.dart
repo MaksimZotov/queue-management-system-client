@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/account_interactor.dart';
 import 'package:queue_management_system_client/domain/models/account/login_model.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/password_widget.dart';
 import '../../../di/assemblers/states_assembler.dart';
-import '../../../domain/interactors/location_interactor.dart';
-import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/text_field_widget.dart';
-import '../location/locations_screen.dart';
 
 class AuthorizationWidget extends StatefulWidget {
   ValueChanged<BaseConfig> emitConfig;
@@ -22,10 +20,6 @@ class AuthorizationWidget extends StatefulWidget {
 }
 
 class AuthorizationState extends State<AuthorizationWidget> {
-  final String title = 'Авторизация';
-  final String uniqueName = 'Уникальное имя';
-  final String passwordHint = "Пароль";
-  final String loginText = "Войти";
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +39,7 @@ class AuthorizationState extends State<AuthorizationWidget> {
         },
         builder: (context, state) => Scaffold(
           appBar: AppBar(
-            title: Text(title),
+            title: Text(AppLocalizations.of(context)!.authorization),
           ),
           body: state.loading
               ? const Center(
@@ -64,7 +58,7 @@ class AuthorizationState extends State<AuthorizationWidget> {
                               children: <Widget>[
                                 TextFieldWidget(
                                   text: state.username,
-                                  label: uniqueName,
+                                  label: AppLocalizations.of(context)!.uniqueName,
                                   error: state.errors[AuthorizationCubit.usernameKey],
                                   onTextChanged:
                                       BlocProvider.of<AuthorizationCubit>(
@@ -73,7 +67,7 @@ class AuthorizationState extends State<AuthorizationWidget> {
                                 ),
                                 PasswordWidget(
                                   text: state.password,
-                                  label: passwordHint,
+                                  label: AppLocalizations.of(context)!.password,
                                   error: state.errors[AuthorizationCubit.passwordKey],
                                   onTextChanged:
                                       BlocProvider.of<AuthorizationCubit>(
@@ -82,7 +76,7 @@ class AuthorizationState extends State<AuthorizationWidget> {
                                 ),
                                 const SizedBox(height: 16),
                                 ButtonWidget(
-                                  text: loginText,
+                                  text: AppLocalizations.of(context)!.login,
                                   onClick: BlocProvider.of<AuthorizationCubit>(
                                           context)
                                       .onClickLogin,

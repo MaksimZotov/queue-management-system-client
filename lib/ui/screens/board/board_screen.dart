@@ -6,18 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-import 'package:queue_management_system_client/data/api/server_api.dart';
-import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
 import 'package:queue_management_system_client/domain/models/board/board_position.dart';
 import 'package:queue_management_system_client/domain/models/board/board_queue.dart';
-import 'package:queue_management_system_client/domain/models/client/client_join_info_model.dart';
-import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
-import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
-import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
-import 'package:queue_management_system_client/ui/widgets/client_item_widget.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/board_interactor.dart';
