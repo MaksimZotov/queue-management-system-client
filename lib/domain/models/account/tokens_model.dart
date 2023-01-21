@@ -1,3 +1,8 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'tokens_model.g.dart';
+
+@JsonSerializable()
 class TokensModel {
   final String access;
   final String refresh;
@@ -8,4 +13,7 @@ class TokensModel {
     required this.refresh,
     required this.username
   });
+
+  static TokensModel fromJson(Map<String, dynamic> json) => _$TokensModelFromJson(json);
+  Map<String, dynamic> toJson() => _$TokensModelToJson(this);
 }

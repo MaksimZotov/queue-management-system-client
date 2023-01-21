@@ -1,3 +1,8 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'confirm_model.g.dart';
+
+@JsonSerializable()
 class ConfirmModel {
   final String username;
   final String code;
@@ -7,11 +12,6 @@ class ConfirmModel {
     required this.code
   });
 
-  ConfirmModel copyWith({
-    String? username,
-    String? code
-  }) => ConfirmModel(
-      username: username ?? this.username,
-      code: code ?? this.code
-  );
+  static ConfirmModel fromJson(Map<String, dynamic> json) => _$ConfirmModelFromJson(json);
+  Map<String, dynamic> toJson() => _$ConfirmModelToJson(this);
 }

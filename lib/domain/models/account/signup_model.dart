@@ -1,9 +1,17 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'signup_model.g.dart';
+
+@JsonSerializable()
 class SignupModel {
   final String username;
   final String email;
+  @JsonKey(name: 'first_name')
   final String firstName;
+  @JsonKey(name: 'last_name')
   final String lastName;
   final String password;
+  @JsonKey(name: 'repeat_password')
   final String repeatPassword;
 
   SignupModel({
@@ -15,19 +23,6 @@ class SignupModel {
     required this.repeatPassword
   });
 
-  SignupModel copyWith({
-    String? username,
-    String? email,
-    String? firstName,
-    String? lastName,
-    String? password,
-    String? repeatPassword
-  }) => SignupModel(
-      username: username ?? this.username,
-      email: email ?? this.email,
-      firstName: firstName ?? this.firstName,
-      lastName: lastName ?? this.lastName,
-      password: password ?? this.password,
-      repeatPassword: repeatPassword ?? this.repeatPassword
-  );
+  static SignupModel fromJson(Map<String, dynamic> json) => _$SignupModelFromJson(json);
+  Map<String, dynamic> toJson() => _$SignupModelToJson(this);
 }

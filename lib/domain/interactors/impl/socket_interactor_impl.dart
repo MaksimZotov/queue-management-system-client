@@ -4,7 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/models/client/client_join_info_model.dart';
+import 'package:queue_management_system_client/domain/models/client/client_join_info.dart';
 import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 
 import '../../../data/repositories/repository.dart';

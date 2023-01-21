@@ -5,7 +5,7 @@ import 'package:queue_management_system_client/domain/models/account/confirm_mod
 import '../../domain/models/base/result.dart';
 import '../../domain/models/board/board_model.dart';
 import '../../domain/models/client/client_model.dart';
-import '../../domain/models/client/client_join_info_model.dart';
+import '../../domain/models/client/client_join_info.dart';
 import '../../domain/models/location/has_rights_model.dart';
 import '../../domain/models/location/location_model.dart';
 import '../../domain/models/queue/add_client_info.dart';

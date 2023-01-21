@@ -1,3 +1,8 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'login_model.g.dart';
+
+@JsonSerializable()
 class LoginModel {
   final String username;
   final String password;
@@ -7,11 +12,6 @@ class LoginModel {
     required this.password
   });
 
-  LoginModel copyWith({
-    String? username,
-    String? password
-  }) => LoginModel(
-      username: username ?? this.username,
-      password: password ?? this.password
-  );
+  static LoginModel fromJson(Map<String, dynamic> json) => _$LoginModelFromJson(json);
+  Map<String, dynamic> toJson() => _$LoginModelToJson(this);
 }

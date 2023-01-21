@@ -15,11 +15,11 @@ class ContainerForListConverter {
 
   ContainerForList<T> fromJson<T>({
     required Map<String, dynamic> json,
-    required JsonConverter<T> converter
+    required FromJson<T> fromJson
   }) {
     List items = json[_containerForListFields.results];
     return ContainerForList<T>(
-      results: items.map((item) => converter.fromJson(item)).toList()
+      results: items.map((item) => fromJson(item)).toList()
     );
   }
 }

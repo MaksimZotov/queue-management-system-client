@@ -13,7 +13,7 @@ import 'package:queue_management_system_client/domain/models/queue/queue_model.d
 import 'package:queue_management_system_client/domain/models/rights/rights_model.dart';
 
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/client/client_join_info_model.dart';
+import '../../../domain/models/client/client_join_info.dart';
 import '../../../domain/models/queue/add_client_info.dart';
 import '../../../domain/models/queue/client_in_queue_model.dart';
 import '../../../domain/models/account/confirm_model.dart';
