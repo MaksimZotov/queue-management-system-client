@@ -17,120 +17,115 @@ import 'package:pdf/widgets.dart' as pw;
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/socket_interactor.dart';
 import '../../router/routes_config.dart';
+import '../base.dart';
 import 'add_client_dialog.dart';
 
 
-class QueueWidget extends StatefulWidget {
-  ValueChanged<BaseConfig> emitConfig;
+class QueueWidget extends BaseWidget {
   final QueueConfig config;
 
-  QueueWidget({super.key, required this.config, required this.emitConfig});
+  QueueWidget({super.key, required super.emitConfig, required this.config});
 
   @override
   State<QueueWidget> createState() => _QueueState();
 }
 
-class _QueueState extends State<QueueWidget> {
+class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider<QueueCubit>(
-      create: (context) => statesAssembler.getQueueCubit(widget.config)..onStart(),
-      child: BlocConsumer<QueueCubit, QueueLogicState>(
-
-        listener: (context, state) {
-          if (state.snackBar != null) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(state.snackBar!),
-            ));
-          }
-        },
-
-        builder: (context, state) => Scaffold(
-          appBar: AppBar(
-            title: Text(
-                state.queueState.name.isEmpty
-                    ? ''
-                    : AppLocalizations.of(context)!.queuePattern(state.queueState.name)
-            ),
-            actions: state.queueState.ownerUsername != null
-              ? [
-                  IconButton(
-                      icon: const Icon(Icons.qr_code),
-                      onPressed: BlocProvider.of<QueueCubit>(context).downloadQrCode
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.share),
-                    onPressed: () => BlocProvider.of<QueueCubit>(context).share(
-                        AppLocalizations.of(context)!.linkCopied
-                    ),
-                  ),
-                ]
-              : null,
-          ),
-          body: ListView.builder(
-            itemBuilder: (context, index) {
-              return ClientItemWidget(
-                client: state.queueState.clients![index],
-                onNotify: BlocProvider.of<QueueCubit>(context).notify,
-                onServe: BlocProvider.of<QueueCubit>(context).serve,
-              );
-            },
-            itemCount: state.queueState.clients!.length,
-          ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () => showDialog(
-                context: context,
-                builder: (context) => const AddClientWidget()
-            ).then((result) {
-              if (result is AddClientResult) {
-                BlocProvider.of<QueueCubit>(context).addClient(result);
-              }
-            }),
-            child: const Icon(Icons.add),
-          ),
-        ),
+  getWidget(BuildContext context, QueueLogicState state, QueueWidget widget) => Scaffold(
+    appBar: AppBar(
+      title: Text(
+          state.queueState.name.isEmpty
+              ? ''
+              : AppLocalizations.of(context)!.queuePattern(state.queueState.name)
       ),
-    );
+      actions: state.queueState.ownerUsername != null
+          ? [
+            IconButton(
+                icon: const Icon(Icons.qr_code),
+                onPressed: BlocProvider.of<QueueCubit>(context).downloadQrCode
+            ),
+            IconButton(
+              icon: const Icon(Icons.share),
+              onPressed: () => BlocProvider.of<QueueCubit>(context).share(
+                  AppLocalizations.of(context)!.linkCopied
+              ),
+            ),
+          ]
+          : null,
+    ),
+    body: ListView.builder(
+      itemBuilder: (context, index) {
+        return ClientItemWidget(
+          client: state.queueState.clients![index],
+          onNotify: BlocProvider.of<QueueCubit>(context).notify,
+          onServe: BlocProvider.of<QueueCubit>(context).serve,
+        );
+      },
+      itemCount: state.queueState.clients!.length,
+    ),
+    floatingActionButton: FloatingActionButton(
+      onPressed: () => showDialog(
+          context: context,
+          builder: (context) => const AddClientWidget()
+      ).then((result) {
+        if (result is AddClientResult) {
+          BlocProvider.of<QueueCubit>(context).addClient(result);
+        }
+      }),
+      child: const Icon(Icons.add),
+    ),
+  );
+
+  @override
+  QueueCubit getCubit() {
+    return statesAssembler.getQueueCubit(widget.config);
   }
 }
 
-class QueueLogicState {
+class QueueLogicState extends BaseLogicState {
 
   final QueueConfig config;
-
   final QueueModel queueState;
-
-  final String? snackBar;
-  final bool loading;
   
   QueueLogicState({
+    super.nextConfig,
+    super.snackBar,
+    super.loading,
     required this.config,
     required this.queueState,
-    required this.snackBar,
-    required this.loading,
-  });
+  }) : super();
 
   QueueLogicState copyWith({
     QueueModel? queueState,
-    String? snackBar,
-    bool? loading,
+    BaseConfig? nextConfig,
   }) => QueueLogicState(
       config: config,
       queueState: queueState ?? this.queueState,
+  );
+
+  @override
+  QueueLogicState copy({
+    BaseConfig? nextConfig,
+    String? snackBar,
+    bool? loading
+  }) => QueueLogicState(
+      nextConfig: nextConfig,
       snackBar: snackBar,
-      loading: loading ?? this.loading
+      loading: loading ?? this.loading,
+      config: config,
+      queueState: queueState
   );
 }
 
 @injectable
-class QueueCubit extends Cubit<QueueLogicState> {
+class QueueCubit extends BaseCubit<QueueLogicState> {
 
-  static String _queueTopic = '/topic/queues/';
+  static const String _queueTopic = '/topic/queues/';
 
   final QueueInteractor queueInteractor;
   final SocketInteractor socketInteractor;
-
 
   QueueCubit(
     this.queueInteractor,
@@ -145,18 +140,15 @@ class QueueCubit extends Cubit<QueueLogicState> {
             description: '',
             clients: []
           ),
-          snackBar: null,
-          loading: false
       )
   );
 
+  @override
   Future<void> onStart() async {
-    emit(state.copyWith(loading: true));
     await queueInteractor.getQueueState(state.config.queueId)..onSuccess((result) {
-      emit(state.copyWith(loading: false, queueState: result.data));
+      emit(state.copyWith(queueState: result.data));
     })..onError((result) {
-      emit(state.copyWith(loading: false, snackBar: result.description));
-      emit(state.copyWith(snackBar: null));
+      showError(result.description);
     });
 
     socketInteractor.connectToSocket<QueueModel>(
@@ -172,16 +164,14 @@ class QueueCubit extends Cubit<QueueLogicState> {
   Future<void> notify(ClientInQueueModel client) async {
     await queueInteractor.notifyClientInQueue(state.config.queueId, client.id)
       ..onError((result) {
-        emit(state.copyWith(snackBar: result.description));
-        emit(state.copyWith(snackBar: null));
+        showSnackBar(result.description);
       });
   }
 
   Future<void> serve(ClientInQueueModel client) async {
     await queueInteractor.serveClientInQueue(state.config.queueId, client.id)
       ..onError((result) {
-        emit(state.copyWith(snackBar: result.description));
-        emit(state.copyWith(snackBar: null));
+        showSnackBar(result.description);
     });
   }
 
@@ -194,8 +184,7 @@ class QueueCubit extends Cubit<QueueLogicState> {
             text: '${ServerApi.clientUrl}/$username/locations/$locationId/queues/$queueId/client'
         )
     );
-    emit(state.copyWith(snackBar: notificationText));
-    emit(state.copyWith(snackBar: null));
+    showSnackBar(notificationText);
   }
 
   Future<void> downloadQrCode() async {
@@ -229,7 +218,6 @@ class QueueCubit extends Cubit<QueueLogicState> {
   }
 
   Future<void> addClient(AddClientResult addClientResult) async {
-    emit(state.copyWith(loading: true));
     await queueInteractor.addClientToQueue(
         state.config.queueId,
         AddClientInfo(
@@ -249,8 +237,7 @@ class QueueCubit extends Cubit<QueueLogicState> {
           }
         })
         ..onError((result) {
-          emit(state.copyWith(loading: false, snackBar: result.description));
-          emit(state.copyWith(snackBar: null));
+          showError(result.description);
         });
   }
 

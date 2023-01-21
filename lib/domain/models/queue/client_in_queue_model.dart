@@ -11,7 +11,7 @@ class ClientInQueueModel {
   final String firstName;
   @JsonKey(name: 'last_name')
   final String lastName;
-  @JsonKey(name: 'order_name')
+  @JsonKey(name: 'order_number')
   final int orderNumber;
   @JsonKey(name: 'public_code')
   final int publicCode;
