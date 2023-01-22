@@ -34,7 +34,7 @@ class QueueWidget extends BaseWidget {
 class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
 
   @override
-  getWidget(BuildContext context, QueueLogicState state, QueueWidget widget) => Scaffold(
+  Widget getWidget(BuildContext context, QueueLogicState state, QueueWidget widget) => Scaffold(
     appBar: AppBar(
       title: Text(
           state.queueState.name.isEmpty
@@ -80,9 +80,7 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
   );
 
   @override
-  QueueCubit getCubit() {
-    return statesAssembler.getQueueCubit(widget.config);
-  }
+  QueueCubit getCubit() => statesAssembler.getQueueCubit(widget.config);
 }
 
 class QueueLogicState extends BaseLogicState {
@@ -97,7 +95,7 @@ class QueueLogicState extends BaseLogicState {
     super.loading,
     required this.config,
     required this.queueState,
-  }) : super();
+  });
 
   QueueLogicState copyWith({
     QueueModel? queueState,

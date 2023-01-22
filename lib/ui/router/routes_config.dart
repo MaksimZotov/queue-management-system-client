@@ -199,7 +199,8 @@ class BoardConfig extends BaseConfig {
     return RouterPage(
         key: ValueKey('Board Page $locationId'),
         child: BoardWidget(
-            config: this
+            config: this,
+            emitConfig: emitConfig
         )
     );
   }
