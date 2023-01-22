@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../dimens.dart';
 import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/text_field_widget.dart';
@@ -47,7 +48,7 @@ class _ConfirmState extends BaseDialogState<ConfirmWidget, ConfirmLogicState, Co
         text: state.code,
         onTextChanged: BlocProvider.of<ConfirmCubit>(context).setCode
     ),
-    const SizedBox(height: 10),
+    const SizedBox(height: Dimens.contentMargin),
     ButtonWidget(
         text: AppLocalizations.of(context)!.confirm,
         onClick: () => Navigator.of(context).pop(

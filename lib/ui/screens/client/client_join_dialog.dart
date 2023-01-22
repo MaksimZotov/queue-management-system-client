@@ -6,6 +6,7 @@ import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../dimens.dart';
 import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 import '../base.dart';
@@ -61,7 +62,7 @@ class _ClientJoinState extends BaseDialogState<ClientJoinWidget, ClientJoinLogic
         text: state.lastName,
         onTextChanged: BlocProvider.of<ClientJoinCubit>(context).setLastName
     ),
-    const SizedBox(height: 16),
+    const SizedBox(height: Dimens.contentMargin),
     ButtonWidget(
         text: AppLocalizations.of(context)!.join,
         onClick: () => Navigator.of(context).pop(

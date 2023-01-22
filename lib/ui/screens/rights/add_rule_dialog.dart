@@ -8,6 +8,7 @@ import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart
 import '../../../di/assemblers/states_assembler.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../../dimens.dart';
 import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 
@@ -48,7 +49,7 @@ class _AddRuleState extends BaseDialogState<AddRuleWidget, AddRuleLogicState, Ad
         text: state.email,
         onTextChanged: BlocProvider.of<AddRuleCubit>(context).setEmail
     ),
-    const SizedBox(height: 10),
+    const SizedBox(height: Dimens.contentMargin),
     ButtonWidget(
         text: AppLocalizations.of(context)!.add,
         onClick: () => Navigator.of(context).pop(

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 
 import '../../domain/models/queue/queue_model.dart';
 
@@ -23,38 +22,33 @@ class _QueueItemState extends State<QueueItemWidget> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 5, vertical: 16),
-        child: ListTile(
+      child: ListTile(
         leading: const SizedBox(
             height: double.infinity,
-            child: Icon(Icons.people_alt_outlined, color: Colors.teal, size: 50)
+            child: Icon(Icons.people_alt_outlined, color: Colors.teal)
         ),
         title: Text(
           widget.queue.name,
-          maxLines: 1,
-          style: TextStyle(fontSize: 24),
+          maxLines: 1
         ),
         subtitle: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 200),
           child: Text(
             widget.queue.description,
             maxLines: 3,
-            style: TextStyle(fontSize: 18),
             overflow: TextOverflow.ellipsis,
           ),
         ),
         trailing: widget.queue.hasRights == true
             ? SizedBox(
-          height: double.infinity,
-          child: IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red, size: 30),
-            onPressed: () => widget.onDelete(widget.queue),
-          ),
-        )
+              height: double.infinity,
+              child: IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: () => widget.onDelete(widget.queue)
+              ),
+            )
             : null,
-        onTap: () => widget.onClick(widget.queue),
-      ),
+        onTap: () => widget.onClick(widget.queue)
       ),
     );
   }

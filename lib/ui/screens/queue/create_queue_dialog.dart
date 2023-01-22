@@ -7,6 +7,7 @@ import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../dimens.dart';
 import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 
@@ -55,7 +56,7 @@ class _CreateQueueState extends BaseDialogState<CreateQueueWidget, CreateQueueLo
         text: state.description,
         onTextChanged: BlocProvider.of<CreateQueueCubit>(context).setDescription
     ),
-    const SizedBox(height: 10),
+    const SizedBox(height: Dimens.contentMargin),
     ButtonWidget(
         text: AppLocalizations.of(context)!.create,
         onClick: () => Navigator.of(context).pop(

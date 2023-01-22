@@ -5,6 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
 
+import '../../dimens.dart';
 import '../widgets/button_widget.dart';
 
 abstract class BaseWidget extends StatefulWidget {
@@ -71,12 +72,11 @@ abstract class BaseState<
           message = AppLocalizations.of(context)!.connectionError;
           break;
       }
+      if (message == null) {
+        return;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  message ?? AppLocalizations.of(context)!.unknownError
-              )
-          )
+          SnackBar(content: Text(message))
       );
     }
   }
@@ -101,7 +101,7 @@ abstract class BaseDialogState<
         )
     ),
     children: getDialogContentWidget(context, state, widget) + [
-      const SizedBox(height: 10),
+      const SizedBox(height: Dimens.contentMargin),
       ButtonWidget(
           text: AppLocalizations.of(context)!.cancel,
           onClick: Navigator.of(context).pop
