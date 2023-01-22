@@ -69,7 +69,7 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
     floatingActionButton: FloatingActionButton(
       onPressed: () => showDialog(
           context: context,
-          builder: (context) => const AddClientWidget()
+          builder: (context) => AddClientWidget(emitConfig: widget.emitConfig)
       ).then((result) {
         if (result is AddClientResult) {
           BlocProvider.of<QueueCubit>(context).addClient(result);

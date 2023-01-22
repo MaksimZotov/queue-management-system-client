@@ -35,9 +35,8 @@ class _RightsState extends BaseState<RightsWidget, RightsLogicState, RightsCubit
         onDelete: (rights) => showDialog(
             context: context,
             builder: (context) => DeleteRuleWidget(
-                config: DeleteRuleConfig(
-                    email: rights.email
-                )
+                config: DeleteRuleConfig(email: rights.email),
+                emitConfig: widget.emitConfig
             )
         ).then((result) {
           if (result is DeleteRuleResult) {

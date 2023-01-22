@@ -36,9 +36,8 @@ class _ClientState extends BaseState<ClientWidget, ClientLogicState, ClientCubit
       showDialog(
           context: context,
           builder: (context) => ClientConfirmWidget(
-              config: ClientConfirmConfig(
-                  email: state.email
-              )
+              emitConfig: widget.emitConfig,
+              config: ClientConfirmConfig(email: state.email)
           )
       ).then((result) {
         if (result is ClientConfirmResult) {
@@ -115,7 +114,7 @@ class _ClientState extends BaseState<ClientWidget, ClientLogicState, ClientCubit
                           text: AppLocalizations.of(context)!.join,
                           onClick: () => showDialog(
                               context: context,
-                              builder: (context) => const ClientJoinWidget()
+                              builder: (context) => ClientJoinWidget(emitConfig: widget.emitConfig)
                           ).then((result) {
                             if (result is ClientJoinResult) {
                               BlocProvider.of<ClientCubit>(context).join(result);
@@ -136,9 +135,8 @@ class _ClientState extends BaseState<ClientWidget, ClientLogicState, ClientCubit
                                     context: context,
                                     builder: (context) =>
                                         ClientConfirmWidget(
-                                            config: ClientConfirmConfig(
-                                                email: state.email
-                                            )
+                                            emitConfig: widget.emitConfig,
+                                            config: ClientConfirmConfig(email: state.email)
                                         )
                                 ).then((result) =>
                                     BlocProvider.of<ClientCubit>(context).confirm(result)
@@ -151,7 +149,7 @@ class _ClientState extends BaseState<ClientWidget, ClientLogicState, ClientCubit
                           text: AppLocalizations.of(context)!.rejoin,
                           onClick: () => showDialog(
                               context: context,
-                              builder: (context) => const ClientRejoinWidget()
+                              builder: (context) => ClientRejoinWidget(emitConfig: widget.emitConfig)
                           ).then((result) {
                             if (result is ClientRejoinResult) {
                               BlocProvider.of<ClientCubit>(context).rejoin(result);

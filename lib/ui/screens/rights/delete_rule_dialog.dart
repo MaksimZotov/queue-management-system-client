@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:injectable/injectable.dart';
+import 'package:queue_management_system_client/di/assemblers/states_assembler.dart';
+import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
+
+import '../../../domain/models/base/result.dart';
+import '../../router/routes_config.dart';
 
 class DeleteRuleConfig {
   final String email;
@@ -18,41 +24,64 @@ class DeleteRuleResult {
   });
 }
 
-class DeleteRuleWidget extends StatefulWidget {
+class DeleteRuleWidget extends BaseWidget {
   final DeleteRuleConfig config;
 
-  const DeleteRuleWidget({super.key, required this.config});
+  const DeleteRuleWidget({super.key, required super.emitConfig, required this.config});
 
   @override
   State<DeleteRuleWidget> createState() => _DeleteRuleState();
 }
 
-class _DeleteRuleState extends State<DeleteRuleWidget> {
+class _DeleteRuleState extends BaseDialogState<DeleteRuleWidget, DeleteRuleLogicState, DeleteRuleCubit> {
 
   @override
-  Widget build(BuildContext context) {
-    return SimpleDialog(
-      title: Text(AppLocalizations.of(context)!.revokeRightsQuestion),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-              Radius.circular(16.0)
-          )
-      ),
-      children: [
-        ButtonWidget(
-            text: AppLocalizations.of(context)!.revoke,
-            onClick: () => Navigator.of(context).pop(
-                DeleteRuleResult(
-                    email: widget.config.email
-                )
+  String getTitle(
+      BuildContext context,
+      DeleteRuleLogicState state,
+      DeleteRuleWidget widget
+  ) => AppLocalizations.of(context)!.revokeRightsQuestion;
+
+  @override
+  List<Widget> getDialogContentWidget(BuildContext context, DeleteRuleLogicState state, DeleteRuleWidget widget) => [
+    ButtonWidget(
+        text: AppLocalizations.of(context)!.revoke,
+        onClick: () => Navigator.of(context).pop(
+            DeleteRuleResult(
+                email: widget.config.email
             )
-        ),
-        ButtonWidget(
-            text: AppLocalizations.of(context)!.cancel,
-            onClick: Navigator.of(context).pop
         )
-      ],
-    );
-  }
+    )
+  ];
+
+  @override
+  DeleteRuleCubit getCubit() => statesAssembler.getDeleteRuleCubit();
+}
+
+class DeleteRuleLogicState extends BaseLogicState {
+
+  DeleteRuleLogicState({
+    super.nextConfig,
+    super.error,
+    super.snackBar,
+    super.loading
+  });
+
+  @override
+  DeleteRuleLogicState copy({
+    BaseConfig? nextConfig,
+    ErrorResult? error,
+    String? snackBar,
+    bool? loading
+  }) => DeleteRuleLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading ?? this.loading
+  );
+}
+
+@injectable
+class DeleteRuleCubit extends BaseCubit<DeleteRuleLogicState> {
+  DeleteRuleCubit() : super(DeleteRuleLogicState());
 }

@@ -32,7 +32,7 @@ class RegistrationState extends BaseState<RegistrationWidget, RegistrationLogicS
     if (state.showConfirmDialog) {
       showDialog(
           context: context,
-          builder: (context) => const ConfirmWidget()
+          builder: (context) => ConfirmWidget(emitConfig: widget.emitConfig)
       ).then((result) {
         if (result is ConfirmResult) {
           BlocProvider.of<RegistrationCubit>(context).confirm(result);

@@ -90,6 +90,7 @@ class _QueuesState extends BaseState<QueuesWidget, QueuesLogicState, QueuesCubit
           onDelete: (location) => showDialog(
               context: context,
               builder: (context) => DeleteQueueWidget(
+                  emitConfig: widget.emitConfig,
                   config: DeleteQueueConfig(id: location.id!)
               )
           ).then((result) {
@@ -106,7 +107,8 @@ class _QueuesState extends BaseState<QueuesWidget, QueuesLogicState, QueuesCubit
         ? FloatingActionButton(
           onPressed: () => showDialog(
               context: context,
-              builder: (context) => const CreateQueueWidget()).then((result) {
+              builder: (context) => CreateQueueWidget(emitConfig: widget.emitConfig)
+          ).then((result) {
             if (result is CreateQueueResult) {
               BlocProvider.of<QueuesCubit>(context).createQueue(result);
             }

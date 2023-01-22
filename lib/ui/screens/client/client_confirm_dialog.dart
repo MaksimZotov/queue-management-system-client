@@ -6,7 +6,9 @@ import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
-import '../../../domain/interactors/location_interactor.dart';
+import '../../../domain/models/base/result.dart';
+import '../../router/routes_config.dart';
+import '../base.dart';
 
 class ClientConfirmConfig {
   final String email;
@@ -26,75 +28,90 @@ class ClientConfirmResult {
   });
 }
 
-class ClientConfirmWidget extends StatefulWidget {
+class ClientConfirmWidget extends BaseWidget {
   final ClientConfirmConfig config;
 
-  const ClientConfirmWidget({super.key, required this.config});
+  const ClientConfirmWidget({super.key, required super.emitConfig, required this.config});
 
   @override
   State<ClientConfirmWidget> createState() => _ClientConfirmState();
 }
 
-class _ClientConfirmState extends State<ClientConfirmWidget> {
+class _ClientConfirmState extends BaseDialogState<ClientConfirmWidget, ClientConfirmLogicState, ClientConfirmCubit> {
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider<ClientConfirmCubit>(
-      create: (context) => statesAssembler.getClientConfirmCubit(),
-      lazy: true,
-      child: BlocBuilder<ClientConfirmCubit, ClientConfirmLogicState>(
-        builder: (context, state) => SimpleDialog(
-          title: Text(AppLocalizations.of(context)!.codeConfirmation),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(
-                  Radius.circular(16.0)
-              )
-          ),
-          children: [
-            TextFieldWidget(
-                label: AppLocalizations.of(context)!.code,
-                text: state.code,
-                onTextChanged: BlocProvider.of<ClientConfirmCubit>(context).setEmail
-            ),
-            const SizedBox(height: 16),
-            ButtonWidget(
-                text: AppLocalizations.of(context)!.confirm,
-                onClick: () => Navigator.of(context).pop(
-                    ClientConfirmResult(
-                        code: state.code,
-                        email: widget.config.email
-                    )
-                )
-            ),
-            ButtonWidget(
-                text: AppLocalizations.of(context)!.cancel,
-                onClick: Navigator.of(context).pop
+  String getTitle(
+      BuildContext context,
+      ClientConfirmLogicState state,
+      ClientConfirmWidget widget
+  ) => AppLocalizations.of(context)!.codeConfirmation;
+
+  @override
+  List<Widget> getDialogContentWidget(
+      BuildContext context,
+      ClientConfirmLogicState state,
+      ClientConfirmWidget widget
+  ) => [
+    TextFieldWidget(
+        label: AppLocalizations.of(context)!.code,
+        text: state.code,
+        onTextChanged: BlocProvider.of<ClientConfirmCubit>(context).setEmail
+    ),
+    const SizedBox(height: 10),
+    ButtonWidget(
+        text: AppLocalizations.of(context)!.confirm,
+        onClick: () => Navigator.of(context).pop(
+            ClientConfirmResult(
+                code: state.code,
+                email: widget.config.email
             )
-          ],
-        ),
-      ),
-    );
-  }
+        )
+    ),
+  ];
+
+  @override
+  ClientConfirmCubit getCubit() => statesAssembler.getClientConfirmCubit();
 }
 
-class ClientConfirmLogicState {
+class ClientConfirmLogicState extends BaseLogicState {
 
   final String code;
 
   ClientConfirmLogicState({
+    super.nextConfig,
+    super.error,
+    super.snackBar,
+    super.loading,
     required this.code
   });
 
   ClientConfirmLogicState copyWith({
     String? email
   }) => ClientConfirmLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading,
       code: email ?? this.code
+  );
+
+  @override
+  ClientConfirmLogicState copy({
+    BaseConfig? nextConfig,
+    ErrorResult? error,
+    String? snackBar,
+    bool? loading
+  }) => ClientConfirmLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading ?? this.loading,
+      code: code
   );
 }
 
 @injectable
-class ClientConfirmCubit extends Cubit<ClientConfirmLogicState> {
+class ClientConfirmCubit extends BaseCubit<ClientConfirmLogicState> {
 
   ClientConfirmCubit() : super(
       ClientConfirmLogicState(

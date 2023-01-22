@@ -48,9 +48,8 @@ class _LocationsState extends BaseState<LocationsWidget, LocationsLogicState, Lo
         onDelete: (location) => showDialog(
             context: context,
             builder: (context) => DeleteLocationWidget(
-                config: DeleteLocationConfig(
-                    id: location.id!
-                )
+                emitConfig: widget.emitConfig,
+                config: DeleteLocationConfig(id: location.id!)
             )
         ).then((result) {
           if (result is DeleteLocationResult) {
@@ -64,7 +63,7 @@ class _LocationsState extends BaseState<LocationsWidget, LocationsLogicState, Lo
         ? FloatingActionButton(
           onPressed: () => showDialog(
               context: context,
-              builder: (context) => const CreateLocationWidget()
+              builder: (context) => CreateLocationWidget(emitConfig: widget.emitConfig)
           ).then((result) {
             if (result is CreateLocationResult) {
               BlocProvider.of<LocationsCubit>(context).createLocation(result);
