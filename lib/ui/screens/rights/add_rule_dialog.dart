@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import '../../../domain/models/base/result.dart';
+import '../../router/routes_config.dart';
 
 class AddRuleResult {
   final String email;
@@ -16,75 +20,84 @@ class AddRuleResult {
 }
 
 
-class AddRuleWidget extends StatefulWidget {
+class AddRuleWidget extends BaseWidget {
 
-  const AddRuleWidget({super.key});
+  const AddRuleWidget({super.key, required super.emitConfig});
 
   @override
   State<AddRuleWidget> createState() => _AddRuleState();
 }
 
-class _AddRuleState extends State<AddRuleWidget> {
+class _AddRuleState extends BaseDialogState<AddRuleWidget, AddRuleLogicState, AddRuleCubit> {
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider<AddRuleCubit>(
-      create: (context) => statesAssembler.getAddRuleCubit(),
-      lazy: true,
-      child: BlocBuilder<AddRuleCubit, AddRuleLogicState>(
-        builder: (context, state) => SimpleDialog(
-          title: Text(AppLocalizations.of(context)!.addingOfEmployee),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(
-                  Radius.circular(16.0)
-              )
-          ),
-          children: [
-            TextFieldWidget(
-                label: AppLocalizations.of(context)!.email,
-                text: state.email,
-                onTextChanged: BlocProvider.of<AddRuleCubit>(context).setEmail
-            ),
-            const SizedBox(height: 16),
-            ButtonWidget(
-                text: AppLocalizations.of(context)!.add,
-                onClick: () => Navigator.of(context).pop(
-                    AddRuleResult(
-                        email: state.email,
-                    )
-                )
-            ),
-            ButtonWidget(
-                text: AppLocalizations.of(context)!.cancel,
-                onClick: Navigator.of(context).pop
+  String getTitle(
+      BuildContext context,
+      AddRuleLogicState state,
+      AddRuleWidget widget
+  ) => AppLocalizations.of(context)!.addingOfEmployee;
+
+  @override
+  List<Widget> getDialogContentWidget(
+      BuildContext context,
+      AddRuleLogicState state,
+      AddRuleWidget widget
+  ) => [
+    TextFieldWidget(
+        label: AppLocalizations.of(context)!.email,
+        text: state.email,
+        onTextChanged: BlocProvider.of<AddRuleCubit>(context).setEmail
+    ),
+    const SizedBox(height: 10),
+    ButtonWidget(
+        text: AppLocalizations.of(context)!.add,
+        onClick: () => Navigator.of(context).pop(
+            AddRuleResult(
+              email: state.email,
             )
-          ],
-        ),
-      ),
-    );
-  }
+        )
+    ),
+  ];
+
+  @override
+  AddRuleCubit getCubit() => statesAssembler.getAddRuleCubit();
 }
 
-class AddRuleLogicState {
+class AddRuleLogicState extends BaseLogicState {
 
   final String email;
 
   AddRuleLogicState({
+    super.nextConfig,
+    super.error,
+    super.snackBar,
+    super.loading,
     required this.email,
   });
 
   AddRuleLogicState copyWith({
-    String? email,
-    String? firstName,
-    String? lastName,
+    String? email
   }) => AddRuleLogicState(
-    email: email ?? this.email,
+    email: email ?? this.email
+  );
+
+  @override
+  AddRuleLogicState copy({
+    BaseConfig? nextConfig,
+    ErrorResult? error,
+    String? snackBar,
+    bool? loading
+  }) => AddRuleLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading ?? this.loading,
+      email: email
   );
 }
 
 @injectable
-class AddRuleCubit extends Cubit<AddRuleLogicState> {
+class AddRuleCubit extends BaseCubit<AddRuleLogicState> {
 
   AddRuleCubit() : super(
       AddRuleLogicState(

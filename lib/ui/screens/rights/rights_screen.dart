@@ -25,60 +25,6 @@ class RightsWidget extends BaseWidget {
 class _RightsState extends BaseState<RightsWidget, RightsLogicState, RightsCubit> {
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider<RightsCubit>(
-      create: (context) => statesAssembler.getRightsCubit(widget.config)..onStart(),
-      child: BlocConsumer<RightsCubit, RightsLogicState>(
-
-        listener: (context, state) {
-           if (state.snackBar != null) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(state.snackBar!),
-            ));
-          }
-        },
-
-        builder: (context, state) => Scaffold(
-          appBar: AppBar(
-            title: Text(AppLocalizations.of(context)!.rightsSettings),
-          ),
-          body: ListView.builder(
-            itemBuilder: (context, index) {
-              return RightsItemWidget(
-                rights: state.rights[index],
-                onDelete: (rights) => showDialog(
-                    context: context,
-                    builder: (context) => DeleteRuleWidget(
-                        config: DeleteRuleConfig(
-                            email: rights.email
-                        )
-                    )
-                ).then((result) {
-                  if (result is DeleteRuleResult) {
-                    BlocProvider.of<RightsCubit>(context).deleteRule(result);
-                  }
-                }),
-              );
-            },
-            itemCount: state.rights.length,
-          ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () => showDialog(
-                context: context,
-                builder: (context) => const AddRuleWidget()
-            ).then((result) {
-              if (result is AddRuleResult) {
-                BlocProvider.of<RightsCubit>(context).addRule(result);
-              }
-            }),
-            child: const Icon(Icons.add),
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
   Widget getWidget(BuildContext context, RightsLogicState state, RightsWidget widget) => Scaffold(
     appBar: AppBar(
       title: Text(AppLocalizations.of(context)!.rightsSettings),
@@ -104,7 +50,7 @@ class _RightsState extends BaseState<RightsWidget, RightsLogicState, RightsCubit
     floatingActionButton: FloatingActionButton(
       onPressed: () => showDialog(
           context: context,
-          builder: (context) => const AddRuleWidget()
+          builder: (context) => AddRuleWidget(emitConfig: widget.emitConfig)
       ).then((result) {
         if (result is AddRuleResult) {
           BlocProvider.of<RightsCubit>(context).addRule(result);

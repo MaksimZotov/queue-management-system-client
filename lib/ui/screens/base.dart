@@ -5,10 +5,12 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
 
-abstract class BaseWidget extends StatefulWidget {
-  ValueChanged<BaseConfig> emitConfig;
+import '../widgets/button_widget.dart';
 
-  BaseWidget({super.key, required this.emitConfig});
+abstract class BaseWidget extends StatefulWidget {
+  final ValueChanged<BaseConfig> emitConfig;
+
+  const BaseWidget({super.key, required this.emitConfig});
 }
 
 abstract class BaseState<
@@ -18,19 +20,16 @@ abstract class BaseState<
 > extends State<W> {
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider<C>(
-      create: (context) => getCubit()..onStart(),
-      child: BlocConsumer<C, S>(
-        listener: (context, state) => handleEvent(context, state, widget),
-        builder: (context, state) => getWidget(context, state, widget)
-      ),
-    );
-  }
-
-  C getCubit();
+  Widget build(BuildContext context) => BlocProvider<C>(
+    create: (context) => getCubit()..onStart(),
+    child: BlocConsumer<C, S>(
+      listener: (context, state) => handleEvent(context, state, widget),
+      builder: (context, state) => getWidget(context, state, widget)
+    ),
+  );
 
   Widget getWidget(BuildContext context, S state, W widget);
+  C getCubit();
 
   void handleEvent(BuildContext context, S state, W widget) {
     checkConfigEmit(state.nextConfig);
@@ -81,6 +80,34 @@ abstract class BaseState<
       );
     }
   }
+}
+
+abstract class BaseDialogState<
+  W extends BaseWidget,
+  S extends BaseLogicState,
+  C extends BaseCubit<S>
+> extends BaseState<W, S, C> {
+
+  String getTitle(BuildContext context, S state, W widget);
+  List<Widget> getDialogContentWidget(BuildContext context, S state, W widget);
+
+  @override
+  Widget getWidget(BuildContext context, S state, W widget) => SimpleDialog(
+    title: Text(getTitle(context, state, widget)),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+    shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+            Radius.circular(16.0)
+        )
+    ),
+    children: getDialogContentWidget(context, state, widget) + [
+      const SizedBox(height: 10),
+      ButtonWidget(
+          text: AppLocalizations.of(context)!.cancel,
+          onClick: Navigator.of(context).pop
+      )
+    ],
+  );
 }
 
 abstract class BaseLogicState {
