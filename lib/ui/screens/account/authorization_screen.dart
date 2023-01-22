@@ -53,7 +53,7 @@ class AuthorizationState extends BaseState<AuthorizationWidget, AuthorizationLog
                       onTextChanged:
                       BlocProvider.of<AuthorizationCubit>(context).setPassword,
                     ),
-                    const SizedBox(height: Dimens.contentMargin),
+                    const SizedBox(height: Dimens.contentMargin * 2),
                     ButtonWidget(
                       text: AppLocalizations.of(context)!.login,
                       onClick: BlocProvider.of<AuthorizationCubit>(context).onClickLogin,

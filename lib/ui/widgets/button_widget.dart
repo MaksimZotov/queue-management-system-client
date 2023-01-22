@@ -26,14 +26,17 @@ class _ButtonState extends State<ButtonWidget> {
           defaultTargetPlatform != TargetPlatform.android
       ) ? Dimens.fieldWidthForWeb : null,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: Dimens.contentMargin),
         child: ElevatedButton(
           onPressed: widget.onClick,
           style: ElevatedButton.styleFrom(
-            textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            minimumSize: const Size.fromHeight(64),
+            textStyle: const TextStyle(
+                fontSize: Dimens.buttonFontSize,
+                fontWeight: FontWeight.bold
+            ),
+            minimumSize: const Size.fromHeight(Dimens.buttonMinimumHeight),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(Dimens.fieldsBorderRadius),
             ),
             tapTargetSize: MaterialTapTargetSize.padded,
           ),
