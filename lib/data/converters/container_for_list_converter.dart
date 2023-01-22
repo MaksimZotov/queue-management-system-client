@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
 
-import '../../../domain/models/base/container_for_list.dart';
-import '../json_converter.dart';
+import '../../domain/models/base/container_for_list.dart';
+import 'from_json.dart';
 
 @singleton
 class ContainerForListFields {

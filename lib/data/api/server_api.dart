@@ -24,8 +24,8 @@ import '../../domain/models/queue/queue_model.dart';
 import '../../domain/models/account/login_model.dart';
 import '../../domain/models/account/signup_model.dart';
 import '../../domain/models/account/tokens_model.dart';
-import '../converters/base/container_for_list_converter.dart';
-import '../converters/json_converter.dart';
+import '../converters/container_for_list_converter.dart';
+import '../converters/from_json.dart';
 import '../local/secure_storage.dart';
 
 @singleton
