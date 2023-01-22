@@ -117,7 +117,7 @@ class BaseCubit<T extends BaseLogicState> extends Cubit<T> {
 
   void showError(ErrorResult result) {
     emit(state.copy(loading: false, error: result));
-    emit(state.copy(snackBar: null));
+    emit(state.copy(error: null));
   }
 
   void showLoad() {
