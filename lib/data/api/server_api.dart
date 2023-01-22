@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/data/converters/board/board_model_converter.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
 import 'package:queue_management_system_client/domain/models/board/board_model.dart';
 import 'package:queue_management_system_client/domain/models/client/client_model.dart';
@@ -26,16 +25,11 @@ import '../../domain/models/account/login_model.dart';
 import '../../domain/models/account/signup_model.dart';
 import '../../domain/models/account/tokens_model.dart';
 import '../converters/base/container_for_list_converter.dart';
-import '../converters/base/error_result_converter.dart';
 import '../converters/json_converter.dart';
 import '../local/secure_storage.dart';
 
 @singleton
 class ServerApi {
-  final String unknownError = 'Неизвестная ошибка';
-  final String serverError = 'Ошибка на сервере';
-  final String responseTimeoutError = 'Вышло время ожидания ответа';
-  final String noConnectionError = 'Нет соединения';
 
   static const url = 'http://localhost:8080';
   static const clientUrl = 'http://localhost:64407';
@@ -46,8 +40,6 @@ class ServerApi {
 
   final Dio _dioApi;
   final SecureStorage _tokensStorage;
-
-  final ErrorResultConverter _errorResultConverter;
   final ContainerForListConverter _containerForListConverter;
 
   Map<String, StompClient> stompClients = {};
@@ -56,8 +48,6 @@ class ServerApi {
   ServerApi(
       this._dioApi,
       this._tokensStorage,
-
-      this._errorResultConverter,
       this._containerForListConverter,
   );
 
@@ -102,12 +92,13 @@ class ServerApi {
 
   ErrorResult<T> getErrorFromResponse<T>(Response response) {
     if (response.statusCode == 500) {
-      return ErrorResult(description: serverError);
+      return ErrorResult(type: ErrorType.server);
     }
-    final ErrorResult error = _errorResultConverter.fromJson(
+    final ErrorResult error = ErrorResult.fromJson(
         response.data
     );
     return ErrorResult(
+        type: ErrorType.standard,
         description: error.description,
         errors: error.errors
     );
@@ -121,12 +112,12 @@ class ServerApi {
       }
     }
     if (exception is TimeoutException) {
-      return ErrorResult(description: responseTimeoutError);
+      return ErrorResult(type: ErrorType.timeout);
     }
     if (exception is SocketException && exception.osError?.errorCode == 101) {
-      return ErrorResult(description: noConnectionError);
+      return ErrorResult(type: ErrorType.connection);
     }
-    return ErrorResult(description: unknownError);
+    return ErrorResult(type: ErrorType.unknown);
   }
 
   Future<void> _saveTokens(SuccessResult<TokensModel> result) async {

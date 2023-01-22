@@ -62,5 +62,9 @@
           "type": "String"
         }
       }
-    }
+    },
+    "unknownError": "Неизвестная ошибка",
+    "serverError": "Ошибка на сервере",
+    "timeoutError": "Вышло время ожидания ответа",
+    "connectionError": "Нет соединения"
 }

@@ -1,4 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'result.g.dart';
 
 class Result<T> {
   Result<T> onSuccess(ValueChanged<SuccessResult<T>> action) {
@@ -15,15 +18,31 @@ class Result<T> {
   }
 }
 
+
 class SuccessResult<T> extends Result<T> {
   final T data;
 
   SuccessResult({required this.data});
 }
 
+
+enum ErrorType {
+  standard,
+  unknown,
+  server,
+  timeout,
+  connection
+}
+
+@JsonSerializable()
 class ErrorResult<T> extends Result<T> {
+  @JsonKey(defaultValue: ErrorType.standard)
+  final ErrorType type;
   final String? description;
   final Map<String, String>? errors;
 
-  ErrorResult({this.description, this.errors});
+  ErrorResult({required this.type, this.description, this.errors});
+
+  static ErrorResult fromJson(Map<String, dynamic> json) => _$ErrorResultFromJson(json);
+  Map<String, dynamic> toJson() => _$ErrorResultToJson(this);
 }

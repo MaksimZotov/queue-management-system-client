@@ -84,7 +84,7 @@ class RepositoryImpl extends Repository {
     if (username != null) {
       return await _serverApi.getLocations(username);
     }
-    return ErrorResult();
+    return ErrorResult(type: ErrorType.unknown);
   }
 
   @override

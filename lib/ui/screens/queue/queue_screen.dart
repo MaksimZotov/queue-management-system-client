@@ -7,6 +7,7 @@ import 'package:injectable/injectable.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
+import 'package:queue_management_system_client/domain/models/base/result.dart';
 import 'package:queue_management_system_client/domain/models/queue/add_client_info.dart';
 import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
@@ -91,6 +92,7 @@ class QueueLogicState extends BaseLogicState {
   
   QueueLogicState({
     super.nextConfig,
+    super.error,
     super.snackBar,
     super.loading,
     required this.config,
@@ -108,10 +110,12 @@ class QueueLogicState extends BaseLogicState {
   @override
   QueueLogicState copy({
     BaseConfig? nextConfig,
+    ErrorResult? error,
     String? snackBar,
     bool? loading
   }) => QueueLogicState(
       nextConfig: nextConfig,
+      error: error,
       snackBar: snackBar,
       loading: loading ?? this.loading,
       config: config,
@@ -148,7 +152,7 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
     await queueInteractor.getQueueState(state.config.queueId)..onSuccess((result) {
       emit(state.copyWith(queueState: result.data));
     })..onError((result) {
-      showError(result.description);
+      showError(result);
     });
 
     socketInteractor.connectToSocket<QueueModel>(
@@ -164,14 +168,14 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
   Future<void> notify(ClientInQueueModel client) async {
     await queueInteractor.notifyClientInQueue(state.config.queueId, client.id)
       ..onError((result) {
-        showSnackBar(result.description);
+        showError(result);
       });
   }
 
   Future<void> serve(ClientInQueueModel client) async {
     await queueInteractor.serveClientInQueue(state.config.queueId, client.id)
       ..onError((result) {
-        showSnackBar(result.description);
+        showError(result);
     });
   }
 
@@ -237,7 +241,7 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
           }
         })
         ..onError((result) {
-          showError(result.description);
+          showError(result);
         });
   }
 
