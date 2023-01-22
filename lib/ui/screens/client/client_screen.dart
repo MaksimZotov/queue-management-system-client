@@ -203,6 +203,10 @@ class ClientLogicState extends BaseLogicState {
     bool? readyToConfirm,
     bool? isLast,
   }) => ClientLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading,
       config: config,
       clientState: clientState ?? this.clientState,
       email: email ?? this.email,

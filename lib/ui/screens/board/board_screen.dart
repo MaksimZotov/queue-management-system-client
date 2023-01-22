@@ -172,6 +172,10 @@ class BoardLogicState extends BaseLogicState {
     BoardModel? board,
     int? page
   }) => BoardLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading,
       config: config,
       board: board ?? this.board,
       page: page ?? this.page

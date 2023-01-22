@@ -140,6 +140,10 @@ class RightsLogicState extends BaseLogicState {
     List<RightsModel>? rights,
     bool? hasToken
   }) => RightsLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading,
       config: config,
       rights: rights ?? this.rights,
       hasToken: hasToken ?? this.hasToken

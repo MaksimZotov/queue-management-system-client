@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/models/account/confirm_model.dart';
 import 'package:queue_management_system_client/domain/models/account/signup_model.dart';
 import 'package:queue_management_system_client/ui/screens/account/confirm_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/password_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
@@ -12,116 +13,105 @@ import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/account_interactor.dart';
 import '../../../domain/models/account/login_model.dart';
+import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 
-class RegistrationWidget extends StatefulWidget {
-  ValueChanged<BaseConfig> emitConfig;
+class RegistrationWidget extends BaseWidget {
 
-  RegistrationWidget({super.key, required this.emitConfig});
+  RegistrationWidget({super.key, required super.emitConfig});
 
   @override
   State<RegistrationWidget> createState() => RegistrationState();
 }
 
-class RegistrationState extends State<RegistrationWidget> {
+class RegistrationState extends BaseState<RegistrationWidget, RegistrationLogicState, RegistrationCubit> {
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider<RegistrationCubit>(
-      create: (context) => statesAssembler.getRegistrationCubit(),
+  void handleEvent(BuildContext context, RegistrationLogicState state, RegistrationWidget widget) {
+    super.handleEvent(context, state, widget);
+    if (state.showConfirmDialog) {
+      showDialog(
+          context: context,
+          builder: (context) => const ConfirmWidget()
+      ).then((result) {
+        if (result is ConfirmResult) {
+          BlocProvider.of<RegistrationCubit>(context).confirm(result);
+        }
+      });
+    }
+  }
 
-      child: BlocConsumer<RegistrationCubit, RegistrationLogicState>(
-
-        listener: (context, state) {
-          if (state.readyToConfirm) {
-            showDialog(
-                context: context,
-                builder: (context) => const ConfirmWidget()
-            ).then((result) {
-              if (result is ConfirmResult) {
-                BlocProvider.of<RegistrationCubit>(context).confirm(result);
-              }
-            });
-          } else if (state.readyToLocations) {
-            widget.emitConfig(
-              LocationsConfig(username: state.username)
-            );
-          } else if (state.snackBar != null) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(state.snackBar!),
-            ));
-          }
-        },
-
-        builder: (context, state) => Scaffold(
-          appBar: AppBar(
-            title: Text(AppLocalizations.of(context)!.registration),
-          ),
-          body: state.loading ? const Center(
-            child: CircularProgressIndicator(),
-          ) : state.readyToConfirm ?
-          const SizedBox.shrink() : Center(
-            child: SizedBox(
-              width: double.infinity,
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                  child: Column(
-                    children: <Widget>[
-                      TextFieldWidget(
-                        text: state.username,
-                        label: AppLocalizations.of(context)!.uniqueName,
-                        error: state.errors[RegistrationCubit.usernameKey],
-                        onTextChanged: BlocProvider.of<RegistrationCubit>(context).setUsername,
-                      ),
-                      TextFieldWidget(
-                        text: state.email,
-                        label: AppLocalizations.of(context)!.email,
-                        error: state.errors[RegistrationCubit.emailKey],
-                        onTextChanged: BlocProvider.of<RegistrationCubit>(context).setEmail,
-                      ),
-                      TextFieldWidget(
-                        text: state.firstName,
-                        label: AppLocalizations.of(context)!.firstName,
-                        error: state.errors[RegistrationCubit.firstNameKey],
-                        onTextChanged:  BlocProvider.of<RegistrationCubit>(context).setFirstName,
-                      ),
-                      TextFieldWidget(
-                        text: state.lastName,
-                        label: AppLocalizations.of(context)!.lastName,
-                        error: state.errors[RegistrationCubit.lastNameKey],
-                        onTextChanged: BlocProvider.of<RegistrationCubit>(context).setLastName,
-                      ),
-                      PasswordWidget(
-                        text: state.password,
-                        label: AppLocalizations.of(context)!.password,
-                        error: state.errors[RegistrationCubit.passwordKey],
-                        onTextChanged: BlocProvider.of<RegistrationCubit>(context).setPassword,
-                      ),
-                      PasswordWidget(
-                        text: state.repeatPassword,
-                        label: AppLocalizations.of(context)!.repeatPassword,
-                        error: state.errors[RegistrationCubit.repeatPasswordKey],
-                        onTextChanged: BlocProvider.of<RegistrationCubit>(context).setRepeatPassword,
-                      ),
-                      const SizedBox(height: 16),
-                      ButtonWidget(
-                        text: AppLocalizations.of(context)!.signup,
-                        onClick: BlocProvider.of<RegistrationCubit>(context).onClickSignup,
-                      ),
-                    ],
-                  ),
+  @override
+  Widget getWidget(BuildContext context, RegistrationLogicState state, RegistrationWidget widget) => Scaffold(
+    appBar: AppBar(
+      title: Text(AppLocalizations.of(context)!.registration),
+    ),
+    body: state.loading
+        ? const Center(child: CircularProgressIndicator())
+        : state.showConfirmDialog
+        ? const SizedBox.shrink()
+        : Center(
+          child: SizedBox(
+            width: double.infinity,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                child: Column(
+                  children: <Widget>[
+                    TextFieldWidget(
+                      text: state.username,
+                      label: AppLocalizations.of(context)!.uniqueName,
+                      error: state.errors[RegistrationCubit.usernameKey],
+                      onTextChanged: BlocProvider.of<RegistrationCubit>(context).setUsername,
+                    ),
+                    TextFieldWidget(
+                      text: state.email,
+                      label: AppLocalizations.of(context)!.email,
+                      error: state.errors[RegistrationCubit.emailKey],
+                      onTextChanged: BlocProvider.of<RegistrationCubit>(context).setEmail,
+                    ),
+                    TextFieldWidget(
+                      text: state.firstName,
+                      label: AppLocalizations.of(context)!.firstName,
+                      error: state.errors[RegistrationCubit.firstNameKey],
+                      onTextChanged:  BlocProvider.of<RegistrationCubit>(context).setFirstName,
+                    ),
+                    TextFieldWidget(
+                      text: state.lastName,
+                      label: AppLocalizations.of(context)!.lastName,
+                      error: state.errors[RegistrationCubit.lastNameKey],
+                      onTextChanged: BlocProvider.of<RegistrationCubit>(context).setLastName,
+                    ),
+                    PasswordWidget(
+                      text: state.password,
+                      label: AppLocalizations.of(context)!.password,
+                      error: state.errors[RegistrationCubit.passwordKey],
+                      onTextChanged: BlocProvider.of<RegistrationCubit>(context).setPassword,
+                    ),
+                    PasswordWidget(
+                      text: state.repeatPassword,
+                      label: AppLocalizations.of(context)!.repeatPassword,
+                      error: state.errors[RegistrationCubit.repeatPasswordKey],
+                      onTextChanged: BlocProvider.of<RegistrationCubit>(context).setRepeatPassword,
+                    ),
+                    const SizedBox(height: 16),
+                    ButtonWidget(
+                      text: AppLocalizations.of(context)!.signup,
+                      onClick: BlocProvider.of<RegistrationCubit>(context).onClickSignup,
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
+  );
+
+  @override
+  RegistrationCubit getCubit() => statesAssembler.getRegistrationCubit();
 }
 
-class RegistrationLogicState {
+class RegistrationLogicState extends BaseLogicState {
 
   final String username;
   final String email;
@@ -129,23 +119,21 @@ class RegistrationLogicState {
   final String lastName;
   final String password;
   final String repeatPassword;
-  final String? snackBar;
-  final bool readyToConfirm;
-  final bool readyToLocations;
-  final bool loading;
+  final bool showConfirmDialog;
   final Map<String, String> errors;
 
   RegistrationLogicState({
+    super.nextConfig,
+    super.error,
+    super.snackBar,
+    super.loading,
     required this.username,
     required this.email,
     required this.firstName,
     required this.lastName,
     required this.password,
     required this.repeatPassword,
-    required this.snackBar,
-    required this.readyToConfirm,
-    required this.readyToLocations,
-    required this.loading,
+    required this.showConfirmDialog,
     required this.errors
   });
 
@@ -157,28 +145,47 @@ class RegistrationLogicState {
     String? password,
     String? passwordError,
     String? repeatPassword,
-    String? snackBar,
-    bool? readyToConfirm,
-    bool? readyToLocations,
-    bool? loading,
+    bool? showConfirmDialog,
     Map<String, String>? errors
   }) => RegistrationLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading,
       username: username ?? this.username,
       email: email ?? this.email,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       password: password ?? this.password,
       repeatPassword: repeatPassword ?? this.repeatPassword,
-      snackBar: snackBar,
-      readyToConfirm: readyToConfirm ?? this.readyToConfirm,
-      readyToLocations: readyToLocations ?? this.readyToLocations,
-      loading: loading ?? this.loading,
+      showConfirmDialog: showConfirmDialog ?? this.showConfirmDialog,
       errors: errors ?? this.errors
+  );
+
+  @override
+  RegistrationLogicState copy({
+    BaseConfig? nextConfig,
+    ErrorResult? error,
+    String? snackBar,
+    bool? loading
+  }) => RegistrationLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading ?? this.loading,
+      username: username,
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
+      password: password,
+      repeatPassword: repeatPassword,
+      showConfirmDialog: showConfirmDialog,
+      errors: errors
   );
 }
 
 @injectable
-class RegistrationCubit extends Cubit<RegistrationLogicState> {
+class RegistrationCubit extends BaseCubit<RegistrationLogicState> {
 
   static const usernameKey = 'USERNAME';
   static const emailKey = 'EMAIL';
@@ -199,10 +206,7 @@ class RegistrationCubit extends Cubit<RegistrationLogicState> {
           lastName: '',
           password: '',
           repeatPassword: '',
-          snackBar: null,
-          readyToConfirm: false,
-          readyToLocations: false,
-          loading: false,
+          showConfirmDialog: false,
           errors: { }
       )
   );
@@ -250,7 +254,7 @@ class RegistrationCubit extends Cubit<RegistrationLogicState> {
   }
 
   Future<void> onClickSignup() async {
-    emit(state.copyWith(loading: true));
+    showLoad();
     await accountInteractor.signup(
       SignupModel(
         username: state.username,
@@ -262,17 +266,18 @@ class RegistrationCubit extends Cubit<RegistrationLogicState> {
       )
     )
       ..onSuccess((result) {
-        emit(state.copyWith(loading: false, readyToConfirm: true, errors: {}));
-        emit(state.copyWith(readyToConfirm: false));
+        hideLoad();
+        emit(state.copyWith(showConfirmDialog: true, errors: {}));
+        emit(state.copyWith(showConfirmDialog: false));
       })
       ..onError((result) {
-        emit(state.copyWith(loading: false, snackBar: result.description, errors: result.errors));
-        emit(state.copyWith(snackBar: null));
+        emit(state.copyWith(errors: result.errors));
+        showError(result);
       });
   }
 
   Future<void> confirm(ConfirmResult result) async {
-    emit(state.copyWith(loading: true));
+    showLoad();
     await accountInteractor.confirm(
       ConfirmModel(
           username: state.username,
@@ -287,17 +292,15 @@ class RegistrationCubit extends Cubit<RegistrationLogicState> {
           )
         )
           ..onSuccess((result) {
-            emit(state.copyWith(loading: false, readyToLocations: true));
-            emit(state.copyWith(readyToLocations: false));
+            hideLoad();
+            navigate(LocationsConfig(username: state.username));
           })
           ..onError((result) {
-            emit(state.copyWith(loading: false, snackBar: result.description));
-            emit(state.copyWith(snackBar: null));
+            showError(result);
           });
       })
       ..onError((result) {
-        emit(state.copyWith(loading: false, snackBar: result.description));
-        emit(state.copyWith(snackBar: null));
+        showError(result);
       });
   }
 }

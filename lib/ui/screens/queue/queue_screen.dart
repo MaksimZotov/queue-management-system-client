@@ -101,6 +101,10 @@ class QueueLogicState extends BaseLogicState {
     QueueModel? queueState,
     BaseConfig? nextConfig,
   }) => QueueLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading,
       config: config,
       queueState: queueState ?? this.queueState,
   );

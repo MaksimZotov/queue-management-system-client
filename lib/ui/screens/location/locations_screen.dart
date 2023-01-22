@@ -106,6 +106,10 @@ class LocationsLogicState extends BaseLogicState {
     bool? hasRights,
     bool? hasToken,
   }) => LocationsLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading,
       config: config,
       locations: locations ?? this.locations,
       hasRights: hasRights ?? this.hasRights,

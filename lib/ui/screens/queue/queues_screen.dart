@@ -148,6 +148,10 @@ class QueuesLogicState extends BaseLogicState {
     List<QueueModel>? queues,
     bool? hasRights,
   }) => QueuesLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading,
       config: config,
       ownerUsername: ownerUsername ?? this.ownerUsername,
       locationName: locationName ?? this.locationName,

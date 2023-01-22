@@ -1,105 +1,98 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
+import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/account_interactor.dart';
+import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 
-class SelectWidget extends StatefulWidget {
-  ValueChanged<BaseConfig> emitConfig;
-
-  SelectWidget({super.key, required this.emitConfig});
+class SelectWidget extends BaseWidget {
+  SelectWidget({super.key, required super.emitConfig});
 
   @override
   State<SelectWidget> createState() => SelectState();
 }
 
-class SelectState extends State<SelectWidget> {
+class SelectState extends BaseState<SelectWidget, SelectLogicState, SelectCubit> {
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider<SelectCubit>(
-      create: (context) => statesAssembler.getSelectCubit()..onStart(),
-      child: BlocConsumer<SelectCubit, SelectLogicState>(
-
-        listener: (context, state) {
-          if (state.selectStateEnum == SelectStateEnum.goToLocations) {
-            String? username = state.username;
-            if (username != null) {
-              widget.emitConfig(LocationsConfig(username: username));
-            }
-          }
-        },
-
-        builder: (context, state) =>
-          (state.selectStateEnum == SelectStateEnum.loading ||
-           state.selectStateEnum == SelectStateEnum.goToLocations) ? const Center(
-            child: CircularProgressIndicator(),
-          ) : Scaffold(
-            appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.enterAccount),
-            ),
-            body: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    ButtonWidget(
-                      text: AppLocalizations.of(context)!.authorization,
-                      onClick: () {
-                        widget.emitConfig(AuthorizationConfig());
-                      },
-                    ),
-                    ButtonWidget(
-                      text: AppLocalizations.of(context)!.registration,
-                      onClick: () {
-                        widget.emitConfig(RegistrationConfig());
-                      },
-                    ),
-                  ],
+  Widget getWidget(BuildContext context, SelectLogicState state, SelectWidget widget) => state.loading
+      ? const Center(
+        child: CircularProgressIndicator(),
+      )
+      : Scaffold(
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context)!.enterAccount),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                ButtonWidget(
+                  text: AppLocalizations.of(context)!.authorization,
+                  onClick: () {
+                    widget.emitConfig(AuthorizationConfig());
+                  },
                 ),
-              ),
+                ButtonWidget(
+                  text: AppLocalizations.of(context)!.registration,
+                  onClick: () {
+                    widget.emitConfig(RegistrationConfig());
+                  },
+                ),
+              ],
             ),
           ),
-      ),
-    );
-  }
+        ),
+  );
+
+  @override
+  SelectCubit getCubit() => statesAssembler.getSelectCubit();
 }
 
 enum SelectStateEnum {
   loading, stay, goToLocations
 }
 
-class SelectLogicState {
-  final SelectStateEnum selectStateEnum;
-  final String? username;
+class SelectLogicState extends BaseLogicState {
 
   SelectLogicState({
-    required this.selectStateEnum,
-    required this.username
+    super.nextConfig,
+    super.error,
+    super.snackBar,
+    super.loading = true,
   });
+
+  @override
+  SelectLogicState copy({
+    BaseConfig? nextConfig,
+    ErrorResult? error,
+    String? snackBar,
+    bool? loading
+  }) => SelectLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading ?? this.loading
+  );
 }
 
 @injectable
-class SelectCubit extends Cubit<SelectLogicState> {
+class SelectCubit extends BaseCubit<SelectLogicState> {
   final LocationInteractor locationInteractor;
   final AccountInteractor accountInteractor;
 
   SelectCubit(
      this.locationInteractor,
      this.accountInteractor,
-  ) : super(
-      SelectLogicState(
-          selectStateEnum: SelectStateEnum.loading,
-          username: null
-      )
-  );
+  ) : super(SelectLogicState());
 
   Future<void> onStart() async {
     if (await accountInteractor.checkToken()) {
@@ -107,20 +100,10 @@ class SelectCubit extends Cubit<SelectLogicState> {
           ..onSuccess((value) async {
             String? username = await accountInteractor.getCurrentUsername();
             if (username != null) {
-              emit(
-                  SelectLogicState(
-                      selectStateEnum: SelectStateEnum.goToLocations,
-                      username: username
-                  )
-              );
+              navigate(LocationsConfig(username: username));
             }
           });
     }
-    emit(
-        SelectLogicState(
-            selectStateEnum: SelectStateEnum.stay,
-            username: null
-        )
-    );
+    hideLoad();
   }
 }
