@@ -67,10 +67,6 @@ abstract class BaseState<
     if (snackBar != null) {
       Flushbar(
           message: snackBar,
-          icon: const Icon(
-            Icons.warning_amber,
-            color: Colors.red,
-          ),
           duration: const Duration(seconds: 3),
       ).show(context);
     }
@@ -157,10 +153,6 @@ abstract class BaseDialogState<
     if (snackBar != null) {
       Flushbar(
         message: snackBar,
-        icon: const Icon(
-          Icons.warning_amber,
-          color: Colors.red,
-        ),
         duration: const Duration(seconds: 3),
       ).show(context);
     }
