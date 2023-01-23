@@ -101,31 +101,20 @@ class QueueLogicState extends BaseLogicState {
     required this.queueState,
   });
 
-  QueueLogicState copyWith({
-    QueueModel? queueState,
-    BaseConfig? nextConfig,
-  }) => QueueLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading,
-      config: config,
-      queueState: queueState ?? this.queueState,
-  );
-
   @override
-  QueueLogicState copyBase({
+  QueueLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
-    bool? loading
+    bool? loading,
+    QueueModel? queueState,
   }) => QueueLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
       loading: loading ?? this.loading,
       config: config,
-      queueState: queueState
+      queueState: queueState ?? this.queueState
   );
 }
 
@@ -158,7 +147,7 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
     await queueInteractor.getQueueState(
         state.config.queueId
     )..onSuccess((result) {
-      emit(state.copyWith(queueState: result.data));
+      emit(state.copy(queueState: result.data));
     })..onError((result) {
       showError(result);
     });
@@ -167,7 +156,7 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
       _queueTopic + state.config.queueId.toString(),
       () => { /* Do nothing */ },
       (queue) => {
-        emit(state.copyWith(queueState: queue))
+        emit(state.copy(queueState: queue))
       },
       (error) => { /* Do nothing */ }
     );

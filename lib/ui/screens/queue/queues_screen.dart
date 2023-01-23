@@ -155,40 +155,27 @@ class QueuesLogicState extends BaseLogicState {
     required this.hasRights,
     required this.queues,
   });
-
-  QueuesLogicState copyWith({
-    String? ownerUsername,
-    String? locationName,
-    List<QueueModel>? queues,
-    bool? hasRights,
-  }) => QueuesLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading,
-      config: config,
-      ownerUsername: ownerUsername ?? this.ownerUsername,
-      locationName: locationName ?? this.locationName,
-      hasRights: hasRights ?? this.hasRights,
-      queues: queues ?? this.queues
-    );
-
+  
   @override
-  QueuesLogicState copyBase({
+  QueuesLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
-    bool? loading
+    bool? loading,
+    String? ownerUsername,
+    String? locationName,
+    List<QueueModel>? queues,
+    bool? hasRights
   }) => QueuesLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
       loading: loading ?? this.loading,
       config: config,
-      ownerUsername: ownerUsername,
-      locationName: locationName,
-      hasRights: hasRights,
-      queues: queues
+      ownerUsername: ownerUsername ?? this.ownerUsername,
+      locationName: locationName ?? this.locationName,
+      hasRights: hasRights ?? this.hasRights,
+      queues: queues ?? this.queues
   );
 }
 
@@ -218,7 +205,7 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
     )
       ..onSuccess((result) async {
         emit(
-            state.copyWith(
+            state.copy(
                 ownerUsername: result.data.ownerUsername,
                 locationName: result.data.name,
                 hasRights: result.data.hasRights
@@ -232,12 +219,12 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
   }
 
   void handleCreateQueueResult(CreateQueueResult result) {
-    emit(state.copyWith(queues: state.queues + [result.queueModel]));
+    emit(state.copy(queues: state.queues + [result.queueModel]));
   }
 
   void handleDeleteQueueResult(DeleteQueueResult result) {
     emit(
-        state.copyWith(
+        state.copy(
             queues: state.queues
               ..removeWhere((element) => element.id == result.id)
         )
@@ -284,7 +271,7 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
         state.config.username
     )
       ..onSuccess((result) {
-        emit(state.copyWith(queues: result.data.results));
+        emit(state.copy(queues: result.data.results));
         hideLoad();
       })
       ..onError((result) {

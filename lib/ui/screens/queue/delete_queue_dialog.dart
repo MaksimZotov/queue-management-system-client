@@ -84,7 +84,7 @@ class DeleteQueueLogicState extends BaseDialogLogicState<
   });
 
   @override
-  DeleteQueueLogicState copyBase({
+  DeleteQueueLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
@@ -96,7 +96,7 @@ class DeleteQueueLogicState extends BaseDialogLogicState<
       snackBar: snackBar,
       loading: loading ?? this.loading,
       config: config,
-      result: result,
+      result: result
   );
 }
 

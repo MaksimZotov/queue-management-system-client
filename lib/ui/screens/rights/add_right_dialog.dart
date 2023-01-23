@@ -90,25 +90,14 @@ class AddRightLogicState extends BaseDialogLogicState<
     required this.email,
   });
 
-  AddRightLogicState copyWith({
-    String? email
-  }) => AddRightLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading,
-      config: config,
-      result: result,
-      email: email ?? this.email
-  );
-
   @override
-  AddRightLogicState copyBase({
+  AddRightLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    AddRightResult? result
+    AddRightResult? result,
+    String? email
   }) => AddRightLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -116,7 +105,7 @@ class AddRightLogicState extends BaseDialogLogicState<
       loading: loading ?? this.loading,
       config: config,
       result: result,
-      email: email
+      email: email ?? this.email
   );
 }
 
@@ -136,7 +125,7 @@ class AddRightCubit extends BaseDialogCubit<AddRightLogicState> {
   );
 
   void setEmail(String text) {
-    emit(state.copyWith(email: text));
+    emit(state.copy(email: text));
   }
 
   Future<void> addRight() async {

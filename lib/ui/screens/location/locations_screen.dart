@@ -122,36 +122,24 @@ class LocationsLogicState extends BaseLogicState {
     required this.hasToken,
   });
 
-  LocationsLogicState copyWith({
-    List<LocationModel>? locations,
-    bool? hasRights,
-    bool? hasToken,
-  }) => LocationsLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading,
-      config: config,
-      locations: locations ?? this.locations,
-      hasRights: hasRights ?? this.hasRights,
-      hasToken: hasToken ?? this.hasToken
-  );
-
   @override
-  LocationsLogicState copyBase({
+  LocationsLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
-    bool? loading
+    bool? loading,
+    List<LocationModel>? locations,
+    bool? hasRights,
+    bool? hasToken
   }) => LocationsLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
       loading: loading ?? this.loading,
       config: config,
-      locations: locations,
-      hasRights: hasRights,
-      hasToken: hasToken
+      locations: locations ?? this.locations,
+      hasRights: hasRights ?? this.hasRights,
+      hasToken: hasToken ?? this.hasToken
   );
 }
 
@@ -180,11 +168,11 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
   Future<void> onStart() async {
     showLoad();
     if (await _accountInteractor.checkToken()) {
-      emit(state.copyWith(hasToken: true));
+      emit(state.copy(hasToken: true));
     }
     await _locationInteractor.checkHasRights(state.config.username)
       ..onSuccess((result) async {
-        emit(state.copyWith(hasRights: result.data.hasRights));
+        emit(state.copy(hasRights: result.data.hasRights));
       })
       ..onError((result) {
         showError(result);
@@ -198,12 +186,12 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
   }
 
   Future<void> handleCreateLocationResult(CreateLocationResult result) async {
-    emit(state.copyWith(locations: state.locations + [result.locationModel]));
+    emit(state.copy(locations: state.locations + [result.locationModel]));
   }
 
   Future handleDeleteLocationResult(DeleteLocationResult result) async {
     emit(
-        state.copyWith(
+        state.copy(
             locations: state.locations
               ..removeWhere((element) => element.id == result.id)
         )
@@ -213,7 +201,7 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
   Future _load() async {
     await _locationInteractor.getLocations(state.config.username)
       ..onSuccess((result) {
-        emit(state.copyWith(locations: result.data.results));
+        emit(state.copy(locations: result.data.results));
         hideLoad();
       })
       ..onError((result) {

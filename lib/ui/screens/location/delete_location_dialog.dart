@@ -80,7 +80,7 @@ class DeleteLocationLogicState extends BaseDialogLogicState<
   });
 
   @override
-  DeleteLocationLogicState copyBase({
+  DeleteLocationLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,

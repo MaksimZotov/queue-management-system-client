@@ -83,25 +83,14 @@ class SearchLocationsLogicState extends BaseDialogLogicState<
     required this.username
   });
 
-  SearchLocationsLogicState copyWith({
-    String? username
-  }) => SearchLocationsLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading,
-      config: config,
-      result: result,
-      username: username ?? this.username,
-  );
-
   @override
-  SearchLocationsLogicState copyBase({
+  SearchLocationsLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
     bool? loading,
     SearchLocationsResult? result,
+    String? username
   }) => SearchLocationsLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -109,7 +98,7 @@ class SearchLocationsLogicState extends BaseDialogLogicState<
       loading: loading ?? this.loading,
       config: config,
       result: result,
-      username: username
+      username: username ?? this.username
   );
 }
 
@@ -126,7 +115,7 @@ class SearchLocationsCubit extends BaseDialogCubit<SearchLocationsLogicState> {
   );
 
   void setUsername(String text) {
-    emit(state.copyWith(username: text));
+    emit(state.copy(username: text));
   }
 
   void findLocations() {

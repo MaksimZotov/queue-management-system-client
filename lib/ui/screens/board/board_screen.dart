@@ -174,33 +174,22 @@ class BoardLogicState extends BaseLogicState {
     required this.page
   });
 
-  BoardLogicState copyWith({
+  @override
+  BoardLogicState copy({
+    BaseConfig? nextConfig,
+    ErrorResult? error,
+    String? snackBar,
+    bool? loading,
     BoardModel? board,
     int? page
   }) => BoardLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
-      loading: loading,
+      loading: loading ?? this.loading,
       config: config,
       board: board ?? this.board,
       page: page ?? this.page
-  );
-
-  @override
-  BoardLogicState copyBase({
-    BaseConfig? nextConfig,
-    ErrorResult? error,
-    String? snackBar,
-    bool? loading
-  }) => BoardLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading ?? this.loading,
-      config: config,
-      board: board,
-      page: page
   );
 }
 
@@ -234,7 +223,7 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
     await _boardInteractor.getBoard(
         state.config.locationId
     )..onSuccess((result) {
-      emit(state.copyWith(board: result.data));
+      emit(state.copy(board: result.data));
       hideLoad();
     })..onError((result) {
       showError(result);
@@ -244,7 +233,7 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
       _locationTopic + state.config.locationId.toString(),
       () => { /* Do nothing */ },
       (board) => {
-        emit(state.copyWith(board: board))
+        emit(state.copy(board: board))
       },
       (error) => { /* Do nothing */ }
     );
@@ -265,9 +254,9 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
     _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
       int nextPage = state.page + 1;
       if (nextPage * BoardLogicState._pageSize >= state.board.queues.length) {
-        emit(state.copyWith(page: 0));
+        emit(state.copy(page: 0));
       } else {
-        emit(state.copyWith(page: state.page + 1));
+        emit(state.copy(page: state.page + 1));
       }
     });
   }
