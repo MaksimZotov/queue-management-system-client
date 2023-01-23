@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:queue_management_system_client/data/converters/verification/tokens_converter.dart';
 
-import '../../../domain/models/verification/tokens_model.dart';
+import '../../../domain/models/account/tokens_model.dart';
 import '../../local/secure_storage.dart';
 import '../server_api.dart';
 
@@ -15,7 +14,7 @@ class InterceptorsWrapperServerApi extends InterceptorsWrapper {
       this._dioApi
   );
 
-  static const _refreshTokenMethod = '/verification/token/refresh';
+  static const _refreshTokenMethod = '/account/token/refresh';
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
@@ -41,7 +40,7 @@ class InterceptorsWrapperServerApi extends InterceptorsWrapper {
         );
         int? code = response.statusCode;
         if (code != null && code >= 200 && code < 300) {
-          final tokens = TokensConverter(TokensFields()).fromJson(response.data!);
+          final tokens = TokensModel.fromJson(response.data!);
           await _secureStorage.setAccessToken(accessToken: tokens.access);
           await _secureStorage.setRefreshToken(refreshToken: tokens.refresh);
           await _secureStorage.setUsername(username: tokens.username);

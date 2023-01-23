@@ -1,77 +1,92 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../dimens.dart';
+
 class TextFieldWidget extends StatefulWidget {
   final ValueChanged<String>? onTextChanged;
   final String label;
   final String text;
-  final int? maxLines;
   final String? error;
+  final int? maxLines;
 
   const TextFieldWidget({
     Key? key,
     this.onTextChanged,
     required this.label,
     required this.text,
+    this.error,
     this.maxLines = 1,
-    this.error
   }) : super(key: key);
 
   @override
-  State createState() => _TextFieldState();
+  State createState() => TextFieldState();
 }
 
-class _TextFieldState extends State<TextFieldWidget> {
+class TextFieldState<T extends TextFieldWidget> extends State<T> {
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: (
           defaultTargetPlatform != TargetPlatform.iOS &&
           defaultTargetPlatform != TargetPlatform.android
-      ) ? 400 : null,
+      ) ? Dimens.fieldWidthForWeb : null,
       child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Column(
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
+        padding: const EdgeInsets.symmetric(vertical: Dimens.contentMargin),
+        child: Column(
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
                   widget.label,
-                  style: const TextStyle(fontSize: 20),
-                ),
+                  style: const TextStyle(
+                      fontSize: Dimens.labelFontSize
+                  )
               ),
-              const SizedBox(height: 5),
-              Container(
-                decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    border: Border.all(color: widget.error != null ? Colors.red : Colors.grey),
-                    borderRadius: BorderRadius.circular(12)
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: TextFormField(
-                    style: const TextStyle(fontSize: 24),
-                    maxLines: widget.maxLines,
-                    initialValue: widget.text,
-                    decoration: const InputDecoration(
-                        border: InputBorder.none
-                    ),
-                    onChanged: widget.onTextChanged,
+            ),
+            const SizedBox(height: Dimens.fieldElementsMargin),
+            Container(
+              decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  border: Border.all(
+                      color: widget.error != null ? Colors.red : Colors.grey
                   ),
+                  borderRadius: BorderRadius.circular(Dimens.fieldsBorderRadius)
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: Dimens.textFormFieldsHorizontalPadding,
+                    vertical: Dimens.textFormFieldsVerticalPadding
+                ),
+                child: getTextFormField()
+              ),
+            ),
+          ] + (widget.error != null ? [
+            const SizedBox(height: Dimens.fieldElementsMargin),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                widget.error!,
+                style: const TextStyle(
+                    fontSize: Dimens.errorFontSize,
+                    color: Colors.red
                 ),
               ),
-            ] + (widget.error != null ? [
-              const SizedBox(height: 5),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  widget.error!,
-                  style: const TextStyle(fontSize: 18, color: Colors.red),
-                ),
-              ),
-            ] : []),
-          )
+            ),
+          ] : []),
+        ),
       ),
     );
   }
+
+  TextFormField getTextFormField() => TextFormField(
+      initialValue: widget.text,
+      decoration: const InputDecoration(
+          border: InputBorder.none
+      ),
+      onChanged: widget.onTextChanged,
+      maxLines: widget.maxLines,
+      style: const TextStyle(fontSize: Dimens.textFormFieldFontSize),
+  );
 }

@@ -5,19 +5,22 @@ import 'package:queue_management_system_client/ui/screens/client/client_confirm_
 import 'package:queue_management_system_client/ui/screens/client/client_join_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/create_location_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/delete_location_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/location/search_locations_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/queue/add_client_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queue_screen.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queues_screen.dart';
-import 'package:queue_management_system_client/ui/screens/rules/add_rule_dialog.dart';
-import 'package:queue_management_system_client/ui/screens/verification/authorization_screen.dart';
-import 'package:queue_management_system_client/ui/screens/verification/registration_screen.dart';
-import 'package:queue_management_system_client/ui/screens/verification/select_screen.dart';
+import 'package:queue_management_system_client/ui/screens/rights/add_right_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/account/authorization_screen.dart';
+import 'package:queue_management_system_client/ui/screens/account/registration_screen.dart';
+import 'package:queue_management_system_client/ui/screens/account/initial_screen.dart';
+import 'package:queue_management_system_client/ui/screens/rights/delete_right_dialog.dart';
 
 import '../../ui/screens/client/client_rejoin_dialog.dart';
 import '../../ui/screens/location/locations_screen.dart';
 import '../../ui/screens/queue/create_queue_dialog.dart';
-import '../../ui/screens/rules/rules_screen.dart';
-import '../../ui/screens/verification/confirm_dialog.dart';
+import '../../ui/screens/queue/delete_queue_dialog.dart';
+import '../../ui/screens/rights/rights_screen.dart';
+import '../../ui/screens/account/confirm_registration_dialog.dart';
 import '../main/main.dart';
 
 class StatesAssembler {
@@ -25,27 +28,30 @@ class StatesAssembler {
 
   SelectCubit getSelectCubit() => getIt.get();
   RegistrationCubit getRegistrationCubit() => getIt.get();
-  ConfirmCubit getConfirmCubit() => getIt.get();
+  ConfirmRegistrationCubit getConfirmRegistrationCubit(ConfirmRegistrationConfig config) => getIt.get(param1: config);
   AuthorizationCubit getAuthorizationCubit() => getIt.get();
 
   LocationsCubit getLocationsCubit(LocationsConfig config) => getIt.get(param1: config);
-  CreateLocationCubit getCreateLocationCubit() => getIt.get();
+  CreateLocationCubit getCreateLocationCubit(CreateLocationConfig config) => getIt.get(param1: config);
+  DeleteLocationCubit getDeleteLocationCubit(DeleteLocationConfig config) => getIt.get(param1: config);
+  SearchLocationsCubit getSearchLocationsCubit(SearchLocationsConfig config) => getIt.get(param1: config);
 
   QueuesCubit getQueuesCubit(QueuesConfig config) => getIt.get(param1: config);
-  CreateQueueCubit getCreateQueueCubit() => getIt.get();
+  CreateQueueCubit getCreateQueueCubit(CreateQueueConfig config) => getIt.get(param1: config);
+  DeleteQueueCubit getDeleteQueueCubit(DeleteQueueConfig config) => getIt.get(param1: config);
   QueueCubit getQueueCubit(QueueConfig config) => getIt.get(param1: config);
-  AddClientCubit getAddClientCubit() => getIt.get();
+  AddClientCubit getAddClientCubit(AddClientConfig config) => getIt.get(param1: config);
 
   ClientCubit getClientCubit(ClientConfig config) => getIt.get(param1: config);
-  ClientJoinCubit getClientJoinCubit() => getIt.get();
-  ClientRejoinCubit getClientRejoinCubit() => getIt.get();
-  ClientConfirmCubit getClientConfirmCubit() => getIt.get();
+  ClientJoinCubit getClientJoinCubit(ClientJoinConfig config) => getIt.get(param1: config);
+  ClientRejoinCubit getClientRejoinCubit(ClientRejoinConfig config) => getIt.get(param1: config);
+  ClientConfirmCubit getClientConfirmCubit(ClientConfirmConfig config) => getIt.get(param1: config);
 
   BoardCubit getBoardCubit(BoardConfig config) => getIt.get(param1: config);
 
-  RulesCubit getRulesCubit(RulesConfig config) => getIt.get(param1: config);
-
-  AddRuleCubit getAddRuleCubit() => getIt.get();
+  RightsCubit getRightsCubit(RightsConfig config) => getIt.get(param1: config);
+  AddRightCubit getAddRightCubit(AddRightConfig config) => getIt.get(param1: config);
+  DeleteRightCubit getDeleteRightCubit(DeleteRightConfig config) => getIt.get(param1: config);
 }
 
 const statesAssembler = StatesAssembler._();

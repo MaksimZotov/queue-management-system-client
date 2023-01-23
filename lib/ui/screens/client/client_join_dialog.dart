@@ -1,101 +1,106 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
-import '../../../domain/interactors/location_interactor.dart';
+import '../../../dimens.dart';
+import '../../../domain/interactors/client_interactor.dart';
+import '../../../domain/models/base/result.dart';
+import '../../../domain/models/client/client_join_info.dart';
+import '../../../domain/models/client/client_model.dart';
+import '../../router/routes_config.dart';
+import '../base.dart';
 
-class ClientJoinResult {
-  final String email;
-  final String firstName;
-  final String lastName;
+class ClientJoinConfig extends BaseDialogConfig {
+  final int queueId;
 
-  ClientJoinResult({
-    required this.email,
-    required this.firstName,
-    required this.lastName
+  ClientJoinConfig({
+    required this.queueId
   });
 }
 
+class ClientJoinResult extends BaseDialogResult {
+  final ClientModel clientModel;
 
-class ClientJoinWidget extends StatefulWidget {
+  ClientJoinResult({
+    required this.clientModel
+  });
+}
 
-  const ClientJoinWidget({super.key});
+class ClientJoinWidget extends BaseDialogWidget<ClientJoinConfig> {
+
+  const ClientJoinWidget({
+    super.key,
+    required super.config
+  });
 
   @override
   State<ClientJoinWidget> createState() => _ClientJoinState();
 }
 
-class _ClientJoinState extends State<ClientJoinWidget> {
-  final String title = 'Подключение к очереди';
-  final String emailHint = 'Почта';
-  final String firstNameHint = 'Имя';
-  final String lastNameHint = 'Фамилия';
-
-  final String joinText = 'Подключиться';
-  final String cancelText = 'Отмена';
+class _ClientJoinState extends BaseDialogState<
+    ClientJoinWidget,
+    ClientJoinLogicState,
+    ClientJoinCubit
+> {
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider<ClientJoinCubit>(
-      create: (context) => statesAssembler.getClientJoinCubit(),
-      lazy: true,
-      child: BlocBuilder<ClientJoinCubit, ClientJoinLogicState>(
-        builder: (context, state) => SimpleDialog(
-          title: Text(title),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(
-                  Radius.circular(16.0)
-              )
-          ),
-          children: [
-            TextFieldWidget(
-                label: emailHint,
-                text: state.email,
-                onTextChanged: BlocProvider.of<ClientJoinCubit>(context).setEmail
-            ),
-            TextFieldWidget(
-                label: firstNameHint,
-                text: state.firstName,
-                onTextChanged: BlocProvider.of<ClientJoinCubit>(context).setFirstName
-            ),
-            TextFieldWidget(
-                label: lastNameHint,
-                text: state.lastName,
-                onTextChanged: BlocProvider.of<ClientJoinCubit>(context).setLastName
-            ),
-            const SizedBox(height: 16),
-            ButtonWidget(
-                text: joinText,
-                onClick: () => Navigator.of(context).pop(
-                    ClientJoinResult(
-                        email: state.email,
-                        firstName: state.firstName,
-                        lastName: state.lastName
-                    )
-                )
-            ),
-            ButtonWidget(
-                text: cancelText,
-                onClick: Navigator.of(context).pop
-            )
-          ],
-        ),
-      ),
-    );
-  }
+  String getTitle(
+      BuildContext context,
+      ClientJoinLogicState state,
+      ClientJoinWidget widget
+  ) => getLocalizations(context).connectionToQueue;
+
+  @override
+  List<Widget> getDialogContentWidget(
+      BuildContext context,
+      ClientJoinLogicState state,
+      ClientJoinWidget widget
+  ) => [
+    TextFieldWidget(
+        label: getLocalizations(context).email,
+        text: state.email,
+        onTextChanged: getCubitInstance(context).setEmail
+    ),
+    TextFieldWidget(
+        label: getLocalizations(context).firstName,
+        text: state.firstName,
+        onTextChanged: getCubitInstance(context).setFirstName
+    ),
+    TextFieldWidget(
+        label: getLocalizations(context).lastName,
+        text: state.lastName,
+        onTextChanged: getCubitInstance(context).setLastName
+    ),
+    const SizedBox(height: Dimens.contentMargin),
+    ButtonWidget(
+        text: getLocalizations(context).join,
+        onClick: getCubitInstance(context).join
+    )
+  ];
+
+  @override
+  ClientJoinCubit getCubit() =>
+      statesAssembler.getClientJoinCubit(widget.config);
 }
 
-class ClientJoinLogicState {
+class ClientJoinLogicState extends BaseDialogLogicState<
+    ClientJoinConfig,
+    ClientJoinResult
+> {
 
   final String email;
   final String firstName;
   final String lastName;
 
   ClientJoinLogicState({
+    super.nextConfig,
+    super.error,
+    super.snackBar,
+    super.loading,
+    required super.config,
+    super.result,
     required this.email,
     required this.firstName,
     required this.lastName
@@ -106,17 +111,48 @@ class ClientJoinLogicState {
     String? firstName,
     String? lastName,
   }) => ClientJoinLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading,
+      config: config,
+      result: result,
       email: email ?? this.email,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
   );
+
+  @override
+  ClientJoinLogicState copyBase({
+    BaseConfig? nextConfig,
+    ErrorResult? error,
+    String? snackBar,
+    bool? loading,
+    ClientJoinResult? result
+  }) => ClientJoinLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading ?? this.loading,
+      config: config,
+      result: result,
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
+  );
 }
 
 @injectable
-class ClientJoinCubit extends Cubit<ClientJoinLogicState> {
+class ClientJoinCubit extends BaseDialogCubit<ClientJoinLogicState> {
 
-  ClientJoinCubit() : super(
+  final ClientInteractor _clientInteractor;
+
+  ClientJoinCubit(
+      this._clientInteractor,
+      @factoryParam ClientJoinConfig config
+  ) : super(
       ClientJoinLogicState(
+          config: config,
           email: '',
           firstName: '',
           lastName: ''
@@ -133,5 +169,23 @@ class ClientJoinCubit extends Cubit<ClientJoinLogicState> {
 
   void setLastName(String text) {
     emit(state.copyWith(lastName: text));
+  }
+
+  Future<void> join() async {
+    showLoad();
+    await _clientInteractor.joinClientToQueue(
+        state.config.queueId,
+        ClientJoinInfo(
+            email: state.email,
+            firstName: state.firstName,
+            lastName: state.lastName
+        )
+    )
+      ..onSuccess((result) {
+        popResult(ClientJoinResult(clientModel: result.data));
+      })
+      ..onError((result) {
+        showError(result);
+      });
   }
 }

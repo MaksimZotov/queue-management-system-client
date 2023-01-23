@@ -43,9 +43,9 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
                       username: segments[0],
                       locationId: int.parse(segments[2])
                   );
-                // "/{username}/locations/{location_id}/rules"
-                case 'rules':
-                  return RulesConfig(
+                // "/{username}/locations/{location_id}/rights"
+                case 'rights':
+                  return RightsConfig(
                       username: segments[0],
                       locationId: int.parse(segments[2])
                   );
@@ -135,11 +135,11 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
           location: '/$username/locations/$locationId/queues/$queueId/client'
       );
     }
-    if (configuration is RulesConfig) {
+    if (configuration is RightsConfig) {
       String username = configuration.username;
       int locationId = configuration.locationId;
       return RouteInformation(
-          location: '/$username/locations/$locationId/rules'
+          location: '/$username/locations/$locationId/rights'
       );
     }
     if (configuration is BoardConfig) {

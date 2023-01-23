@@ -1,90 +1,94 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../dimens.dart';
 import '../../../domain/interactors/location_interactor.dart';
+import '../../../domain/models/base/result.dart';
+import '../../../domain/models/location/location_model.dart';
+import '../../router/routes_config.dart';
+import '../base.dart';
 
-class CreateLocationResult {
-  final String name;
-  final String description;
+class CreateLocationConfig extends BaseDialogConfig {}
+
+class CreateLocationResult extends BaseDialogResult {
+  final LocationModel locationModel;
 
   CreateLocationResult({
-    required this.name,
-    required this.description
+    required this.locationModel
   });
 }
 
+class CreateLocationWidget extends BaseDialogWidget<CreateLocationConfig> {
 
-class CreateLocationWidget extends StatefulWidget {
-
-  const CreateLocationWidget({super.key});
+  const CreateLocationWidget({
+    super.key,
+    required super.config
+  });
 
   @override
   State<CreateLocationWidget> createState() => _CreateLocationState();
 }
 
-class _CreateLocationState extends State<CreateLocationWidget> {
-  final String title = 'Создание локации';
-  final String nameHint = 'Название';
-  final String descriptionHint = 'Описание';
-  final String createText = 'Создать';
-  final String cancelText = 'Отмена';
+class _CreateLocationState extends BaseDialogState<
+    CreateLocationWidget,
+    CreateLocationLogicState,
+    CreateLocationCubit
+> {
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider<CreateLocationCubit>(
-      create: (context) => statesAssembler.getCreateLocationCubit(),
-      child: BlocBuilder<CreateLocationCubit, CreateLocationLogicState>(
-        builder: (context, state) => SimpleDialog(
-          title: Text(title),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(
-                  Radius.circular(16.0)
-              )
-          ),
-          children: [
-            TextFieldWidget(
-                label: nameHint,
-                text: state.name,
-                onTextChanged: BlocProvider.of<CreateLocationCubit>(context).setName
-            ),
-            TextFieldWidget(
-                maxLines: null,
-                label: descriptionHint,
-                text: state.description,
-                onTextChanged: BlocProvider.of<CreateLocationCubit>(context).setDescription
-            ),
-            const SizedBox(height: 16),
-            ButtonWidget(
-                text: createText,
-                onClick: () => Navigator.of(context).pop(
-                    CreateLocationResult(
-                        name: state.name,
-                        description: state.description
-                    )
-                )
-            ),
-            ButtonWidget(
-                text: cancelText,
-                onClick: Navigator.of(context).pop
-            )
-          ],
-        ),
-      ),
-    );
-  }
+  String getTitle(
+      BuildContext context,
+      CreateLocationLogicState state,
+      CreateLocationWidget widget
+  ) => getLocalizations(context).creationOfLocation;
+
+  @override
+  List<Widget> getDialogContentWidget(
+      BuildContext context,
+      CreateLocationLogicState state,
+      CreateLocationWidget widget
+  ) => [
+    TextFieldWidget(
+        label: getLocalizations(context).name,
+        text: state.name,
+        onTextChanged: getCubitInstance(context).setName
+    ),
+    TextFieldWidget(
+        maxLines: null,
+        label: getLocalizations(context).description,
+        text: state.description,
+        onTextChanged: getCubitInstance(context).setDescription
+    ),
+    const SizedBox(height: Dimens.contentMargin),
+    ButtonWidget(
+        text: getLocalizations(context).create,
+        onClick: getCubitInstance(context).createLocation
+    )
+  ];
+
+  @override
+  CreateLocationCubit getCubit() =>
+      statesAssembler.getCreateLocationCubit(widget.config);
 }
 
-class CreateLocationLogicState {
+class CreateLocationLogicState extends BaseDialogLogicState<
+    CreateLocationConfig,
+    CreateLocationResult
+> {
 
   final String name;
   final String description;
 
   CreateLocationLogicState({
+    super.nextConfig,
+    super.error,
+    super.snackBar,
+    super.loading,
+    required super.config,
+    super.result,
     required this.name,
     required this.description
   });
@@ -93,20 +97,46 @@ class CreateLocationLogicState {
     String? name,
     String? description
   }) => CreateLocationLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading,
+      config: config,
+      result: result,
       name: name ?? this.name,
       description: description ?? this.description
+  );
+
+  @override
+  CreateLocationLogicState copyBase({
+    BaseConfig? nextConfig,
+    ErrorResult? error,
+    String? snackBar,
+    bool? loading,
+    CreateLocationResult? result
+  }) => CreateLocationLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading ?? this.loading,
+      config: config,
+      result: result,
+      name: name,
+      description: description
   );
 }
 
 @injectable
-class CreateLocationCubit extends Cubit<CreateLocationLogicState> {
+class CreateLocationCubit extends BaseDialogCubit<CreateLocationLogicState> {
 
-  final LocationInteractor locationInteractor;
-
-  CreateLocationCubit({
-    required this.locationInteractor
-  }) : super(
+  final LocationInteractor _locationInteractor;
+  
+  CreateLocationCubit(
+      this._locationInteractor,
+      @factoryParam CreateLocationConfig config
+  ) : super(
       CreateLocationLogicState(
+          config: config,
           name: '',
           description: ''
       )
@@ -118,5 +148,24 @@ class CreateLocationCubit extends Cubit<CreateLocationLogicState> {
 
   void setDescription(String text) {
     emit(state.copyWith(description: text));
+  }
+
+  Future<void> createLocation() async {
+    showLoad();
+    await _locationInteractor.createLocation(
+        LocationModel(
+            id: null,
+            name: state.name,
+            description: state.description
+        )
+    )..onSuccess((result) {
+      popResult(
+          CreateLocationResult(
+              locationModel: result.data
+          )
+      );
+    })..onError((result) {
+      showError(result);
+    });
   }
 }

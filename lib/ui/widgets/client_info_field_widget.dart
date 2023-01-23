@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../dimens.dart';
+
 class ClientInfoFieldWidget extends StatefulWidget {
   String fieldName;
   String fieldValue;
@@ -19,10 +21,10 @@ class ClientInfoFieldState extends State<ClientInfoFieldWidget> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: (defaultTargetPlatform != TargetPlatform.iOS &&
-              defaultTargetPlatform != TargetPlatform.android)
-          ? 400
-          : null,
+      width: (
+        defaultTargetPlatform != TargetPlatform.iOS &&
+        defaultTargetPlatform != TargetPlatform.android
+      ) ? Dimens.fieldWidthForWeb : null,
       child: Card(
         elevation: 4,
         color: Colors.blueGrey,
@@ -34,7 +36,10 @@ class ClientInfoFieldState extends State<ClientInfoFieldWidget> {
                 padding: const EdgeInsets.all(5),
                 child: Text(
                   widget.fieldName,
-                  style: const TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold
+                  ),
                 ),
               ),
               const SizedBox(height: 5),
@@ -43,7 +48,7 @@ class ClientInfoFieldState extends State<ClientInfoFieldWidget> {
                   padding: const EdgeInsets.all(5),
                   child: Text(
                     widget.fieldValue,
-                    style: const TextStyle(fontSize: 22, color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
               ),

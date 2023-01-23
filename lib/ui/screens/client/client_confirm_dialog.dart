@@ -1,112 +1,159 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:queue_management_system_client/domain/models/client/client_model.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
-import '../../../domain/interactors/location_interactor.dart';
+import '../../../dimens.dart';
+import '../../../domain/interactors/client_interactor.dart';
+import '../../../domain/models/base/result.dart';
+import '../../router/routes_config.dart';
+import '../base.dart';
 
-class ClientConfirmConfig {
+class ClientConfirmConfig extends BaseDialogConfig {
+  final int queueId;
   final String email;
 
   ClientConfirmConfig({
-    required this.email,
-  });
-}
-
-class ClientConfirmResult {
-  final String code;
-  final String email;
-
-  ClientConfirmResult({
-    required this.code,
+    required this.queueId,
     required this.email
   });
 }
 
-class ClientConfirmWidget extends StatefulWidget {
-  final ClientConfirmConfig config;
+class ClientConfirmResult extends BaseDialogResult {
+  final ClientModel clientModel;
 
-  const ClientConfirmWidget({super.key, required this.config});
+  ClientConfirmResult({
+    required this.clientModel
+  });
+}
+
+class ClientConfirmWidget extends BaseDialogWidget<ClientConfirmConfig> {
+
+  const ClientConfirmWidget({
+    super.key,
+    required super.config
+  });
 
   @override
   State<ClientConfirmWidget> createState() => _ClientConfirmState();
 }
 
-class _ClientConfirmState extends State<ClientConfirmWidget> {
-  final String title = 'Подтверждение кода';
-  final String codeHint = 'Код';
-
-  final String confirmText = 'Подтвердить';
-  final String cancelText = 'Отмена';
+class _ClientConfirmState extends BaseDialogState<
+    ClientConfirmWidget,
+    ClientConfirmLogicState,
+    ClientConfirmCubit
+> {
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider<ClientConfirmCubit>(
-      create: (context) => statesAssembler.getClientConfirmCubit(),
-      lazy: true,
-      child: BlocBuilder<ClientConfirmCubit, ClientConfirmLogicState>(
-        builder: (context, state) => SimpleDialog(
-          title: Text(title),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(
-                  Radius.circular(16.0)
-              )
-          ),
-          children: [
-            TextFieldWidget(
-                label: codeHint,
-                text: state.code,
-                onTextChanged: BlocProvider.of<ClientConfirmCubit>(context).setEmail
-            ),
-            const SizedBox(height: 16),
-            ButtonWidget(
-                text: confirmText,
-                onClick: () => Navigator.of(context).pop(
-                    ClientConfirmResult(
-                        code: state.code,
-                        email: widget.config.email
-                    )
-                )
-            ),
-            ButtonWidget(
-                text: cancelText,
-                onClick: Navigator.of(context).pop
-            )
-          ],
-        ),
-      ),
-    );
-  }
+  String getTitle(
+      BuildContext context,
+      ClientConfirmLogicState state,
+      ClientConfirmWidget widget
+  ) => getLocalizations(context).codeConfirmation;
+
+  @override
+  List<Widget> getDialogContentWidget(
+      BuildContext context,
+      ClientConfirmLogicState state,
+      ClientConfirmWidget widget
+  ) => [
+    TextFieldWidget(
+        label: getLocalizations(context).code,
+        text: state.code,
+        onTextChanged: getCubitInstance(context).setEmail
+    ),
+    const SizedBox(height: Dimens.contentMargin),
+    ButtonWidget(
+        text: getLocalizations(context).confirm,
+        onClick: getCubitInstance(context).confirm
+    ),
+  ];
+
+  @override
+  ClientConfirmCubit getCubit() =>
+      statesAssembler.getClientConfirmCubit(widget.config);
 }
 
-class ClientConfirmLogicState {
+class ClientConfirmLogicState extends BaseDialogLogicState<
+    ClientConfirmConfig,
+    ClientConfirmResult
+> {
 
   final String code;
 
   ClientConfirmLogicState({
+    super.nextConfig,
+    super.error,
+    super.snackBar,
+    super.loading,
+    required super.config,
+    super.result,
     required this.code
   });
 
   ClientConfirmLogicState copyWith({
-    String? email
+    String? code
   }) => ClientConfirmLogicState(
-      code: email ?? this.code
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading,
+      config: config,
+      result: result,
+      code: code ?? this.code
+  );
+
+  @override
+  ClientConfirmLogicState copyBase({
+    BaseConfig? nextConfig,
+    ErrorResult? error,
+    String? snackBar,
+    bool? loading,
+    ClientConfirmResult? result
+  }) => ClientConfirmLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading ?? this.loading,
+      config: config,
+      result: result,
+      code: code
   );
 }
 
 @injectable
-class ClientConfirmCubit extends Cubit<ClientConfirmLogicState> {
+class ClientConfirmCubit extends BaseDialogCubit<ClientConfirmLogicState> {
 
-  ClientConfirmCubit() : super(
+  final ClientInteractor _clientInteractor;
+
+  ClientConfirmCubit(
+      this._clientInteractor,
+      @factoryParam ClientConfirmConfig config
+  ) : super(
       ClientConfirmLogicState(
+          config: config,
           code: ''
       )
   );
 
   void setEmail(String text) {
-    emit(state.copyWith(email: text));
+    emit(state.copyWith(code: text));
+  }
+
+  Future<void> confirm() async {
+    showLoad();
+    await _clientInteractor.confirmClientCodeInQueue(
+        state.config.queueId,
+        state.config.email,
+        state.code
+    )
+      ..onSuccess((result) {
+        popResult(ClientConfirmResult(clientModel: result.data));
+      })
+      ..onError((result) {
+        showError(result);
+      });
   }
 }

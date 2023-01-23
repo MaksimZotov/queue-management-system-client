@@ -4,10 +4,10 @@ import 'package:queue_management_system_client/ui/router/router_page.dart';
 import 'package:queue_management_system_client/ui/screens/board/board_screen.dart';
 import 'package:queue_management_system_client/ui/screens/client/client_screen.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queues_screen.dart';
-import 'package:queue_management_system_client/ui/screens/rules/rules_screen.dart';
-import 'package:queue_management_system_client/ui/screens/verification/authorization_screen.dart';
-import 'package:queue_management_system_client/ui/screens/verification/registration_screen.dart';
-import 'package:queue_management_system_client/ui/screens/verification/select_screen.dart';
+import 'package:queue_management_system_client/ui/screens/rights/rights_screen.dart';
+import 'package:queue_management_system_client/ui/screens/account/authorization_screen.dart';
+import 'package:queue_management_system_client/ui/screens/account/registration_screen.dart';
+import 'package:queue_management_system_client/ui/screens/account/initial_screen.dart';
 
 import '../screens/location/locations_screen.dart';
 import '../screens/queue/queue_screen.dart';
@@ -37,7 +37,8 @@ class InitialConfig extends BaseConfig {
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
     return RouterPage(
         key: const ValueKey('Initial Page'),
-        child: SelectWidget(
+        child: InitialWidget(
+          config: this,
           emitConfig: emitConfig,
         )
     );
@@ -50,6 +51,7 @@ class AuthorizationConfig extends BaseConfig {
     return RouterPage(
         key: const ValueKey('Authorization Page'),
         child: AuthorizationWidget(
+          config: this,
           emitConfig: emitConfig,
         )
     );
@@ -67,6 +69,7 @@ class RegistrationConfig extends BaseConfig {
     return RouterPage(
         key: const ValueKey('Registration Page'),
         child: RegistrationWidget(
+          config: this,
           emitConfig: emitConfig,
         )
     );
@@ -199,7 +202,8 @@ class BoardConfig extends BaseConfig {
     return RouterPage(
         key: ValueKey('Board Page $locationId'),
         child: BoardWidget(
-            config: this
+            config: this,
+            emitConfig: emitConfig
         )
     );
   }
@@ -213,11 +217,11 @@ class BoardConfig extends BaseConfig {
   }
 }
 
-class RulesConfig extends BaseConfig {
+class RightsConfig extends BaseConfig {
   String username;
   int locationId;
 
-  RulesConfig({
+  RightsConfig({
     required this.username,
     required this.locationId,
   });
@@ -225,8 +229,8 @@ class RulesConfig extends BaseConfig {
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
     return RouterPage(
-        key: ValueKey('Rules Page $locationId'),
-        child: RulesWidget(
+        key: ValueKey('Rights Page $locationId'),
+        child: RightsWidget(
             config: this,
             emitConfig: emitConfig
         )

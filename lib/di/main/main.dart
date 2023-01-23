@@ -7,5 +7,5 @@ final getIt = GetIt.I;
 
 @InjectableInit()
 void setup() {
-  $initGetIt(getIt);
+  getIt.init();
 }

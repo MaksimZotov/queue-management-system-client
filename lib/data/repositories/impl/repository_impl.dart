@@ -7,19 +7,19 @@ import 'package:queue_management_system_client/data/repositories/repository.dart
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
 import 'package:queue_management_system_client/domain/models/board/board_model.dart';
 import 'package:queue_management_system_client/domain/models/client/client_model.dart';
-import 'package:queue_management_system_client/domain/models/location/has_rules_model.dart';
+import 'package:queue_management_system_client/domain/models/location/has_rights_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
-import 'package:queue_management_system_client/domain/models/rules/rules_model.dart';
+import 'package:queue_management_system_client/domain/models/rights/rights_model.dart';
 
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/client/client_join_info_model.dart';
+import '../../../domain/models/client/client_join_info.dart';
 import '../../../domain/models/queue/add_client_info.dart';
 import '../../../domain/models/queue/client_in_queue_model.dart';
-import '../../../domain/models/verification/confirm_model.dart';
-import '../../../domain/models/verification/login_model.dart';
-import '../../../domain/models/verification/signup_model.dart';
-import '../../../domain/models/verification/tokens_model.dart';
+import '../../../domain/models/account/confirm_model.dart';
+import '../../../domain/models/account/login_model.dart';
+import '../../../domain/models/account/signup_model.dart';
+import '../../../domain/models/account/tokens_model.dart';
 import '../../local/secure_storage.dart';
 import '../../local/shared_preferences_storage.dart';
 
@@ -41,28 +41,28 @@ class RepositoryImpl extends Repository {
 
 
   @override
-  Future<Result<TokensModel>> login(LoginModel login) async {
-    return await _serverApi.login(login);
+  Future<Result<TokensModel>> login(LoginModel login) {
+    return _serverApi.login(login);
   }
 
   @override
-  Future<Result> confirm(ConfirmModel confirm) async {
-    return await _serverApi.confirm(confirm);
+  Future<Result> confirm(ConfirmModel confirm) {
+    return _serverApi.confirm(confirm);
   }
 
   @override
-  Future<Result> signup(SignupModel signup) async {
-    return await _serverApi.signup(signup);
+  Future<Result> signup(SignupModel signup) {
+    return _serverApi.signup(signup);
   }
 
   @override
-  Future<bool> checkToken() async {
-    return await _secureStorage.containsAccessToken();
+  Future<bool> checkToken() {
+    return _secureStorage.containsAccessToken();
   }
 
   @override
-  Future logout() async {
-    await _secureStorage.deleteAll();
+  Future<void> logout() {
+    return _secureStorage.deleteAll();
   }
 
   @override
@@ -84,30 +84,30 @@ class RepositoryImpl extends Repository {
     if (username != null) {
       return await _serverApi.getLocations(username);
     }
-    return ErrorResult();
+    return ErrorResult(type: ErrorType.unknown);
   }
 
   @override
-  Future<Result<LocationModel>> createLocation(LocationModel location) async {
-    return await _serverApi.createLocation(location);
+  Future<Result<LocationModel>> createLocation(LocationModel location) {
+    return _serverApi.createLocation(location);
   }
 
   @override
-  Future<Result<LocationModel>> getLocation(int id, String? username) async {
-    return await _serverApi.getLocation(id, username);
+  Future<Result<LocationModel>> getLocation(int id, String? username) {
+    return _serverApi.getLocation(id, username);
   }
 
   @override
-  Future<Result> deleteLocation(int locationId) async {
-    return await _serverApi.deleteLocation(locationId);
+  Future<Result> deleteLocation(int locationId) {
+    return _serverApi.deleteLocation(locationId);
   }
 
   @override
-  Future<Result<HasRulesModel>> checkHasRules(String? username) async {
+  Future<Result<HasRightsModel>> checkHasRights(String? username) async {
     if (username == null && !(await _secureStorage.containsUsername())) {
-      return SuccessResult(data: HasRulesModel(hasRules: false));
+      return SuccessResult(data: HasRightsModel(hasRights: false));
     }
-    return await _serverApi.checkHasRules(username ?? (await _secureStorage.getUsername())!);
+    return await _serverApi.checkHasRights(username ?? (await _secureStorage.getUsername())!);
   }
 
 
@@ -115,38 +115,38 @@ class RepositoryImpl extends Repository {
 
 
   @override
-  Future<Result<QueueModel>> createQueue(int locationId, QueueModel queue) async {
-    return await _serverApi.createQueue(locationId, queue);
+  Future<Result<QueueModel>> createQueue(int locationId, QueueModel queue) {
+    return _serverApi.createQueue(locationId, queue);
   }
 
   @override
-  Future<Result> deleteQueue(int id) async {
-    return await _serverApi.deleteQueue(id);
+  Future<Result> deleteQueue(int id) {
+    return _serverApi.deleteQueue(id);
   }
 
   @override
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String username) async {
-    return await _serverApi.getQueues(locationId, username);
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String username) {
+    return _serverApi.getQueues(locationId, username);
   }
 
   @override
-  Future<Result<QueueModel>> getQueueState(int id) async {
-    return await _serverApi.getQueueState(id);
+  Future<Result<QueueModel>> getQueueState(int id) {
+    return _serverApi.getQueueState(id);
   }
 
   @override
-  Future<Result> notifyClientInQueue(int queueId, int clientId) async {
-    return await _serverApi.notifyClientInQueue(queueId, clientId);
+  Future<Result> notifyClientInQueue(int queueId, int clientId) {
+    return _serverApi.notifyClientInQueue(queueId, clientId);
   }
 
   @override
-  Future<Result> serveClientInQueue(int queueId, int clientId) async {
-    return await _serverApi.serveClientInQueue(queueId, clientId);
+  Future<Result> serveClientInQueue(int queueId, int clientId) {
+    return _serverApi.serveClientInQueue(queueId, clientId);
   }
 
   @override
-  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, AddClientInfo addClientInfo) async {
-    return await _serverApi.addClientToQueue(queueId, addClientInfo);
+  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, AddClientInfo addClientInfo) {
+    return _serverApi.addClientToQueue(queueId, addClientInfo);
   }
 
   @override
@@ -155,7 +155,7 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  void disconnectFromQueueSocket(String destination) {
+  void disconnectFromSocket(String destination) {
     _serverApi.disconnectFromSocket(destination);
   }
 
@@ -167,16 +167,12 @@ class RepositoryImpl extends Repository {
   Future<Result<ClientModel>> getClientInQueue(String username, int locationId, int queueId) async {
     String? email = await _sharedPreferencesStorage.getClientInQueueEmail();
     String? accessKey = await _sharedPreferencesStorage.getClientInQueueAccessKey();
-    return await _serverApi.getClientInQueue(username, locationId, queueId, email, accessKey)
-      ..onSuccess((result) async {
-        await _sharedPreferencesStorage.setClientInQueueEmail(email: result.data.email);
-        await _sharedPreferencesStorage.setClientInQueueAccessKey(accessKey: result.data.accessKey);
-      });
+    return await _serverApi.getClientInQueue(username, locationId, queueId, email, accessKey);
   }
 
   @override
-  Future<Result<ClientModel>> joinClientToQueue(String username, int locationId, int queueId, ClientJoinInfo clientJoinInfo) async {
-    return await _serverApi.joinClientToQueue(username, locationId, queueId, clientJoinInfo)
+  Future<Result<ClientModel>> joinClientToQueue(int queueId, ClientJoinInfo clientJoinInfo) async {
+    return await _serverApi.joinClientToQueue(queueId, clientJoinInfo)
       ..onSuccess((result) async {
         await _sharedPreferencesStorage.setClientInQueueEmail(email: result.data.email);
         await _sharedPreferencesStorage.setClientInQueueAccessKey(accessKey: result.data.accessKey);
@@ -217,18 +213,18 @@ class RepositoryImpl extends Repository {
 
 
   @override
-  Future<Result> addRules(int locationId, String email) {
-    return _serverApi.addRules(locationId, email);
+  Future<Result> addRights(int locationId, String email) {
+    return _serverApi.addRights(locationId, email);
   }
 
   @override
-  Future<Result> deleteRules(int locationId, String email) {
-    return _serverApi.deleteRules(locationId, email);
+  Future<Result> deleteRights(int locationId, String email) {
+    return _serverApi.deleteRights(locationId, email);
   }
 
   @override
-  Future<Result<ContainerForList<RulesModel>>> getRules(int locationId) {
-    return _serverApi.getRules(locationId);
+  Future<Result<ContainerForList<RightsModel>>> getRights(int locationId) {
+    return _serverApi.getRights(locationId);
   }
 
 

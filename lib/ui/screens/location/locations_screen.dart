@@ -1,226 +1,223 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:queue_management_system_client/domain/models/base/result.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
+import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/screens/location/create_location_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/delete_location_dialog.dart';
-import 'package:queue_management_system_client/ui/screens/queue/queues_screen.dart';
+import 'package:queue_management_system_client/ui/screens/location/search_locations_dialog.dart';
 import 'package:queue_management_system_client/ui/widgets/location_item_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';
-import '../../../domain/interactors/verification_interactor.dart';
-import '../../../domain/models/base/container_for_list.dart';
-import '../../../domain/models/base/result.dart';
+import '../../../domain/interactors/account_interactor.dart';
 
-class LocationsWidget extends StatefulWidget {
-  ValueChanged<BaseConfig> emitConfig;
-  final LocationsConfig config;
+class LocationsWidget extends BaseWidget<LocationsConfig> {
 
-  LocationsWidget({super.key, required this.config, required this.emitConfig});
+  const LocationsWidget({
+    super.key,
+    required super.config,
+    required super.emitConfig
+  });
 
   @override
   State<LocationsWidget> createState() => _LocationsState();
 }
 
-class _LocationsState extends State<LocationsWidget> {
-  final String title = 'Локации';
-  final String createLocationHint = 'Создать локацию';
+class _LocationsState extends BaseState<
+    LocationsWidget,
+    LocationsLogicState,
+    LocationsCubit
+> {
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider<LocationsCubit>(
-      create: (context) => statesAssembler.getLocationsCubit(widget.config)..onStart(),
-      child: BlocConsumer<LocationsCubit, LocationsLogicState>(
-
-        listener: (context, state) {
-          if (state.readyToLogout) {
-            widget.emitConfig(InitialConfig());
-          } else if (state.snackBar != null) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(state.snackBar!),
-            ));
-          }
-        },
-
-        builder: (context, state) => Scaffold(
-          appBar: AppBar(
-            title: Text(title),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(state.hasToken ? Icons.logout : Icons.login),
-                onPressed: BlocProvider.of<LocationsCubit>(context).logout,
+  Widget getWidget(
+      BuildContext context,
+      LocationsLogicState state,
+      LocationsWidget widget
+  ) => Scaffold(
+    appBar: AppBar(
+      title: Text(getLocalizations(context).locations),
+      actions: <Widget>[
+        IconButton(
+          icon: const Icon(Icons.move_up),
+          onPressed: () => showDialog(
+              context: context,
+              builder: (context) => SearchLocationsWidget(
+                  config: SearchLocationsConfig()
               )
-            ],
-          ),
-          body: ListView.builder(
-            itemBuilder: (context, index) {
-              return LocationItemWidget(
-                location: state.locations[index],
-                onClick: (location) => widget.emitConfig(
-                    QueuesConfig(
-                        username: state.config.username,
-                        locationId: location.id!
-                    )
-                ),
-                onDelete: (location) => showDialog(
-                    context: context,
-                    builder: (context) => DeleteLocationWidget(
-                        config: DeleteLocationConfig(
-                            id: location.id!
-                        )
-                    )
-                ).then((result) {
-                  if (result is DeleteLocationResult) {
-                    BlocProvider.of<LocationsCubit>(context).deleteLocation(result);
-                  }
-                }),
-              );
-            },
-            itemCount: state.locations.length,
-          ),
-          floatingActionButton: state.hasRules
-            ? FloatingActionButton(
-              onPressed: () => showDialog(
-                  context: context,
-                  builder: (context) => const CreateLocationWidget()
-              ).then((result) {
-                if (result is CreateLocationResult) {
-                  BlocProvider.of<LocationsCubit>(context).createLocation(result);
-                }
-              }),
-              child: const Icon(Icons.add),
-            ) : null,
+          ).then((result) {
+            if (result is SearchLocationsResult) {
+              widget.emitConfig(LocationsConfig(username: result.username));
+            }
+          }),
         ),
+        IconButton(
+          icon: Icon(state.hasToken ? Icons.logout : Icons.login),
+          onPressed: getCubitInstance(context).logout,
+        )
+      ],
+    ),
+    body: ListView.builder(
+      itemBuilder: (context, index) => LocationItemWidget(
+        location: state.locations[index],
+        onClick: (location) => widget.emitConfig(
+            QueuesConfig(
+                username: state.config.username,
+                locationId: location.id!
+            )
+        ),
+        onDelete: (location) => showDialog(
+            context: context,
+            builder: (context) => DeleteLocationWidget(
+                config: DeleteLocationConfig(id: location.id!)
+            )
+        ).then((result) {
+          if (result is DeleteLocationResult) {
+            getCubitInstance(context).handleDeleteLocationResult(result);
+          }
+        }),
       ),
-    );
-  }
+      itemCount: state.locations.length,
+    ),
+    floatingActionButton: state.hasRights
+        ? FloatingActionButton(
+          onPressed: () => showDialog(
+              context: context,
+              builder: (context) => CreateLocationWidget(
+                  config: CreateLocationConfig()
+              )
+          ).then((result) {
+            if (result is CreateLocationResult) {
+              getCubitInstance(context).handleCreateLocationResult(result);
+            }
+          }),
+          child: const Icon(Icons.add),
+        )
+        : null,
+  );
+
+  @override
+  LocationsCubit getCubit() => statesAssembler.getLocationsCubit(widget.config);
 }
 
-class LocationsLogicState {
-
-  static const int pageSize = 30;
+class LocationsLogicState extends BaseLogicState {
 
   final LocationsConfig config;
 
   final List<LocationModel> locations;
 
-  final bool hasRules;
+  final bool hasRights;
   final bool hasToken;
 
-  final bool readyToLogout;
-  
-  final String? snackBar;
-  final bool loading;
-
-
   LocationsLogicState({
+    super.nextConfig,
+    super.error,
+    super.snackBar,
+    super.loading,
     required this.config,
     required this.locations,
-    required this.hasRules,
+    required this.hasRights,
     required this.hasToken,
-    required this.readyToLogout,
-    required this.snackBar,
-    required this.loading,
   });
 
   LocationsLogicState copyWith({
     List<LocationModel>? locations,
-    bool? hasRules,
+    bool? hasRights,
     bool? hasToken,
-    bool? readyToLogout,
-    String? snackBar,
-    bool? loading,
   }) => LocationsLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading,
       config: config,
       locations: locations ?? this.locations,
-      hasRules: hasRules ?? this.hasRules,
-      hasToken: hasToken ?? this.hasToken,
-      readyToLogout: readyToLogout ?? this.readyToLogout,
+      hasRights: hasRights ?? this.hasRights,
+      hasToken: hasToken ?? this.hasToken
+  );
+
+  @override
+  LocationsLogicState copyBase({
+    BaseConfig? nextConfig,
+    ErrorResult? error,
+    String? snackBar,
+    bool? loading
+  }) => LocationsLogicState(
+      nextConfig: nextConfig,
+      error: error,
       snackBar: snackBar,
-      loading: loading ?? this.loading
+      loading: loading ?? this.loading,
+      config: config,
+      locations: locations,
+      hasRights: hasRights,
+      hasToken: hasToken
   );
 }
 
 @injectable
-class LocationsCubit extends Cubit<LocationsLogicState> {
+class LocationsCubit extends BaseCubit<LocationsLogicState> {
 
-  final LocationInteractor locationInteractor;
-  final VerificationInteractor verificationInteractor;
+  final LocationInteractor _locationInteractor;
+  final AccountInteractor _accountInteractor;
 
-  LocationsCubit({
-    required this.locationInteractor,
-    required this.verificationInteractor,
-    @factoryParam required LocationsConfig config
-  }) : super(
+  LocationsCubit(
+    this._locationInteractor,
+    this._accountInteractor,
+    @factoryParam LocationsConfig config
+  ) : super(
     LocationsLogicState(
       config: config,
       locations: [],
-      hasRules: false,
+      hasRights: false,
       hasToken: false,
-      readyToLogout: false,
       snackBar: null,
       loading: false
     )
   );
 
+  @override
   Future<void> onStart() async {
-    emit(state.copyWith(loading: true));
-    if (await verificationInteractor.checkToken()) {
+    showLoad();
+    if (await _accountInteractor.checkToken()) {
       emit(state.copyWith(hasToken: true));
     }
-    await locationInteractor.checkHasRules(state.config.username)
+    await _locationInteractor.checkHasRights(state.config.username)
       ..onSuccess((result) async {
-        emit(state.copyWith(hasRules: result.data.hasRules));
+        emit(state.copyWith(hasRights: result.data.hasRights));
       })
       ..onError((result) {
-        emit(state.copyWith(loading: false, snackBar: result.description));
-        emit(state.copyWith(snackBar: null));
+        showError(result);
       });
-    await _reload();
+    await _load();
   }
 
   Future<void> logout() async {
-    await verificationInteractor.logout();
-    emit(state.copyWith(readyToLogout: true));
-    emit(state.copyWith(readyToLogout: false));
+    await _accountInteractor.logout();
+    navigate(InitialConfig());
   }
 
-  Future createLocation(CreateLocationResult result) async {
-    emit(state.copyWith(loading: true));
-    await locationInteractor.createLocation(
-        LocationModel(
-            id: null,
-            name: result.name,
-            description: result.description
+  Future<void> handleCreateLocationResult(CreateLocationResult result) async {
+    emit(state.copyWith(locations: state.locations + [result.locationModel]));
+  }
+
+  Future handleDeleteLocationResult(DeleteLocationResult result) async {
+    emit(
+        state.copyWith(
+            locations: state.locations
+              ..removeWhere((element) => element.id == result.id)
         )
-    )..onSuccess((result) {
-      _reload();
-    })..onError((result) {
-      emit(state.copyWith(loading: false, snackBar: result.description));
-      emit(state.copyWith(snackBar: null));
-    });
+    );
   }
 
-  Future deleteLocation(DeleteLocationResult result) async {
-    emit(state.copyWith(loading: true));
-    await locationInteractor.deleteLocation(result.id)..onSuccess((result) {
-      _reload();
-    })..onError((result) {
-      emit(state.copyWith(loading: false, snackBar: result.description));
-      emit(state.copyWith(snackBar: null));
-    });
-  }
-
-  Future _reload() async {
-    await locationInteractor.getLocations(state.config.username)
+  Future _load() async {
+    await _locationInteractor.getLocations(state.config.username)
       ..onSuccess((result) {
-        emit(state.copyWith(loading: false, locations: result.data.results));
+        emit(state.copyWith(locations: result.data.results));
+        hideLoad();
       })
       ..onError((result) {
-        emit(state.copyWith(loading: false, snackBar: result.description));
-        emit(state.copyWith(snackBar: null));
+        showError(result);
       });
   }
 }
