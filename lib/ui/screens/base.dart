@@ -218,7 +218,7 @@ abstract class BaseLogicState {
     this.loading = false
   });
 
-  dynamic copyBase({
+  dynamic copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
@@ -249,7 +249,7 @@ abstract class BaseDialogLogicState<
     this.result
   });
 
-  dynamic copyBase({
+  dynamic copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
@@ -264,26 +264,26 @@ class BaseCubit<T extends BaseLogicState> extends Cubit<T> {
   Future<void> onStart() async {}
 
   void showSnackBar(String? message) {
-    emit(state.copyBase(snackBar: message));
-    emit(state.copyBase(snackBar: null));
+    emit(state.copy(snackBar: message));
+    emit(state.copy(snackBar: null));
   }
 
   void showError(ErrorResult result) {
-    emit(state.copyBase(loading: false, error: result));
-    emit(state.copyBase(error: null));
+    emit(state.copy(loading: false, error: result));
+    emit(state.copy(error: null));
   }
 
   void showLoad() {
-    emit((state).copyBase(loading: true));
+    emit((state).copy(loading: true));
   }
 
   void hideLoad() {
-    emit(state.copyBase(loading: false));
+    emit(state.copy(loading: false));
   }
 
   void navigate(BaseConfig config) {
-    emit(state.copyBase(nextConfig: config));
-    emit(state.copyBase(nextConfig: null));
+    emit(state.copy(nextConfig: config));
+    emit(state.copy(nextConfig: null));
   }
 }
 
@@ -293,24 +293,24 @@ class BaseDialogCubit<T extends BaseDialogLogicState> extends Cubit<T> {
   Future<void> onStart() async {}
 
   void showSnackBar(String? message) {
-    emit(state.copyBase(snackBar: message));
-    emit(state.copyBase(snackBar: null));
+    emit(state.copy(snackBar: message));
+    emit(state.copy(snackBar: null));
   }
 
   void showError(ErrorResult result) {
-    emit(state.copyBase(loading: false, error: result));
-    emit(state.copyBase(error: null));
+    emit(state.copy(loading: false, error: result));
+    emit(state.copy(error: null));
   }
 
   void showLoad() {
-    emit((state).copyBase(loading: true));
+    emit((state).copy(loading: true));
   }
 
   void hideLoad() {
-    emit(state.copyBase(loading: false));
+    emit(state.copy(loading: false));
   }
 
   void popResult(BaseDialogResult result) {
-    emit(state.copyBase(result: result));
+    emit(state.copy(result: result));
   }
 }

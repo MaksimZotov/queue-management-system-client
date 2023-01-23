@@ -83,7 +83,7 @@ class SelectLogicState extends BaseLogicState {
   });
 
   @override
-  SelectLogicState copyBase({
+  SelectLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,

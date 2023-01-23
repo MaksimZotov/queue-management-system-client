@@ -91,25 +91,14 @@ class ClientRejoinLogicState extends BaseDialogLogicState<
     required this.email
   });
 
-  ClientRejoinLogicState copyWith({
-    String? email
-  }) => ClientRejoinLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading,
-      config: config,
-      result: result,
-      email: email ?? this.email
-  );
-
   @override
-  ClientRejoinLogicState copyBase({
+  ClientRejoinLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    ClientRejoinResult? result
+    ClientRejoinResult? result,
+    String? email
   }) => ClientRejoinLogicState(
     nextConfig: nextConfig,
     error: error,
@@ -117,7 +106,7 @@ class ClientRejoinLogicState extends BaseDialogLogicState<
     loading: loading ?? this.loading,
     config: config,
     result: result,
-    email: email
+      email: email ?? this.email
   );
 }
 
@@ -137,7 +126,7 @@ class ClientRejoinCubit extends BaseDialogCubit<ClientRejoinLogicState> {
   );
 
   void setEmail(String text) {
-    emit(state.copyWith(email: text));
+    emit(state.copy(email: text));
   }
 
   Future<void> rejoin() async {

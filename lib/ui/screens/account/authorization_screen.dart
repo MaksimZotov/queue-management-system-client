@@ -97,7 +97,12 @@ class AuthorizationLogicState extends BaseLogicState {
     required this.errors
   });
 
-  AuthorizationLogicState copyWith({
+  @override
+  AuthorizationLogicState copy({
+    BaseConfig? nextConfig,
+    ErrorResult? error,
+    String? snackBar,
+    bool? loading,
     String? username,
     String? password,
     Map<String, String>? errors
@@ -105,26 +110,10 @@ class AuthorizationLogicState extends BaseLogicState {
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
-      loading: loading,
+      loading: loading ?? this.loading,
       username: username ?? this.username,
       password: password ?? this.password,
       errors: errors ?? this.errors
-  );
-
-  @override
-  AuthorizationLogicState copyBase({
-    BaseConfig? nextConfig,
-    ErrorResult? error,
-    String? snackBar,
-    bool? loading
-  }) => AuthorizationLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading ?? this.loading,
-      username: username,
-      password: password,
-      errors: errors
   );
 }
 
@@ -146,7 +135,7 @@ class AuthorizationCubit extends BaseCubit<AuthorizationLogicState> {
   );
 
   void setUsername(String text) {
-    emit(state.copyWith(
+    emit(state.copy(
         username: text,
         errors: Map.from(state.errors)
           ..removeWhere((k, v) => k == usernameKey)
@@ -154,7 +143,7 @@ class AuthorizationCubit extends BaseCubit<AuthorizationLogicState> {
   }
 
   void setPassword(String text) {
-    emit(state.copyWith(
+    emit(state.copy(
         password: text,
         errors: Map.from(state.errors)
           ..removeWhere((k, v) => k == passwordKey))
@@ -170,12 +159,12 @@ class AuthorizationCubit extends BaseCubit<AuthorizationLogicState> {
         )
     )
       ..onSuccess((result) {
-        emit(state.copyWith(errors: {}));
+        emit(state.copy(errors: {}));
         hideLoad();
         navigate(LocationsConfig(username: state.username));
       })
       ..onError((result) {
-        emit(state.copyWith(errors: result.errors));
+        emit(state.copy(errors: result.errors));
         showError(result);
       });
   }

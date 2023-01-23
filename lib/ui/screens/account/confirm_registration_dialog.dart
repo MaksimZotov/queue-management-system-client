@@ -96,25 +96,14 @@ class ConfirmRegistrationLogicState extends BaseDialogLogicState<
     required this.code
   });
 
-  ConfirmRegistrationLogicState copyWith({
-    String? code
-  }) => ConfirmRegistrationLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading,
-      config: config,
-      result: result,
-      code: code ?? this.code
-  );
-
   @override
-  ConfirmRegistrationLogicState copyBase({
+  ConfirmRegistrationLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    ConfirmRegistrationResult? result
+    ConfirmRegistrationResult? result,
+    String? code
   }) => ConfirmRegistrationLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -122,7 +111,7 @@ class ConfirmRegistrationLogicState extends BaseDialogLogicState<
       loading: loading ?? this.loading,
       config: config,
       result: result,
-      code: code
+      code: code ?? this.code
   );
 }
 
@@ -144,7 +133,7 @@ class ConfirmRegistrationCubit extends BaseDialogCubit<
   );
 
   void setCode(String text) {
-    emit(state.copyWith(code: text));
+    emit(state.copy(code: text));
   }
 
   Future<void> confirm() async {

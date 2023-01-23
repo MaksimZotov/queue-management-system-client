@@ -93,25 +93,14 @@ class ClientConfirmLogicState extends BaseDialogLogicState<
     required this.code
   });
 
-  ClientConfirmLogicState copyWith({
-    String? code
-  }) => ClientConfirmLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading,
-      config: config,
-      result: result,
-      code: code ?? this.code
-  );
-
   @override
-  ClientConfirmLogicState copyBase({
+  ClientConfirmLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    ClientConfirmResult? result
+    ClientConfirmResult? result,
+    String? code
   }) => ClientConfirmLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -119,7 +108,7 @@ class ClientConfirmLogicState extends BaseDialogLogicState<
       loading: loading ?? this.loading,
       config: config,
       result: result,
-      code: code
+      code: code ?? this.code
   );
 }
 
@@ -139,7 +128,7 @@ class ClientConfirmCubit extends BaseDialogCubit<ClientConfirmLogicState> {
   );
 
   void setEmail(String text) {
-    emit(state.copyWith(code: text));
+    emit(state.copy(code: text));
   }
 
   Future<void> confirm() async {

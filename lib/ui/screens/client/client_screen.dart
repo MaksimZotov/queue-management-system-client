@@ -216,38 +216,25 @@ class ClientLogicState extends BaseLogicState {
     required this.showConfirmDialog
   });
 
-  ClientLogicState copyWith({
+  @override
+  ClientLogicState copy({
+    BaseConfig? nextConfig,
+    ErrorResult? error,
+    String? snackBar,
+    bool? loading,
     List<LocationModel>? locations,
     ClientModel? clientState,
     String? email,
     bool? showConfirmDialog,
-    bool? isLast,
-  }) => ClientLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading,
-      config: config,
-      clientState: clientState ?? this.clientState,
-      email: email ?? this.email,
-      showConfirmDialog: showConfirmDialog ?? this.showConfirmDialog
-  );
-
-  @override
-  ClientLogicState copyBase({
-    BaseConfig? nextConfig,
-    ErrorResult? error,
-    String? snackBar,
-    bool? loading
   }) => ClientLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
       loading: loading ?? this.loading,
       config: config,
-      clientState: clientState,
-      email: email,
-      showConfirmDialog: showConfirmDialog
+      clientState: clientState ?? this.clientState,
+      email: email ?? this.email,
+      showConfirmDialog: showConfirmDialog ?? this.showConfirmDialog
   );
 }
 
@@ -281,7 +268,7 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
         state.config.queueId
     )
       ..onSuccess((result) {
-        emit(state.copyWith(clientState: result.data, email: result.data.email));
+        emit(state.copy(clientState: result.data, email: result.data.email));
         hideLoad();
       })
       ..onError((result) {
@@ -290,22 +277,22 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
   }
 
   Future<void> handleJoinResult(ClientJoinResult result) async {
-    emit(state.copyWith(clientState: result.clientModel));
+    emit(state.copy(clientState: result.clientModel));
   }
 
   Future<void> handleRejoinResult(ClientRejoinResult result) async {
-    emit(state.copyWith(clientState: result.clientModel));
+    emit(state.copy(clientState: result.clientModel));
   }
 
   Future<void> handleConfirmResult(ClientConfirmResult result) async {
-    emit(state.copyWith(clientState: result.clientModel));
+    emit(state.copy(clientState: result.clientModel));
   }
 
   Future<void> leave() async {
     showLoad();
     await _clientInteractor.leaveQueue(state.config.queueId)
       ..onSuccess((result) {
-        emit(state.copyWith(clientState: result.data));
+        emit(state.copy(clientState: result.data));
         hideLoad();
       })
       ..onError((result) {

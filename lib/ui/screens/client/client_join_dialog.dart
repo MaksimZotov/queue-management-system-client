@@ -105,30 +105,17 @@ class ClientJoinLogicState extends BaseDialogLogicState<
     required this.firstName,
     required this.lastName
   });
-
-  ClientJoinLogicState copyWith({
-    String? email,
-    String? firstName,
-    String? lastName,
-  }) => ClientJoinLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading,
-      config: config,
-      result: result,
-      email: email ?? this.email,
-      firstName: firstName ?? this.firstName,
-      lastName: lastName ?? this.lastName,
-  );
-
+  
   @override
-  ClientJoinLogicState copyBase({
+  ClientJoinLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    ClientJoinResult? result
+    ClientJoinResult? result,
+    String? email,
+    String? firstName,
+    String? lastName
   }) => ClientJoinLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -136,9 +123,9 @@ class ClientJoinLogicState extends BaseDialogLogicState<
       loading: loading ?? this.loading,
       config: config,
       result: result,
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
+      email: email ?? this.email,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName
   );
 }
 
@@ -160,15 +147,15 @@ class ClientJoinCubit extends BaseDialogCubit<ClientJoinLogicState> {
   );
 
   void setEmail(String text) {
-    emit(state.copyWith(email: text));
+    emit(state.copy(email: text));
   }
 
   void setFirstName(String text) {
-    emit(state.copyWith(firstName: text));
+    emit(state.copy(firstName: text));
   }
 
   void setLastName(String text) {
-    emit(state.copyWith(lastName: text));
+    emit(state.copy(lastName: text));
   }
 
   Future<void> join() async {

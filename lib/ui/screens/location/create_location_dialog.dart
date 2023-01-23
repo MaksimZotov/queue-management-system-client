@@ -93,27 +93,15 @@ class CreateLocationLogicState extends BaseDialogLogicState<
     required this.description
   });
 
-  CreateLocationLogicState copyWith({
-    String? name,
-    String? description
-  }) => CreateLocationLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading,
-      config: config,
-      result: result,
-      name: name ?? this.name,
-      description: description ?? this.description
-  );
-
   @override
-  CreateLocationLogicState copyBase({
+  CreateLocationLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    CreateLocationResult? result
+    CreateLocationResult? result,
+    String? name,
+    String? description
   }) => CreateLocationLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -121,8 +109,8 @@ class CreateLocationLogicState extends BaseDialogLogicState<
       loading: loading ?? this.loading,
       config: config,
       result: result,
-      name: name,
-      description: description
+      name: name ?? this.name,
+      description: description ?? this.description
   );
 }
 
@@ -143,11 +131,11 @@ class CreateLocationCubit extends BaseDialogCubit<CreateLocationLogicState> {
   );
 
   void setName(String text) {
-    emit(state.copyWith(name: text));
+    emit(state.copy(name: text));
   }
 
   void setDescription(String text) {
-    emit(state.copyWith(description: text));
+    emit(state.copy(description: text));
   }
 
   Future<void> createLocation() async {

@@ -90,33 +90,22 @@ class RightsLogicState extends BaseLogicState {
     required this.hasToken
   });
 
-  RightsLogicState copyWith({
+  @override
+  RightsLogicState copy({
+    BaseConfig? nextConfig,
+    ErrorResult? error,
+    String? snackBar,
+    bool? loading,
     List<RightsModel>? rights,
     bool? hasToken
   }) => RightsLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
-      loading: loading,
+      loading: loading ?? this.loading,
       config: config,
       rights: rights ?? this.rights,
       hasToken: hasToken ?? this.hasToken
-  );
-
-  @override
-  RightsLogicState copyBase({
-    BaseConfig? nextConfig,
-    ErrorResult? error,
-    String? snackBar,
-    bool? loading
-  }) => RightsLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading ?? this.loading,
-      config: config,
-      rights: rights,
-      hasToken: hasToken
   );
 }
 
@@ -143,7 +132,7 @@ class RightsCubit extends BaseCubit<RightsLogicState> {
 
   void handleAddResult(AddRightResult result) {
     emit(
-        state.copyWith(
+        state.copy(
             rights: state.rights + [
               RightsModel(
                   locationId: state.config.locationId,
@@ -156,7 +145,7 @@ class RightsCubit extends BaseCubit<RightsLogicState> {
 
   void handleDeleteResult(DeleteRightResult result) {
     emit(
-        state.copyWith(
+        state.copy(
             rights: state.rights
               ..removeWhere((element) => element.email == result.email)
         )
@@ -168,7 +157,7 @@ class RightsCubit extends BaseCubit<RightsLogicState> {
         state.config.locationId
     )
       ..onSuccess((result) async {
-        emit(state.copyWith(rights: result.data.results));
+        emit(state.copy(rights: result.data.results));
         hideLoad();
       })
       ..onError((result) {

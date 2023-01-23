@@ -101,28 +101,15 @@ class AddClientLogicState extends BaseDialogLogicState<
     required this.lastName
   });
 
-  AddClientLogicState copyWith({
-    String? email,
-    String? firstName,
-    String? lastName,
-  }) => AddClientLogicState(
-    nextConfig: nextConfig,
-    error: error,
-    snackBar: snackBar,
-    loading: loading,
-    config: config,
-    result: result,
-    firstName: firstName ?? this.firstName,
-    lastName: lastName ?? this.lastName,
-  );
-
   @override
-  AddClientLogicState copyBase({
+  AddClientLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    AddClientResult? result
+    AddClientResult? result,
+    String? firstName,
+    String? lastName
   }) => AddClientLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -130,8 +117,8 @@ class AddClientLogicState extends BaseDialogLogicState<
       loading: loading ?? this.loading,
       config: config,
       result: result,
-      firstName: firstName,
-      lastName: lastName
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName
   );
 }
 
@@ -151,16 +138,12 @@ class AddClientCubit extends BaseDialogCubit<AddClientLogicState> {
       )
   );
 
-  void setEmail(String text) {
-    emit(state.copyWith(email: text));
-  }
-
   void setFirstName(String text) {
-    emit(state.copyWith(firstName: text));
+    emit(state.copy(firstName: text));
   }
 
   void setLastName(String text) {
-    emit(state.copyWith(lastName: text));
+    emit(state.copy(lastName: text));
   }
 
   Future<void> addClient(bool save) async {

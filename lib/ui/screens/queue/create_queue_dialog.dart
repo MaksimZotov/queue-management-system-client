@@ -99,27 +99,15 @@ class CreateQueueLogicState extends BaseDialogLogicState<
     required this.description
   });
 
-  CreateQueueLogicState copyWith({
-    String? name,
-    String? description
-  }) => CreateQueueLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading,
-      config: config,
-      result: result,
-      name: name ?? this.name,
-      description: description ?? this.description
-  );
-
   @override
-  CreateQueueLogicState copyBase({
+  CreateQueueLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    CreateQueueResult? result
+    CreateQueueResult? result,
+    String? name,
+    String? description
   }) => CreateQueueLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -127,8 +115,8 @@ class CreateQueueLogicState extends BaseDialogLogicState<
       loading: loading ?? this.loading,
       config: config,
       result: result,
-      name: name,
-      description: description
+      name: name ?? this.name,
+      description: description ?? this.description
   );
 }
 
@@ -149,11 +137,11 @@ class CreateQueueCubit extends BaseDialogCubit<CreateQueueLogicState> {
   );
 
   void setName(String text) {
-    emit(state.copyWith(name: text));
+    emit(state.copy(name: text));
   }
 
   void setDescription(String text) {
-    emit(state.copyWith(description: text));
+    emit(state.copy(description: text));
   }
 
   Future<void> createQueue() async {

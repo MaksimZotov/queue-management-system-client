@@ -158,7 +158,12 @@ class RegistrationLogicState extends BaseLogicState {
     required this.errors
   });
 
-  RegistrationLogicState copyWith({
+  @override
+  RegistrationLogicState copy({
+    BaseConfig? nextConfig,
+    ErrorResult? error,
+    String? snackBar,
+    bool? loading,
     String? username,
     String? email,
     String? firstName,
@@ -172,7 +177,7 @@ class RegistrationLogicState extends BaseLogicState {
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
-      loading: loading,
+      loading: loading ?? this.loading,
       username: username ?? this.username,
       email: email ?? this.email,
       firstName: firstName ?? this.firstName,
@@ -181,27 +186,6 @@ class RegistrationLogicState extends BaseLogicState {
       repeatPassword: repeatPassword ?? this.repeatPassword,
       showConfirmDialog: showConfirmDialog ?? this.showConfirmDialog,
       errors: errors ?? this.errors
-  );
-
-  @override
-  RegistrationLogicState copyBase({
-    BaseConfig? nextConfig,
-    ErrorResult? error,
-    String? snackBar,
-    bool? loading
-  }) => RegistrationLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading ?? this.loading,
-      username: username,
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
-      password: password,
-      repeatPassword: repeatPassword,
-      showConfirmDialog: showConfirmDialog,
-      errors: errors
   );
 }
 
@@ -233,7 +217,7 @@ class RegistrationCubit extends BaseCubit<RegistrationLogicState> {
   );
 
   void setUsername(String text) {
-    emit(state.copyWith(
+    emit(state.copy(
         username: text,
         errors: Map.from(state.errors)
           ..removeWhere((k, v) => k == usernameKey)
@@ -241,7 +225,7 @@ class RegistrationCubit extends BaseCubit<RegistrationLogicState> {
   }
 
   void setEmail(String text) {
-    emit(state.copyWith(
+    emit(state.copy(
         email: text,
         errors: Map.from(state.errors)
           ..removeWhere((k, v) => k == emailKey))
@@ -249,7 +233,7 @@ class RegistrationCubit extends BaseCubit<RegistrationLogicState> {
   }
 
   void setFirstName(String text) {
-    emit(state.copyWith(
+    emit(state.copy(
         firstName: text,
         errors: Map.from(state.errors)
           ..removeWhere((k, v) => k == firstNameKey))
@@ -257,7 +241,7 @@ class RegistrationCubit extends BaseCubit<RegistrationLogicState> {
   }
 
   void setLastName(String text) {
-    emit(state.copyWith(
+    emit(state.copy(
         lastName: text,
         errors: Map.from(state.errors)
           ..removeWhere((k, v) => k == lastNameKey))
@@ -265,7 +249,7 @@ class RegistrationCubit extends BaseCubit<RegistrationLogicState> {
   }
 
   void setPassword(String text) {
-    emit(state.copyWith(
+    emit(state.copy(
         password: text,
         errors: Map.from(state.errors)
           ..removeWhere((k, v) => k == passwordKey))
@@ -273,7 +257,7 @@ class RegistrationCubit extends BaseCubit<RegistrationLogicState> {
   }
 
   void setRepeatPassword(String text) {
-    emit(state.copyWith(
+    emit(state.copy(
         repeatPassword: text,
         errors: Map.from(state.errors)
           ..removeWhere((k, v) => k == repeatPasswordKey))
@@ -294,11 +278,11 @@ class RegistrationCubit extends BaseCubit<RegistrationLogicState> {
     )
       ..onSuccess((result) {
         hideLoad();
-        emit(state.copyWith(showConfirmDialog: true, errors: {}));
-        emit(state.copyWith(showConfirmDialog: false));
+        emit(state.copy(showConfirmDialog: true, errors: {}));
+        emit(state.copy(showConfirmDialog: false));
       })
       ..onError((result) {
-        emit(state.copyWith(errors: result.errors));
+        emit(state.copy(errors: result.errors));
         showError(result);
       });
   }
