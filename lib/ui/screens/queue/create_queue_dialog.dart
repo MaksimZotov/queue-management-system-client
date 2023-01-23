@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
@@ -8,36 +6,51 @@ import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
+import '../../../domain/interactors/queue_interactor.dart';
 import '../../../domain/models/base/result.dart';
+import '../../../domain/models/queue/queue_model.dart';
 import '../../router/routes_config.dart';
 
-class CreateQueueResult {
-  final String name;
-  final String description;
+class CreateQueueConfig extends BaseDialogConfig {
+  final int locationId;
 
-  CreateQueueResult({
-    required this.name,
-    required this.description
+  CreateQueueConfig({
+      required this.locationId,
   });
 }
 
+class CreateQueueResult extends BaseDialogResult {
+  final QueueModel queueModel;
 
-class CreateQueueWidget extends BaseWidget {
+  CreateQueueResult({
+    required this.queueModel
+  });
+}
 
-  const CreateQueueWidget({super.key, required super.emitConfig});
+class CreateQueueWidget extends BaseDialogWidget<CreateQueueConfig> {
+
+  const CreateQueueWidget({
+    super.key,
+    required super.emitConfig,
+    required super.config
+  });
 
   @override
   State<CreateQueueWidget> createState() => _CreateQueueState();
 }
 
-class _CreateQueueState extends BaseDialogState<CreateQueueWidget, CreateQueueLogicState, CreateQueueCubit> {
+class _CreateQueueState extends BaseDialogState<
+    CreateQueueWidget,
+    CreateQueueLogicState,
+    CreateQueueCubit
+> {
 
   @override
   String getTitle(
       BuildContext context,
       CreateQueueLogicState state,
       CreateQueueWidget widget
-  ) => AppLocalizations.of(context)!.creationOfQueue;
+  ) => getLocalizations(context).creationOfQueue;
 
   @override
   List<Widget> getDialogContentWidget(
@@ -46,33 +59,32 @@ class _CreateQueueState extends BaseDialogState<CreateQueueWidget, CreateQueueLo
       CreateQueueWidget widget
   ) => [
     TextFieldWidget(
-        label: AppLocalizations.of(context)!.name,
+        label: getLocalizations(context).name,
         text: state.name,
-        onTextChanged: BlocProvider.of<CreateQueueCubit>(context).setName
+        onTextChanged: getCubitInstance(context).setName
     ),
     TextFieldWidget(
         maxLines: null,
-        label: AppLocalizations.of(context)!.description,
+        label: getLocalizations(context).description,
         text: state.description,
-        onTextChanged: BlocProvider.of<CreateQueueCubit>(context).setDescription
+        onTextChanged: getCubitInstance(context).setDescription
     ),
     const SizedBox(height: Dimens.contentMargin),
     ButtonWidget(
-        text: AppLocalizations.of(context)!.create,
-        onClick: () => Navigator.of(context).pop(
-            CreateQueueResult(
-                name: state.name,
-                description: state.description
-            )
-        )
+        text: getLocalizations(context).create,
+        onClick: getCubitInstance(context).createQueue
     )
   ];
 
   @override
-  CreateQueueCubit getCubit() => statesAssembler.getCreateQueueCubit();
+  CreateQueueCubit getCubit() =>
+      statesAssembler.getCreateQueueCubit(widget.config);
 }
 
-class CreateQueueLogicState extends BaseLogicState {
+class CreateQueueLogicState extends BaseDialogLogicState<
+    CreateQueueConfig,
+    CreateQueueResult
+> {
 
   final String name;
   final String description;
@@ -82,6 +94,8 @@ class CreateQueueLogicState extends BaseLogicState {
     super.error,
     super.snackBar,
     super.loading,
+    required super.config,
+    super.result,
     required this.name,
     required this.description
   });
@@ -94,12 +108,14 @@ class CreateQueueLogicState extends BaseLogicState {
       error: error,
       snackBar: snackBar,
       loading: loading,
+      config: config,
+      result: result,
       name: name ?? this.name,
       description: description ?? this.description
   );
 
   @override
-  CreateQueueLogicState copy({
+  CreateQueueLogicState copyBase({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
@@ -109,16 +125,38 @@ class CreateQueueLogicState extends BaseLogicState {
       error: error,
       snackBar: snackBar,
       loading: loading ?? this.loading,
+      config: config,
+      result: result,
+      name: name,
+      description: description
+  );
+
+  @override
+  CreateQueueLogicState copyResult({
+    CreateQueueResult? result
+  }) => CreateQueueLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading,
+      config: config,
+      result: result,
       name: name,
       description: description
   );
 }
 
 @injectable
-class CreateQueueCubit extends BaseCubit<CreateQueueLogicState> {
+class CreateQueueCubit extends BaseDialogCubit<CreateQueueLogicState> {
 
-  CreateQueueCubit() : super(
+  final QueueInteractor _queueInteractor;
+
+  CreateQueueCubit(
+      this._queueInteractor,
+      @factoryParam CreateQueueConfig config
+  ) : super(
       CreateQueueLogicState(
+          config: config,
           name: '',
           description: ''
       )
@@ -130,5 +168,23 @@ class CreateQueueCubit extends BaseCubit<CreateQueueLogicState> {
 
   void setDescription(String text) {
     emit(state.copyWith(description: text));
+  }
+
+  Future<void> createQueue() async {
+    showLoad();
+    await _queueInteractor.createQueue(
+        state.config.locationId,
+        QueueModel(
+            id: null,
+            name: state.name,
+            description: state.description
+        )
+    )
+      ..onSuccess((result) {
+        popResult(CreateQueueResult(queueModel: result.data));
+      })
+      ..onError((result) {
+        showError(result);
+      });
   }
 }

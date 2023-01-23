@@ -1,3 +1,4 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,7 +12,19 @@ import '../widgets/button_widget.dart';
 abstract class BaseWidget extends StatefulWidget {
   final ValueChanged<BaseConfig> emitConfig;
 
-  const BaseWidget({super.key, required this.emitConfig});
+  const BaseWidget({
+    super.key, required this.emitConfig
+  });
+}
+
+abstract class BaseDialogWidget<T extends BaseDialogConfig> extends BaseWidget {
+  final T config;
+
+  const BaseDialogWidget({
+    super.key,
+    required super.emitConfig,
+    required this.config
+  });
 }
 
 abstract class BaseState<
@@ -19,6 +32,11 @@ abstract class BaseState<
   S extends BaseLogicState,
   C extends BaseCubit<S>
 > extends State<W> {
+
+  AppLocalizations getLocalizations(BuildContext context) =>
+      getLocalizations(context);
+
+  C getCubitInstance(BuildContext context) => BlocProvider.of<C>(context);
 
   @override
   Widget build(BuildContext context) => BlocProvider<C>(
@@ -46,9 +64,14 @@ abstract class BaseState<
 
   void checkSnackBar(BuildContext context, String? snackBar) {
     if (snackBar != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(snackBar))
-      );
+      Flushbar(
+          message: snackBar,
+          icon: const Icon(
+            Icons.warning_amber,
+            color: Colors.red,
+          ),
+          duration: const Duration(seconds: 3),
+      ).show(context);
     }
   }
 
@@ -60,54 +83,65 @@ abstract class BaseState<
           message = error.description;
           break;
         case ErrorType.unknown:
-          message = AppLocalizations.of(context)!.unknownError;
+          message = getLocalizations(context).unknownError;
           break;
         case ErrorType.server:
-          message = AppLocalizations.of(context)!.serverError;
+          message = getLocalizations(context).serverError;
           break;
         case ErrorType.timeout:
-          message = AppLocalizations.of(context)!.timeoutError;
+          message = getLocalizations(context).timeoutError;
           break;
         case ErrorType.connection:
-          message = AppLocalizations.of(context)!.connectionError;
+          message = getLocalizations(context).connectionError;
           break;
       }
       if (message == null) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message))
-      );
+      checkSnackBar(context, message);
     }
   }
 }
 
 abstract class BaseDialogState<
   W extends BaseWidget,
-  S extends BaseLogicState,
+  S extends BaseDialogLogicState,
   C extends BaseCubit<S>
 > extends BaseState<W, S, C> {
+
+  @override
+  void handleEvent(BuildContext context, S state, W widget) {
+    super.handleEvent(context, state, widget);
+    if (state.result != null) {
+      Navigator.of(context).pop(state.result);
+    }
+  }
 
   String getTitle(BuildContext context, S state, W widget);
   List<Widget> getDialogContentWidget(BuildContext context, S state, W widget);
 
   @override
-  Widget getWidget(BuildContext context, S state, W widget) => SimpleDialog(
-    title: Text(getTitle(context, state, widget)),
-    contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-    shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(
-            Radius.circular(16.0)
-        )
-    ),
-    children: getDialogContentWidget(context, state, widget) + [
-      const SizedBox(height: Dimens.contentMargin),
-      ButtonWidget(
-          text: AppLocalizations.of(context)!.cancel,
-          onClick: Navigator.of(context).pop
-      )
-    ],
-  );
+  Widget getWidget(BuildContext context, S state, W widget) => state.loading
+      ? const Center(child: CircularProgressIndicator())
+      : SimpleDialog(
+        title: Text(getTitle(context, state, widget)),
+        contentPadding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 16
+        ),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+                Radius.circular(16.0)
+            )
+        ),
+        children: getDialogContentWidget(context, state, widget) + [
+          const SizedBox(height: Dimens.contentMargin),
+          ButtonWidget(
+              text: getLocalizations(context).cancel,
+              onClick: Navigator.of(context).pop
+          )
+        ],
+      );
 }
 
 abstract class BaseLogicState {
@@ -124,11 +158,35 @@ abstract class BaseLogicState {
     this.loading = false
   });
 
-  dynamic copy({
+  dynamic copyBase({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
     bool? loading
+  });
+}
+
+abstract class BaseDialogConfig {}
+abstract class BaseDialogResult {}
+
+abstract class BaseDialogLogicState<
+    C extends BaseDialogConfig,
+    R extends BaseDialogResult
+> extends BaseLogicState {
+  final C config;
+  final R? result;
+
+  BaseDialogLogicState({
+    super.nextConfig,
+    super.error,
+    super.snackBar,
+    super.loading,
+    required this.config,
+    this.result
+  });
+
+  dynamic copyResult({
+    R? result
   });
 }
 
@@ -138,25 +196,34 @@ class BaseCubit<T extends BaseLogicState> extends Cubit<T> {
   Future<void> onStart() async {}
 
   void showSnackBar(String? message) {
-    emit(state.copy(snackBar: message));
-    emit(state.copy(snackBar: null));
+    emit(state.copyBase(snackBar: message));
+    emit(state.copyBase(snackBar: null));
   }
 
   void showError(ErrorResult result) {
-    emit(state.copy(loading: false, error: result));
-    emit(state.copy(error: null));
+    emit(state.copyBase(loading: false, error: result));
+    emit(state.copyBase(error: null));
   }
 
   void showLoad() {
-    emit((state).copy(loading: true));
+    emit((state).copyBase(loading: true));
   }
 
   void hideLoad() {
-    emit(state.copy(loading: false));
+    emit(state.copyBase(loading: false));
   }
 
   void navigate(BaseConfig config) {
-    emit(state.copy(nextConfig: config));
-    emit(state.copy(nextConfig: null));
+    emit(state.copyBase(nextConfig: config));
+    emit(state.copyBase(nextConfig: null));
+  }
+}
+
+class BaseDialogCubit<T extends BaseDialogLogicState> extends BaseCubit<T> {
+
+  BaseDialogCubit(super.initialState);
+
+  void popResult(BaseDialogResult result) {
+    emit(state.copyResult(result: result));
   }
 }

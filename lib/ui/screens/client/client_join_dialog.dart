@@ -1,45 +1,57 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
+import '../../../domain/interactors/client_interactor.dart';
 import '../../../domain/models/base/result.dart';
+import '../../../domain/models/client/client_join_info.dart';
+import '../../../domain/models/client/client_model.dart';
 import '../../router/routes_config.dart';
 import '../base.dart';
 
-class ClientJoinResult {
-  final String email;
-  final String firstName;
-  final String lastName;
+class ClientJoinConfig extends BaseDialogConfig {
+  final int queueId;
 
-  ClientJoinResult({
-    required this.email,
-    required this.firstName,
-    required this.lastName
+  ClientJoinConfig({
+    required this.queueId
   });
 }
 
+class ClientJoinResult extends BaseDialogResult {
+  final ClientModel clientModel;
 
-class ClientJoinWidget extends BaseWidget {
+  ClientJoinResult({
+    required this.clientModel
+  });
+}
 
-  const ClientJoinWidget({super.key, required super.emitConfig});
+class ClientJoinWidget extends BaseDialogWidget<ClientJoinConfig> {
+
+  const ClientJoinWidget({
+    super.key,
+    required super.emitConfig,
+    required super.config
+  });
 
   @override
   State<ClientJoinWidget> createState() => _ClientJoinState();
 }
 
-class _ClientJoinState extends BaseDialogState<ClientJoinWidget, ClientJoinLogicState, ClientJoinCubit> {
+class _ClientJoinState extends BaseDialogState<
+    ClientJoinWidget,
+    ClientJoinLogicState,
+    ClientJoinCubit
+> {
 
   @override
   String getTitle(
       BuildContext context,
       ClientJoinLogicState state,
       ClientJoinWidget widget
-  ) => AppLocalizations.of(context)!.connectionToQueue;
+  ) => getLocalizations(context).connectionToQueue;
 
   @override
   List<Widget> getDialogContentWidget(
@@ -48,38 +60,36 @@ class _ClientJoinState extends BaseDialogState<ClientJoinWidget, ClientJoinLogic
       ClientJoinWidget widget
   ) => [
     TextFieldWidget(
-        label: AppLocalizations.of(context)!.email,
+        label: getLocalizations(context).email,
         text: state.email,
-        onTextChanged: BlocProvider.of<ClientJoinCubit>(context).setEmail
+        onTextChanged: getCubitInstance(context).setEmail
     ),
     TextFieldWidget(
-        label: AppLocalizations.of(context)!.firstName,
+        label: getLocalizations(context).firstName,
         text: state.firstName,
-        onTextChanged: BlocProvider.of<ClientJoinCubit>(context).setFirstName
+        onTextChanged: getCubitInstance(context).setFirstName
     ),
     TextFieldWidget(
-        label: AppLocalizations.of(context)!.lastName,
+        label: getLocalizations(context).lastName,
         text: state.lastName,
-        onTextChanged: BlocProvider.of<ClientJoinCubit>(context).setLastName
+        onTextChanged: getCubitInstance(context).setLastName
     ),
     const SizedBox(height: Dimens.contentMargin),
     ButtonWidget(
-        text: AppLocalizations.of(context)!.join,
-        onClick: () => Navigator.of(context).pop(
-            ClientJoinResult(
-                email: state.email,
-                firstName: state.firstName,
-                lastName: state.lastName
-            )
-        )
+        text: getLocalizations(context).join,
+        onClick: getCubitInstance(context).join
     )
   ];
 
   @override
-  ClientJoinCubit getCubit() => statesAssembler.getClientJoinCubit();
+  ClientJoinCubit getCubit() =>
+      statesAssembler.getClientJoinCubit(widget.config);
 }
 
-class ClientJoinLogicState extends BaseLogicState {
+class ClientJoinLogicState extends BaseDialogLogicState<
+    ClientJoinConfig,
+    ClientJoinResult
+> {
 
   final String email;
   final String firstName;
@@ -90,6 +100,8 @@ class ClientJoinLogicState extends BaseLogicState {
     super.error,
     super.snackBar,
     super.loading,
+    required super.config,
+    super.result,
     required this.email,
     required this.firstName,
     required this.lastName
@@ -104,13 +116,15 @@ class ClientJoinLogicState extends BaseLogicState {
       error: error,
       snackBar: snackBar,
       loading: loading,
+      config: config,
+      result: result,
       email: email ?? this.email,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
   );
 
   @override
-  ClientJoinLogicState copy({
+  ClientJoinLogicState copyBase({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
@@ -120,17 +134,40 @@ class ClientJoinLogicState extends BaseLogicState {
       error: error,
       snackBar: snackBar,
       loading: loading ?? this.loading,
+      config: config,
+      result: result,
       email: email,
       firstName: firstName,
       lastName: lastName,
   );
+
+  @override
+  ClientJoinLogicState copyResult({
+    ClientJoinResult? result
+  }) => ClientJoinLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading,
+      config: config,
+      result: result,
+      email: email,
+      firstName: firstName,
+      lastName: lastName
+  );
 }
 
 @injectable
-class ClientJoinCubit extends BaseCubit<ClientJoinLogicState> {
+class ClientJoinCubit extends BaseDialogCubit<ClientJoinLogicState> {
 
-  ClientJoinCubit() : super(
+  final ClientInteractor _clientInteractor;
+
+  ClientJoinCubit(
+      this._clientInteractor,
+      @factoryParam ClientJoinConfig config
+  ) : super(
       ClientJoinLogicState(
+          config: config,
           email: '',
           firstName: '',
           lastName: ''
@@ -147,5 +184,23 @@ class ClientJoinCubit extends BaseCubit<ClientJoinLogicState> {
 
   void setLastName(String text) {
     emit(state.copyWith(lastName: text));
+  }
+
+  Future<void> join() async {
+    showLoad();
+    await _clientInteractor.joinClientToQueue(
+        state.config.queueId,
+        ClientJoinInfo(
+            email: state.email,
+            firstName: state.firstName,
+            lastName: state.lastName
+        )
+    )
+      ..onSuccess((result) {
+        popResult(ClientJoinResult(clientModel: result.data));
+      })
+      ..onError((result) {
+        showError(result);
+      });
   }
 }

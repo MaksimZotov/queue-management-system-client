@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/account_interactor.dart';
 import 'package:queue_management_system_client/domain/models/account/login_model.dart';
@@ -14,18 +12,30 @@ import '../../widgets/text_field_widget.dart';
 import '../base.dart';
 
 class AuthorizationWidget extends BaseWidget {
-  AuthorizationWidget({super.key, required super.emitConfig});
+
+  const AuthorizationWidget({
+    super.key,
+    required super.emitConfig
+  });
 
   @override
   State<AuthorizationWidget> createState() => AuthorizationState();
 }
 
-class AuthorizationState extends BaseState<AuthorizationWidget, AuthorizationLogicState, AuthorizationCubit> {
+class AuthorizationState extends BaseState<
+    AuthorizationWidget,
+    AuthorizationLogicState,
+    AuthorizationCubit
+> {
 
   @override
-  Widget getWidget(BuildContext context, AuthorizationLogicState state, AuthorizationWidget widget) => Scaffold(
+  Widget getWidget(
+      BuildContext context,
+      AuthorizationLogicState state,
+      AuthorizationWidget widget
+  ) => Scaffold(
     appBar: AppBar(
-      title: Text(AppLocalizations.of(context)!.authorization),
+      title: Text(getLocalizations(context).authorization),
     ),
     body: state.loading
         ? const Center(child: CircularProgressIndicator())
@@ -36,27 +46,28 @@ class AuthorizationState extends BaseState<AuthorizationWidget, AuthorizationLog
             width: double.infinity,
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 16
+                ),
                 child: Column(
                   children: <Widget>[
                     TextFieldWidget(
                       text: state.username,
-                      label: AppLocalizations.of(context)!.uniqueName,
+                      label: getLocalizations(context).uniqueName,
                       error: state.errors[AuthorizationCubit.usernameKey],
-                      onTextChanged:
-                      BlocProvider.of<AuthorizationCubit>(context).setUsername,
+                      onTextChanged: getCubitInstance(context).setUsername,
                     ),
                     PasswordWidget(
                       text: state.password,
-                      label: AppLocalizations.of(context)!.password,
+                      label: getLocalizations(context).password,
                       error: state.errors[AuthorizationCubit.passwordKey],
-                      onTextChanged:
-                      BlocProvider.of<AuthorizationCubit>(context).setPassword,
+                      onTextChanged: getCubitInstance(context).setPassword,
                     ),
                     const SizedBox(height: Dimens.contentMargin * 2),
                     ButtonWidget(
-                      text: AppLocalizations.of(context)!.login,
-                      onClick: BlocProvider.of<AuthorizationCubit>(context).onClickLogin,
+                      text: getLocalizations(context).login,
+                      onClick: getCubitInstance(context).onClickLogin,
                     )
                   ],
                 ),
@@ -100,7 +111,7 @@ class AuthorizationLogicState extends BaseLogicState {
   );
 
   @override
-  AuthorizationLogicState copy({
+  AuthorizationLogicState copyBase({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
@@ -121,10 +132,10 @@ class AuthorizationCubit extends BaseCubit<AuthorizationLogicState> {
   static const usernameKey = 'USERNAME';
   static const passwordKey = 'PASSWORD';
 
-  final AccountInteractor accountInteractor;
+  final AccountInteractor _accountInteractor;
 
   AuthorizationCubit(
-    this.accountInteractor
+    this._accountInteractor
   ) : super(
       AuthorizationLogicState(
           username: '',
@@ -136,20 +147,22 @@ class AuthorizationCubit extends BaseCubit<AuthorizationLogicState> {
   void setUsername(String text) {
     emit(state.copyWith(
         username: text,
-        errors: Map.from(state.errors)..removeWhere((k, v) => k == usernameKey)
+        errors: Map.from(state.errors)
+          ..removeWhere((k, v) => k == usernameKey)
     ));
   }
 
   void setPassword(String text) {
     emit(state.copyWith(
         password: text,
-        errors: Map.from(state.errors)..removeWhere((k, v) => k == passwordKey))
+        errors: Map.from(state.errors)
+          ..removeWhere((k, v) => k == passwordKey))
     );
   }
 
   Future<void> onClickLogin() async {
     showLoad();
-    await accountInteractor.login(
+    await _accountInteractor.login(
         LoginModel(
             username: state.username,
             password: state.password

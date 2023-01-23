@@ -19,7 +19,7 @@ import '../../ui/screens/location/locations_screen.dart';
 import '../../ui/screens/queue/create_queue_dialog.dart';
 import '../../ui/screens/queue/delete_queue_dialog.dart';
 import '../../ui/screens/rights/rights_screen.dart';
-import '../../ui/screens/account/confirm_dialog.dart';
+import '../../ui/screens/account/confirm_registration_dialog.dart';
 import '../main/main.dart';
 
 class StatesAssembler {
@@ -27,29 +27,29 @@ class StatesAssembler {
 
   SelectCubit getSelectCubit() => getIt.get();
   RegistrationCubit getRegistrationCubit() => getIt.get();
-  ConfirmCubit getConfirmCubit() => getIt.get();
+  ConfirmRegistrationCubit getConfirmRegistrationCubit(ConfirmRegistrationConfig config) => getIt.get(param1: config);
   AuthorizationCubit getAuthorizationCubit() => getIt.get();
 
   LocationsCubit getLocationsCubit(LocationsConfig config) => getIt.get(param1: config);
-  CreateLocationCubit getCreateLocationCubit() => getIt.get();
-  DeleteLocationCubit getDeleteLocationCubit() => getIt.get();
+  CreateLocationCubit getCreateLocationCubit(CreateLocationConfig config) => getIt.get(param1: config);
+  DeleteLocationCubit getDeleteLocationCubit(DeleteLocationConfig config) => getIt.get(param1: config);
 
   QueuesCubit getQueuesCubit(QueuesConfig config) => getIt.get(param1: config);
-  CreateQueueCubit getCreateQueueCubit() => getIt.get();
-  DeleteQueueCubit getDeleteQueueCubit() => getIt.get();
+  CreateQueueCubit getCreateQueueCubit(CreateQueueConfig config) => getIt.get(param1: config);
+  DeleteQueueCubit getDeleteQueueCubit(DeleteQueueConfig config) => getIt.get(param1: config);
   QueueCubit getQueueCubit(QueueConfig config) => getIt.get(param1: config);
-  AddClientCubit getAddClientCubit() => getIt.get();
+  AddClientCubit getAddClientCubit(AddClientConfig config) => getIt.get(param1: config);
 
   ClientCubit getClientCubit(ClientConfig config) => getIt.get(param1: config);
-  ClientJoinCubit getClientJoinCubit() => getIt.get();
-  ClientRejoinCubit getClientRejoinCubit() => getIt.get();
-  ClientConfirmCubit getClientConfirmCubit() => getIt.get();
+  ClientJoinCubit getClientJoinCubit(ClientJoinConfig config) => getIt.get(param1: config);
+  ClientRejoinCubit getClientRejoinCubit(ClientRejoinConfig config) => getIt.get(param1: config);
+  ClientConfirmCubit getClientConfirmCubit(ClientConfirmConfig config) => getIt.get(param1: config);
 
   BoardCubit getBoardCubit(BoardConfig config) => getIt.get(param1: config);
 
   RightsCubit getRightsCubit(RightsConfig config) => getIt.get(param1: config);
-  AddRuleCubit getAddRuleCubit() => getIt.get();
-  DeleteRuleCubit getDeleteRuleCubit() => getIt.get();
+  AddRuleCubit getAddRuleCubit(AddRuleConfig config) => getIt.get(param1: config);
+  DeleteRuleCubit getDeleteRuleCubit(DeleteRuleConfig config) => getIt.get(param1: config);
 }
 
 const statesAssembler = StatesAssembler._();

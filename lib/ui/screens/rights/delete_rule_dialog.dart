@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/di/assemblers/states_assembler.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
@@ -8,7 +7,7 @@ import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 
-class DeleteRuleConfig {
+class DeleteRuleConfig extends BaseDialogConfig {
   final String email;
 
   DeleteRuleConfig({
@@ -16,7 +15,7 @@ class DeleteRuleConfig {
   });
 }
 
-class DeleteRuleResult {
+class DeleteRuleResult extends BaseDialogResult {
   final String email;
 
   DeleteRuleResult({
@@ -24,28 +23,39 @@ class DeleteRuleResult {
   });
 }
 
-class DeleteRuleWidget extends BaseWidget {
-  final DeleteRuleConfig config;
+class DeleteRuleWidget extends BaseDialogWidget<DeleteRuleConfig> {
 
-  const DeleteRuleWidget({super.key, required super.emitConfig, required this.config});
+  const DeleteRuleWidget({
+    super.key,
+    required super.emitConfig,
+    required super.config
+  });
 
   @override
   State<DeleteRuleWidget> createState() => _DeleteRuleState();
 }
 
-class _DeleteRuleState extends BaseDialogState<DeleteRuleWidget, DeleteRuleLogicState, DeleteRuleCubit> {
+class _DeleteRuleState extends BaseDialogState<
+    DeleteRuleWidget,
+    DeleteRuleLogicState,
+    DeleteRuleCubit
+> {
 
   @override
   String getTitle(
       BuildContext context,
       DeleteRuleLogicState state,
       DeleteRuleWidget widget
-  ) => AppLocalizations.of(context)!.revokeRightsQuestion;
+  ) => getLocalizations(context).revokeRightsQuestion;
 
   @override
-  List<Widget> getDialogContentWidget(BuildContext context, DeleteRuleLogicState state, DeleteRuleWidget widget) => [
+  List<Widget> getDialogContentWidget(
+      BuildContext context,
+      DeleteRuleLogicState state,
+      DeleteRuleWidget widget
+  ) => [
     ButtonWidget(
-        text: AppLocalizations.of(context)!.revoke,
+        text: getLocalizations(context).revoke,
         onClick: () => Navigator.of(context).pop(
             DeleteRuleResult(
                 email: widget.config.email
@@ -55,20 +65,26 @@ class _DeleteRuleState extends BaseDialogState<DeleteRuleWidget, DeleteRuleLogic
   ];
 
   @override
-  DeleteRuleCubit getCubit() => statesAssembler.getDeleteRuleCubit();
+  DeleteRuleCubit getCubit() =>
+      statesAssembler.getDeleteRuleCubit(widget.config);
 }
 
-class DeleteRuleLogicState extends BaseLogicState {
+class DeleteRuleLogicState extends BaseDialogLogicState<
+    DeleteRuleConfig,
+    DeleteRuleResult
+> {
 
   DeleteRuleLogicState({
     super.nextConfig,
     super.error,
     super.snackBar,
-    super.loading
+    super.loading,
+    required super.config,
+    super.result,
   });
 
   @override
-  DeleteRuleLogicState copy({
+  DeleteRuleLogicState copyBase({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
@@ -77,11 +93,32 @@ class DeleteRuleLogicState extends BaseLogicState {
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
-      loading: loading ?? this.loading
+      loading: loading ?? this.loading,
+      config: config,
+      result: result,
+  );
+
+  @override
+  DeleteRuleLogicState copyResult({
+    DeleteRuleResult? result
+  }) => DeleteRuleLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading,
+      config: config,
+      result: result,
   );
 }
 
 @injectable
-class DeleteRuleCubit extends BaseCubit<DeleteRuleLogicState> {
-  DeleteRuleCubit() : super(DeleteRuleLogicState());
+class DeleteRuleCubit extends BaseDialogCubit<DeleteRuleLogicState> {
+
+  DeleteRuleCubit(
+      @factoryParam DeleteRuleConfig config
+  ) : super(
+      DeleteRuleLogicState(
+        config: config
+      )
+  );
 }

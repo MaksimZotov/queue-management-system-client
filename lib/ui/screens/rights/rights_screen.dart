@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/models/rights/rights_model.dart';
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
@@ -7,7 +6,6 @@ import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/screens/rights/add_rule_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/rights/delete_rule_dialog.dart';
 import 'package:queue_management_system_client/ui/widgets/rights_item_widget.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/rights_interactor.dart';
 import '../../../domain/interactors/account_interactor.dart';
@@ -16,18 +14,27 @@ import '../../../domain/models/base/result.dart';
 class RightsWidget extends BaseWidget {
   final RightsConfig config;
 
-  RightsWidget({super.key, required super.emitConfig, required this.config});
+  const RightsWidget({
+    super.key,
+    required super.emitConfig,
+    required this.config
+  });
 
   @override
   State<RightsWidget> createState() => _RightsState();
 }
 
-class _RightsState extends BaseState<RightsWidget, RightsLogicState, RightsCubit> {
+class _RightsState extends BaseState<
+    RightsWidget, RightsLogicState, RightsCubit> {
 
   @override
-  Widget getWidget(BuildContext context, RightsLogicState state, RightsWidget widget) => Scaffold(
+  Widget getWidget(
+      BuildContext context,
+      RightsLogicState state,
+      RightsWidget widget
+  ) => Scaffold(
     appBar: AppBar(
-      title: Text(AppLocalizations.of(context)!.rightsSettings),
+      title: Text(getLocalizations(context).rightsSettings),
     ),
     body: ListView.builder(
       itemBuilder: (context, index) => RightsItemWidget(
@@ -35,12 +42,12 @@ class _RightsState extends BaseState<RightsWidget, RightsLogicState, RightsCubit
         onDelete: (rights) => showDialog(
             context: context,
             builder: (context) => DeleteRuleWidget(
-                config: DeleteRuleConfig(email: rights.email),
-                emitConfig: widget.emitConfig
+                emitConfig: widget.emitConfig,
+                config: DeleteRuleConfig(email: rights.email)
             )
         ).then((result) {
           if (result is DeleteRuleResult) {
-            BlocProvider.of<RightsCubit>(context).deleteRule(result);
+            getCubitInstance(context).deleteRule(result);
           }
         }),
       ),
@@ -49,10 +56,13 @@ class _RightsState extends BaseState<RightsWidget, RightsLogicState, RightsCubit
     floatingActionButton: FloatingActionButton(
       onPressed: () => showDialog(
           context: context,
-          builder: (context) => AddRuleWidget(emitConfig: widget.emitConfig)
+          builder: (context) => AddRuleWidget(
+              emitConfig: widget.emitConfig,
+              config: AddRuleConfig()
+          )
       ).then((result) {
         if (result is AddRuleResult) {
-          BlocProvider.of<RightsCubit>(context).addRule(result);
+          getCubitInstance(context).addRule(result);
         }
       }),
       child: const Icon(Icons.add),
@@ -95,7 +105,7 @@ class RightsLogicState extends BaseLogicState {
   );
 
   @override
-  RightsLogicState copy({
+  RightsLogicState copyBase({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
@@ -136,7 +146,10 @@ class RightsCubit extends BaseCubit<RightsLogicState> {
 
   Future addRule(AddRuleResult addRuleResult) async {
     showLoad();
-    await rightsInteractor.addRights(state.config.locationId, addRuleResult.email)
+    await rightsInteractor.addRights(
+        state.config.locationId,
+        addRuleResult.email
+    )
       ..onSuccess((result) {
         _reload();
       })..onError((result) {
@@ -146,7 +159,10 @@ class RightsCubit extends BaseCubit<RightsLogicState> {
 
   Future deleteRule(DeleteRuleResult deleteRuleResult) async {
     showLoad();
-    await rightsInteractor.deleteRights(state.config.locationId, deleteRuleResult.email)
+    await rightsInteractor.deleteRights(
+        state.config.locationId,
+        deleteRuleResult.email
+    )
       ..onSuccess((result) {
         _reload();
       })..onError((result) {

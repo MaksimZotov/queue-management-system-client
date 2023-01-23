@@ -17,22 +17,34 @@ import '../../../domain/interactors/account_interactor.dart';
 class LocationsWidget extends BaseWidget {
   final LocationsConfig config;
 
-  LocationsWidget({super.key, required super.emitConfig, required this.config});
+  const LocationsWidget({
+    super.key,
+    required super.emitConfig,
+    required this.config
+  });
 
   @override
   State<LocationsWidget> createState() => _LocationsState();
 }
 
-class _LocationsState extends BaseState<LocationsWidget, LocationsLogicState, LocationsCubit> {
+class _LocationsState extends BaseState<
+    LocationsWidget,
+    LocationsLogicState,
+    LocationsCubit
+> {
 
   @override
-  Widget getWidget(BuildContext context, LocationsLogicState state, LocationsWidget widget) => Scaffold(
+  Widget getWidget(
+      BuildContext context,
+      LocationsLogicState state,
+      LocationsWidget widget
+  ) => Scaffold(
     appBar: AppBar(
-      title: Text(AppLocalizations.of(context)!.locations),
+      title: Text(getLocalizations(context).locations),
       actions: <Widget>[
         IconButton(
           icon: Icon(state.hasToken ? Icons.logout : Icons.login),
-          onPressed: BlocProvider.of<LocationsCubit>(context).logout,
+          onPressed: getCubitInstance(context).logout,
         )
       ],
     ),
@@ -53,7 +65,7 @@ class _LocationsState extends BaseState<LocationsWidget, LocationsLogicState, Lo
             )
         ).then((result) {
           if (result is DeleteLocationResult) {
-            BlocProvider.of<LocationsCubit>(context).deleteLocation(result);
+            getCubitInstance(context).handleDeleteLocationResult(result);
           }
         }),
       ),
@@ -63,10 +75,13 @@ class _LocationsState extends BaseState<LocationsWidget, LocationsLogicState, Lo
         ? FloatingActionButton(
           onPressed: () => showDialog(
               context: context,
-              builder: (context) => CreateLocationWidget(emitConfig: widget.emitConfig)
+              builder: (context) => CreateLocationWidget(
+                  emitConfig: widget.emitConfig,
+                  config: CreateLocationConfig(),
+              )
           ).then((result) {
             if (result is CreateLocationResult) {
-              BlocProvider.of<LocationsCubit>(context).createLocation(result);
+              getCubitInstance(context).handleCreateLocationResult(result);
             }
           }),
           child: const Icon(Icons.add),
@@ -80,7 +95,7 @@ class _LocationsState extends BaseState<LocationsWidget, LocationsLogicState, Lo
 
 class LocationsLogicState extends BaseLogicState {
 
-  static const int pageSize = 30;
+  static const int _pageSize = 30;
 
   final LocationsConfig config;
 
@@ -116,7 +131,7 @@ class LocationsLogicState extends BaseLogicState {
   );
 
   @override
-  LocationsLogicState copy({
+  LocationsLogicState copyBase({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
@@ -136,12 +151,12 @@ class LocationsLogicState extends BaseLogicState {
 @injectable
 class LocationsCubit extends BaseCubit<LocationsLogicState> {
 
-  final LocationInteractor locationInteractor;
-  final AccountInteractor accountInteractor;
+  final LocationInteractor _locationInteractor;
+  final AccountInteractor _accountInteractor;
 
   LocationsCubit(
-    this.locationInteractor,
-    this.accountInteractor,
+    this._locationInteractor,
+    this._accountInteractor,
     @factoryParam LocationsConfig config
   ) : super(
     LocationsLogicState(
@@ -157,10 +172,10 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
   @override
   Future<void> onStart() async {
     showLoad();
-    if (await accountInteractor.checkToken()) {
+    if (await _accountInteractor.checkToken()) {
       emit(state.copyWith(hasToken: true));
     }
-    await locationInteractor.checkHasRights(state.config.username)
+    await _locationInteractor.checkHasRights(state.config.username)
       ..onSuccess((result) async {
         emit(state.copyWith(hasRights: result.data.hasRights));
       })
@@ -171,36 +186,25 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
   }
 
   Future<void> logout() async {
-    await accountInteractor.logout();
+    await _accountInteractor.logout();
     navigate(InitialConfig());
   }
 
-  Future createLocation(CreateLocationResult result) async {
-    showLoad();
-    await locationInteractor.createLocation(
-        LocationModel(
-            id: null,
-            name: result.name,
-            description: result.description
-        )
-    )..onSuccess((result) {
-      _reload();
-    })..onError((result) {
-      showError(result);
-    });
+  Future<void> handleCreateLocationResult(CreateLocationResult result) async {
+    emit(state.copyWith(locations: state.locations + [result.locationModel]));
   }
 
-  Future deleteLocation(DeleteLocationResult result) async {
-    showLoad();
-    await locationInteractor.deleteLocation(result.id)..onSuccess((result) {
-      _reload();
-    })..onError((result) {
-      showError(result);
-    });
+  Future handleDeleteLocationResult(DeleteLocationResult result) async {
+    emit(
+        state.copyWith(
+            locations: state.locations
+              ..removeWhere((element) => element.id == result.id)
+        )
+    );
   }
 
   Future _reload() async {
-    await locationInteractor.getLocations(state.config.username)
+    await _locationInteractor.getLocations(state.config.username)
       ..onSuccess((result) {
         emit(state.copyWith(locations: result.data.results));
         hideLoad();

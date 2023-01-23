@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 import '../base.dart';
 
-class DeleteLocationConfig {
+class DeleteLocationConfig extends BaseDialogConfig {
   final int id;
 
   DeleteLocationConfig({
@@ -16,7 +16,7 @@ class DeleteLocationConfig {
   });
 }
 
-class DeleteLocationResult {
+class DeleteLocationResult extends BaseDialogResult {
   final int id;
 
   DeleteLocationResult({
@@ -24,23 +24,30 @@ class DeleteLocationResult {
   });
 }
 
-class DeleteLocationWidget extends BaseWidget {
-  final DeleteLocationConfig config;
+class DeleteLocationWidget extends BaseDialogWidget<DeleteLocationConfig> {
 
-  const DeleteLocationWidget({super.key, required super.emitConfig, required this.config});
+  const DeleteLocationWidget({
+    super.key,
+    required super.emitConfig,
+    required super.config
+  });
 
   @override
   State<DeleteLocationWidget> createState() => _DeleteLocationState();
 }
 
-class _DeleteLocationState extends BaseDialogState<DeleteLocationWidget, DeleteLocationLogicState, DeleteLocationCubit> {
+class _DeleteLocationState extends BaseDialogState<
+    DeleteLocationWidget,
+    DeleteLocationLogicState,
+    DeleteLocationCubit
+> {
 
   @override
   String getTitle(
       BuildContext context,
       DeleteLocationLogicState state,
       DeleteLocationWidget widget
-  ) => AppLocalizations.of(context)!.deleteLocationQuestion;
+  ) => getLocalizations(context).deleteLocationQuestion;
 
   @override
   List<Widget> getDialogContentWidget(
@@ -49,30 +56,32 @@ class _DeleteLocationState extends BaseDialogState<DeleteLocationWidget, DeleteL
       DeleteLocationWidget widget
   ) => [
     ButtonWidget(
-        text: AppLocalizations.of(context)!.delete,
-        onClick: () => Navigator.of(context).pop(
-            DeleteLocationResult(
-                id: widget.config.id
-            )
-        )
+        text: getLocalizations(context).delete,
+        onClick: getCubitInstance(context).deleteLocation
     )
   ];
 
   @override
-  DeleteLocationCubit getCubit() => statesAssembler.getDeleteLocationCubit();
+  DeleteLocationCubit getCubit() =>
+      statesAssembler.getDeleteLocationCubit(widget.config);
 }
 
-class DeleteLocationLogicState extends BaseLogicState {
+class DeleteLocationLogicState extends BaseDialogLogicState<
+    DeleteLocationConfig,
+    DeleteLocationResult
+> {
 
   DeleteLocationLogicState({
     super.nextConfig,
     super.error,
     super.snackBar,
-    super.loading
+    required super.config,
+    super.result,
+    super.loading,
   });
 
   @override
-  DeleteLocationLogicState copy({
+  DeleteLocationLogicState copyBase({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
@@ -81,11 +90,46 @@ class DeleteLocationLogicState extends BaseLogicState {
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
-      loading: loading ?? this.loading
+      loading: loading ?? this.loading,
+      config: config,
+      result: result
+  );
+
+  @override
+  DeleteLocationLogicState copyResult({
+    DeleteLocationResult? result
+  }) => DeleteLocationLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading,
+      config: config,
+      result: result
   );
 }
 
 @injectable
-class DeleteLocationCubit extends BaseCubit<DeleteLocationLogicState> {
-  DeleteLocationCubit() : super(DeleteLocationLogicState());
+class DeleteLocationCubit extends BaseDialogCubit<DeleteLocationLogicState> {
+
+  final LocationInteractor _locationInteractor;
+
+  DeleteLocationCubit(
+      this._locationInteractor,
+      @factoryParam DeleteLocationConfig config
+  ) : super(
+      DeleteLocationLogicState(
+          config: config,
+      )
+  );
+
+  Future deleteLocation() async {
+    showLoad();
+    await _locationInteractor.deleteLocation(
+        state.config.id
+    )..onSuccess((result) {
+      popResult(DeleteLocationResult(id: state.config.id));
+    })..onError((result) {
+      showError(result);
+    });
+  }
 }

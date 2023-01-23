@@ -171,8 +171,8 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result<ClientModel>> joinClientToQueue(String username, int locationId, int queueId, ClientJoinInfo clientJoinInfo) async {
-    return await _serverApi.joinClientToQueue(username, locationId, queueId, clientJoinInfo)
+  Future<Result<ClientModel>> joinClientToQueue(int queueId, ClientJoinInfo clientJoinInfo) async {
+    return await _serverApi.joinClientToQueue(queueId, clientJoinInfo)
       ..onSuccess((result) async {
         await _sharedPreferencesStorage.setClientInQueueEmail(email: result.data.email);
         await _sharedPreferencesStorage.setClientInQueueAccessKey(accessKey: result.data.accessKey);

@@ -18,7 +18,11 @@ import '../../router/routes_config.dart';
 class BoardWidget extends BaseWidget {
   final BoardConfig config;
 
-  BoardWidget({super.key, required super.emitConfig, required this.config});
+  BoardWidget({
+    super.key,
+    required super.emitConfig,
+    required this.config
+  });
 
   @override
   State<BoardWidget> createState() => _BoardState();
@@ -27,7 +31,11 @@ class BoardWidget extends BaseWidget {
 class _BoardState extends BaseState<BoardWidget, BoardLogicState, BoardCubit> {
 
   @override
-  Widget getWidget(BuildContext context, BoardLogicState state, BoardWidget widget) {
+  Widget getWidget(
+      BuildContext context,
+      BoardLogicState state,
+      BoardWidget widget
+  ) {
     List<BoardQueue> queues = state.board.queues;
     if (queues.isEmpty) {
       return Row(children: const []);
@@ -182,7 +190,7 @@ class BoardLogicState extends BaseLogicState {
   );
 
   @override
-  BoardLogicState copy({
+  BoardLogicState copyBase({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
@@ -203,14 +211,14 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
 
   static const String _locationTopic = '/topic/boards/';
 
-  final BoardInteractor boardInteractor;
-  final SocketInteractor socketInteractor;
+  final BoardInteractor _boardInteractor;
+  final SocketInteractor _socketInteractor;
 
   Timer? _timer;
 
   BoardCubit(
-    this.boardInteractor,
-    this.socketInteractor,
+    this._boardInteractor,
+    this._socketInteractor,
     @factoryParam BoardConfig config
   ) : super(
       BoardLogicState(
@@ -225,14 +233,16 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
   @override
   Future<void> onStart() async {
     showLoad();
-    await boardInteractor.getBoard(state.config.locationId)..onSuccess((result) {
+    await _boardInteractor.getBoard(
+        state.config.locationId
+    )..onSuccess((result) {
       emit(state.copyWith(board: result.data));
       hideLoad();
     })..onError((result) {
       showError(result);
     });
 
-    socketInteractor.connectToSocket<BoardModel>(
+    _socketInteractor.connectToSocket<BoardModel>(
       _locationTopic + state.config.locationId.toString(),
       () => { /* Do nothing */ },
       (board) => {
@@ -246,14 +256,17 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
 
   @override
   Future<void> close() async {
-    socketInteractor.disconnectFromSocket(_locationTopic + state.config.locationId.toString());
+    _socketInteractor.disconnectFromSocket(
+        _locationTopic + state.config.locationId.toString()
+    );
     _timer?.cancel();
     return super.close();
   }
 
   void _startSwitchPages() async {
     _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      if ((state.page + 1) * BoardLogicState._pageSize >= state.board.queues.length) {
+      int nextPage = state.page + 1;
+      if (nextPage * BoardLogicState._pageSize >= state.board.queues.length) {
         emit(state.copyWith(page: 0));
       } else {
         emit(state.copyWith(page: state.page + 1));

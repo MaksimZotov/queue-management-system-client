@@ -1,41 +1,56 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
+import '../../../domain/interactors/client_interactor.dart';
 import '../../../domain/models/base/result.dart';
+import '../../../domain/models/client/client_model.dart';
 import '../../router/routes_config.dart';
 import '../base.dart';
 
-class ClientRejoinResult {
-  final String email;
+class ClientRejoinConfig extends BaseDialogConfig {
+  final int queueId;
 
-  ClientRejoinResult({
-    required this.email
+  ClientRejoinConfig({
+    required this.queueId
   });
 }
 
+class ClientRejoinResult extends BaseDialogResult {
+  final ClientModel clientModel;
 
-class ClientRejoinWidget extends BaseWidget {
+  ClientRejoinResult({
+    required this.clientModel
+  });
+}
 
-  const ClientRejoinWidget({super.key, required super.emitConfig});
+class ClientRejoinWidget extends BaseDialogWidget<ClientRejoinConfig> {
+
+  const ClientRejoinWidget({
+    super.key,
+    required super.emitConfig,
+    required super.config
+  });
 
   @override
   State<ClientRejoinWidget> createState() => _ClientRejoinState();
 }
 
-class _ClientRejoinState extends BaseDialogState<ClientRejoinWidget, ClientRejoinLogicState, ClientRejoinCubit> {
+class _ClientRejoinState extends BaseDialogState<
+    ClientRejoinWidget,
+    ClientRejoinLogicState,
+    ClientRejoinCubit
+> {
 
   @override
   String getTitle(
       BuildContext context,
       ClientRejoinLogicState state,
       ClientRejoinWidget widget
-  ) => AppLocalizations.of(context)!.reconnectionToQueue;
+  ) => getLocalizations(context).reconnectionToQueue;
 
   @override
   List<Widget> getDialogContentWidget(
@@ -44,26 +59,26 @@ class _ClientRejoinState extends BaseDialogState<ClientRejoinWidget, ClientRejoi
       ClientRejoinWidget widget
   ) => [
     TextFieldWidget(
-        label: AppLocalizations.of(context)!.email,
+        label: getLocalizations(context).email,
         text: state.email,
-        onTextChanged: BlocProvider.of<ClientRejoinCubit>(context).setEmail
+        onTextChanged: getCubitInstance(context).setEmail
     ),
     const SizedBox(height: Dimens.contentMargin),
     ButtonWidget(
-        text: AppLocalizations.of(context)!.rejoin,
-        onClick: () => Navigator.of(context).pop(
-            ClientRejoinResult(
-                email: state.email
-            )
-        )
+        text: getLocalizations(context).rejoin,
+        onClick: getCubitInstance(context).rejoin
     )
   ];
 
   @override
-  ClientRejoinCubit getCubit() => statesAssembler.getClientRejoinCubit();
+  ClientRejoinCubit getCubit() =>
+      statesAssembler.getClientRejoinCubit(widget.config);
 }
 
-class ClientRejoinLogicState extends BaseLogicState {
+class ClientRejoinLogicState extends BaseDialogLogicState<
+    ClientRejoinConfig,
+    ClientRejoinResult
+> {
 
   final String email;
 
@@ -72,6 +87,8 @@ class ClientRejoinLogicState extends BaseLogicState {
     super.error,
     super.snackBar,
     super.loading,
+    required super.config,
+    super.result,
     required this.email
   });
 
@@ -82,11 +99,13 @@ class ClientRejoinLogicState extends BaseLogicState {
       error: error,
       snackBar: snackBar,
       loading: loading,
+      config: config,
+      result: result,
       email: email ?? this.email
   );
 
   @override
-  ClientRejoinLogicState copy({
+  ClientRejoinLogicState copyBase({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
@@ -96,20 +115,54 @@ class ClientRejoinLogicState extends BaseLogicState {
     error: error,
     snackBar: snackBar,
     loading: loading ?? this.loading,
+    config: config,
+    result: result,
     email: email
+  );
+
+  @override
+  ClientRejoinLogicState copyResult({
+    ClientRejoinResult? result
+  }) => ClientRejoinLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading,
+      config: config,
+      result: result,
+      email: email
   );
 }
 
 @injectable
-class ClientRejoinCubit extends BaseCubit<ClientRejoinLogicState> {
+class ClientRejoinCubit extends BaseDialogCubit<ClientRejoinLogicState> {
 
-  ClientRejoinCubit() : super(
+  final ClientInteractor _clientInteractor;
+
+  ClientRejoinCubit(
+      this._clientInteractor,
+      @factoryParam ClientRejoinConfig config
+  ) : super(
       ClientRejoinLogicState(
+          config: config,
           email: ''
       )
   );
 
   void setEmail(String text) {
     emit(state.copyWith(email: text));
+  }
+
+  Future<void> rejoin() async {
+    await _clientInteractor.rejoinClientToQueue(
+        state.config.queueId,
+        state.email
+    )
+      ..onSuccess((result) {
+        popResult(ClientRejoinResult(clientModel: result.data));
+      })
+      ..onError((result) {
+        showError(result);
+      });
   }
 }

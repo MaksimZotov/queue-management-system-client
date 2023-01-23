@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
@@ -17,16 +16,24 @@ class SelectWidget extends BaseWidget {
   State<SelectWidget> createState() => SelectState();
 }
 
-class SelectState extends BaseState<SelectWidget, SelectLogicState, SelectCubit> {
+class SelectState extends BaseState<
+    SelectWidget,
+    SelectLogicState,
+    SelectCubit
+> {
 
   @override
-  Widget getWidget(BuildContext context, SelectLogicState state, SelectWidget widget) => state.loading
+  Widget getWidget(
+      BuildContext context,
+      SelectLogicState state,
+      SelectWidget widget
+  ) => state.loading
       ? const Center(
         child: CircularProgressIndicator(),
       )
       : Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.enterAccount),
+          title: Text(getLocalizations(context).enterAccount),
         ),
         body: Center(
           child: Padding(
@@ -36,13 +43,13 @@ class SelectState extends BaseState<SelectWidget, SelectLogicState, SelectCubit>
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 ButtonWidget(
-                  text: AppLocalizations.of(context)!.authorization,
+                  text: getLocalizations(context).authorization,
                   onClick: () {
                     widget.emitConfig(AuthorizationConfig());
                   },
                 ),
                 ButtonWidget(
-                  text: AppLocalizations.of(context)!.registration,
+                  text: getLocalizations(context).registration,
                   onClick: () {
                     widget.emitConfig(RegistrationConfig());
                   },
@@ -71,7 +78,7 @@ class SelectLogicState extends BaseLogicState {
   });
 
   @override
-  SelectLogicState copy({
+  SelectLogicState copyBase({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
@@ -86,23 +93,26 @@ class SelectLogicState extends BaseLogicState {
 
 @injectable
 class SelectCubit extends BaseCubit<SelectLogicState> {
-  final LocationInteractor locationInteractor;
-  final AccountInteractor accountInteractor;
+  final LocationInteractor _locationInteractor;
+  final AccountInteractor _accountInteractor;
 
   SelectCubit(
-     this.locationInteractor,
-     this.accountInteractor,
+     this._locationInteractor,
+     this._accountInteractor,
   ) : super(SelectLogicState());
 
+  @override
   Future<void> onStart() async {
-    if (await accountInteractor.checkToken()) {
-      await locationInteractor.getLocations(null)
-          ..onSuccess((value) async {
-            String? username = await accountInteractor.getCurrentUsername();
-            if (username != null) {
+    if (await _accountInteractor.checkToken()) {
+      String? username = await _accountInteractor.getCurrentUsername();
+      if (username != null) {
+        await _locationInteractor.checkHasRights(username)
+          ..onSuccess((result) {
+            if (result.data.hasRights) {
               navigate(LocationsConfig(username: username));
             }
           });
+      }
     }
     hideLoad();
   }

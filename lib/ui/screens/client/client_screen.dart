@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/enums/client_in_queue_status.dart';
 import 'package:queue_management_system_client/domain/interactors/client_interactor.dart';
 import 'package:queue_management_system_client/domain/models/client/client_model.dart';
-import 'package:queue_management_system_client/domain/models/client/client_join_info.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
 import 'package:queue_management_system_client/ui/screens/client/client_confirm_dialog.dart';
@@ -21,37 +18,56 @@ import '../base.dart';
 class ClientWidget extends BaseWidget {
   final ClientConfig config;
 
-  ClientWidget({super.key, required super.emitConfig, required this.config});
+  ClientWidget({
+    super.key, 
+    required super.emitConfig,
+    required this.config
+  });
 
   @override
   State<ClientWidget> createState() => _ClientState();
 }
 
-class _ClientState extends BaseState<ClientWidget, ClientLogicState, ClientCubit> {
+class _ClientState extends BaseState<
+    ClientWidget, 
+    ClientLogicState,
+    ClientCubit
+> {
 
   @override
-  void handleEvent(BuildContext context, ClientLogicState state, ClientWidget widget) {
+  void handleEvent(
+      BuildContext context,
+      ClientLogicState state,
+      ClientWidget widget
+  ) {
     super.handleEvent(context, state, widget);
     if (state.showConfirmDialog) {
       showDialog(
           context: context,
           builder: (context) => ClientConfirmWidget(
               emitConfig: widget.emitConfig,
-              config: ClientConfirmConfig(email: state.email)
+              config: ClientConfirmConfig(
+                  queueId: state.config.queueId,
+                  email: state.email
+              )
           )
       ).then((result) {
         if (result is ClientConfirmResult) {
-          BlocProvider.of<ClientCubit>(context).confirm(result);
+          getCubitInstance(context).handleConfirmResult(result);
         }
       });
     }
   }
 
   @override
-  Widget getWidget(BuildContext context, ClientLogicState state, ClientWidget widget) =>  Scaffold(
+  Widget getWidget(
+      BuildContext context,
+      ClientLogicState state,
+      ClientWidget widget
+  ) =>  Scaffold(
     appBar: AppBar(
       title: Text(
-          AppLocalizations.of(context)!.queuePattern(state.clientState.queueName)
+          getLocalizations(context).queuePattern(state.clientState.queueName)
       ),
     ),
     body: state.loading ? const Center(
@@ -73,35 +89,35 @@ class _ClientState extends BaseState<ClientWidget, ClientLogicState, ClientCubit
                       child: Column(
                         children: <Widget>[
                           ClientInfoFieldWidget(
-                              fieldName: AppLocalizations.of(context)!.queueLengthWithColon,
+                              fieldName: getLocalizations(context).queueLengthWithColon,
                               fieldValue: state.clientState.queueLength.toString()
                           )
                         ] + (state.clientState.inQueue ? [
                           ClientInfoFieldWidget(
-                              fieldName: AppLocalizations.of(context)!.statusWithColon,
+                              fieldName: getLocalizations(context).statusWithColon,
                               fieldValue: state.clientState.status == ClientInQueueStatus.confirmed
-                                  ? AppLocalizations.of(context)!.confirmed
-                                  : AppLocalizations.of(context)!.reserved
+                                  ? getLocalizations(context).confirmed
+                                  : getLocalizations(context).reserved
                           ),
                           ClientInfoFieldWidget(
-                              fieldName: AppLocalizations.of(context)!.emailWithColon,
+                              fieldName: getLocalizations(context).emailWithColon,
                               fieldValue: state.clientState.email!
                           ),
                           ClientInfoFieldWidget(
-                              fieldName: AppLocalizations.of(context)!.firstNameWithColon,
+                              fieldName: getLocalizations(context).firstNameWithColon,
                               fieldValue: state.clientState.firstName!
                           ),
                           ClientInfoFieldWidget(
-                              fieldName: AppLocalizations.of(context)!.lastNameWithColon,
+                              fieldName: getLocalizations(context).lastNameWithColon,
                               fieldValue: state.clientState.lastName!
                           ),
                           ClientInfoFieldWidget(
-                              fieldName: AppLocalizations.of(context)!.beforeMeWithColon,
+                              fieldName: getLocalizations(context).beforeMeWithColon,
                               fieldValue: state.clientState.beforeMe.toString()
                           )
                         ] : []) + (state.clientState.status == ClientInQueueStatus.confirmed ? [
                           ClientInfoFieldWidget(
-                              fieldName: AppLocalizations.of(context)!.code,
+                              fieldName: getLocalizations(context).code,
                               fieldValue: state.clientState.accessKey!
                           )
                         ] : []),
@@ -111,24 +127,29 @@ class _ClientState extends BaseState<ClientWidget, ClientLogicState, ClientCubit
                   Column(
                       children: (!state.clientState.inQueue ? <Widget>[
                         ButtonWidget(
-                          text: AppLocalizations.of(context)!.join,
+                          text: getLocalizations(context).join,
                           onClick: () => showDialog(
                               context: context,
-                              builder: (context) => ClientJoinWidget(emitConfig: widget.emitConfig)
+                              builder: (context) => ClientJoinWidget(
+                                  config: ClientJoinConfig(
+                                    queueId: state.config.queueId
+                                  ),
+                                  emitConfig: widget.emitConfig
+                              )
                           ).then((result) {
                             if (result is ClientJoinResult) {
-                              BlocProvider.of<ClientCubit>(context).join(result);
+                              getCubitInstance(context).handleJoinResult(result);
                             }
                           }),
                         )
                       ] : <Widget>[]) + (state.clientState.status == ClientInQueueStatus.confirmed ? <Widget>[
                         ButtonWidget(
-                            text: AppLocalizations.of(context)!.leave,
-                            onClick: BlocProvider.of<ClientCubit>(context).leave
+                            text: getLocalizations(context).leave,
+                            onClick: getCubitInstance(context).leave
                         )
                       ] : <Widget>[]) + (state.clientState.status == ClientInQueueStatus.reserved ? <Widget>[
                         ButtonWidget(
-                            text: AppLocalizations.of(context)!.windowConfirmation,
+                            text: getLocalizations(context).windowConfirmation,
                             onClick: () {
                               if (state.email != '') {
                                 showDialog(
@@ -136,29 +157,37 @@ class _ClientState extends BaseState<ClientWidget, ClientLogicState, ClientCubit
                                     builder: (context) =>
                                         ClientConfirmWidget(
                                             emitConfig: widget.emitConfig,
-                                            config: ClientConfirmConfig(email: state.email)
+                                            config: ClientConfirmConfig(
+                                                queueId: state.config.queueId,
+                                                email: state.email
+                                            )
                                         )
                                 ).then((result) =>
-                                    BlocProvider.of<ClientCubit>(context).confirm(result)
+                                    getCubitInstance(context).handleConfirmResult(result)
                                 );
                               }
                             }
                         )
                       ] : <Widget>[]) + <Widget>[
                         ButtonWidget(
-                          text: AppLocalizations.of(context)!.rejoin,
+                          text: getLocalizations(context).rejoin,
                           onClick: () => showDialog(
                               context: context,
-                              builder: (context) => ClientRejoinWidget(emitConfig: widget.emitConfig)
+                              builder: (context) => ClientRejoinWidget(
+                                  config: ClientRejoinConfig(
+                                      queueId: state.config.queueId
+                                  ),
+                                  emitConfig: widget.emitConfig
+                              )
                           ).then((result) {
                             if (result is ClientRejoinResult) {
-                              BlocProvider.of<ClientCubit>(context).rejoin(result);
+                              getCubitInstance(context).handleRejoinResult(result);
                             }
                           }),
                         ),
                         ButtonWidget(
-                            text: AppLocalizations.of(context)!.update,
-                            onClick: BlocProvider.of<ClientCubit>(context).onStart
+                            text: getLocalizations(context).update,
+                            onClick: getCubitInstance(context).onStart
                         ),
                       ]
                   ),
@@ -198,7 +227,7 @@ class ClientLogicState extends BaseLogicState {
     List<LocationModel>? locations,
     ClientModel? clientState,
     String? email,
-    bool? readyToConfirm,
+    bool? showConfirmDialog,
     bool? isLast,
   }) => ClientLogicState(
       nextConfig: nextConfig,
@@ -208,11 +237,11 @@ class ClientLogicState extends BaseLogicState {
       config: config,
       clientState: clientState ?? this.clientState,
       email: email ?? this.email,
-      showConfirmDialog: readyToConfirm ?? this.showConfirmDialog
+      showConfirmDialog: showConfirmDialog ?? this.showConfirmDialog
   );
 
   @override
-  ClientLogicState copy({
+  ClientLogicState copyBase({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
@@ -232,12 +261,12 @@ class ClientLogicState extends BaseLogicState {
 @injectable
 class ClientCubit extends BaseCubit<ClientLogicState> {
 
-  final ClientInteractor clientInteractor;
+  final ClientInteractor _clientInteractor;
 
-  ClientCubit({
-    required this.clientInteractor,
-    @factoryParam required ClientConfig config
-  }) : super(
+  ClientCubit(
+    this._clientInteractor,
+    @factoryParam ClientConfig config
+  ) : super(
       ClientLogicState(
           config: config,
           clientState: ClientModel(
@@ -253,7 +282,7 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
   @override
   Future<void> onStart() async {
     showLoad();
-    await clientInteractor.getClientInQueue(
+    await _clientInteractor.getClientInQueue(
         state.config.username,
         state.config.locationId,
         state.config.queueId
@@ -267,70 +296,21 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
       });
   }
 
-  Future<void> join(ClientJoinResult result) async {
-    showLoad();
-    emit(state.copyWith(email: result.email));
-    await clientInteractor.joinClientToQueue(
-        state.config.username,
-        state.config.locationId,
-        state.config.queueId,
-        ClientJoinInfo(
-            email: result.email,
-            firstName: result.firstName,
-            lastName: result.lastName
-        )
-    )
-      ..onSuccess((result) {
-        hideLoad();
-        emit(state.copyWith(clientState: result.data, readyToConfirm: true));
-        emit(state.copyWith(readyToConfirm: false));
-      })
-      ..onError((result) {
-        showError(result);
-      });
+  Future<void> handleJoinResult(ClientJoinResult result) async {
+    emit(state.copyWith(clientState: result.clientModel));
   }
 
-  Future<void> rejoin(ClientRejoinResult result) async {
-    showLoad();
-    emit(state.copyWith(email: result.email));
-    await clientInteractor.rejoinClientToQueue(
-        state.config.queueId,
-        result.email
-    )
-      ..onSuccess((result) {
-        hideLoad();
-        emit(state.copyWith(clientState: result.data, readyToConfirm: true));
-      })
-      ..onError((result) {
-        showError(result);
-      });
+  Future<void> handleRejoinResult(ClientRejoinResult result) async {
+    emit(state.copyWith(clientState: result.clientModel));
   }
 
-  Future<void> confirm(Object result) async {
-    if (result is ClientConfirmResult) {
-      showLoad();
-      emit(state.copyWith(readyToConfirm: false));
-      await clientInteractor.confirmClientCodeInQueue(
-          state.config.queueId,
-          result.email,
-          result.code
-      )
-        ..onSuccess((result) {
-          emit(state.copyWith(clientState: result.data));
-          hideLoad();
-        })
-        ..onError((result) {
-          showError(result);
-        });
-    } else {
-      hideLoad();
-      emit(state.copyWith(readyToConfirm: false));
-    }
+  Future<void> handleConfirmResult(ClientConfirmResult result) async {
+    emit(state.copyWith(clientState: result.clientModel));
   }
 
   Future<void> leave() async {
     showLoad();
-    await clientInteractor.leaveQueue(state.config.queueId)
+    await _clientInteractor.leaveQueue(state.config.queueId)
       ..onSuccess((result) {
         emit(state.copyWith(clientState: result.data));
         hideLoad();

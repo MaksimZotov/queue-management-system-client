@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../dimens.dart';
 import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 
-class AddRuleResult {
+class AddRuleConfig extends BaseDialogConfig {}
+
+class AddRuleResult extends BaseDialogResult {
   final String email;
 
   AddRuleResult({
@@ -20,23 +20,30 @@ class AddRuleResult {
   });
 }
 
+class AddRuleWidget extends BaseDialogWidget<AddRuleConfig> {
 
-class AddRuleWidget extends BaseWidget {
-
-  const AddRuleWidget({super.key, required super.emitConfig});
+  const AddRuleWidget({
+    super.key,
+    required super.emitConfig,
+    required super.config
+  });
 
   @override
   State<AddRuleWidget> createState() => _AddRuleState();
 }
 
-class _AddRuleState extends BaseDialogState<AddRuleWidget, AddRuleLogicState, AddRuleCubit> {
+class _AddRuleState extends BaseDialogState<
+    AddRuleWidget,
+    AddRuleLogicState,
+    AddRuleCubit
+> {
 
   @override
   String getTitle(
       BuildContext context,
       AddRuleLogicState state,
       AddRuleWidget widget
-  ) => AppLocalizations.of(context)!.addingOfEmployee;
+  ) => getLocalizations(context).addingOfEmployee;
 
   @override
   List<Widget> getDialogContentWidget(
@@ -45,13 +52,13 @@ class _AddRuleState extends BaseDialogState<AddRuleWidget, AddRuleLogicState, Ad
       AddRuleWidget widget
   ) => [
     TextFieldWidget(
-        label: AppLocalizations.of(context)!.email,
+        label: getLocalizations(context).email,
         text: state.email,
-        onTextChanged: BlocProvider.of<AddRuleCubit>(context).setEmail
+        onTextChanged: getCubitInstance(context).setEmail
     ),
     const SizedBox(height: Dimens.contentMargin),
     ButtonWidget(
-        text: AppLocalizations.of(context)!.add,
+        text: getLocalizations(context).add,
         onClick: () => Navigator.of(context).pop(
             AddRuleResult(
               email: state.email,
@@ -61,10 +68,13 @@ class _AddRuleState extends BaseDialogState<AddRuleWidget, AddRuleLogicState, Ad
   ];
 
   @override
-  AddRuleCubit getCubit() => statesAssembler.getAddRuleCubit();
+  AddRuleCubit getCubit() => statesAssembler.getAddRuleCubit(widget.config);
 }
 
-class AddRuleLogicState extends BaseLogicState {
+class AddRuleLogicState extends BaseDialogLogicState<
+    AddRuleConfig,
+    AddRuleResult
+> {
 
   final String email;
 
@@ -73,17 +83,25 @@ class AddRuleLogicState extends BaseLogicState {
     super.error,
     super.snackBar,
     super.loading,
+    required super.config,
+    super.result,
     required this.email,
   });
 
   AddRuleLogicState copyWith({
     String? email
   }) => AddRuleLogicState(
-    email: email ?? this.email
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading,
+      config: config,
+      result: result,
+      email: email ?? this.email
   );
 
   @override
-  AddRuleLogicState copy({
+  AddRuleLogicState copyBase({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
@@ -93,16 +111,34 @@ class AddRuleLogicState extends BaseLogicState {
       error: error,
       snackBar: snackBar,
       loading: loading ?? this.loading,
+      config: config,
+      result: result,
+      email: email
+  );
+
+  @override
+  AddRuleLogicState copyResult({
+    AddRuleResult? result
+  }) => AddRuleLogicState(
+      nextConfig: nextConfig,
+      error: error,
+      snackBar: snackBar,
+      loading: loading,
+      config: config,
+      result: result,
       email: email
   );
 }
 
 @injectable
-class AddRuleCubit extends BaseCubit<AddRuleLogicState> {
+class AddRuleCubit extends BaseDialogCubit<AddRuleLogicState> {
 
-  AddRuleCubit() : super(
+  AddRuleCubit(
+      @factoryParam AddRuleConfig config
+  ) : super(
       AddRuleLogicState(
-          email: '',
+          config: config,
+          email: ''
       )
   );
 

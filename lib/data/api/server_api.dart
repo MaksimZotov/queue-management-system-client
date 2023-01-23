@@ -310,15 +310,13 @@ class ServerApi {
     );
   }
 
-  Future<Result<ClientModel>> joinClientToQueue(String username, int locationId, int queueId, ClientJoinInfo clientJoinInfo) async {
+  Future<Result<ClientModel>> joinClientToQueue(int queueId, ClientJoinInfo clientJoinInfo) async {
     return await _execRequest(
         fromJson: ClientModel.fromJson,
         request: _dioApi.post(
             '$url/queues/$queueId/client/join',
             data: clientJoinInfo.toJson(),
             queryParameters: {
-              'username': username,
-              'location_id': locationId,
               'queue_id': queueId
             }
         )

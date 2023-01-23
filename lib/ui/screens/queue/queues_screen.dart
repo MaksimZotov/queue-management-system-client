@@ -1,8 +1,6 @@
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
@@ -21,21 +19,33 @@ import 'delete_queue_dialog.dart';
 class QueuesWidget extends BaseWidget {
   final QueuesConfig config;
 
-  QueuesWidget({super.key, required super.emitConfig, required this.config});
+  const QueuesWidget({
+    super.key,
+    required super.emitConfig,
+    required this.config
+  });
 
   @override
   State<QueuesWidget> createState() => _QueuesState();
 }
 
-class _QueuesState extends BaseState<QueuesWidget, QueuesLogicState, QueuesCubit> {
+class _QueuesState extends BaseState<
+    QueuesWidget,
+    QueuesLogicState,
+    QueuesCubit
+> {
 
   @override
-  Widget getWidget(BuildContext context, QueuesLogicState state, QueuesWidget widget) => Scaffold(
+  Widget getWidget(
+      BuildContext context,
+      QueuesLogicState state,
+      QueuesWidget widget
+  ) => Scaffold(
     appBar: AppBar(
       title: Text(
           state.locationName.isEmpty
               ? ''
-              : AppLocalizations.of(context)!.locationPattern(state.locationName)
+              : getLocalizations(context).locationPattern(state.locationName)
       ),
       actions: state.ownerUsername != null
           ? (state.hasRights ? <Widget>[
@@ -61,12 +71,12 @@ class _QueuesState extends BaseState<QueuesWidget, QueuesLogicState, QueuesCubit
             ),
             IconButton(
                 icon: const Icon(Icons.qr_code),
-                onPressed: BlocProvider.of<QueuesCubit>(context).downloadQrCode
+                onPressed: getCubitInstance(context).downloadQrCode
             ),
             IconButton(
               icon: const Icon(Icons.share),
-              onPressed: () => BlocProvider.of<QueuesCubit>(context).share(
-                  AppLocalizations.of(context)!.linkCopied
+              onPressed: () => getCubitInstance(context).share(
+                  getLocalizations(context).linkCopied
               ),
             ),
           ]
@@ -95,7 +105,7 @@ class _QueuesState extends BaseState<QueuesWidget, QueuesLogicState, QueuesCubit
               )
           ).then((result) {
             if (result is DeleteQueueResult) {
-              BlocProvider.of<QueuesCubit>(context).deleteQueue(result);
+              getCubitInstance(context).handleDeleteQueueResult(result);
             }
           }
           ),
@@ -107,10 +117,15 @@ class _QueuesState extends BaseState<QueuesWidget, QueuesLogicState, QueuesCubit
         ? FloatingActionButton(
           onPressed: () => showDialog(
               context: context,
-              builder: (context) => CreateQueueWidget(emitConfig: widget.emitConfig)
+              builder: (context) => CreateQueueWidget(
+                  emitConfig: widget.emitConfig,
+                  config: CreateQueueConfig(
+                    locationId: state.config.locationId
+                  ),
+              )
           ).then((result) {
             if (result is CreateQueueResult) {
-              BlocProvider.of<QueuesCubit>(context).createQueue(result);
+              getCubitInstance(context).handleCreateQueueResult(result);
             }
           }),
           child: const Icon(Icons.add),
@@ -162,7 +177,7 @@ class QueuesLogicState extends BaseLogicState {
     );
 
   @override
-  QueuesLogicState copy({
+  QueuesLogicState copyBase({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
@@ -219,37 +234,24 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
       });
   }
 
-  Future<void> createQueue(CreateQueueResult result) async {
-    showLoad();
-    await queueInteractor.createQueue(
-        state.config.locationId,
-        QueueModel(
-            id: null,
-            name: result.name,
-            description: result.description
-        )
-    )
-      ..onSuccess((result) {
-        _reload();
-      })
-      ..onError((result) {
-        showError(result);
-      });
+  void handleCreateQueueResult(CreateQueueResult result) {
+    emit(state.copyWith(queues: state.queues + [result.queueModel]));
   }
 
-  Future deleteQueue(DeleteQueueResult result) async {
-    showLoad();
-    await queueInteractor.deleteQueue(result.id)
-      ..onSuccess((result) {
-        _reload();
-      })
-      ..onError((result) {
-        showError(result);
-      });
+  void handleDeleteQueueResult(DeleteQueueResult result) {
+    emit(
+        state.copyWith(
+            queues: state.queues
+              ..removeWhere((element) => element.id == result.id)
+        )
+    );
   }
 
   Future<void> _reload() async {
-    await queueInteractor.getQueues(state.config.locationId, state.config.username)
+    await queueInteractor.getQueues(
+        state.config.locationId,
+        state.config.username
+    )
       ..onSuccess((result) {
         emit(state.copyWith(queues: result.data.results));
         hideLoad();
