@@ -66,5 +66,7 @@
     "unknownError": "Неизвестная ошибка",
     "serverError": "Ошибка на сервере",
     "timeoutError": "Вышло время ожидания ответа",
-    "connectionError": "Нет соединения"
+    "connectionError": "Нет соединения",
+    "navigateToAnotherName": "Переход на другое имя",
+    "navigate": "Перейти"
 }

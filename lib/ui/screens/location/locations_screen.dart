@@ -6,6 +6,7 @@ import 'package:queue_management_system_client/ui/router/routes_config.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/screens/location/create_location_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/delete_location_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/location/search_locations_dialog.dart';
 import 'package:queue_management_system_client/ui/widgets/location_item_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
@@ -39,6 +40,19 @@ class _LocationsState extends BaseState<
     appBar: AppBar(
       title: Text(getLocalizations(context).locations),
       actions: <Widget>[
+        IconButton(
+          icon: const Icon(Icons.move_up),
+          onPressed: () => showDialog(
+              context: context,
+              builder: (context) => SearchLocationsWidget(
+                  config: SearchLocationsConfig()
+              )
+          ).then((result) {
+            if (result is SearchLocationsResult) {
+              widget.emitConfig(LocationsConfig(username: result.username));
+            }
+          }),
+        ),
         IconButton(
           icon: Icon(state.hasToken ? Icons.logout : Icons.login),
           onPressed: getCubitInstance(context).logout,

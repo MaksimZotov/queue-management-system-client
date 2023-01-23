@@ -5,6 +5,7 @@ import 'package:queue_management_system_client/ui/screens/client/client_confirm_
 import 'package:queue_management_system_client/ui/screens/client/client_join_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/create_location_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/delete_location_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/location/search_locations_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/queue/add_client_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queue_screen.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queues_screen.dart';
@@ -33,6 +34,7 @@ class StatesAssembler {
   LocationsCubit getLocationsCubit(LocationsConfig config) => getIt.get(param1: config);
   CreateLocationCubit getCreateLocationCubit(CreateLocationConfig config) => getIt.get(param1: config);
   DeleteLocationCubit getDeleteLocationCubit(DeleteLocationConfig config) => getIt.get(param1: config);
+  SearchLocationsCubit getSearchLocationsCubit(SearchLocationsConfig config) => getIt.get(param1: config);
 
   QueuesCubit getQueuesCubit(QueuesConfig config) => getIt.get(param1: config);
   CreateQueueCubit getCreateQueueCubit(CreateQueueConfig config) => getIt.get(param1: config);
