@@ -1,8 +1,6 @@
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/interactors/board_interactor.dart';
 import 'package:queue_management_system_client/domain/interactors/rights_interactor.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
-import 'package:queue_management_system_client/domain/models/board/board_model.dart';
 import 'package:queue_management_system_client/domain/models/rights/rights_model.dart';
 
 import '../../../data/repositories/repository.dart';

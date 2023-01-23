@@ -18,13 +18,12 @@ import '../base.dart';
 import 'add_client_dialog.dart';
 
 
-class QueueWidget extends BaseWidget {
-  final QueueConfig config;
+class QueueWidget extends BaseWidget<QueueConfig> {
 
   const QueueWidget({
     super.key,
-    required super.emitConfig,
-    required this.config
+    required super.config,
+    required super.emitConfig
   });
 
   @override
@@ -74,7 +73,6 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
       onPressed: () => showDialog(
           context: context,
           builder: (context) => AddClientWidget(
-              emitConfig: widget.emitConfig,
               config: AddClientConfig(
                 queueId: state.config.queueId,
                 queueName: state.queueState.name

@@ -14,14 +14,12 @@ import '../../../domain/models/base/result.dart';
 import '../../../domain/models/board/board_model.dart';
 import '../../router/routes_config.dart';
 
+class BoardWidget extends BaseWidget<BoardConfig> {
 
-class BoardWidget extends BaseWidget {
-  final BoardConfig config;
-
-  BoardWidget({
+  const BoardWidget({
     super.key,
+    required super.config,
     required super.emitConfig,
-    required this.config
   });
 
   @override

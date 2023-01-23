@@ -28,7 +28,6 @@ class DeleteLocationWidget extends BaseDialogWidget<DeleteLocationConfig> {
 
   const DeleteLocationWidget({
     super.key,
-    required super.emitConfig,
     required super.config
   });
 
@@ -85,24 +84,13 @@ class DeleteLocationLogicState extends BaseDialogLogicState<
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
-    bool? loading
-  }) => DeleteLocationLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading ?? this.loading,
-      config: config,
-      result: result
-  );
-
-  @override
-  DeleteLocationLogicState copyResult({
+    bool? loading,
     DeleteLocationResult? result
   }) => DeleteLocationLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
-      loading: loading,
+      loading: loading ?? this.loading,
       config: config,
       result: result
   );

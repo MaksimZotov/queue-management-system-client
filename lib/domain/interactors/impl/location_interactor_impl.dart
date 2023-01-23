@@ -14,27 +14,27 @@ class LocationInteractorImpl extends LocationInteractor {
   LocationInteractorImpl(this._repository);
 
   @override
-  Future<Result<ContainerForList<LocationModel>>> getLocations(String? username) async {
-    return await _repository.getLocations(username);
+  Future<Result<ContainerForList<LocationModel>>> getLocations(String? username) {
+    return _repository.getLocations(username);
   }
 
   @override
-  Future<Result<LocationModel>> createLocation(LocationModel location) async {
-    return await _repository.createLocation(location);
+  Future<Result<LocationModel>> createLocation(LocationModel location) {
+    return _repository.createLocation(location);
   }
 
   @override
-  Future<Result<LocationModel>> getLocation(int id, String? username) async {
-    return await _repository.getLocation(id, username);
+  Future<Result<LocationModel>> getLocation(int id, String? username) {
+    return _repository.getLocation(id, username);
   }
 
   @override
-  Future<Result> deleteLocation(int locationId) async {
-    return await _repository.deleteLocation(locationId);
+  Future<Result> deleteLocation(int locationId) {
+    return _repository.deleteLocation(locationId);
   }
 
   @override
-  Future<Result<HasRightsModel>> checkHasRights(String? username) async {
-    return await _repository.checkHasRights(username);
+  Future<Result<HasRightsModel>> checkHasRights(String? username) {
+    return _repository.checkHasRights(username);
   }
 }

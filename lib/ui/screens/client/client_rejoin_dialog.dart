@@ -31,7 +31,6 @@ class ClientRejoinWidget extends BaseDialogWidget<ClientRejoinConfig> {
 
   const ClientRejoinWidget({
     super.key,
-    required super.emitConfig,
     required super.config
   });
 
@@ -109,7 +108,8 @@ class ClientRejoinLogicState extends BaseDialogLogicState<
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
-    bool? loading
+    bool? loading,
+    ClientRejoinResult? result
   }) => ClientRejoinLogicState(
     nextConfig: nextConfig,
     error: error,
@@ -118,19 +118,6 @@ class ClientRejoinLogicState extends BaseDialogLogicState<
     config: config,
     result: result,
     email: email
-  );
-
-  @override
-  ClientRejoinLogicState copyResult({
-    ClientRejoinResult? result
-  }) => ClientRejoinLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading,
-      config: config,
-      result: result,
-      email: email
   );
 }
 

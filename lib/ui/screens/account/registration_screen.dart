@@ -13,10 +13,11 @@ import '../../../domain/interactors/account_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 
-class RegistrationWidget extends BaseWidget {
+class RegistrationWidget extends BaseWidget<RegistrationConfig> {
 
   const RegistrationWidget({
     super.key,
+    required super.config,
     required super.emitConfig
   });
 
@@ -41,7 +42,6 @@ class RegistrationState extends BaseState<
       showDialog(
           context: context,
           builder: (context) => ConfirmRegistrationWidget(
-            emitConfig: widget.emitConfig,
             config: ConfirmRegistrationConfig(
                 username: state.username,
                 password: state.password

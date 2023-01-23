@@ -28,7 +28,6 @@ class DeleteQueueWidget extends BaseDialogWidget<DeleteQueueConfig> {
 
   const DeleteQueueWidget({
     super.key,
-    required super.emitConfig,
     required super.config
   });
 
@@ -89,7 +88,8 @@ class DeleteQueueLogicState extends BaseDialogLogicState<
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
-    bool? loading
+    bool? loading,
+    DeleteQueueResult? result
   }) => DeleteQueueLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -97,18 +97,6 @@ class DeleteQueueLogicState extends BaseDialogLogicState<
       loading: loading ?? this.loading,
       config: config,
       result: result,
-  );
-
-  @override
-  DeleteQueueLogicState copyResult({
-    DeleteQueueResult? result
-  }) => DeleteQueueLogicState(
-    nextConfig: nextConfig,
-    error: error,
-    snackBar: snackBar,
-    loading: loading,
-    config: config,
-    result: result,
   );
 }
 

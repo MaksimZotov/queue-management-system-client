@@ -11,10 +11,11 @@ import '../../router/routes_config.dart';
 import '../../widgets/text_field_widget.dart';
 import '../base.dart';
 
-class AuthorizationWidget extends BaseWidget {
+class AuthorizationWidget extends BaseWidget<AuthorizationConfig> {
 
   const AuthorizationWidget({
     super.key,
+    required super.config,
     required super.emitConfig
   });
 

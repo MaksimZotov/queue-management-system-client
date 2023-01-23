@@ -31,7 +31,6 @@ class AddClientWidget extends BaseDialogWidget<AddClientConfig> {
 
   const AddClientWidget({
     super.key,
-    required super.emitConfig,
     required super.config
   });
 
@@ -122,26 +121,13 @@ class AddClientLogicState extends BaseDialogLogicState<
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
-    bool? loading
-  }) => AddClientLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading ?? this.loading,
-      config: config,
-      result: result,
-      firstName: firstName,
-      lastName: lastName
-  );
-
-  @override
-  AddClientLogicState copyResult({
+    bool? loading,
     AddClientResult? result
   }) => AddClientLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
-      loading: loading,
+      loading: loading ?? this.loading,
       config: config,
       result: result,
       firstName: firstName,

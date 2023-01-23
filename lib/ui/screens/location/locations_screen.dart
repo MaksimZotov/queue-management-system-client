@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
@@ -14,13 +12,12 @@ import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/account_interactor.dart';
 
-class LocationsWidget extends BaseWidget {
-  final LocationsConfig config;
+class LocationsWidget extends BaseWidget<LocationsConfig> {
 
   const LocationsWidget({
     super.key,
-    required super.emitConfig,
-    required this.config
+    required super.config,
+    required super.emitConfig
   });
 
   @override
@@ -60,7 +57,6 @@ class _LocationsState extends BaseState<
         onDelete: (location) => showDialog(
             context: context,
             builder: (context) => DeleteLocationWidget(
-                emitConfig: widget.emitConfig,
                 config: DeleteLocationConfig(id: location.id!)
             )
         ).then((result) {
@@ -76,8 +72,7 @@ class _LocationsState extends BaseState<
           onPressed: () => showDialog(
               context: context,
               builder: (context) => CreateLocationWidget(
-                  emitConfig: widget.emitConfig,
-                  config: CreateLocationConfig(),
+                  config: CreateLocationConfig()
               )
           ).then((result) {
             if (result is CreateLocationResult) {
@@ -94,8 +89,6 @@ class _LocationsState extends BaseState<
 }
 
 class LocationsLogicState extends BaseLogicState {
-
-  static const int _pageSize = 30;
 
   final LocationsConfig config;
 
@@ -182,7 +175,7 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
       ..onError((result) {
         showError(result);
       });
-    await _reload();
+    await _load();
   }
 
   Future<void> logout() async {
@@ -203,7 +196,7 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
     );
   }
 
-  Future _reload() async {
+  Future _load() async {
     await _locationInteractor.getLocations(state.config.username)
       ..onSuccess((result) {
         emit(state.copyWith(locations: result.data.results));

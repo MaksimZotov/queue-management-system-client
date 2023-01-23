@@ -8,11 +8,11 @@ import 'package:queue_management_system_client/ui/screens/location/delete_locati
 import 'package:queue_management_system_client/ui/screens/queue/add_client_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queue_screen.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queues_screen.dart';
-import 'package:queue_management_system_client/ui/screens/rights/add_rule_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/rights/add_right_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/account/authorization_screen.dart';
 import 'package:queue_management_system_client/ui/screens/account/registration_screen.dart';
-import 'package:queue_management_system_client/ui/screens/account/select_screen.dart';
-import 'package:queue_management_system_client/ui/screens/rights/delete_rule_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/account/initial_screen.dart';
+import 'package:queue_management_system_client/ui/screens/rights/delete_right_dialog.dart';
 
 import '../../ui/screens/client/client_rejoin_dialog.dart';
 import '../../ui/screens/location/locations_screen.dart';
@@ -48,8 +48,8 @@ class StatesAssembler {
   BoardCubit getBoardCubit(BoardConfig config) => getIt.get(param1: config);
 
   RightsCubit getRightsCubit(RightsConfig config) => getIt.get(param1: config);
-  AddRuleCubit getAddRuleCubit(AddRuleConfig config) => getIt.get(param1: config);
-  DeleteRuleCubit getDeleteRuleCubit(DeleteRuleConfig config) => getIt.get(param1: config);
+  AddRightCubit getAddRightCubit(AddRightConfig config) => getIt.get(param1: config);
+  DeleteRightCubit getDeleteRightCubit(DeleteRightConfig config) => getIt.get(param1: config);
 }
 
 const statesAssembler = StatesAssembler._();

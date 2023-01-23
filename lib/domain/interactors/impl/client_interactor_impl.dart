@@ -13,27 +13,27 @@ class ClientInteractorImpl extends ClientInteractor {
   ClientInteractorImpl(this._repository);
 
   @override
-  Future<Result<ClientModel>> getClientInQueue(String username, int locationId, int queueId) async {
-    return await _repository.getClientInQueue(username, locationId, queueId);
+  Future<Result<ClientModel>> getClientInQueue(String username, int locationId, int queueId) {
+    return _repository.getClientInQueue(username, locationId, queueId);
   }
 
   @override
-  Future<Result<ClientModel>> joinClientToQueue(int queueId, ClientJoinInfo clientJoinInfo) async {
-    return await _repository.joinClientToQueue(queueId, clientJoinInfo);
+  Future<Result<ClientModel>> joinClientToQueue(int queueId, ClientJoinInfo clientJoinInfo) {
+    return _repository.joinClientToQueue(queueId, clientJoinInfo);
   }
 
   @override
-  Future<Result<ClientModel>> confirmClientCodeInQueue(int queueId, String email, String code) async {
-    return await _repository.confirmClientCodeInQueue(queueId, email, code);
+  Future<Result<ClientModel>> confirmClientCodeInQueue(int queueId, String email, String code) {
+    return _repository.confirmClientCodeInQueue(queueId, email, code);
   }
 
   @override
-  Future<Result<ClientModel>> leaveQueue(int queueId) async {
-    return await _repository.leaveQueue(queueId);
+  Future<Result<ClientModel>> leaveQueue(int queueId) {
+    return _repository.leaveQueue(queueId);
   }
 
   @override
-  Future<Result<ClientModel>> rejoinClientToQueue(int queueId, String email) async {
-    return await _repository.rejoinClientToQueue(queueId, email);
+  Future<Result<ClientModel>> rejoinClientToQueue(int queueId, String email) {
+    return _repository.rejoinClientToQueue(queueId, email);
   }
 }

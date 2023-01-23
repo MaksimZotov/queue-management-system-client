@@ -32,7 +32,6 @@ class ClientJoinWidget extends BaseDialogWidget<ClientJoinConfig> {
 
   const ClientJoinWidget({
     super.key,
-    required super.emitConfig,
     required super.config
   });
 
@@ -128,7 +127,8 @@ class ClientJoinLogicState extends BaseDialogLogicState<
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
-    bool? loading
+    bool? loading,
+    ClientJoinResult? result
   }) => ClientJoinLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -139,21 +139,6 @@ class ClientJoinLogicState extends BaseDialogLogicState<
       email: email,
       firstName: firstName,
       lastName: lastName,
-  );
-
-  @override
-  ClientJoinLogicState copyResult({
-    ClientJoinResult? result
-  }) => ClientJoinLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading,
-      config: config,
-      result: result,
-      email: email,
-      firstName: firstName,
-      lastName: lastName
   );
 }
 

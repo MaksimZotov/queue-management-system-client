@@ -131,25 +131,20 @@ class ServerApi {
 
 
 
-  Future<Result> signup(SignupModel signup) async {
-    final result = await _execRequest(
-        request: _dioApi.post(
-          '$url$signupMethod',
-          data: signup.toJson()
-        )
-    );
-    return result;
-  }
+  Future<Result> signup(SignupModel signup) => _execRequest(
+      request: _dioApi.post(
+        '$url$signupMethod',
+        data: signup.toJson()
+      )
+  );
 
-  Future<Result> confirm(ConfirmModel confirm) async {
-    final result = await _execRequest(
-        request: _dioApi.post(
-            '$url$confirmMethod',
-            data: confirm.toJson()
-        )
-    );
-    return result;
-  }
+  Future<Result> confirm(ConfirmModel confirm) => _execRequest(
+      request: _dioApi.post(
+          '$url$confirmMethod',
+          data: confirm.toJson()
+      )
+  );
+
 
   Future<Result<TokensModel>> login(LoginModel login) async {
     final result = await _execRequest<TokensModel>(
@@ -169,195 +164,162 @@ class ServerApi {
 
 
 
-  Future<Result<ContainerForList<LocationModel>>> getLocations(String username) async {
-    return await _execRequestForList(
-        fromJson: LocationModel.fromJson,
-        request: _dioApi.get(
-          '$url/locations',
+  Future<Result<ContainerForList<LocationModel>>> getLocations(String username) => _execRequestForList(
+      fromJson: LocationModel.fromJson,
+      request: _dioApi.get(
+        '$url/locations',
+        queryParameters: {
+          'username': username,
+        }
+      )
+  );
+
+  Future<Result<LocationModel>> createLocation(LocationModel location) => _execRequest(
+      fromJson: LocationModel.fromJson,
+      request: _dioApi.post(
+          '$url/locations/create',
+           data: location.toJson()
+      )
+  );
+
+  Future<Result<LocationModel>> getLocation(int locationId, String? username) => _execRequest(
+      fromJson: LocationModel.fromJson,
+      request: _dioApi.get(
+          '$url/locations/$locationId',
+          queryParameters: { 'username': username }
+      )
+  );
+
+  Future<Result> deleteLocation(int locationId) => _execRequest(
+      request: _dioApi.delete(
+          '$url/locations/$locationId/delete'
+      )
+  );
+
+  Future<Result<HasRightsModel>> checkHasRights(String username) => _execRequest(
+      fromJson: HasRightsModel.fromJson,
+      request: _dioApi.get(
+          '$url/locations/check',
+          queryParameters: { 'username': username }
+      )
+  );
+
+
+
+
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String username) => _execRequestForList(
+      fromJson: QueueModel.fromJson,
+      request: _dioApi.get(
+          '$url/queues',
           queryParameters: {
             'username': username,
+            'location_id': locationId,
           }
-        )
-    );
-  }
+      )
+  );
 
-  Future<Result<LocationModel>> createLocation(LocationModel location) async {
-    return await _execRequest(
-        fromJson: LocationModel.fromJson,
-        request: _dioApi.post(
-            '$url/locations/create',
-             data: location.toJson()
-        )
-    );
-  }
+  Future<Result<QueueModel>> createQueue(int locationId, QueueModel queue) => _execRequest(
+      fromJson: QueueModel.fromJson,
+      request: _dioApi.post(
+          '$url/queues/create',
+          data: queue.toJson(),
+          queryParameters: {
+            'location_id': locationId
+          }
+      )
+  );
 
-  Future<Result<LocationModel>> getLocation(int locationId, String? username) async {
-    return await _execRequest(
-        fromJson: LocationModel.fromJson,
-        request: _dioApi.get(
-            '$url/locations/$locationId',
-            queryParameters: { 'username': username }
-        )
-    );
-  }
-
-  Future<Result> deleteLocation(int locationId) async {
-    return await _execRequest(
-        request: _dioApi.delete(
-            '$url/locations/$locationId/delete'
-        )
-    );
-  }
-
-  Future<Result<HasRightsModel>> checkHasRights(String username) async {
-    return await _execRequest(
-        fromJson: HasRightsModel.fromJson,
-        request: _dioApi.get(
-            '$url/locations/check',
-            queryParameters: { 'username': username }
-        )
-    );
-  }
+  Future<Result> deleteQueue(int id) => _execRequest(
+      request: _dioApi.delete(
+        '$url/queues/$id/delete',
+      )
+  );
 
 
+  Future<Result<QueueModel>> getQueueState(int id) => _execRequest(
+      fromJson: QueueModel.fromJson,
+      request: _dioApi.get(
+          '$url/queues/$id'
+      )
+  );
 
+  Future<Result> serveClientInQueue(int queueId, int clientId) => _execRequest(
+      request: _dioApi.post(
+          '$url/queues/$queueId/serve',
+          queryParameters: { 'client_id': clientId }
+      )
+  );
 
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String username) async {
-    return await _execRequestForList(
-        fromJson: QueueModel.fromJson,
-        request: _dioApi.get(
-            '$url/queues',
-            queryParameters: {
-              'username': username,
-              'location_id': locationId,
-            }
-        )
-    );
-  }
+  Future<Result> notifyClientInQueue(int queueId, int clientId) => _execRequest(
+      request: _dioApi.post(
+          '$url/queues/$queueId/notify',
+          queryParameters: { 'client_id': clientId }
+      )
+  );
 
-  Future<Result<QueueModel>> createQueue(int locationId, QueueModel queue) async {
-    return await _execRequest(
-        fromJson: QueueModel.fromJson,
-        request: _dioApi.post(
-            '$url/queues/create',
-            data: queue.toJson(),
-            queryParameters: {
-              'location_id': locationId
-            }
-        )
-    );
-  }
-
-  Future<Result> deleteQueue(int id) async {
-    return await _execRequest(
-        request: _dioApi.delete(
-          '$url/queues/$id/delete',
-        )
-    );
-  }
-
-  Future<Result<QueueModel>> getQueueState(int id) async {
-    return await _execRequest(
-        fromJson: QueueModel.fromJson,
-        request: _dioApi.get(
-            '$url/queues/$id'
-        )
-    );
-  }
-
-  Future<Result> serveClientInQueue(int queueId, int clientId) async {
-    return await _execRequest(
-        request: _dioApi.post(
-            '$url/queues/$queueId/serve',
-            queryParameters: { 'client_id': clientId }
-        )
-    );
-  }
-
-  Future<Result> notifyClientInQueue(int queueId, int clientId) async {
-    return await _execRequest(
-        request: _dioApi.post(
-            '$url/queues/$queueId/notify',
-            queryParameters: { 'client_id': clientId }
-        )
-    );
-  }
-
-  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, AddClientInfo addClientInfo) async {
-    return await _execRequest(
-        fromJson: ClientInQueueModel.fromJson,
-        request: _dioApi.post(
-            '$url/queues/$queueId/client/add',
-            data: addClientInfo.toJson()
-        )
-    );
-  }
+  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, AddClientInfo addClientInfo) => _execRequest(
+      fromJson: ClientInQueueModel.fromJson,
+      request: _dioApi.post(
+          '$url/queues/$queueId/client/add',
+          data: addClientInfo.toJson()
+      )
+  );
 
 
 
 
 
-  Future<Result<ClientModel>> getClientInQueue(String username, int locationId, int queueId, String? email, String? accessKey) async {
-    return await _execRequest(
-        fromJson: ClientModel.fromJson,
-        request: _dioApi.get(
-            '$url/queues/$queueId/client',
-            queryParameters: {
-              'email': email,
-              'access_key': accessKey
-            }
-        )
-    );
-  }
+  Future<Result<ClientModel>> getClientInQueue(String username, int locationId, int queueId, String? email, String? accessKey) =>_execRequest(
+      fromJson: ClientModel.fromJson,
+      request: _dioApi.get(
+          '$url/queues/$queueId/client',
+          queryParameters: {
+            'email': email,
+            'access_key': accessKey
+          }
+      )
+  );
 
-  Future<Result<ClientModel>> joinClientToQueue(int queueId, ClientJoinInfo clientJoinInfo) async {
-    return await _execRequest(
-        fromJson: ClientModel.fromJson,
-        request: _dioApi.post(
-            '$url/queues/$queueId/client/join',
-            data: clientJoinInfo.toJson(),
-            queryParameters: {
-              'queue_id': queueId
-            }
-        )
-    );
-  }
+  Future<Result<ClientModel>> joinClientToQueue(int queueId, ClientJoinInfo clientJoinInfo) => _execRequest(
+      fromJson: ClientModel.fromJson,
+      request: _dioApi.post(
+          '$url/queues/$queueId/client/join',
+          data: clientJoinInfo.toJson(),
+          queryParameters: {
+            'queue_id': queueId
+          }
+      )
+  );
 
-  Future<Result<ClientModel>> rejoinClientToQueue(int queueId, String email) async {
-    return await _execRequest(
-        fromJson: ClientModel.fromJson,
-        request: _dioApi.post(
-            '$url/queues/$queueId/client/rejoin',
-            queryParameters: { 'email': email}
-        )
-    );
-  }
+  Future<Result<ClientModel>> rejoinClientToQueue(int queueId, String email) => _execRequest(
+      fromJson: ClientModel.fromJson,
+      request: _dioApi.post(
+          '$url/queues/$queueId/client/rejoin',
+          queryParameters: { 'email': email}
+      )
+  );
 
-  Future<Result<ClientModel>> confirmClientCodeInQueue(int queueId, String email, String code) async {
-    return await _execRequest(
-        fromJson: ClientModel.fromJson,
-        request: _dioApi.post(
-            '$url/queues/$queueId/client/confirm',
-            queryParameters: {
-              'email': email,
-              'code': code
-            }
-        )
-    );
-  }
+  Future<Result<ClientModel>> confirmClientCodeInQueue(int queueId, String email, String code) => _execRequest(
+      fromJson: ClientModel.fromJson,
+      request: _dioApi.post(
+          '$url/queues/$queueId/client/confirm',
+          queryParameters: {
+            'email': email,
+            'code': code
+          }
+      )
+  );
 
-  Future<Result<ClientModel>> leaveQueue(int queueId, String? email, String? accessKey) async {
-    return await _execRequest(
-        fromJson: ClientModel.fromJson,
-        request: _dioApi.post(
-            '$url/queues/$queueId/client/leave',
-            queryParameters: {
-              'email': email,
-              'access_key': accessKey
-            }
-        )
-    );
-  }
+  Future<Result<ClientModel>> leaveQueue(int queueId, String? email, String? accessKey) => _execRequest(
+      fromJson: ClientModel.fromJson,
+      request: _dioApi.post(
+          '$url/queues/$queueId/client/leave',
+          queryParameters: {
+            'email': email,
+            'access_key': accessKey
+          }
+      )
+  );
 
 
 
@@ -410,55 +372,48 @@ class ServerApi {
 
 
 
-  Future<Result> addRights(int locationId, String email) {
-    return _execRequest(
-        request: _dioApi.post(
-            '$url/rights/add',
-            queryParameters: {
-              'location_id': locationId,
-              'email': email
-            }
-        )
-    );
-  }
+  Future<Result> addRights(int locationId, String email) => _execRequest(
+      request: _dioApi.post(
+          '$url/rights/add',
+          queryParameters: {
+            'location_id': locationId,
+            'email': email
+          }
+      )
+  );
 
-  Future<Result> deleteRights(int locationId, String email) {
-    return _execRequest(
-        request: _dioApi.delete(
-            '$url/rights/delete',
-            queryParameters: {
-              'location_id': locationId,
-              'email': email
-            }
-        )
-    );
-  }
+  Future<Result> deleteRights(int locationId, String email) => _execRequest(
+      request: _dioApi.delete(
+          '$url/rights/delete',
+          queryParameters: {
+            'location_id': locationId,
+            'email': email
+          }
+      )
+  );
 
-  Future<Result<ContainerForList<RightsModel>>> getRights(int locationId) {
-    return _execRequestForList(
-        fromJson: RightsModel.fromJson,
-        request: _dioApi.get(
-            '$url/rights',
-            queryParameters: {
-              'location_id': locationId
-            }
-        )
-    );
-  }
+
+  Future<Result<ContainerForList<RightsModel>>> getRights(int locationId) => _execRequestForList(
+      fromJson: RightsModel.fromJson,
+      request: _dioApi.get(
+          '$url/rights',
+          queryParameters: {
+            'location_id': locationId
+          }
+      )
+  );
 
 
 
 
 
-  Future<Result<BoardModel>> getBoard(int locationId) {
-    return _execRequest(
-        fromJson: BoardModel.fromJson,
-        request: _dioApi.get(
-            '$url/board',
-            queryParameters: {
-              'location_id': locationId,
-            }
-        )
-    );
-  }
+  Future<Result<BoardModel>> getBoard(int locationId) => _execRequest(
+      fromJson: BoardModel.fromJson,
+      request: _dioApi.get(
+          '$url/board',
+          queryParameters: {
+            'location_id': locationId,
+          }
+      )
+  );
 }

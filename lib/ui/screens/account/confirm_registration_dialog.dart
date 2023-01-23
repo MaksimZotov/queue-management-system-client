@@ -36,7 +36,6 @@ class ConfirmRegistrationWidget extends BaseDialogWidget<
 
   const ConfirmRegistrationWidget({
     super.key,
-    required super.emitConfig,
     required super.config
   });
 
@@ -114,25 +113,13 @@ class ConfirmRegistrationLogicState extends BaseDialogLogicState<
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
-    bool? loading
-  }) => ConfirmRegistrationLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading ?? this.loading,
-      config: config,
-      result: result,
-      code: code
-  );
-
-  @override
-  ConfirmRegistrationLogicState copyResult({
+    bool? loading,
     ConfirmRegistrationResult? result
   }) => ConfirmRegistrationLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
-      loading: loading,
+      loading: loading ?? this.loading,
       config: config,
       result: result,
       code: code
@@ -177,7 +164,13 @@ class ConfirmRegistrationCubit extends BaseDialogCubit<
         )
           ..onSuccess((result) {
             hideLoad();
-            navigate(LocationsConfig(username: state.config.username));
+            popResult(
+                ConfirmRegistrationResult(
+                    locationsConfig: LocationsConfig(
+                        username: state.config.username
+                    )
+                )
+            );
           })
           ..onError((result) {
             showError(result);

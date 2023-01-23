@@ -16,13 +16,12 @@ import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 import 'delete_queue_dialog.dart';
 
-class QueuesWidget extends BaseWidget {
-  final QueuesConfig config;
+class QueuesWidget extends BaseWidget<QueuesConfig> {
 
   const QueuesWidget({
     super.key,
-    required super.emitConfig,
-    required this.config
+    required super.config,
+    required super.emitConfig
   });
 
   @override
@@ -100,7 +99,6 @@ class _QueuesState extends BaseState<
           onDelete: (location) => showDialog(
               context: context,
               builder: (context) => DeleteQueueWidget(
-                  emitConfig: widget.emitConfig,
                   config: DeleteQueueConfig(id: location.id!)
               )
           ).then((result) {
@@ -118,10 +116,9 @@ class _QueuesState extends BaseState<
           onPressed: () => showDialog(
               context: context,
               builder: (context) => CreateQueueWidget(
-                  emitConfig: widget.emitConfig,
                   config: CreateQueueConfig(
                     locationId: state.config.locationId
-                  ),
+                  )
               )
           ).then((result) {
             if (result is CreateQueueResult) {
@@ -227,7 +224,7 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
                 hasRights: result.data.hasRights
             )
         );
-        await _reload();
+        await _load();
       })
       ..onError((result) {
         showError(result);
@@ -245,20 +242,6 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
               ..removeWhere((element) => element.id == result.id)
         )
     );
-  }
-
-  Future<void> _reload() async {
-    await queueInteractor.getQueues(
-        state.config.locationId,
-        state.config.username
-    )
-      ..onSuccess((result) {
-        emit(state.copyWith(queues: result.data.results));
-        hideLoad();
-      })
-      ..onError((result) {
-        showError(result);
-      });
   }
 
   Future<void> share(String notificationText) async {
@@ -293,5 +276,19 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
           mimeType: MimeType.PNG
       );
     }
+  }
+
+  Future<void> _load() async {
+    await queueInteractor.getQueues(
+        state.config.locationId,
+        state.config.username
+    )
+      ..onSuccess((result) {
+        emit(state.copyWith(queues: result.data.results));
+        hideLoad();
+      })
+      ..onError((result) {
+        showError(result);
+      });
   }
 }

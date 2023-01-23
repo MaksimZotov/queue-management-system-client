@@ -33,7 +33,6 @@ class ClientConfirmWidget extends BaseDialogWidget<ClientConfirmConfig> {
 
   const ClientConfirmWidget({
     super.key,
-    required super.emitConfig,
     required super.config
   });
 
@@ -111,25 +110,13 @@ class ClientConfirmLogicState extends BaseDialogLogicState<
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
-    bool? loading
-  }) => ClientConfirmLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading ?? this.loading,
-      config: config,
-      result: result,
-      code: code
-  );
-
-  @override
-  ClientConfirmLogicState copyResult({
+    bool? loading,
     ClientConfirmResult? result
   }) => ClientConfirmLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
-      loading: loading,
+      loading: loading ?? this.loading,
       config: config,
       result: result,
       code: code

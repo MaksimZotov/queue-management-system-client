@@ -7,49 +7,55 @@ import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart
 import '../../../di/assemblers/states_assembler.dart';
 
 import '../../../dimens.dart';
+import '../../../domain/interactors/rights_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 
-class AddRuleConfig extends BaseDialogConfig {}
+class AddRightConfig extends BaseDialogConfig {
+  final int locationId;
 
-class AddRuleResult extends BaseDialogResult {
+  AddRightConfig({
+    required this.locationId
+  });
+}
+
+class AddRightResult extends BaseDialogResult {
   final String email;
 
-  AddRuleResult({
+  AddRightResult({
     required this.email,
   });
 }
 
-class AddRuleWidget extends BaseDialogWidget<AddRuleConfig> {
+class AddRightWidget extends BaseDialogWidget<AddRightConfig> {
 
-  const AddRuleWidget({
+  const AddRightWidget({
     super.key,
-    required super.emitConfig,
     required super.config
   });
 
   @override
-  State<AddRuleWidget> createState() => _AddRuleState();
+  State<AddRightWidget> createState() => _AddRightState();
 }
 
-class _AddRuleState extends BaseDialogState<
-    AddRuleWidget,
-    AddRuleLogicState,
-    AddRuleCubit
+class _AddRightState extends BaseDialogState<
+    AddRightWidget,
+    AddRightLogicState,
+    AddRightCubit
 > {
 
   @override
   String getTitle(
       BuildContext context,
-      AddRuleLogicState state,
-      AddRuleWidget widget
+      AddRightLogicState state,
+      AddRightWidget widget
   ) => getLocalizations(context).addingOfEmployee;
 
   @override
   List<Widget> getDialogContentWidget(
       BuildContext context,
-      AddRuleLogicState state,
-      AddRuleWidget widget
+      AddRightLogicState state,
+      AddRightWidget widget
   ) => [
     TextFieldWidget(
         label: getLocalizations(context).email,
@@ -59,26 +65,22 @@ class _AddRuleState extends BaseDialogState<
     const SizedBox(height: Dimens.contentMargin),
     ButtonWidget(
         text: getLocalizations(context).add,
-        onClick: () => Navigator.of(context).pop(
-            AddRuleResult(
-              email: state.email,
-            )
-        )
+        onClick: getCubitInstance(context).addRight
     ),
   ];
 
   @override
-  AddRuleCubit getCubit() => statesAssembler.getAddRuleCubit(widget.config);
+  AddRightCubit getCubit() => statesAssembler.getAddRightCubit(widget.config);
 }
 
-class AddRuleLogicState extends BaseDialogLogicState<
-    AddRuleConfig,
-    AddRuleResult
+class AddRightLogicState extends BaseDialogLogicState<
+    AddRightConfig,
+    AddRightResult
 > {
 
   final String email;
 
-  AddRuleLogicState({
+  AddRightLogicState({
     super.nextConfig,
     super.error,
     super.snackBar,
@@ -88,9 +90,9 @@ class AddRuleLogicState extends BaseDialogLogicState<
     required this.email,
   });
 
-  AddRuleLogicState copyWith({
+  AddRightLogicState copyWith({
     String? email
-  }) => AddRuleLogicState(
+  }) => AddRightLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
@@ -101,12 +103,13 @@ class AddRuleLogicState extends BaseDialogLogicState<
   );
 
   @override
-  AddRuleLogicState copyBase({
+  AddRightLogicState copyBase({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
-    bool? loading
-  }) => AddRuleLogicState(
+    bool? loading,
+    AddRightResult? result
+  }) => AddRightLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
@@ -115,28 +118,18 @@ class AddRuleLogicState extends BaseDialogLogicState<
       result: result,
       email: email
   );
-
-  @override
-  AddRuleLogicState copyResult({
-    AddRuleResult? result
-  }) => AddRuleLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading,
-      config: config,
-      result: result,
-      email: email
-  );
 }
 
 @injectable
-class AddRuleCubit extends BaseDialogCubit<AddRuleLogicState> {
+class AddRightCubit extends BaseDialogCubit<AddRightLogicState> {
 
-  AddRuleCubit(
-      @factoryParam AddRuleConfig config
+  final RightsInteractor _rightsInteractor;
+
+  AddRightCubit(
+      this._rightsInteractor,
+      @factoryParam AddRightConfig config
   ) : super(
-      AddRuleLogicState(
+      AddRightLogicState(
           config: config,
           email: ''
       )
@@ -144,5 +137,18 @@ class AddRuleCubit extends BaseDialogCubit<AddRuleLogicState> {
 
   void setEmail(String text) {
     emit(state.copyWith(email: text));
+  }
+
+  Future<void> addRight() async {
+    showLoad();
+    await _rightsInteractor.addRights(
+        state.config.locationId,
+        state.email
+    )
+      ..onSuccess((result) {
+        popResult(AddRightResult(email: state.email));
+      })..onError((result) {
+        showError(result);
+      });
   }
 }

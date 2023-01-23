@@ -25,7 +25,6 @@ class CreateLocationWidget extends BaseDialogWidget<CreateLocationConfig> {
 
   const CreateLocationWidget({
     super.key,
-    required super.emitConfig,
     required super.config
   });
 
@@ -113,26 +112,13 @@ class CreateLocationLogicState extends BaseDialogLogicState<
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
-    bool? loading
-  }) => CreateLocationLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading ?? this.loading,
-      config: config,
-      result: result,
-      name: name,
-      description: description
-  );
-
-  @override
-  CreateLocationLogicState copyResult({
+    bool? loading,
     CreateLocationResult? result
   }) => CreateLocationLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
-      loading: loading,
+      loading: loading ?? this.loading,
       config: config,
       result: result,
       name: name,

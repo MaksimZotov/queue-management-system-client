@@ -9,15 +9,20 @@ import '../../../domain/interactors/account_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 
-class SelectWidget extends BaseWidget {
-  SelectWidget({super.key, required super.emitConfig});
+class InitialWidget extends BaseWidget<InitialConfig> {
+
+  const InitialWidget({
+    super.key,
+    required super.config,
+    required super.emitConfig
+  });
 
   @override
-  State<SelectWidget> createState() => SelectState();
+  State<InitialWidget> createState() => SelectState();
 }
 
 class SelectState extends BaseState<
-    SelectWidget,
+    InitialWidget,
     SelectLogicState,
     SelectCubit
 > {
@@ -26,7 +31,7 @@ class SelectState extends BaseState<
   Widget getWidget(
       BuildContext context,
       SelectLogicState state,
-      SelectWidget widget
+      InitialWidget widget
   ) => state.loading
       ? const Center(
         child: CircularProgressIndicator(),

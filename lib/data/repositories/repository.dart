@@ -21,7 +21,7 @@ abstract class Repository {
   Future<Result> confirm(ConfirmModel confirm);
   Future<Result<TokensModel>> login(LoginModel login);
   Future<bool> checkToken();
-  Future logout();
+  Future<void> logout();
   Future<String?> getCurrentUsername();
 
   Future<Result<ContainerForList<LocationModel>>> getLocations(String? username);
@@ -31,7 +31,7 @@ abstract class Repository {
   Future<Result<HasRightsModel>> checkHasRights(String? username);
 
   Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String username);
-  Future<Result<QueueModel>> createQueue(int locationId, QueueModel location);
+  Future<Result<QueueModel>> createQueue(int locationId, QueueModel queue);
   Future<Result> deleteQueue(int id);
   Future<Result<QueueModel>> getQueueState(int id);
   Future<Result> serveClientInQueue(int queueId, int clientId);

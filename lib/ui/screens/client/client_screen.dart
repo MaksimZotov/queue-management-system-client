@@ -15,13 +15,12 @@ import '../../../domain/models/base/result.dart';
 import '../../widgets/button_widget.dart';
 import '../base.dart';
 
-class ClientWidget extends BaseWidget {
-  final ClientConfig config;
+class ClientWidget extends BaseWidget<ClientConfig> {
 
-  ClientWidget({
-    super.key, 
+  const ClientWidget({
+    super.key,
+    required super.config,
     required super.emitConfig,
-    required this.config
   });
 
   @override
@@ -45,7 +44,6 @@ class _ClientState extends BaseState<
       showDialog(
           context: context,
           builder: (context) => ClientConfirmWidget(
-              emitConfig: widget.emitConfig,
               config: ClientConfirmConfig(
                   queueId: state.config.queueId,
                   email: state.email
@@ -134,7 +132,6 @@ class _ClientState extends BaseState<
                                   config: ClientJoinConfig(
                                     queueId: state.config.queueId
                                   ),
-                                  emitConfig: widget.emitConfig
                               )
                           ).then((result) {
                             if (result is ClientJoinResult) {
@@ -156,7 +153,6 @@ class _ClientState extends BaseState<
                                     context: context,
                                     builder: (context) =>
                                         ClientConfirmWidget(
-                                            emitConfig: widget.emitConfig,
                                             config: ClientConfirmConfig(
                                                 queueId: state.config.queueId,
                                                 email: state.email
@@ -176,8 +172,7 @@ class _ClientState extends BaseState<
                               builder: (context) => ClientRejoinWidget(
                                   config: ClientRejoinConfig(
                                       queueId: state.config.queueId
-                                  ),
-                                  emitConfig: widget.emitConfig
+                                  )
                               )
                           ).then((result) {
                             if (result is ClientRejoinResult) {
@@ -204,8 +199,6 @@ class _ClientState extends BaseState<
 }
 
 class ClientLogicState extends BaseLogicState {
-
-  static const int pageSize = 30;
 
   final ClientConfig config;
   final ClientModel clientState;

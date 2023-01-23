@@ -15,32 +15,32 @@ class AccountInteractorImpl extends AccountInteractor {
   AccountInteractorImpl(this._repository);
 
   @override
-  Future<Result> signup(SignupModel signup) async {
-    return await _repository.signup(signup);
+  Future<Result> signup(SignupModel signup) {
+    return _repository.signup(signup);
   }
 
   @override
-  Future<Result> confirm(ConfirmModel confirm) async {
-    return await _repository.confirm(confirm);
+  Future<Result> confirm(ConfirmModel confirm) {
+    return _repository.confirm(confirm);
   }
 
   @override
-  Future<Result<TokensModel>> login(LoginModel login) async {
-    return await _repository.login(login);
+  Future<Result<TokensModel>> login(LoginModel login) {
+    return _repository.login(login);
   }
 
   @override
-  Future<bool> checkToken() async {
-    return await _repository.checkToken();
+  Future<bool> checkToken() {
+    return _repository.checkToken();
   }
 
   @override
-  Future logout() async {
-    await _repository.logout();
+  Future<void> logout() async {
+    _repository.logout();
   }
 
   @override
-  Future<String?> getCurrentUsername() async {
-    return await _repository.getCurrentUsername();
+  Future<String?> getCurrentUsername() {
+    return _repository.getCurrentUsername();
   }
 }

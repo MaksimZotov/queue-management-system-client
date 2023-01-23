@@ -31,7 +31,6 @@ class CreateQueueWidget extends BaseDialogWidget<CreateQueueConfig> {
 
   const CreateQueueWidget({
     super.key,
-    required super.emitConfig,
     required super.config
   });
 
@@ -119,26 +118,13 @@ class CreateQueueLogicState extends BaseDialogLogicState<
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
-    bool? loading
-  }) => CreateQueueLogicState(
-      nextConfig: nextConfig,
-      error: error,
-      snackBar: snackBar,
-      loading: loading ?? this.loading,
-      config: config,
-      result: result,
-      name: name,
-      description: description
-  );
-
-  @override
-  CreateQueueLogicState copyResult({
+    bool? loading,
     CreateQueueResult? result
   }) => CreateQueueLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
-      loading: loading,
+      loading: loading ?? this.loading,
       config: config,
       result: result,
       name: name,

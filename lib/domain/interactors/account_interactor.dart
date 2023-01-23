@@ -8,6 +8,6 @@ abstract class AccountInteractor {
   Future<Result> confirm(ConfirmModel confirm);
   Future<Result> login(LoginModel login);
   Future<bool> checkToken();
-  Future logout();
+  Future<void> logout();
   Future<String?> getCurrentUsername();
 }

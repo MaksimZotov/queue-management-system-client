@@ -41,28 +41,28 @@ class RepositoryImpl extends Repository {
 
 
   @override
-  Future<Result<TokensModel>> login(LoginModel login) async {
-    return await _serverApi.login(login);
+  Future<Result<TokensModel>> login(LoginModel login) {
+    return _serverApi.login(login);
   }
 
   @override
-  Future<Result> confirm(ConfirmModel confirm) async {
-    return await _serverApi.confirm(confirm);
+  Future<Result> confirm(ConfirmModel confirm) {
+    return _serverApi.confirm(confirm);
   }
 
   @override
-  Future<Result> signup(SignupModel signup) async {
-    return await _serverApi.signup(signup);
+  Future<Result> signup(SignupModel signup) {
+    return _serverApi.signup(signup);
   }
 
   @override
-  Future<bool> checkToken() async {
-    return await _secureStorage.containsAccessToken();
+  Future<bool> checkToken() {
+    return _secureStorage.containsAccessToken();
   }
 
   @override
-  Future logout() async {
-    await _secureStorage.deleteAll();
+  Future<void> logout() {
+    return _secureStorage.deleteAll();
   }
 
   @override
@@ -88,18 +88,18 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result<LocationModel>> createLocation(LocationModel location) async {
-    return await _serverApi.createLocation(location);
+  Future<Result<LocationModel>> createLocation(LocationModel location) {
+    return _serverApi.createLocation(location);
   }
 
   @override
-  Future<Result<LocationModel>> getLocation(int id, String? username) async {
-    return await _serverApi.getLocation(id, username);
+  Future<Result<LocationModel>> getLocation(int id, String? username) {
+    return _serverApi.getLocation(id, username);
   }
 
   @override
-  Future<Result> deleteLocation(int locationId) async {
-    return await _serverApi.deleteLocation(locationId);
+  Future<Result> deleteLocation(int locationId) {
+    return _serverApi.deleteLocation(locationId);
   }
 
   @override
@@ -115,38 +115,38 @@ class RepositoryImpl extends Repository {
 
 
   @override
-  Future<Result<QueueModel>> createQueue(int locationId, QueueModel queue) async {
-    return await _serverApi.createQueue(locationId, queue);
+  Future<Result<QueueModel>> createQueue(int locationId, QueueModel queue) {
+    return _serverApi.createQueue(locationId, queue);
   }
 
   @override
-  Future<Result> deleteQueue(int id) async {
-    return await _serverApi.deleteQueue(id);
+  Future<Result> deleteQueue(int id) {
+    return _serverApi.deleteQueue(id);
   }
 
   @override
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String username) async {
-    return await _serverApi.getQueues(locationId, username);
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String username) {
+    return _serverApi.getQueues(locationId, username);
   }
 
   @override
-  Future<Result<QueueModel>> getQueueState(int id) async {
-    return await _serverApi.getQueueState(id);
+  Future<Result<QueueModel>> getQueueState(int id) {
+    return _serverApi.getQueueState(id);
   }
 
   @override
-  Future<Result> notifyClientInQueue(int queueId, int clientId) async {
-    return await _serverApi.notifyClientInQueue(queueId, clientId);
+  Future<Result> notifyClientInQueue(int queueId, int clientId) {
+    return _serverApi.notifyClientInQueue(queueId, clientId);
   }
 
   @override
-  Future<Result> serveClientInQueue(int queueId, int clientId) async {
-    return await _serverApi.serveClientInQueue(queueId, clientId);
+  Future<Result> serveClientInQueue(int queueId, int clientId) {
+    return _serverApi.serveClientInQueue(queueId, clientId);
   }
 
   @override
-  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, AddClientInfo addClientInfo) async {
-    return await _serverApi.addClientToQueue(queueId, addClientInfo);
+  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, AddClientInfo addClientInfo) {
+    return _serverApi.addClientToQueue(queueId, addClientInfo);
   }
 
   @override
