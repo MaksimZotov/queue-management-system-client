@@ -160,18 +160,20 @@ class QueueConfig extends BaseConfig {
 class ClientConfig extends BaseConfig {
   String username;
   int locationId;
-  int queueId;
+  int clientId;
+  String accessKey;
 
   ClientConfig({
     required this.username,
     required this.locationId,
-    required this.queueId
+    required this.clientId,
+    required this.accessKey
   });
 
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
     return RouterPage(
-        key: ValueKey('Client Page $queueId'),
+        key: ValueKey('Client Page $clientId $accessKey'),
         child: ClientWidget(
           config: this,
           emitConfig: emitConfig

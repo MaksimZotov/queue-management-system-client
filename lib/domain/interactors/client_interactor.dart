@@ -1,11 +1,8 @@
 import '../models/base/result.dart';
-import '../models/client/client_model.dart';
-import '../models/client/client_join_info.dart';
+import '../models/client/queue_state_for_client_model.dart';
 
 abstract class ClientInteractor {
-  Future<Result<ClientModel>> getClientInQueue(String username, int locationId, int queueId);
-  Future<Result<ClientModel>> joinClientToQueue(int queueId, ClientJoinInfo clientJoinInfo);
-  Future<Result<ClientModel>> rejoinClientToQueue(int queueId, String email);
-  Future<Result<ClientModel>> confirmClientCodeInQueue(int queueId, String email, String code);
-  Future<Result<ClientModel>> leaveQueue(int queueId);
+  Future<Result<QueueStateForClientModel>> getQueueStateForClient(int clientId, String accessKey);
+  Future<Result<QueueStateForClientModel>> confirmAccessKeyByClient(int clientId, String accessKey);
+  Future<Result<QueueStateForClientModel>> leaveQueue(int clientId, String accessKey);
 }

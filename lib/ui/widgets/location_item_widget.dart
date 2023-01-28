@@ -30,14 +30,16 @@ class _LocationItemState extends State<LocationItemWidget> {
           widget.location.name,
           maxLines: 1,
         ),
-        subtitle: SizedBox(
-          width: 5,
-          child: Text(
-            widget.location.description,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
+        subtitle: widget.location.description != null
+            ? SizedBox(
+              width: 5,
+              child: Text(
+                widget.location.description!,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+            )
+            : null,
         trailing: widget.location.hasRights == true
             ? SizedBox(
                 height: double.infinity,

@@ -1,11 +1,12 @@
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 
 import '../../../data/repositories/repository.dart';
 import '../../models/base/container_for_list.dart';
 import '../../models/base/result.dart';
-import '../../models/queue/add_client_info.dart';
+import '../../models/location/service_model.dart';
+import '../../models/queue/create_queue_request.dart';
 import '../../models/queue/queue_model.dart';
+import '../../models/queue/queue_state_model.dart';
 import '../queue_interactor.dart';
 
 @Singleton(as: QueueInteractor)
@@ -20,18 +21,28 @@ class QueueInteractorImpl extends QueueInteractor {
   }
 
   @override
-  Future<Result<QueueModel>> createQueue(int locationId, QueueModel queue) {
-    return _repository.createQueue(locationId, queue);
+  Future<Result<QueueModel>> createQueue(int locationId, CreateQueueRequest createQueueRequest) {
+    return _repository.createQueue(locationId, createQueueRequest);
   }
 
   @override
-  Future<Result> deleteQueue(int id) {
-    return _repository.deleteQueue(id);
+  Future<Result> deleteQueue(int queueId) {
+    return _repository.deleteQueue(queueId);
   }
 
   @override
-  Future<Result<QueueModel>> getQueueState(int id) {
-    return _repository.getQueueState(id);
+  Future<Result<QueueStateModel>> getQueueState(int queueId) {
+    return _repository.getQueueState(queueId);
+  }
+
+  @override
+  Future<Result> pauseQueue(int queueId) {
+    return _repository.pauseQueue(queueId);
+  }
+
+  @override
+  Future<Result> startQueue(int queueId) {
+    return _repository.startQueue(queueId);
   }
 
   @override
@@ -45,7 +56,12 @@ class QueueInteractorImpl extends QueueInteractor {
   }
 
   @override
-  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, AddClientInfo addClientInfo) {
-    return _repository.addClientToQueue(queueId, addClientInfo);
+  Future<Result> switchClientLateStateInQueue(int queueId, int clientId, bool late) {
+    return _repository.switchClientLateStateInQueue(queueId, clientId, late);
+  }
+
+  @override
+  Future<Result<ContainerForList<ServiceModel>>> getServicesInQueue(int queueId) {
+    return _repository.getServicesInQueue(queueId);
   }
 }

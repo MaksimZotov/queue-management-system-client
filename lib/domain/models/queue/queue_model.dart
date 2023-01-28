@@ -5,23 +5,20 @@ part 'queue_model.g.dart';
 
 @JsonSerializable()
 class QueueModel {
-  final int? id;
+  final int id;
   final String name;
-  final String description;
-  final List<ClientInQueueModel>? clients;
+  final String? description;
   @JsonKey(name: 'has_rights')
-  final bool? hasRights;
-  @JsonKey(name: 'owner_username')
-  final String? ownerUsername;
+  final bool hasRights;
+  final bool paused;
 
-  QueueModel({
+  QueueModel(
     this.id,
-    required this.name,
-    required this.description,
-    this.clients,
+    this.name,
+    this.description,
     this.hasRights,
-    this.ownerUsername
-  });
+    this.paused
+  );
 
   static QueueModel fromJson(Map<String, dynamic> json) => _$QueueModelFromJson(json);
   Map<String, dynamic> toJson() => _$QueueModelToJson(this);

@@ -55,6 +55,16 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
                       username: segments[0],
                       locationId: int.parse(segments[2])
                   );
+                case 'client':
+                  int clientId = int.parse(uri.queryParameters['client_id']!);
+                  String accessKey = uri.queryParameters['access_key']!;
+                  // "/{username}/locations/{location_id}/client?client_id={client_id}&access_key={access_key}"
+                  return ClientConfig(
+                      username: segments[0],
+                      locationId: int.parse(segments[2]),
+                      clientId: clientId,
+                      accessKey: accessKey
+                  );
               }
           }
           break;
@@ -69,23 +79,6 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
                       locationId: int.parse(segments[2]),
                       queueId: int.parse(segments[4])
                   );
-              }
-          }
-          break;
-        case 6:
-          switch (segments[1]) {
-            case 'locations':
-              switch (segments[3]) {
-                case 'queues':
-                  switch (segments[5]) {
-                    // "/{username}/locations/{location_id}/queues/{queue_id}/client"
-                    case 'client':
-                      return ClientConfig(
-                          username: segments[0],
-                          locationId: int.parse(segments[2]),
-                          queueId: int.parse(segments[4])
-                      );
-                  }
               }
           }
       }
@@ -130,9 +123,10 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
     if (configuration is ClientConfig) {
       String username = configuration.username;
       int locationId = configuration.locationId;
-      int queueId = configuration.queueId;
+      int clientId = configuration.clientId;
+      String accessKey = configuration.accessKey;
       return RouteInformation(
-          location: '/$username/locations/$locationId/queues/$queueId/client'
+          location: '/$username/locations/$locationId/client?client_id=$clientId&access_key=$accessKey'
       );
     }
     if (configuration is RightsConfig) {

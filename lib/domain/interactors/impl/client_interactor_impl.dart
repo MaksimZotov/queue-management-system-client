@@ -1,10 +1,9 @@
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/client_interactor.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
-import 'package:queue_management_system_client/domain/models/client/client_model.dart';
+import 'package:queue_management_system_client/domain/models/client/queue_state_for_client_model.dart';
 
 import '../../../data/repositories/repository.dart';
-import '../../models/client/client_join_info.dart';
 
 @Singleton(as: ClientInteractor)
 class ClientInteractorImpl extends ClientInteractor {
@@ -13,27 +12,17 @@ class ClientInteractorImpl extends ClientInteractor {
   ClientInteractorImpl(this._repository);
 
   @override
-  Future<Result<ClientModel>> getClientInQueue(String username, int locationId, int queueId) {
-    return _repository.getClientInQueue(username, locationId, queueId);
+  Future<Result<QueueStateForClientModel>> getQueueStateForClient(int clientId, String accessKey) {
+    return _repository.getQueueStateForClient(clientId, accessKey);
   }
 
   @override
-  Future<Result<ClientModel>> joinClientToQueue(int queueId, ClientJoinInfo clientJoinInfo) {
-    return _repository.joinClientToQueue(queueId, clientJoinInfo);
+  Future<Result<QueueStateForClientModel>> confirmAccessKeyByClient(int clientId, String accessKey) {
+    return _repository.confirmAccessKeyByClient(clientId, accessKey);
   }
 
   @override
-  Future<Result<ClientModel>> confirmClientCodeInQueue(int queueId, String email, String code) {
-    return _repository.confirmClientCodeInQueue(queueId, email, code);
-  }
-
-  @override
-  Future<Result<ClientModel>> leaveQueue(int queueId) {
-    return _repository.leaveQueue(queueId);
-  }
-
-  @override
-  Future<Result<ClientModel>> rejoinClientToQueue(int queueId, String email) {
-    return _repository.rejoinClientToQueue(queueId, email);
+  Future<Result<QueueStateForClientModel>> leaveQueue(int clientId, String accessKey) {
+    return _repository.leaveQueue(clientId, accessKey);
   }
 }

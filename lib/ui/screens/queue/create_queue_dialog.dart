@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
+import 'package:queue_management_system_client/domain/models/queue/create_queue_request.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
@@ -146,12 +147,12 @@ class CreateQueueCubit extends BaseDialogCubit<CreateQueueLogicState> {
 
   Future<void> createQueue() async {
     showLoad();
+
     await _queueInteractor.createQueue(
         state.config.locationId,
-        QueueModel(
-            id: null,
+        CreateQueueRequest(
             name: state.name,
-            description: state.description
+            description: state.description.isEmpty ? null : state.description
         )
     )
       ..onSuccess((result) {

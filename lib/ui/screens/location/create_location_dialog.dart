@@ -7,6 +7,7 @@ import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/models/base/result.dart';
+import '../../../domain/models/location/create_location_request.dart';
 import '../../../domain/models/location/location_model.dart';
 import '../../router/routes_config.dart';
 import '../base.dart';
@@ -141,10 +142,9 @@ class CreateLocationCubit extends BaseDialogCubit<CreateLocationLogicState> {
   Future<void> createLocation() async {
     showLoad();
     await _locationInteractor.createLocation(
-        LocationModel(
-            id: null,
+        CreateLocationRequest(
             name: state.name,
-            description: state.description
+            description: state.description.isEmpty ? null : state.description
         )
     )..onSuccess((result) {
       popResult(

@@ -3,36 +3,36 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 @lazySingleton
 class SharedPreferencesStorage {
-  static const _clientInQueueEmail = 'CLIENT_IN_QUEUE_EMAIL';
-  static const _clientInQueueAccessKey = 'CLIENT_IN_QUEUE_ACCESS_KEY';
+  static const _clientId = 'CLIENT_ID';
+  static const _clientAccessKey = 'CLIENT_ACCESS_KEY';
 
-  Future<void> setClientInQueueEmail({required String? email}) async {
+  Future<void> setClientId({required int? clientId}) async {
     final prefs = await SharedPreferences.getInstance();
-    if (email == null) {
-      await prefs.remove(_clientInQueueEmail);
+    if (clientId == null) {
+      await prefs.remove(_clientId);
     } else {
-      await prefs.setString(_clientInQueueEmail, email);
+      await prefs.setInt(_clientId, clientId);
     }
   }
 
-  Future<String?> getClientInQueueEmail() async {
+  Future<int?> getClientId() async {
     final prefs = await SharedPreferences.getInstance();
-    String? email = prefs.getString(_clientInQueueEmail);
-    return email;
+    int? clientId = prefs.getInt(_clientId);
+    return clientId;
   }
 
-  Future<void> setClientInQueueAccessKey({required String? accessKey}) async {
+  Future<void> setClientAccessKey({required String? accessKey}) async {
     final prefs = await SharedPreferences.getInstance();
     if (accessKey == null) {
-      await prefs.remove(_clientInQueueAccessKey);
+      await prefs.remove(_clientAccessKey);
     } else {
-      await prefs.setString(_clientInQueueAccessKey, accessKey);
+      await prefs.setString(_clientAccessKey, accessKey);
     }
   }
 
-  Future<String?> getClientInQueueAccessKey() async {
+  Future<String?> getClientAccessKey() async {
     final prefs = await SharedPreferences.getInstance();
-    String? accessKey = prefs.getString(_clientInQueueAccessKey);
+    String? accessKey = prefs.getString(_clientAccessKey);
     return accessKey;
   }
 

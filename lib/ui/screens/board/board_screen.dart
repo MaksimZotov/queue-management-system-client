@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/models/board/board_position.dart';
-import 'package:queue_management_system_client/domain/models/board/board_queue.dart';
+import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
-import '../../../domain/interactors/board_interactor.dart';
 import '../../../domain/interactors/socket_interactor.dart';
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/board/board_model.dart';
+import '../../../domain/models/location/board_model.dart';
+import '../../../domain/models/location/board_position.dart';
+import '../../../domain/models/location/board_queue.dart';
 import '../../router/routes_config.dart';
 
 class BoardWidget extends BaseWidget<BoardConfig> {
@@ -198,13 +198,13 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
 
   static const String _locationTopic = '/topic/boards/';
 
-  final BoardInteractor _boardInteractor;
+  final LocationInteractor _locationInteractor;
   final SocketInteractor _socketInteractor;
 
   Timer? _timer;
 
   BoardCubit(
-    this._boardInteractor,
+    this._locationInteractor,
     this._socketInteractor,
     @factoryParam BoardConfig config
   ) : super(
@@ -220,7 +220,7 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
   @override
   Future<void> onStart() async {
     showLoad();
-    await _boardInteractor.getBoard(
+    await _locationInteractor.getLocationBoard(
         state.config.locationId
     )..onSuccess((result) {
       emit(state.copy(board: result.data));

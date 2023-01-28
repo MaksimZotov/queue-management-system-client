@@ -8,7 +8,7 @@ class LocationModel {
   @JsonKey(name: 'owner_username')
   final String? ownerUsername;
   final String name;
-  final String description;
+  final String? description;
   @JsonKey(name: 'has_rights')
   final bool? hasRights;
 
@@ -16,7 +16,7 @@ class LocationModel {
     required this.id,
     this.ownerUsername,
     required this.name,
-    required this.description,
+    this.description,
     this.hasRights
   });
 

@@ -2,7 +2,7 @@ import 'package:queue_management_system_client/domain/models/rights/rights_model
 
 import '../models/base/container_for_list.dart';
 import '../models/base/result.dart';
-import '../models/board/board_model.dart';
+import '../models/location/board_model.dart';
 
 abstract class RightsInteractor {
   Future<Result<ContainerForList<RightsModel>>> getRights(int locationId);

@@ -33,11 +33,13 @@ class _QueueItemState extends State<QueueItemWidget> {
         ),
         subtitle: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 200),
-          child: Text(
-            widget.queue.description,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-          ),
+          child: widget.queue.description != null
+              ? Text(
+                  widget.queue.description!,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+              )
+              : null,
         ),
         trailing: widget.queue.hasRights == true
             ? SizedBox(

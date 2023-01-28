@@ -85,21 +85,15 @@ class _QueuesState extends BaseState<
       itemBuilder: (context, index) {
         return QueueItemWidget(
           queue: state.queues[index],
-          onClick: (queue) => widget.emitConfig(
-              state.hasRights ? QueueConfig(
-                  username: state.config.username,
-                  locationId: state.config.locationId,
-                  queueId: queue.id!
-              ) : ClientConfig(
-                  username: state.config.username,
-                  locationId: state.config.locationId,
-                  queueId: queue.id!
-              )
+          onClick: (queue) => QueueConfig(
+              username: state.config.username,
+              locationId: state.config.locationId,
+              queueId: queue.id
           ),
           onDelete: (location) => showDialog(
               context: context,
               builder: (context) => DeleteQueueWidget(
-                  config: DeleteQueueConfig(id: location.id!)
+                  config: DeleteQueueConfig(id: location.id)
               )
           ).then((result) {
             if (result is DeleteQueueResult) {

@@ -1,4 +1,4 @@
-import 'board_position.dart';
+import '../location/board_position.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'board_queue.g.dart';
