@@ -43,7 +43,7 @@ class _ServicesState extends BaseState<
       title: Text(
           state.locationName.isEmpty
               ? ''
-              : getLocalizations(context).locationPattern(state.locationName)
+              : getLocalizations(context).servicesInLocationPattern(state.locationName)
       ),
       actions: state.ownerUsername != null
           ? (state.hasRights ? <Widget>[
@@ -84,12 +84,12 @@ class _ServicesState extends BaseState<
       itemBuilder: (context, index) {
         return ServiceItemWidget(
           service: state.services[index],
-          onDelete: (location) => showDialog(
+          onDelete: (service) => showDialog(
               context: context,
               builder: (context) => DeleteServiceWidget(
                   config: DeleteServiceConfig(
-                      locationId: location.id,
-                      serviceId: state.services[index].id
+                      locationId: state.config.locationId,
+                      serviceId: service.id
                   )
               )
           ).then((result) {

@@ -74,12 +74,12 @@ class _CreateServiceState extends BaseDialogState<
     ),
     TextFieldWidget(
         label: getLocalizations(context).supposedDuration,
-        text: state.description,
+        text: state.supposedDuration,
         onTextChanged: getCubitInstance(context).setSupposedDuration
     ),
     TextFieldWidget(
         label: getLocalizations(context).maxDuration,
-        text: state.description,
+        text: state.maxDuration,
         onTextChanged: getCubitInstance(context).setMaxDuration
     ),
     const SizedBox(height: Dimens.contentMargin),
@@ -169,11 +169,11 @@ class CreateServiceCubit extends BaseDialogCubit<CreateServiceLogicState> {
   }
 
   void setSupposedDuration(String text) {
-    emit(state.copy(description: text));
+    emit(state.copy(supposedDuration: text));
   }
 
   void setMaxDuration(String text) {
-    emit(state.copy(description: text));
+    emit(state.copy(maxDuration: text));
   }
 
   Future<void> createService() async {

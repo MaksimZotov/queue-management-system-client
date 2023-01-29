@@ -231,7 +231,7 @@ class QueuesConfig extends BaseConfig {
 
   @override
   BaseConfig getPrevConfig() {
-    return LocationsConfig(username: username);
+    return LocationConfig(username: username, locationId: locationId);
   }
 }
 

@@ -7,6 +7,7 @@ import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/account_interactor.dart';
 import '../../../domain/models/base/result.dart';
+import '../../../domain/models/location/location_model.dart';
 import '../../router/routes_config.dart';
 
 class LocationWidget extends BaseWidget<LocationConfig> {
@@ -38,7 +39,9 @@ class LocationState extends BaseState<
       )
       : Scaffold(
         appBar: AppBar(
-          title: Text(getLocalizations(context).enterAccount),
+          title: state.locationModel != null
+              ? Text(getLocalizations(context).locationPattern(state.locationModel!.name))
+              : null
         ),
         body: Center(
           child: Padding(
@@ -48,28 +51,40 @@ class LocationState extends BaseState<
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 ButtonWidget(
-                  text: getLocalizations(context).authorization,
-                  onClick: () {
-                    widget.emitConfig(AuthorizationConfig());
-                  },
+                  text: getLocalizations(context).services,
+                  onClick: () => widget.emitConfig(
+                      ServicesConfig(
+                          username: widget.config.username,
+                          locationId: widget.config.locationId
+                      )
+                  )
                 ),
                 ButtonWidget(
-                  text: getLocalizations(context).authorization,
-                  onClick: () {
-                    widget.emitConfig(AuthorizationConfig());
-                  },
+                  text: getLocalizations(context).servicesSequences,
+                  onClick: () => widget.emitConfig(
+                      ServicesSequenceConfig(
+                          username: widget.config.username,
+                          locationId: widget.config.locationId
+                      )
+                  )
                 ),
                 ButtonWidget(
-                  text: getLocalizations(context).authorization,
-                  onClick: () {
-                    widget.emitConfig(AuthorizationConfig());
-                  },
+                  text: getLocalizations(context).queueTypes,
+                  onClick: () => widget.emitConfig(
+                      QueueTypesConfig(
+                          username: widget.config.username,
+                          locationId: widget.config.locationId
+                      )
+                  )
                 ),
                 ButtonWidget(
-                  text: getLocalizations(context).registration,
-                  onClick: () {
-                    widget.emitConfig(RegistrationConfig());
-                  },
+                  text: getLocalizations(context).queues,
+                  onClick: () => widget.emitConfig(
+                      QueuesConfig(
+                          username: widget.config.username,
+                          locationId: widget.config.locationId
+                      )
+                  )
                 )
               ],
             ),
@@ -81,17 +96,19 @@ class LocationState extends BaseState<
   LocationCubit getCubit() => statesAssembler.getLocationCubit(widget.config);
 }
 
-enum LocationStateEnum {
-  loading, stay, goToLocations
-}
-
 class LocationLogicState extends BaseLogicState {
+  
+  final LocationConfig config;
+  
+  final LocationModel? locationModel;
 
   LocationLogicState({
     super.nextConfig,
     super.error,
     super.snackBar,
     super.loading = true,
+    required this.config,
+    this.locationModel
   });
 
   @override
@@ -99,38 +116,40 @@ class LocationLogicState extends BaseLogicState {
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
-    bool? loading
+    bool? loading,
+    LocationModel? locationModel
   }) => LocationLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
-      loading: loading ?? this.loading
+      loading: loading ?? this.loading,
+      config: config,
+      locationModel: locationModel ?? this.locationModel
   );
 }
 
 @injectable
 class LocationCubit extends BaseCubit<LocationLogicState> {
   final LocationInteractor _locationInteractor;
-  final AccountInteractor _accountInteractor;
 
   LocationCubit(
       this._locationInteractor,
-      this._accountInteractor,
-  ) : super(LocationLogicState());
+      @factoryParam LocationConfig config
+  ) : super(LocationLogicState(config: config));
 
   @override
   Future<void> onStart() async {
-    if (await _accountInteractor.checkToken()) {
-      String? username = await _accountInteractor.getCurrentUsername();
-      if (username != null) {
-        await _locationInteractor.checkHasRights(username)
-          ..onSuccess((result) {
-            if (result.data.hasRights) {
-              navigate(LocationsConfig(username: username));
-            }
-          });
-      }
-    }
+    showLoad();
+    await _locationInteractor.getLocation(
+        state.config.locationId, 
+        state.config.username
+    ) 
+      ..onSuccess((result) {
+        emit(state.copy(locationModel: result.data));
+      })
+      ..onError((result) { 
+        showError(result);
+      });
     hideLoad();
   }
 }

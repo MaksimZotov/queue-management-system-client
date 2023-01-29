@@ -48,7 +48,7 @@ class _DeleteServiceState extends BaseDialogState<
       BuildContext context,
       DeleteServiceLogicState state,
       DeleteServiceWidget widget
-  ) => getLocalizations(context).deleteQueueQuestion;
+  ) => getLocalizations(context).deleteServiceQuestion;
 
   @override
   List<Widget> getDialogContentWidget(

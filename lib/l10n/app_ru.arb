@@ -63,6 +63,14 @@
     }
   }
 },
+"servicesInLocationPattern": "Услуги в локации {name}",
+"@servicesInLocationPattern": {
+  "placeholders": {
+    "name": {
+      "type": "String"
+    }
+  }
+},
 "unknownError": "Неизвестная ошибка",
 "serverError": "Ошибка на сервере",
 "timeoutError": "Вышло время ожидания ответа",
@@ -72,5 +80,10 @@
 "creationOfService": "Создание услуги",
 "supposedDuration": "Предполагаемая длительность",
 "maxDuration": "Максимальная длительность",
-"creationOfQueueType": "Создание типа очередей"
+"creationOfQueueType": "Создание типа очередей",
+"services": "Услуги",
+"servicesSequences": "Наборы услуг",
+"queueTypes": "Типы очередей",
+"queues": "Очереди",
+"deleteServiceQuestion": "Удалить очередь?"
 }

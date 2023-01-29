@@ -63,7 +63,7 @@ class _LocationsState extends BaseState<
       itemBuilder: (context, index) => LocationItemWidget(
         location: state.locations[index],
         onClick: (location) => widget.emitConfig(
-            QueuesConfig(
+            LocationConfig(
                 username: state.config.username,
                 locationId: location.id!
             )

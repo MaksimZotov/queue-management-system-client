@@ -47,6 +47,24 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
           switch (segments[1]) {
             case 'locations':
               switch (segments[3]) {
+                // "/{username}/locations/{location_id}/services"
+                case 'services':
+                  return ServicesConfig(
+                      username: segments[0],
+                      locationId: int.parse(segments[2])
+                  );
+                // "/{username}/locations/{location_id}/sequences"
+                case 'sequences':
+                  return ServicesSequenceConfig(
+                      username: segments[0],
+                      locationId: int.parse(segments[2])
+                  );
+                // "/{username}/locations/{location_id}/types"
+                case 'types':
+                  return QueueTypesConfig(
+                      username: segments[0],
+                      locationId: int.parse(segments[2])
+                  );
                 // "/{username}/locations/{location_id}/queues"
                 case 'queues':
                   return QueuesConfig(
@@ -113,6 +131,27 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
       String username = configuration.username;
       return RouteInformation(
           location: '/$username/locations'
+      );
+    }
+    if (configuration is ServicesConfig) {
+      String username = configuration.username;
+      int locationId = configuration.locationId;
+      return RouteInformation(
+          location: '/$username/locations/$locationId/services'
+      );
+    }
+    if (configuration is ServicesSequenceConfig) {
+      String username = configuration.username;
+      int locationId = configuration.locationId;
+      return RouteInformation(
+          location: '/$username/locations/$locationId/sequences'
+      );
+    }
+    if (configuration is QueueTypesConfig) {
+      String username = configuration.username;
+      int locationId = configuration.locationId;
+      return RouteInformation(
+          location: '/$username/locations/$locationId/types'
       );
     }
     if (configuration is QueuesConfig) {

@@ -23,18 +23,18 @@ class _ServiceItemState extends State<ServiceItemWidget> {
       child: ListTile(
           leading: const SizedBox(
               height: double.infinity,
-              child: Icon(Icons.people_alt_outlined, color: Colors.teal)),
+              child: Icon(Icons.design_services, color: Colors.teal)),
           title: Text(widget.service.name, maxLines: 1),
-          subtitle: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 200),
-            child: widget.service.description != null
-                ? Text(
-                    widget.service.description!,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  )
-                : null,
-          ),
+          subtitle: widget.service.description != null
+            ? ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 200),
+              child: Text(
+                  widget.service.description!,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+              )
+            )
+            : null,
           trailing: true // widget.service.hasRights == true
               ? SizedBox(
                   height: double.infinity,
