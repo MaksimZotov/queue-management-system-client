@@ -33,6 +33,16 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
                return LocationsConfig(username: segments[0]);
            }
            break;
+        case 3:
+          switch (segments[1]) {
+            // "/{username}/locations/{location_id}"
+            case 'locations':
+              return LocationConfig(
+                  username: segments[0],
+                  locationId: int.parse(segments[2])
+              );
+          }
+          break;
         case 4:
           switch (segments[1]) {
             case 'locations':

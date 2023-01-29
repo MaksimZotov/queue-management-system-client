@@ -56,11 +56,7 @@ class _DeleteQueueState extends BaseDialogState<
   ) => [
     ButtonWidget(
         text: getLocalizations(context).delete,
-        onClick: () => Navigator.of(context).pop(
-            DeleteQueueResult(
-                id: widget.config.id
-            )
-        )
+        onClick: getCubitInstance(context).deleteQueue
     )
   ];
 
@@ -114,9 +110,9 @@ class DeleteQueueCubit extends BaseDialogCubit<DeleteQueueLogicState> {
       )
   );
 
-  Future<void> deleteQueue(DeleteQueueResult result) async {
+  Future<void> deleteQueue() async {
     showLoad();
-    await _queueInteractor.deleteQueue(result.id)
+    await _queueInteractor.deleteQueue(state.config.id)
       ..onSuccess((result) {
         popResult(DeleteQueueResult(id: state.config.id));
       })

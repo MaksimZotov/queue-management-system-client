@@ -8,9 +8,13 @@ import 'package:queue_management_system_client/ui/screens/rights/rights_screen.d
 import 'package:queue_management_system_client/ui/screens/account/authorization_screen.dart';
 import 'package:queue_management_system_client/ui/screens/account/registration_screen.dart';
 import 'package:queue_management_system_client/ui/screens/account/initial_screen.dart';
+import 'package:queue_management_system_client/ui/screens/type/queue_types_screen.dart';
 
+import '../screens/location/location_screen.dart';
 import '../screens/location/locations_screen.dart';
 import '../screens/queue/queue_screen.dart';
+import '../screens/sequence/services_sequence_screen.dart';
+import '../screens/service/services_screen.dart';
 
 abstract class BaseConfig {
   Page getPage(ValueChanged<BaseConfig> emitConfig);
@@ -97,6 +101,111 @@ class LocationsConfig extends BaseConfig {
           emitConfig: emitConfig,
         )
     );
+  }
+}
+
+class LocationConfig extends BaseConfig {
+  String username;
+  int locationId;
+
+  LocationConfig({
+    required this.username,
+    required this.locationId
+  });
+
+  @override
+  Page getPage(ValueChanged<BaseConfig> emitConfig) {
+    return RouterPage(
+        key: ValueKey('Location Page $locationId'),
+        child: LocationWidget(
+          config: this,
+          emitConfig: emitConfig,
+        )
+    );
+  }
+
+  @override
+  BaseConfig getPrevConfig() {
+    return LocationsConfig(username: username);
+  }
+}
+
+class ServicesSequenceConfig extends BaseConfig {
+  String username;
+  int locationId;
+
+  ServicesSequenceConfig({
+    required this.username,
+    required this.locationId
+  });
+
+  @override
+  Page getPage(ValueChanged<BaseConfig> emitConfig) {
+    return RouterPage(
+        key: ValueKey('Services Sequence Page $locationId'),
+        child: ServicesSequenceWidget(
+          config: this,
+          emitConfig: emitConfig,
+        )
+    );
+  }
+
+  @override
+  BaseConfig getPrevConfig() {
+    return LocationConfig(username: username, locationId: locationId);
+  }
+}
+
+class ServicesConfig extends BaseConfig {
+  String username;
+  int locationId;
+
+  ServicesConfig({
+    required this.username,
+    required this.locationId
+  });
+
+  @override
+  Page getPage(ValueChanged<BaseConfig> emitConfig) {
+    return RouterPage(
+        key: ValueKey('Services Page $locationId'),
+        child: ServicesWidget(
+          config: this,
+          emitConfig: emitConfig,
+        )
+    );
+  }
+
+  @override
+  BaseConfig getPrevConfig() {
+    return LocationConfig(username: username, locationId: locationId);
+  }
+}
+
+class QueueTypesConfig extends BaseConfig {
+  String username;
+  int locationId;
+  int? addedQueueTypeId;
+
+  QueueTypesConfig({
+    required this.username,
+    required this.locationId
+  });
+
+  @override
+  Page getPage(ValueChanged<BaseConfig> emitConfig) {
+    return RouterPage(
+        key: ValueKey('Queue Types Page $locationId $addedQueueTypeId'),
+        child: QueueTypesWidget(
+          config: this,
+          emitConfig: emitConfig,
+        )
+    );
+  }
+
+  @override
+  BaseConfig getPrevConfig() {
+    return LocationConfig(username: username, locationId: locationId);
   }
 }
 
