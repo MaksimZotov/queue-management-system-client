@@ -345,24 +345,108 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
 
   void onClickServiceWhenSelectedServicesViewing(ServiceWrapper serviceWrapper) {
     List<ServiceWrapper> selectedServices = state.selectedServices;
-    int orderNumber = serviceWrapper.orderNumber;
-    if (serviceWrapper.selected) {
-      selectedServices = selectedServices
+    int order = serviceWrapper.orderNumber;
+
+    if (!serviceWrapper.selected) {
+      bool hasPrev = false;
+      bool hasNext = false;
+
+      for (ServiceWrapper item in selectedServices) {
+        if (item.orderNumber == serviceWrapper.orderNumber - 1 && item.selected) {
+          hasPrev = true;
+        }
+        if (item.orderNumber == serviceWrapper.orderNumber + 1 && item.selected) {
+          hasNext = true;
+        }
+      }
+
+      if (hasPrev && hasNext) {
+        selectedServices = selectedServices
           .map((cur) {
-            if (cur.orderNumber > orderNumber) {
-              return cur.copy(orderNumber: cur.orderNumber + 1);
+            if ([order - 1, order, order + 1].contains(cur.orderNumber)) {
+              return cur.copy(selected: true, orderNumber: order - 1);
+            }
+            if (cur.orderNumber >= order) {
+              return cur.copy(orderNumber: cur.orderNumber - 1);
             }
             return cur;
           })
           .toList();
+      } else if (hasPrev) {
+        selectedServices = selectedServices
+            .map((cur) {
+              if ([order - 1, order].contains(cur.orderNumber)) {
+                return cur.copy(selected: true, orderNumber: order - 1);
+              }
+              if (cur.orderNumber >= order) {
+                return cur.copy(orderNumber: cur.orderNumber - 1);
+              }
+              return cur;
+            })
+            .toList();
+      } else if (hasNext) {
+        selectedServices = selectedServices
+            .map((cur) {
+              if ([order, order + 1].contains(cur.orderNumber)) {
+                return cur.copy(selected: true, orderNumber: order);
+              }
+              if (cur.orderNumber >= order) {
+                return cur.copy(orderNumber: cur.orderNumber - 1);
+              }
+              return cur;
+            })
+            .toList();
+      } else {
+        selectedServices = selectedServices
+            .map((cur) {
+              if (cur.service.id == serviceWrapper.service.id) {
+                return cur.copy(selected: true);
+              }
+              return cur;
+            })
+            .toList();
+      }
     } else {
-      selectedServices = selectedServices
-          .map((cur) {
-            return cur;
-          })
-          .toList();
+      bool hasTheSameOrder = false;
+
+      for (ServiceWrapper item in selectedServices) {
+        if (serviceWrapper.orderNumber == item.orderNumber && item.service.id != serviceWrapper.service.id) {
+          hasTheSameOrder = true;
+          break;
+        }
+      }
+
+      if (hasTheSameOrder) {
+        selectedServices = selectedServices
+            .map((cur) {
+              if (cur.orderNumber > serviceWrapper.orderNumber) {
+                return cur.copy(
+                    orderNumber: cur.orderNumber + 1
+                );
+              }
+              if (cur.service.id == serviceWrapper.service.id) {
+                return cur.copy(
+                    selected: false,
+                    orderNumber: cur.orderNumber + 1
+                );
+              }
+              return cur;
+            })
+            .toList();
+      } else {
+        selectedServices = selectedServices
+            .map((cur) {
+              if (cur.service.id == serviceWrapper.service.id) {
+                return cur.copy(selected: false);
+              }
+              return cur;
+            })
+            .toList();
+      }
     }
+    
     selectedServices.sort((a, b) => a.orderNumber.compareTo(b.orderNumber));
+
     emit(state.copy(selectedServices: selectedServices));
   }
 
@@ -376,7 +460,7 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
 
     int i = 0;
     selectedServices = selectedServices
-        .map((serviceWrapper) => serviceWrapper.copy(orderNumber: ++i))
+        .map((serviceWrapper) => serviceWrapper.copy(selected: false, orderNumber: ++i))
         .toList();
 
     emit(state.copy(selectedServices: selectedServices));

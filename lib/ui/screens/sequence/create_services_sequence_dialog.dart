@@ -155,7 +155,7 @@ class CreateServicesSequenceCubit extends BaseDialogCubit<CreateServicesSequence
         CreateServicesSequenceRequest(
             name: state.name,
             description: state.description.isEmpty ? null : state.description,
-            serviceIdsToOrderNumbers: {}
+            serviceIdsToOrderNumbers: state.config.serviceIdsToOrderNumbers
         )
     )
       ..onSuccess((result) {
