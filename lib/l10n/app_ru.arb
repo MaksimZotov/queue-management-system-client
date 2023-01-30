@@ -85,5 +85,6 @@
 "servicesSequences": "Наборы услуг",
 "queueTypes": "Типы очередей",
 "queues": "Очереди",
-"deleteServiceQuestion": "Удалить очередь?"
+"deleteServiceQuestion": "Удалить очередь?",
+"select": "Выбрать"
 }

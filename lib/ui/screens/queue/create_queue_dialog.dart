@@ -81,6 +81,11 @@ class _CreateQueueState extends BaseDialogState<
       statesAssembler.getCreateQueueCubit(widget.config);
 }
 
+enum CreateQueueStateEnum {
+  queueTypesSelecting,
+  creating
+}
+
 class CreateQueueLogicState extends BaseDialogLogicState<
     CreateQueueConfig,
     CreateQueueResult
@@ -88,6 +93,8 @@ class CreateQueueLogicState extends BaseDialogLogicState<
 
   final String name;
   final String description;
+
+  final CreateQueueStateEnum createQueueStateEnum;
 
   CreateQueueLogicState({
     super.nextConfig,
@@ -97,7 +104,8 @@ class CreateQueueLogicState extends BaseDialogLogicState<
     required super.config,
     super.result,
     required this.name,
-    required this.description
+    required this.description,
+    required this.createQueueStateEnum
   });
 
   @override
@@ -108,7 +116,8 @@ class CreateQueueLogicState extends BaseDialogLogicState<
     bool? loading,
     CreateQueueResult? result,
     String? name,
-    String? description
+    String? description,
+    CreateQueueStateEnum? createQueueStateEnum
   }) => CreateQueueLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -117,7 +126,8 @@ class CreateQueueLogicState extends BaseDialogLogicState<
       config: config,
       result: result,
       name: name ?? this.name,
-      description: description ?? this.description
+      description: description ?? this.description,
+      createQueueStateEnum: createQueueStateEnum ?? this.createQueueStateEnum
   );
 }
 
@@ -133,7 +143,8 @@ class CreateQueueCubit extends BaseDialogCubit<CreateQueueLogicState> {
       CreateQueueLogicState(
           config: config,
           name: '',
-          description: ''
+          description: '',
+          createQueueStateEnum: CreateQueueStateEnum.queueTypesSelecting
       )
   );
 

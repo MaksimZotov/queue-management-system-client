@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/models/location/service_model.dart';
+import '../models.service/service_wrapper.dart';
 
 class ServiceItemWidget extends StatefulWidget {
-  final ValueChanged<ServiceModel> onDelete;
-  final ServiceModel service;
+  final ValueChanged<ServiceWrapper>? onTap;
+  final ValueChanged<ServiceWrapper>? onDelete;
+  final ServiceWrapper serviceWrapper;
 
   const ServiceItemWidget({
     Key? key,
-    required this.onDelete,
-    required this.service,
+    this.onTap,
+    this.onDelete,
+    required this.serviceWrapper,
   }) : super(key: key);
 
   @override
@@ -21,28 +24,32 @@ class _ServiceItemState extends State<ServiceItemWidget> {
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
+          tileColor: widget.serviceWrapper.selected
+              ? Colors.cyanAccent
+              : Colors.white,
           leading: const SizedBox(
               height: double.infinity,
               child: Icon(Icons.design_services, color: Colors.teal)),
-          title: Text(widget.service.name, maxLines: 1),
-          subtitle: widget.service.description != null
+          title: Text(widget.serviceWrapper.service.name, maxLines: 1),
+          subtitle: widget.serviceWrapper.service.description != null
             ? ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 200),
               child: Text(
-                  widget.service.description!,
+                  widget.serviceWrapper.service.description!,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
               )
             )
             : null,
-          trailing: true // widget.service.hasRights == true
+          trailing: widget.onDelete != null
               ? SizedBox(
                   height: double.infinity,
                   child: IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () => widget.onDelete(widget.service)),
+                      onPressed: () => widget.onDelete?.call(widget.serviceWrapper)),
                 )
-              : null
+              : null,
+          onTap: () => widget.onTap?.call(widget.serviceWrapper),
       )
     );
   }

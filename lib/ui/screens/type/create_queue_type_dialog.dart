@@ -76,16 +76,6 @@ class _CreateQueueTypeState extends BaseDialogState<
         text: state.description,
         onTextChanged: getCubitInstance(context).setDescription
     ),
-    TextFieldWidget(
-        label: getLocalizations(context).supposedDuration,
-        text: state.description,
-        onTextChanged: getCubitInstance(context).setSupposedDuration
-    ),
-    TextFieldWidget(
-        label: getLocalizations(context).maxDuration,
-        text: state.description,
-        onTextChanged: getCubitInstance(context).setMaxDuration
-    ),
     const SizedBox(height: Dimens.contentMargin),
     ButtonWidget(
         text: getLocalizations(context).create,
@@ -105,8 +95,6 @@ class CreateQueueTypeLogicState extends BaseDialogLogicState<
 
   final String name;
   final String description;
-  final String supposedDuration;
-  final String maxDuration;
 
   CreateQueueTypeLogicState({
     super.nextConfig,
@@ -116,9 +104,7 @@ class CreateQueueTypeLogicState extends BaseDialogLogicState<
     required super.config,
     super.result,
     required this.name,
-    required this.description,
-    required this.supposedDuration,
-    required this.maxDuration
+    required this.description
   });
 
   @override
@@ -129,9 +115,7 @@ class CreateQueueTypeLogicState extends BaseDialogLogicState<
     bool? loading,
     CreateQueueTypeResult? result,
     String? name,
-    String? description,
-    String? supposedDuration,
-    String? maxDuration
+    String? description
   }) => CreateQueueTypeLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -140,9 +124,7 @@ class CreateQueueTypeLogicState extends BaseDialogLogicState<
       config: config,
       result: result,
       name: name ?? this.name,
-      description: description ?? this.description,
-      supposedDuration: supposedDuration ?? this.supposedDuration,
-      maxDuration: maxDuration ?? this.maxDuration,
+      description: description ?? this.description
   );
 }
 
@@ -158,9 +140,7 @@ class CreateQueueTypeCubit extends BaseDialogCubit<CreateQueueTypeLogicState> {
       CreateQueueTypeLogicState(
           config: config,
           name: '',
-          description: '',
-          supposedDuration: '0',
-          maxDuration: '60'
+          description: ''
       )
   );
 
@@ -169,14 +149,6 @@ class CreateQueueTypeCubit extends BaseDialogCubit<CreateQueueTypeLogicState> {
   }
 
   void setDescription(String text) {
-    emit(state.copy(description: text));
-  }
-
-  void setSupposedDuration(String text) {
-    emit(state.copy(description: text));
-  }
-
-  void setMaxDuration(String text) {
     emit(state.copy(description: text));
   }
 

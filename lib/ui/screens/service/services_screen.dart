@@ -10,6 +10,7 @@ import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/location/service_model.dart';
+import '../../models.service/service_wrapper.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/service_item_widget.dart';
 import 'create_service_dialog.dart';
@@ -83,13 +84,13 @@ class _ServicesState extends BaseState<
     body: ListView.builder(
       itemBuilder: (context, index) {
         return ServiceItemWidget(
-          service: state.services[index],
-          onDelete: (service) => showDialog(
+          serviceWrapper: state.services[index],
+          onDelete: (serviceWrapper) => showDialog(
               context: context,
               builder: (context) => DeleteServiceWidget(
                   config: DeleteServiceConfig(
                       locationId: state.config.locationId,
-                      serviceId: service.id
+                      serviceId: serviceWrapper.service.id
                   )
               )
           ).then((result) {
@@ -133,7 +134,7 @@ class ServicesLogicState extends BaseLogicState {
   final String locationName;
   final bool hasRights;
 
-  final List<ServiceModel> services;
+  final List<ServiceWrapper> services;
 
   ServicesLogicState({
     super.nextConfig,
@@ -155,7 +156,7 @@ class ServicesLogicState extends BaseLogicState {
     bool? loading,
     String? ownerUsername,
     String? locationName,
-    List<ServiceModel>? services,
+    List<ServiceWrapper>? services,
     bool? hasRights
   }) => ServicesLogicState(
       nextConfig: nextConfig,
@@ -208,14 +209,14 @@ class ServicesCubit extends BaseCubit<ServicesLogicState> {
   }
 
   void handleCreateServiceResult(CreateServiceResult result) {
-    emit(state.copy(services: state.services + [result.serviceModel]));
+    emit(state.copy(services: state.services + [ServiceWrapper(service: result.serviceModel)]));
   }
 
   void handleDeleteServiceResult(DeleteServiceResult result) {
     emit(
         state.copy(
             services: state.services
-              ..removeWhere((service) => service.id == result.serviceId)
+              ..removeWhere((serviceWrapper) => serviceWrapper.service.id == result.serviceId)
         )
     );
   }
@@ -259,7 +260,13 @@ class ServicesCubit extends BaseCubit<ServicesLogicState> {
         state.config.locationId
     )
       ..onSuccess((result) {
-        emit(state.copy(services: result.data.results));
+        emit(
+            state.copy(
+                services: result.data.results
+                    .map((service) => ServiceWrapper(service: service))
+                    .toList()
+            )
+        );
         hideLoad();
       })
       ..onError((result) {
