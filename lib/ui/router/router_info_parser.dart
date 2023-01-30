@@ -55,7 +55,7 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
                   );
                 // "/{username}/locations/{location_id}/sequences"
                 case 'sequences':
-                  return ServicesSequenceConfig(
+                  return ServicesSequencesConfig(
                       username: segments[0],
                       locationId: int.parse(segments[2])
                   );
@@ -140,7 +140,7 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
           location: '/$username/locations/$locationId/services'
       );
     }
-    if (configuration is ServicesSequenceConfig) {
+    if (configuration is ServicesSequencesConfig) {
       String username = configuration.username;
       int locationId = configuration.locationId;
       return RouteInformation(

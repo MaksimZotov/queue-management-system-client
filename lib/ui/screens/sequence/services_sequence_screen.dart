@@ -3,45 +3,70 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
-import 'package:queue_management_system_client/domain/models/location/services_sequence_model.dart';
-import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
+import 'package:queue_management_system_client/domain/models/location/queue_type_model.dart';
+import 'package:queue_management_system_client/ui/models.service/service_wrapper.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
-import 'package:queue_management_system_client/ui/screens/queue/create_queue_dialog.dart';
-import 'package:queue_management_system_client/ui/screens/sequence/create_services_sequence_dialog.dart';
-import 'package:queue_management_system_client/ui/widgets/queue_item_widget.dart';
-import 'package:queue_management_system_client/ui/widgets/services_sequence_item_widget.dart';
+import 'package:queue_management_system_client/ui/widgets/queue_type_item_widget.dart';
 
 import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/models/base/result.dart';
+import '../../../domain/models/location/service_model.dart';
+import '../../../domain/models/location/services_sequence_model.dart';
 import '../../router/routes_config.dart';
+import '../../widgets/button_widget.dart';
+import '../../widgets/service_item_widget.dart';
+import '../../widgets/services_sequence_item_widget.dart';
+import 'create_services_sequence_dialog.dart';
 import 'delete_services_sequence_dialog.dart';
 
-class ServicesSequenceWidget extends BaseWidget<ServicesSequenceConfig> {
+class ServicesSequencesWidget extends BaseWidget<ServicesSequencesConfig> {
 
-  const ServicesSequenceWidget({
+  const ServicesSequencesWidget({
     super.key,
     required super.config,
     required super.emitConfig
   });
 
   @override
-  State<ServicesSequenceWidget> createState() => _ServicesSequenceState();
+  State<ServicesSequencesWidget> createState() => _ServicesSequencesState();
 }
 
-class _ServicesSequenceState extends BaseState<
-    ServicesSequenceWidget,
-    ServicesSequenceLogicState,
-    ServicesSequenceCubit
+class _ServicesSequencesState extends BaseState<
+    ServicesSequencesWidget,
+    ServicesSequencesLogicState,
+    ServicesSequencesCubit
 > {
+
+  @override
+  void handleEvent(BuildContext context, ServicesSequencesLogicState state, ServicesSequencesWidget widget) {
+    super.handleEvent(context, state, widget);
+    if (state.showCreateServicesSequenceDialog) {
+      showDialog(
+          context: context,
+          builder: (context) => CreateServicesSequenceWidget(
+              config: CreateServicesSequenceConfig(
+                  locationId: state.config.locationId,
+                  serviceIdsToOrderNumbers: {
+                    for (var serviceWrapper in state.selectedServices)
+                      (serviceWrapper).service.id : (serviceWrapper).orderNumber
+                  }
+              )
+          )
+      ).then((result) {
+        if (result is CreateServicesSequenceResult) {
+          getCubitInstance(context).handleCreateServicesSequenceResult(result);
+        }
+      });
+    }
+  }
 
   @override
   Widget getWidget(
       BuildContext context,
-      ServicesSequenceLogicState state,
-      ServicesSequenceWidget widget
+      ServicesSequencesLogicState state,
+      ServicesSequencesWidget widget
       ) => Scaffold(
     appBar: AppBar(
       title: Text(
@@ -49,145 +74,188 @@ class _ServicesSequenceState extends BaseState<
               ? ''
               : getLocalizations(context).locationPattern(state.locationName)
       ),
-      actions: state.ownerUsername != null
-          ? (state.hasRights ? <Widget>[
-        IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () => widget.emitConfig(
-                RightsConfig(
-                    username: widget.config.username,
-                    locationId: widget.config.locationId
-                )
-            )
-        )
-      ] : <Widget>[]) +
-          [
-            IconButton(
-                icon: const Icon(Icons.desktop_windows_outlined),
-                onPressed: () => widget.emitConfig(
-                    BoardConfig(
-                        username: widget.config.username,
-                        locationId: widget.config.locationId
-                    )
-                )
-            ),
-            IconButton(
-                icon: const Icon(Icons.qr_code),
-                onPressed: getCubitInstance(context).downloadQrCode
-            ),
-            IconButton(
-              icon: const Icon(Icons.share),
-              onPressed: () => getCubitInstance(context).share(
-                  getLocalizations(context).linkCopied
-              ),
-            ),
-          ]
-          : null,
     ),
-    body: ListView.builder(
-      itemBuilder: (context, index) {
-        return ServicesSequenceItemWidget(
-          servicesSequence: state.servicesSequencesModel[index],
-          onDelete: (location) => showDialog(
-              context: context,
-              builder: (context) => DeleteServicesSequenceWidget(
-                  config: DeleteServicesSequenceConfig(
-                      locationId: location.id,
-                      servicesSequenceId: state.servicesSequencesModel[index].id
-                  )
-              )
-          ).then((result) {
-            if (result is DeleteServicesSequenceResult) {
-              getCubitInstance(context).handleDeleteServicesSequenceResult(result);
-            }
-          }
-          ),
-        );
-      },
-      itemCount: state.servicesSequencesModel.length,
-    ),
-    floatingActionButton: state.hasRights
+    body: _getBody(context, state, widget),
+    floatingActionButton: state.hasRights && state.servicesSequencesStateEnum == ServicesSequencesStateEnum.servicesSequencesViewing
         ? FloatingActionButton(
-      onPressed: () => showDialog(
-          context: context,
-          builder: (context) => CreateQueueWidget(
-              config: CreateQueueConfig(
-                  locationId: state.config.locationId
-              )
-          )
-      ).then((result) {
-        if (result is CreateServicesSequenceResult) {
-          getCubitInstance(context).handleCreateServicesSequenceResult(result);
-        }
-      }),
+      onPressed: getCubitInstance(context).switchToServicesSelecting,
       child: const Icon(Icons.add),
     )
         : null,
   );
 
   @override
-  ServicesSequenceCubit getCubit() => statesAssembler.getServicesSequenceCubit(widget.config);
+  ServicesSequencesCubit getCubit() => statesAssembler.getServicesSequencesCubit(widget.config);
+
+  Widget _getBody(
+      BuildContext context,
+      ServicesSequencesLogicState state,
+      ServicesSequencesWidget widget
+  ) {
+    switch (state.servicesSequencesStateEnum) {
+      case ServicesSequencesStateEnum.servicesSequencesViewing:
+        return ListView.builder(
+          itemBuilder: (context, index) {
+            return ServicesSequenceItemWidget(
+              servicesSequence: state.servicesSequences[index],
+              onDelete: (serviceSequence) => showDialog(
+                  context: context,
+                  builder: (context) => DeleteServicesSequenceWidget(
+                      config: DeleteServicesSequenceConfig(
+                          locationId: state.config.locationId,
+                          servicesSequenceId: serviceSequence.id
+                      )
+                  )
+              ).then((result) {
+                if (result is DeleteServicesSequenceResult) {
+                  getCubitInstance(context).handleDeleteServicesSequenceResult(result);
+                }
+              }
+              ),
+            );
+          },
+          itemCount: state.servicesSequences.length,
+        );
+      case ServicesSequencesStateEnum.servicesSelecting:
+        return Column(
+          children: [
+            Expanded(
+              flex: 1,
+              child: ListView.builder(
+                itemBuilder: (context, index) {
+                  return ServiceItemWidget(
+                      serviceWrapper: state.services[index],
+                      onTap: getCubitInstance(context).onClickServiceWhenServicesSelecting
+                  );
+                },
+                itemCount: state.services.length,
+              ),
+            ),
+            ButtonWidget(
+              text: getLocalizations(context).select,
+              onClick: getCubitInstance(context).switchToSelectedServicesViewing,
+            ),
+            ButtonWidget(
+              text: getLocalizations(context).cancel,
+              onClick: getCubitInstance(context).switchToServicesSequencesViewing,
+            )
+          ],
+        );
+      case ServicesSequencesStateEnum.selectedServicesViewing:
+        return Column(
+          children: [
+            Expanded(
+              flex: 1,
+              child: ListView.builder(
+                itemBuilder: (context, index) {
+                  return ServiceItemWidget(
+                      serviceWrapper: state.selectedServices[index]
+                  );
+                },
+                itemCount: state.selectedServices.length,
+              ),
+            ),
+            ButtonWidget(
+              text: getLocalizations(context).confirm,
+              onClick: getCubitInstance(context).confirmSelectedServices,
+            ),
+            ButtonWidget(
+              text: getLocalizations(context).cancel,
+              onClick: getCubitInstance(context).switchToServicesSequencesViewing,
+            )
+          ],
+        );
+    }
+  }
 }
 
-class ServicesSequenceLogicState extends BaseLogicState {
+enum ServicesSequencesStateEnum {
+  servicesSequencesViewing,
+  servicesSelecting,
+  selectedServicesViewing
+}
 
-  final ServicesSequenceConfig config;
+class ServicesSequencesLogicState extends BaseLogicState {
+
+  final ServicesSequencesConfig config;
+
+  final ServicesSequencesStateEnum servicesSequencesStateEnum;
 
   final String? ownerUsername;
   final String locationName;
   final bool hasRights;
 
-  final List<ServicesSequenceModel> servicesSequencesModel;
+  final List<ServicesSequenceModel> servicesSequences;
+  final List<ServiceWrapper> services;
+  final List<ServiceWrapper> selectedServices;
 
-  ServicesSequenceLogicState({
+  final bool showCreateServicesSequenceDialog;
+
+  ServicesSequencesLogicState({
     super.nextConfig,
     super.error,
     super.snackBar,
     super.loading,
     required this.config,
+    required this.servicesSequencesStateEnum,
     required this.ownerUsername,
     required this.locationName,
     required this.hasRights,
-    required this.servicesSequencesModel,
+    required this.servicesSequences,
+    required this.services,
+    required this.selectedServices,
+    required this.showCreateServicesSequenceDialog
   });
 
   @override
-  ServicesSequenceLogicState copy({
+  ServicesSequencesLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
     bool? loading,
+    ServicesSequencesStateEnum? servicesSequencesStateEnum,
     String? ownerUsername,
     String? locationName,
-    List<ServicesSequenceModel>? servicesSequencesModel,
-    bool? hasRights
-  }) => ServicesSequenceLogicState(
+    bool? hasRights,
+    List<ServicesSequenceModel>? servicesSequences,
+    List<ServiceWrapper>? services,
+    List<ServiceWrapper>? selectedServices,
+    bool? showCreateServicesSequenceDialog,
+  }) => ServicesSequencesLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
       loading: loading ?? this.loading,
+      servicesSequencesStateEnum: servicesSequencesStateEnum ?? this.servicesSequencesStateEnum,
       config: config,
       ownerUsername: ownerUsername ?? this.ownerUsername,
       locationName: locationName ?? this.locationName,
       hasRights: hasRights ?? this.hasRights,
-      servicesSequencesModel: servicesSequencesModel ?? this.servicesSequencesModel
+      servicesSequences: servicesSequences ?? this.servicesSequences,
+      services: services ?? this.services,
+      selectedServices: selectedServices ?? this.selectedServices,
+      showCreateServicesSequenceDialog: showCreateServicesSequenceDialog ?? this.showCreateServicesSequenceDialog
   );
 }
 
 @injectable
-class ServicesSequenceCubit extends BaseCubit<ServicesSequenceLogicState> {
+class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
   final LocationInteractor _locationInteractor;
 
-  ServicesSequenceCubit(
+  ServicesSequencesCubit(
       this._locationInteractor,
-      @factoryParam ServicesSequenceConfig config
+      @factoryParam ServicesSequencesConfig config
   ) : super(
-      ServicesSequenceLogicState(
+      ServicesSequencesLogicState(
           config: config,
+          servicesSequencesStateEnum: ServicesSequencesStateEnum.servicesSequencesViewing,
           ownerUsername: null,
           locationName: '',
           hasRights: false,
-          servicesSequencesModel: []
+          servicesSequences: [],
+          services: [],
+          selectedServices: [],
+          showCreateServicesSequenceDialog: false
       )
   );
 
@@ -212,59 +280,95 @@ class ServicesSequenceCubit extends BaseCubit<ServicesSequenceLogicState> {
   }
 
   void handleCreateServicesSequenceResult(CreateServicesSequenceResult result) {
-    emit(state.copy(servicesSequencesModel: state.servicesSequencesModel + [result.servicesSequenceModel]));
+    emit(
+        state.copy(
+            servicesSequencesStateEnum: ServicesSequencesStateEnum.servicesSequencesViewing,
+            services: state.services
+                .map((serviceWrapper) => serviceWrapper.copy(selected: false))
+                .toList(),
+            selectedServices: [],
+            servicesSequences: state.servicesSequences + [result.servicesSequenceModel]
+        )
+    );
   }
 
   void handleDeleteServicesSequenceResult(DeleteServicesSequenceResult result) {
     emit(
         state.copy(
-            servicesSequencesModel: state.servicesSequencesModel
+            servicesSequences: state.servicesSequences
               ..removeWhere((element) => element.id == result.servicesSequenceId)
         )
     );
   }
 
-  Future<void> share(String notificationText) async {
-    String username = state.ownerUsername!;
-    int locationId = state.config.locationId;
-    await Clipboard.setData(
-        ClipboardData(
-            text: '${ServerApi.clientUrl}/$username/locations/$locationId/queues'
+  void onClickServiceWhenServicesSelecting(ServiceWrapper serviceWrapper) {
+    emit(
+        state.copy(
+            services: state.services.map((cur) {
+              if (cur.service.id == serviceWrapper.service.id) {
+                return serviceWrapper.copy(
+                    selected: !cur.selected
+                );
+              } else {
+                return cur;
+              }
+            }).toList()
         )
     );
-    showSnackBar(notificationText);
   }
 
-  Future<void> downloadQrCode() async {
-    String username = state.ownerUsername!;
-    int locationId = state.config.locationId;
-    String url = '${ServerApi.clientUrl}/$username/locations/$locationId/queues';
+  void switchToServicesSelecting() {
+    emit(state.copy(servicesSequencesStateEnum: ServicesSequencesStateEnum.servicesSelecting));
+  }
 
-    final image = await QrPainter(
-      data: url,
-      version: QrVersions.auto,
-      errorCorrectionLevel: QrErrorCorrectLevel.Q,
-      color: Colors.black,
-      emptyColor: Colors.white,
-    ).toImageData(1024);
+  void switchToSelectedServicesViewing() {
+    emit(
+        state.copy(
+            servicesSequencesStateEnum: ServicesSequencesStateEnum.selectedServicesViewing,
+            selectedServices: state.services
+              ..removeWhere((serviceWrapper) => !serviceWrapper.selected)
+        )
+    );
+  }
 
-    if (image != null) {
-      await FileSaver.instance.saveFile(
-          url,
-          image.buffer.asUint8List(),
-          'png',
-          mimeType: MimeType.PNG
-      );
-    }
+  void switchToServicesSequencesViewing() {
+    emit(
+        state.copy(
+          servicesSequencesStateEnum: ServicesSequencesStateEnum.servicesSequencesViewing,
+          services: state.services
+              .map((serviceWrapper) => serviceWrapper.copy(selected: false))
+              .toList(),
+          selectedServices: [],
+        ));
+  }
+
+  void confirmSelectedServices() {
+    emit(state.copy(showCreateServicesSequenceDialog: true));
+    emit(state.copy(showCreateServicesSequenceDialog: false));
   }
 
   Future<void> _load() async {
     await _locationInteractor.getServicesSequencesInLocation(
         state.config.locationId
     )
-      ..onSuccess((result) {
-        emit(state.copy(servicesSequencesModel: result.data.results));
-        hideLoad();
+      ..onSuccess((result) async {
+        emit(state.copy(servicesSequences: result.data.results));
+        await _locationInteractor.getServicesInLocation(
+            state.config.locationId
+        )
+          ..onSuccess((result) {
+            emit(
+                state.copy(
+                    services: result.data.results
+                        .map((service) => ServiceWrapper(service: service))
+                        .toList()
+                )
+            );
+            hideLoad();
+          })
+          ..onError((result) {
+            showError(result);
+          });
       })
       ..onError((result) {
         showError(result);

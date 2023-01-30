@@ -48,7 +48,7 @@ class StatesAssembler {
   DeleteQueueCubit getDeleteQueueCubit(DeleteQueueConfig config) => getIt.get(param1: config);
   QueueCubit getQueueCubit(QueueConfig config) => getIt.get(param1: config);
 
-  ServicesSequenceCubit getServicesSequenceCubit(ServicesSequenceConfig config) => getIt.get(param1: config);
+  ServicesSequencesCubit getServicesSequencesCubit(ServicesSequencesConfig config) => getIt.get(param1: config);
   CreateServicesSequenceCubit getCreateServicesSequenceCubit(CreateServicesSequenceConfig config) => getIt.get(param1: config);
   DeleteServicesSequenceCubit getDeleteServicesSequenceCubit(DeleteServicesSequenceConfig config) => getIt.get(param1: config);
 

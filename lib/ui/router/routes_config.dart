@@ -130,11 +130,11 @@ class LocationConfig extends BaseConfig {
   }
 }
 
-class ServicesSequenceConfig extends BaseConfig {
+class ServicesSequencesConfig extends BaseConfig {
   String username;
   int locationId;
 
-  ServicesSequenceConfig({
+  ServicesSequencesConfig({
     required this.username,
     required this.locationId
   });
@@ -142,8 +142,8 @@ class ServicesSequenceConfig extends BaseConfig {
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
     return RouterPage(
-        key: ValueKey('Services Sequence Page $locationId'),
-        child: ServicesSequenceWidget(
+        key: ValueKey('Services Sequences Page $locationId'),
+        child: ServicesSequencesWidget(
           config: this,
           emitConfig: emitConfig,
         )

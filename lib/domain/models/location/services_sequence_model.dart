@@ -7,14 +7,11 @@ class ServicesSequenceModel {
   final int id;
   final String name;
   final String? description;
-  @JsonKey(name: 'service_ids_to_order_numbers')
-  Map<int, int> serviceIdsToOrderNumbers;
 
   ServicesSequenceModel(
       this.id,
       this.name,
-      this.description,
-      this.serviceIdsToOrderNumbers
+      this.description
   );
 
   static ServicesSequenceModel fromJson(Map<String, dynamic> json) => _$ServicesSequenceModelFromJson(json);

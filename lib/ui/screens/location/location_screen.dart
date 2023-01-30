@@ -62,7 +62,7 @@ class LocationState extends BaseState<
                 ButtonWidget(
                   text: getLocalizations(context).servicesSequences,
                   onClick: () => widget.emitConfig(
-                      ServicesSequenceConfig(
+                      ServicesSequencesConfig(
                           username: widget.config.username,
                           locationId: widget.config.locationId
                       )
