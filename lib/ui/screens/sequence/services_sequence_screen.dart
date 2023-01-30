@@ -151,12 +151,32 @@ class _ServicesSequencesState extends BaseState<
                   getCubitInstance(context).onReorderSelectedServices(oldIndex, newIndex);
                 }),
                 children: state.selectedServices
-                    .map((serviceWrapper) =>
-                        ServiceItemWidget(
-                            key: Key(serviceWrapper.service.id.toString()),
-                            serviceWrapper: serviceWrapper,
-                            onTap: getCubitInstance(context).onClickServiceWhenSelectedServicesViewing
-                        )
+                    .map((serviceWrapper) => Row(
+                        key: Key(serviceWrapper.service.id.toString()),
+                        children: [
+                          Card(
+                            color: Colors.blueGrey[300],
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                '${serviceWrapper.orderNumber}:',
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                              flex: 1,
+                              child: ServiceItemWidget(
+                                  serviceWrapper: serviceWrapper,
+                                  onTap: getCubitInstance(context).onClickServiceWhenSelectedServicesViewing
+                              )
+                          )
+                        ],
+                      )
                     )
                     .toList()
               ),
@@ -324,29 +344,42 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
   }
 
   void onClickServiceWhenSelectedServicesViewing(ServiceWrapper serviceWrapper) {
-    emit(
-        state.copy(
-            services: state.services.map((cur) {
-              if (cur.service.id == serviceWrapper.service.id) {
-                return serviceWrapper.copy(
-                    selected: !cur.selected
-                );
-              } else {
-                return cur;
-              }
-            }).toList()
-        )
-    );
+    List<ServiceWrapper> selectedServices = state.selectedServices;
+    int orderNumber = serviceWrapper.orderNumber;
+    if (serviceWrapper.selected) {
+      selectedServices = selectedServices
+          .map((cur) {
+            if (cur.orderNumber > orderNumber) {
+              return cur.copy(orderNumber: cur.orderNumber + 1);
+            }
+            return cur;
+          })
+          .toList();
+    } else {
+      selectedServices = selectedServices
+          .map((cur) {
+            return cur;
+          })
+          .toList();
+    }
+    selectedServices.sort((a, b) => a.orderNumber.compareTo(b.orderNumber));
+    emit(state.copy(selectedServices: selectedServices));
   }
 
   void onReorderSelectedServices(int oldIndex, int newIndex) {
-    List<ServiceWrapper> services = state.selectedServices;
+    List<ServiceWrapper> selectedServices = state.selectedServices;
     if (newIndex > oldIndex) {
       newIndex = newIndex - 1;
     }
-    final item = services.removeAt(oldIndex);
-    services.insert(newIndex, item);
-    emit(state.copy(selectedServices: services));
+    final item = selectedServices.removeAt(oldIndex);
+    selectedServices.insert(newIndex, item);
+
+    int i = 0;
+    selectedServices = selectedServices
+        .map((serviceWrapper) => serviceWrapper.copy(orderNumber: ++i))
+        .toList();
+
+    emit(state.copy(selectedServices: selectedServices));
   }
 
   void switchToServicesSelecting() {
@@ -354,11 +387,19 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
   }
 
   void switchToSelectedServicesViewing() {
+    int i = 0;
+
+    List<ServiceWrapper> selectedServices = state.services
+      ..removeWhere((serviceWrapper) => !serviceWrapper.selected);
+
+    selectedServices = selectedServices
+        .map((serviceWrapper) => serviceWrapper.copy(selected: false, orderNumber: ++i))
+        .toList();
+
     emit(
         state.copy(
             servicesSequencesStateEnum: ServicesSequencesStateEnum.selectedServicesViewing,
-            selectedServices: state.services
-              ..removeWhere((serviceWrapper) => !serviceWrapper.selected)
+            selectedServices: selectedServices
         )
     );
   }
