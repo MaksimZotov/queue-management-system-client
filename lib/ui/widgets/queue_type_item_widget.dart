@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import '../../domain/models/location/queue_type_model.dart';
 
 class QueueTypeItemWidget extends StatefulWidget {
-  final ValueChanged<QueueTypeModel> onDelete;
+  final ValueChanged<QueueTypeModel>? onTap;
+  final ValueChanged<QueueTypeModel>? onDelete;
   final QueueTypeModel queueType;
 
   const QueueTypeItemWidget({
     Key? key,
-    required this.onDelete,
+    this.onTap,
+    this.onDelete,
     required this.queueType,
   }) : super(key: key);
 
@@ -35,13 +37,16 @@ class _QueueTypeItemState extends State<QueueTypeItemWidget> {
                     )
                   : null,
             ),
-            trailing: true // widget.service.hasRights == true
+            trailing: widget.onDelete != null
                 ? SizedBox(
                     height: double.infinity,
                     child: IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => widget.onDelete(widget.queueType)),
+                        onPressed: () => widget.onDelete?.call(widget.queueType)),
                   )
-                : null));
+                : null,
+          onTap: () => widget.onTap?.call(widget.queueType),
+        )
+    );
   }
 }
