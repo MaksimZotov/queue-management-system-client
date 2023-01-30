@@ -146,13 +146,17 @@ class _ServicesSequencesState extends BaseState<
           children: [
             Expanded(
               flex: 1,
-              child: ListView.builder(
-                itemBuilder: (context, index) {
-                  return ServiceItemWidget(
-                      serviceWrapper: state.selectedServices[index]
-                  );
-                },
-                itemCount: state.selectedServices.length,
+              child: ReorderableListView(
+                onReorder: getCubitInstance(context).onReorderSelectedServices,
+                children: state.selectedServices
+                    .map((serviceWrapper) =>
+                        ServiceItemWidget(
+                            key: Key(serviceWrapper.service.id.toString()),
+                            serviceWrapper: serviceWrapper,
+                            onTap: getCubitInstance(context).onClickServiceWhenSelectedServicesViewing
+                        )
+                    )
+                    .toList()
               ),
             ),
             ButtonWidget(
@@ -315,6 +319,32 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
             }).toList()
         )
     );
+  }
+
+  void onClickServiceWhenSelectedServicesViewing(ServiceWrapper serviceWrapper) {
+    emit(
+        state.copy(
+            services: state.services.map((cur) {
+              if (cur.service.id == serviceWrapper.service.id) {
+                return serviceWrapper.copy(
+                    selected: !cur.selected
+                );
+              } else {
+                return cur;
+              }
+            }).toList()
+        )
+    );
+  }
+
+  void onReorderSelectedServices(int oldIndex, int newIndex) {
+    List<ServiceWrapper> services = state.selectedServices;
+    if (newIndex > oldIndex) {
+      newIndex = newIndex - 1;
+    }
+    final item = services.removeAt(oldIndex);
+    services.insert(newIndex, item);
+    emit(state.copy(selectedServices: services));
   }
 
   void switchToServicesSelecting() {
