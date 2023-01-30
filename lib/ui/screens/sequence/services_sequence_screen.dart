@@ -147,7 +147,9 @@ class _ServicesSequencesState extends BaseState<
             Expanded(
               flex: 1,
               child: ReorderableListView(
-                onReorder: getCubitInstance(context).onReorderSelectedServices,
+                onReorder: (oldIndex, newIndex) => setState(() {
+                  getCubitInstance(context).onReorderSelectedServices(oldIndex, newIndex);
+                }),
                 children: state.selectedServices
                     .map((serviceWrapper) =>
                         ServiceItemWidget(
