@@ -41,7 +41,10 @@ class LocationState extends BaseState<
         appBar: AppBar(
           title: state.locationModel != null
               ? Text(getLocalizations(context).locationPattern(state.locationModel!.name))
-              : null
+              : null,
+          actions: [
+            // TODO - add terminal mode for clients
+          ],
         ),
         body: Center(
           child: Padding(
