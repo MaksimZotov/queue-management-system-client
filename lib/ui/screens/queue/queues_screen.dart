@@ -45,41 +45,7 @@ class _QueuesState extends BaseState<
           state.locationName.isEmpty
               ? ''
               : getLocalizations(context).locationPattern(state.locationName)
-      ),
-      actions: state.ownerUsername != null
-          ? (state.hasRights ? <Widget>[
-            IconButton(
-                icon: const Icon(Icons.settings),
-                onPressed: () => widget.emitConfig(
-                    RightsConfig(
-                        username: widget.config.username,
-                        locationId: widget.config.locationId
-                    )
-                )
-            )
-          ] : <Widget>[]) +
-          [
-            IconButton(
-                icon: const Icon(Icons.desktop_windows_outlined),
-                onPressed: () => widget.emitConfig(
-                    BoardConfig(
-                        username: widget.config.username,
-                        locationId: widget.config.locationId
-                    )
-                )
-            ),
-            IconButton(
-                icon: const Icon(Icons.qr_code),
-                onPressed: getCubitInstance(context).downloadQrCode
-            ),
-            IconButton(
-              icon: const Icon(Icons.share),
-              onPressed: () => getCubitInstance(context).share(
-                  getLocalizations(context).linkCopied
-              ),
-            ),
-          ]
-          : null,
+      )
     ),
     body: ListView.builder(
       itemBuilder: (context, index) {
@@ -223,40 +189,6 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
               ..removeWhere((element) => element.id == result.id)
         )
     );
-  }
-
-  Future<void> share(String notificationText) async {
-    String username = state.ownerUsername!;
-    int locationId = state.config.locationId;
-    await Clipboard.setData(
-        ClipboardData(
-            text: '${ServerApi.clientUrl}/$username/locations/$locationId/queues'
-        )
-    );
-    showSnackBar(notificationText);
-  }
-
-  Future<void> downloadQrCode() async {
-    String username = state.ownerUsername!;
-    int locationId = state.config.locationId;
-    String url = '${ServerApi.clientUrl}/$username/locations/$locationId/queues';
-
-    final image = await QrPainter(
-      data: url,
-      version: QrVersions.auto,
-      errorCorrectionLevel: QrErrorCorrectLevel.Q,
-      color: Colors.black,
-      emptyColor: Colors.white,
-    ).toImageData(1024);
-
-    if (image != null) {
-      await FileSaver.instance.saveFile(
-          url,
-          image.buffer.asUint8List(),
-          'png',
-          mimeType: MimeType.PNG
-      );
-    }
   }
 
   Future<void> _load() async {

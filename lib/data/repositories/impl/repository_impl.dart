@@ -17,6 +17,7 @@ import 'package:queue_management_system_client/domain/models/location/queue_type
 import 'package:queue_management_system_client/domain/models/location/services_sequence_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
 import 'package:queue_management_system_client/domain/models/rights/rights_model.dart';
+import 'package:queue_management_system_client/domain/models/terminal/terminal_state.dart';
 
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/location/create_location_request.dart';
@@ -289,6 +290,25 @@ class RepositoryImpl extends Repository {
     return _serverApi.getRights(locationId);
   }
   // <======================== Rights ========================>
+
+
+
+
+
+  @override
+  Future<void> setTerminalState(TerminalState terminalState) {
+    return _sharedPreferencesStorage.setTerminalState(terminalState: terminalState);
+  }
+
+  @override
+  Future<TerminalState?> getTerminalState() {
+    return _sharedPreferencesStorage.getTerminalState();
+  }
+
+  @override
+  Future<void> clearTerminalState() {
+    return _sharedPreferencesStorage.clearTerminalState();
+  }
 
 
 

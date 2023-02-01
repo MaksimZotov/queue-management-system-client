@@ -8,9 +8,11 @@ import 'package:queue_management_system_client/ui/screens/base.dart';
 import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';
+import '../../../domain/interactors/terminal_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/location/service_model.dart';
-import '../../models.service/service_wrapper.dart';
+import '../../../domain/models/terminal/terminal_state.dart';
+import '../../models/service/service_wrapper.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/service_item_widget.dart';
 import 'create_service_dialog.dart';
@@ -39,48 +41,16 @@ class _ServicesState extends BaseState<
       BuildContext context,
       ServicesLogicState state,
       ServicesWidget widget
-      ) => Scaffold(
-    appBar: AppBar(
-      title: Text(
-          state.locationName.isEmpty
-              ? ''
-              : getLocalizations(context).servicesInLocationPattern(state.locationName)
-      ),
-      actions: state.ownerUsername != null
-          ? (state.hasRights ? <Widget>[
-        IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () => widget.emitConfig(
-                RightsConfig(
-                    username: widget.config.username,
-                    locationId: widget.config.locationId
-                )
-            )
-        )
-      ] : <Widget>[]) +
-          [
-            IconButton(
-                icon: const Icon(Icons.desktop_windows_outlined),
-                onPressed: () => widget.emitConfig(
-                    BoardConfig(
-                        username: widget.config.username,
-                        locationId: widget.config.locationId
-                    )
-                )
-            ),
-            IconButton(
-                icon: const Icon(Icons.qr_code),
-                onPressed: getCubitInstance(context).downloadQrCode
-            ),
-            IconButton(
-              icon: const Icon(Icons.share),
-              onPressed: () => getCubitInstance(context).share(
-                  getLocalizations(context).linkCopied
-              ),
-            ),
-          ]
-          : null,
-    ),
+  ) => Scaffold(
+    appBar: state.terminalState == null
+      ? AppBar(
+        title: Text(
+            state.locationName.isEmpty
+                ? ''
+                : getLocalizations(context).servicesInLocationPattern(state.locationName)
+        ),
+      )
+      : null,
     body: ListView.builder(
       itemBuilder: (context, index) {
         return ServiceItemWidget(
@@ -136,6 +106,8 @@ class ServicesLogicState extends BaseLogicState {
 
   final List<ServiceWrapper> services;
 
+  final TerminalState? terminalState;
+
   ServicesLogicState({
     super.nextConfig,
     super.error,
@@ -146,6 +118,7 @@ class ServicesLogicState extends BaseLogicState {
     required this.locationName,
     required this.hasRights,
     required this.services,
+    required this.terminalState
   });
 
   @override
@@ -157,7 +130,8 @@ class ServicesLogicState extends BaseLogicState {
     String? ownerUsername,
     String? locationName,
     List<ServiceWrapper>? services,
-    bool? hasRights
+    bool? hasRights,
+    TerminalState? terminalState
   }) => ServicesLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -167,16 +141,19 @@ class ServicesLogicState extends BaseLogicState {
       ownerUsername: ownerUsername ?? this.ownerUsername,
       locationName: locationName ?? this.locationName,
       hasRights: hasRights ?? this.hasRights,
-      services: services ?? this.services
+      services: services ?? this.services,
+      terminalState: terminalState ?? this.terminalState
   );
 }
 
 @injectable
 class ServicesCubit extends BaseCubit<ServicesLogicState> {
   final LocationInteractor _locationInteractor;
+  final TerminalInteractor _terminalInteractor;
 
   ServicesCubit(
       this._locationInteractor,
+      this._terminalInteractor,
       @factoryParam ServicesConfig config
   ) : super(
       ServicesLogicState(
@@ -184,12 +161,14 @@ class ServicesCubit extends BaseCubit<ServicesLogicState> {
           ownerUsername: null,
           locationName: '',
           hasRights: false,
-          services: []
+          services: [],
+          terminalState: null
       )
   );
 
   @override
   Future<void> onStart() async {
+    emit(state.copy(terminalState: await _terminalInteractor.getTerminalState()));
     await _locationInteractor.getLocation(
         state.config.locationId, state.config.username
     )
@@ -219,40 +198,6 @@ class ServicesCubit extends BaseCubit<ServicesLogicState> {
               ..removeWhere((serviceWrapper) => serviceWrapper.service.id == result.serviceId)
         )
     );
-  }
-
-  Future<void> share(String notificationText) async {
-    String username = state.ownerUsername!;
-    int locationId = state.config.locationId;
-    await Clipboard.setData(
-        ClipboardData(
-            text: '${ServerApi.clientUrl}/$username/locations/$locationId/services'
-        )
-    );
-    showSnackBar(notificationText);
-  }
-
-  Future<void> downloadQrCode() async {
-    String username = state.ownerUsername!;
-    int locationId = state.config.locationId;
-    String url = '${ServerApi.clientUrl}/$username/locations/$locationId/services';
-
-    final image = await QrPainter(
-      data: url,
-      version: QrVersions.auto,
-      errorCorrectionLevel: QrErrorCorrectLevel.Q,
-      color: Colors.black,
-      emptyColor: Colors.white,
-    ).toImageData(1024);
-
-    if (image != null) {
-      await FileSaver.instance.saveFile(
-          url,
-          image.buffer.asUint8List(),
-          'png',
-          mimeType: MimeType.PNG
-      );
-    }
   }
 
   Future<void> _load() async {

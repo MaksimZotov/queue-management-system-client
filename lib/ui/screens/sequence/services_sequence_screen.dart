@@ -4,16 +4,18 @@ import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/domain/models/location/queue_type_model.dart';
-import 'package:queue_management_system_client/ui/models.service/service_wrapper.dart';
+import 'package:queue_management_system_client/ui/models/service/service_wrapper.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/queue_type_item_widget.dart';
 
 import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';
+import '../../../domain/interactors/terminal_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/location/service_model.dart';
 import '../../../domain/models/location/services_sequence_model.dart';
+import '../../../domain/models/terminal/terminal_state.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/button_widget.dart';
 import '../../widgets/service_item_widget.dart';
@@ -67,20 +69,22 @@ class _ServicesSequencesState extends BaseState<
       BuildContext context,
       ServicesSequencesLogicState state,
       ServicesSequencesWidget widget
-      ) => Scaffold(
-    appBar: AppBar(
-      title: Text(
-          state.locationName.isEmpty
-              ? ''
-              : getLocalizations(context).locationPattern(state.locationName)
-      ),
-    ),
+  ) => Scaffold(
+    appBar: state.terminalState == null
+      ? AppBar(
+        title: Text(
+            state.locationName.isEmpty
+                ? ''
+                : getLocalizations(context).locationPattern(state.locationName)
+        ),
+      )
+      : null,
     body: _getBody(context, state, widget),
     floatingActionButton: state.hasRights && state.servicesSequencesStateEnum == ServicesSequencesStateEnum.servicesSequencesViewing
         ? FloatingActionButton(
-      onPressed: getCubitInstance(context).switchToServicesSelecting,
-      child: const Icon(Icons.add),
-    )
+          onPressed: getCubitInstance(context).switchToServicesSelecting,
+          child: const Icon(Icons.add),
+        )
         : null,
   );
 
@@ -217,6 +221,8 @@ class ServicesSequencesLogicState extends BaseLogicState {
 
   final bool showCreateServicesSequenceDialog;
 
+  final TerminalState? terminalState;
+
   ServicesSequencesLogicState({
     super.nextConfig,
     super.error,
@@ -230,7 +236,8 @@ class ServicesSequencesLogicState extends BaseLogicState {
     required this.servicesSequences,
     required this.services,
     required this.selectedServices,
-    required this.showCreateServicesSequenceDialog
+    required this.showCreateServicesSequenceDialog,
+    required this.terminalState
   });
 
   @override
@@ -247,6 +254,7 @@ class ServicesSequencesLogicState extends BaseLogicState {
     List<ServiceWrapper>? services,
     List<ServiceWrapper>? selectedServices,
     bool? showCreateServicesSequenceDialog,
+    TerminalState? terminalState
   }) => ServicesSequencesLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -260,16 +268,19 @@ class ServicesSequencesLogicState extends BaseLogicState {
       servicesSequences: servicesSequences ?? this.servicesSequences,
       services: services ?? this.services,
       selectedServices: selectedServices ?? this.selectedServices,
-      showCreateServicesSequenceDialog: showCreateServicesSequenceDialog ?? this.showCreateServicesSequenceDialog
+      showCreateServicesSequenceDialog: showCreateServicesSequenceDialog ?? this.showCreateServicesSequenceDialog,
+      terminalState: terminalState ?? this.terminalState
   );
 }
 
 @injectable
 class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
   final LocationInteractor _locationInteractor;
+  final TerminalInteractor _terminalInteractor;
 
   ServicesSequencesCubit(
       this._locationInteractor,
+      this._terminalInteractor,
       @factoryParam ServicesSequencesConfig config
   ) : super(
       ServicesSequencesLogicState(
@@ -281,12 +292,14 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
           servicesSequences: [],
           services: [],
           selectedServices: [],
-          showCreateServicesSequenceDialog: false
+          showCreateServicesSequenceDialog: false,
+          terminalState: null
       )
   );
 
   @override
   Future<void> onStart() async {
+    emit(state.copy(terminalState: await _terminalInteractor.getTerminalState()));
     await _locationInteractor.getLocation(
         state.config.locationId, state.config.username
     )

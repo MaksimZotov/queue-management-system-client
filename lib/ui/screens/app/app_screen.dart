@@ -19,6 +19,7 @@ class _AppWidgetState extends State<AppWidget> {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       theme: ThemeData(
+          hoverColor: Colors.transparent,
           primarySwatch: Colors.teal,
           textTheme: const TextTheme(
             headline1: TextStyle(color: Colors.grey),

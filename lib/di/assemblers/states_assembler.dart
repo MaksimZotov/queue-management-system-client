@@ -4,6 +4,7 @@ import 'package:queue_management_system_client/ui/screens/client/client_screen.d
 import 'package:queue_management_system_client/ui/screens/location/create_location_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/delete_location_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/search_locations_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/location/switch_to_terminal_mode_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queue_screen.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queues_screen.dart';
 import 'package:queue_management_system_client/ui/screens/rights/add_right_dialog.dart';
@@ -67,6 +68,8 @@ class StatesAssembler {
   RightsCubit getRightsCubit(RightsConfig config) => getIt.get(param1: config);
   AddRightCubit getAddRightCubit(AddRightConfig config) => getIt.get(param1: config);
   DeleteRightCubit getDeleteRightCubit(DeleteRightConfig config) => getIt.get(param1: config);
+
+  SwitchToTerminalModeCubit getSwitchToTerminalModeCubit(SwitchToTerminalModeConfig config) => getIt.get(param1: config);
 }
 
 const statesAssembler = StatesAssembler._();

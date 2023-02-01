@@ -22,6 +22,7 @@ import '../../domain/models/rights/rights_model.dart';
 import '../../domain/models/account/login_model.dart';
 import '../../domain/models/account/signup_model.dart';
 import '../../domain/models/account/tokens_model.dart';
+import '../../domain/models/terminal/terminal_state.dart';
 
 abstract class Repository {
   // <======================== Account ========================>
@@ -79,6 +80,12 @@ abstract class Repository {
   Future<Result> addRights(int locationId, String email);
   Future<Result> deleteRights(int locationId, String email);
   // <======================== Rights ========================>
+
+  // <======================== Terminal ========================>
+  Future<void> setTerminalState(TerminalState terminalState);
+  Future<TerminalState?> getTerminalState();
+  Future<void> clearTerminalState();
+  // <======================== Terminal ========================>
 
   // <======================== Socket ========================>
   void connectToSocket<T>(String destination, VoidCallback onConnected, ValueChanged<T> onQueueChanged, ValueChanged onError);

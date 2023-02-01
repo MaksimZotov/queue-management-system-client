@@ -1,39 +1,42 @@
 import 'package:injectable/injectable.dart';
+import 'package:queue_management_system_client/domain/enums/terminal_mode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../domain/models/terminal/terminal_state.dart';
 
 @lazySingleton
 class SharedPreferencesStorage {
-  static const _clientId = 'CLIENT_ID';
-  static const _clientAccessKey = 'CLIENT_ACCESS_KEY';
+  static const _terminalStateModeIndex = 'TERMINAL_STATE_MODE_INDEX';
+  static const _terminalStateMultipleSelect = 'TERMINAL_STATE_MULTIPLE_SELECT';
 
-  Future<void> setClientId({required int? clientId}) async {
+  Future<void> setTerminalState({
+    required TerminalState terminalState
+  }) async {
     final prefs = await SharedPreferences.getInstance();
-    if (clientId == null) {
-      await prefs.remove(_clientId);
-    } else {
-      await prefs.setInt(_clientId, clientId);
+    prefs.setInt(_terminalStateModeIndex, terminalState.terminalMode.index);
+    prefs.setBool(_terminalStateMultipleSelect, terminalState.multipleSelect);
+  }
+
+  Future<TerminalState?> getTerminalState() async {
+    final prefs = await SharedPreferences.getInstance();
+    int? modeIndex = prefs.getInt(_terminalStateModeIndex);
+    if (modeIndex == null) {
+      return null;
     }
-  }
-
-  Future<int?> getClientId() async {
-    final prefs = await SharedPreferences.getInstance();
-    int? clientId = prefs.getInt(_clientId);
-    return clientId;
-  }
-
-  Future<void> setClientAccessKey({required String? accessKey}) async {
-    final prefs = await SharedPreferences.getInstance();
-    if (accessKey == null) {
-      await prefs.remove(_clientAccessKey);
-    } else {
-      await prefs.setString(_clientAccessKey, accessKey);
+    bool? multipleSelect = prefs.getBool(_terminalStateMultipleSelect);
+    if (multipleSelect == null) {
+      return null;
     }
+    TerminalMode terminalMode = TerminalMode.values[modeIndex];
+    return TerminalState(
+        terminalMode: terminalMode,
+        multipleSelect: multipleSelect
+    );
   }
 
-  Future<String?> getClientAccessKey() async {
+  Future<void> clearTerminalState() async {
     final prefs = await SharedPreferences.getInstance();
-    String? accessKey = prefs.getString(_clientAccessKey);
-    return accessKey;
+    await prefs.remove(_terminalStateModeIndex);
+    await prefs.remove(_terminalStateMultipleSelect);
   }
-
 }

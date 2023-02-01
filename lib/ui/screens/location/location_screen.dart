@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
+import 'package:queue_management_system_client/ui/screens/location/switch_to_terminal_mode_dialog.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/account_interactor.dart';
+import '../../../domain/interactors/terminal_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/location/location_model.dart';
+import '../../../domain/models/terminal/terminal_state.dart';
 import '../../router/routes_config.dart';
 
 class LocationWidget extends BaseWidget<LocationConfig> {
@@ -38,14 +41,30 @@ class LocationState extends BaseState<
         child: CircularProgressIndicator(),
       )
       : Scaffold(
-        appBar: AppBar(
-          title: state.locationModel != null
-              ? Text(getLocalizations(context).locationPattern(state.locationModel!.name))
-              : null,
-          actions: [
-            // TODO - add terminal mode for clients
-          ],
-        ),
+        appBar: state.terminalState == null
+            ? AppBar(
+                title: state.locationModel != null
+                    ? Text(getLocalizations(context).locationPattern(state.locationModel!.name))
+                    : null,
+                actions: [
+                  IconButton(
+                      icon: const Icon(Icons.settings),
+                      onPressed: () => showDialog(
+                          context: context,
+                          builder: (context) => SwitchToTerminalModeWidget(
+                              config: SwitchToTerminalModeConfig(
+                                  locationId: state.config.locationId
+                              )
+                          )
+                      ).then((result) {
+                        if (result is SwitchToTerminalModeResult) {
+                          getCubitInstance(context).handleSwitchToTerminalModeResult(result);
+                        }
+                      })
+                  )
+                ],
+            )
+            : null,
         body: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
@@ -105,13 +124,16 @@ class LocationLogicState extends BaseLogicState {
   
   final LocationModel? locationModel;
 
+  final TerminalState? terminalState;
+
   LocationLogicState({
     super.nextConfig,
     super.error,
     super.snackBar,
     super.loading = true,
     required this.config,
-    this.locationModel
+    required this.locationModel,
+    required this.terminalState
   });
 
   @override
@@ -120,29 +142,40 @@ class LocationLogicState extends BaseLogicState {
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    LocationModel? locationModel
+    LocationModel? locationModel,
+    TerminalState? terminalState
   }) => LocationLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
       loading: loading ?? this.loading,
       config: config,
-      locationModel: locationModel ?? this.locationModel
+      locationModel: locationModel ?? this.locationModel,
+      terminalState: terminalState ?? this.terminalState
   );
 }
 
 @injectable
 class LocationCubit extends BaseCubit<LocationLogicState> {
   final LocationInteractor _locationInteractor;
+  final TerminalInteractor _terminalInteractor;
 
   LocationCubit(
       this._locationInteractor,
+      this._terminalInteractor,
       @factoryParam LocationConfig config
-  ) : super(LocationLogicState(config: config));
+  ) : super(
+      LocationLogicState(
+          config: config,
+          locationModel: null,
+          terminalState: null
+      )
+  );
 
   @override
   Future<void> onStart() async {
     showLoad();
+    await _terminalInteractor.clearTerminalState();
     await _locationInteractor.getLocation(
         state.config.locationId, 
         state.config.username
@@ -154,5 +187,10 @@ class LocationCubit extends BaseCubit<LocationLogicState> {
         showError(result);
       });
     hideLoad();
+  }
+
+  Future<void> handleSwitchToTerminalModeResult(SwitchToTerminalModeResult result) async {
+    await _terminalInteractor.setTerminalState(result.terminalState);
+    emit(state.copy(terminalState: result.terminalState));
   }
 }

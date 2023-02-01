@@ -133,6 +133,13 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
           location: '/$username/locations'
       );
     }
+    if (configuration is LocationConfig) {
+      String username = configuration.username;
+      int locationId = configuration.locationId;
+      return RouteInformation(
+          location: '/$username/locations/$locationId'
+      );
+    }
     if (configuration is ServicesConfig) {
       String username = configuration.username;
       int locationId = configuration.locationId;

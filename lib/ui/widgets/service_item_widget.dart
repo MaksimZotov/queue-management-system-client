@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/models/location/service_model.dart';
-import '../models.service/service_wrapper.dart';
+import '../models/service/service_wrapper.dart';
 
 class ServiceItemWidget extends StatefulWidget {
   final ValueChanged<ServiceWrapper>? onTap;

@@ -4,15 +4,17 @@ import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/domain/models/location/queue_type_model.dart';
-import 'package:queue_management_system_client/ui/models.service/service_wrapper.dart';
+import 'package:queue_management_system_client/ui/models/service/service_wrapper.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/queue_type_item_widget.dart';
 
 import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';
+import '../../../domain/interactors/terminal_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/location/service_model.dart';
+import '../../../domain/models/terminal/terminal_state.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/button_widget.dart';
 import '../../widgets/service_item_widget.dart';
@@ -65,13 +67,15 @@ class _QueueTypesState extends BaseState<
       QueueTypesLogicState state,
       QueueTypesWidget widget
   ) => Scaffold(
-    appBar: AppBar(
-      title: Text(
-          state.locationName.isEmpty
-              ? ''
-              : getLocalizations(context).locationPattern(state.locationName)
-      ),
-    ),
+    appBar: state.terminalState == null
+      ? AppBar(
+        title: Text(
+            state.locationName.isEmpty
+                ? ''
+                : getLocalizations(context).locationPattern(state.locationName)
+        ),
+      )
+      : null,
     body: _getBody(context, state, widget),
     floatingActionButton: state.hasRights && state.queueTypesStateEnum == QueueTypesStateEnum.queueTypesViewing
         ? FloatingActionButton(
@@ -188,6 +192,8 @@ class QueueTypesLogicState extends BaseLogicState {
 
   final bool showCreateQueueTypeDialog;
 
+  final TerminalState? terminalState;
+
   QueueTypesLogicState({
     super.nextConfig,
     super.error,
@@ -201,7 +207,8 @@ class QueueTypesLogicState extends BaseLogicState {
     required this.queueTypes,
     required this.services,
     required this.selectedServices,
-    required this.showCreateQueueTypeDialog
+    required this.showCreateQueueTypeDialog,
+    required this.terminalState
   });
 
   @override
@@ -218,6 +225,7 @@ class QueueTypesLogicState extends BaseLogicState {
     List<ServiceWrapper>? services,
     List<ServiceWrapper>? selectedServices,
     bool? showCreateQueueTypeDialog,
+    TerminalState? terminalState
   }) => QueueTypesLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -231,16 +239,19 @@ class QueueTypesLogicState extends BaseLogicState {
       queueTypes: queueTypes ?? this.queueTypes,
       services: services ?? this.services,
       selectedServices: selectedServices ?? this.selectedServices,
-      showCreateQueueTypeDialog: showCreateQueueTypeDialog ?? this.showCreateQueueTypeDialog
+      showCreateQueueTypeDialog: showCreateQueueTypeDialog ?? this.showCreateQueueTypeDialog,
+      terminalState: terminalState ?? this.terminalState
   );
 }
 
 @injectable
 class QueueTypesCubit extends BaseCubit<QueueTypesLogicState> {
   final LocationInteractor _locationInteractor;
+  final TerminalInteractor _terminalInteractor;
 
   QueueTypesCubit(
       this._locationInteractor,
+      this._terminalInteractor,
       @factoryParam QueueTypesConfig config
   ) : super(
       QueueTypesLogicState(
@@ -252,12 +263,14 @@ class QueueTypesCubit extends BaseCubit<QueueTypesLogicState> {
           queueTypes: [],
           services: [],
           selectedServices: [],
-          showCreateQueueTypeDialog: false
+          showCreateQueueTypeDialog: false,
+          terminalState: null
       )
   );
 
   @override
   Future<void> onStart() async {
+    emit(state.copy(terminalState: await _terminalInteractor.getTerminalState()));
     await _locationInteractor.getLocation(
         state.config.locationId, state.config.username
     )
