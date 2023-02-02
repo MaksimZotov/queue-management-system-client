@@ -72,7 +72,7 @@ class _QueueTypesState extends BaseState<
         title: Text(
             state.locationName.isEmpty
                 ? ''
-                : getLocalizations(context).locationPattern(state.locationName)
+                : getLocalizations(context).queueTypesInLocationPattern(state.locationName)
         ),
       )
       : null,
@@ -99,20 +99,21 @@ class _QueueTypesState extends BaseState<
           itemBuilder: (context, index) {
             return QueueTypeItemWidget(
               queueType: state.queueTypes[index],
-              onDelete: (queueType) => showDialog(
-                  context: context,
-                  builder: (context) => DeleteQueueTypeWidget(
-                      config: DeleteQueueTypeConfig(
-                          locationId: state.config.locationId,
-                          queueTypeId: queueType.id
+              onDelete: state.terminalState == null
+                ? (queueType) => showDialog(
+                      context: context,
+                      builder: (context) => DeleteQueueTypeWidget(
+                          config: DeleteQueueTypeConfig(
+                              locationId: state.config.locationId,
+                              queueTypeId: queueType.id
+                          )
                       )
-                  )
-              ).then((result) {
-                if (result is DeleteQueueTypeResult) {
-                  getCubitInstance(context).handleDeleteQueueTypeResult(result);
-                }
-              }
-              ),
+                  ).then((result) {
+                    if (result is DeleteQueueTypeResult) {
+                      getCubitInstance(context).handleDeleteQueueTypeResult(result);
+                    }
+                  })
+                : null,
             );
           },
           itemCount: state.queueTypes.length,

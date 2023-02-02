@@ -1,5 +1,6 @@
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
 import 'package:queue_management_system_client/ui/screens/board/board_screen.dart';
+import 'package:queue_management_system_client/ui/screens/client/add_client_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/client/client_screen.dart';
 import 'package:queue_management_system_client/ui/screens/location/create_location_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/delete_location_dialog.dart';
@@ -62,6 +63,7 @@ class StatesAssembler {
   DeleteQueueTypeCubit getDeleteQueueTypeCubit(DeleteQueueTypeConfig config) => getIt.get(param1: config);
 
   ClientCubit getClientCubit(ClientConfig config) => getIt.get(param1: config);
+  AddClientCubit getAddClientCubit(AddClientConfig config) => getIt.get(param1: config);
 
   BoardCubit getBoardCubit(BoardConfig config) => getIt.get(param1: config);
 

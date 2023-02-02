@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:queue_management_system_client/domain/enums/terminal_mode.dart';
 import 'package:queue_management_system_client/domain/models/location/queue_type_model.dart';
 import 'package:queue_management_system_client/ui/models/service/service_wrapper.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
+import 'package:queue_management_system_client/ui/screens/client/add_client_dialog.dart';
 import 'package:queue_management_system_client/ui/widgets/queue_type_item_widget.dart';
 
 import '../../../data/api/server_api.dart';
@@ -75,7 +77,7 @@ class _ServicesSequencesState extends BaseState<
         title: Text(
             state.locationName.isEmpty
                 ? ''
-                : getLocalizations(context).locationPattern(state.locationName)
+                : getLocalizations(context).servicesSequencesInLocationPattern(state.locationName)
         ),
       )
       : null,
@@ -102,20 +104,38 @@ class _ServicesSequencesState extends BaseState<
           itemBuilder: (context, index) {
             return ServicesSequenceItemWidget(
               servicesSequence: state.servicesSequences[index],
-              onDelete: (serviceSequence) => showDialog(
-                  context: context,
-                  builder: (context) => DeleteServicesSequenceWidget(
-                      config: DeleteServicesSequenceConfig(
-                          locationId: state.config.locationId,
-                          servicesSequenceId: serviceSequence.id
+              onDelete: state.terminalState == null
+                  ? (serviceSequence) => showDialog(
+                      context: context,
+                      builder: (context) => DeleteServicesSequenceWidget(
+                          config: DeleteServicesSequenceConfig(
+                              locationId: state.config.locationId,
+                              servicesSequenceId: serviceSequence.id
+                          )
                       )
-                  )
-              ).then((result) {
-                if (result is DeleteServicesSequenceResult) {
-                  getCubitInstance(context).handleDeleteServicesSequenceResult(result);
-                }
-              }
-              ),
+                    ).then((result) {
+                      if (result is DeleteServicesSequenceResult) {
+                        getCubitInstance(context).handleDeleteServicesSequenceResult(result);
+                      }
+                    })
+                  : null,
+              onTap: state.terminalState != null
+                  ? (servicesSequence) => showDialog(
+                        context: context,
+                        builder: (context) => AddClientWidget(
+                            config: AddClientConfig(
+                                locationId: state.config.locationId,
+                                servicesSequenceId: servicesSequence.id
+                            )
+                        )
+                    ).then((result) {
+                      if (result is AddClientResult) {
+                        if (state.terminalState?.terminalMode == TerminalMode.all) {
+                          Navigator.of(context).pop();
+                        }
+                      }
+                    })
+                  : null
             );
           },
           itemCount: state.servicesSequences.length,

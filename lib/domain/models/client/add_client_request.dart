@@ -18,8 +18,8 @@ class AddClientRequest {
     required this.email,
     required this.firstName,
     required this.lastName,
-    this.serviceIds,
-    this.servicesSequenceId
+    required this.serviceIds,
+    required this.servicesSequenceId
   });
 
   static AddClientRequest fromJson(Map<String, dynamic> json) => _$AddClientRequestFromJson(json);

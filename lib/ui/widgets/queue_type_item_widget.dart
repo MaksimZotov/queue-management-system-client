@@ -23,9 +23,6 @@ class _QueueTypeItemState extends State<QueueTypeItemWidget> {
   Widget build(BuildContext context) {
     return Card(
         child: ListTile(
-            leading: const SizedBox(
-                height: double.infinity,
-                child: Icon(Icons.people_alt_outlined, color: Colors.teal)),
             title: Text(widget.queueType.name, maxLines: 1),
             subtitle: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 200),

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +9,7 @@ import 'package:queue_management_system_client/ui/screens/base.dart';
 
 import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../domain/enums/terminal_mode.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/terminal_interactor.dart';
 import '../../../domain/models/base/result.dart';
@@ -15,6 +18,7 @@ import '../../../domain/models/terminal/terminal_state.dart';
 import '../../models/service/service_wrapper.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/service_item_widget.dart';
+import '../client/add_client_dialog.dart';
 import 'create_service_dialog.dart';
 import 'delete_service_dialog.dart';
 
@@ -55,20 +59,38 @@ class _ServicesState extends BaseState<
       itemBuilder: (context, index) {
         return ServiceItemWidget(
           serviceWrapper: state.services[index],
-          onDelete: (serviceWrapper) => showDialog(
-              context: context,
-              builder: (context) => DeleteServiceWidget(
-                  config: DeleteServiceConfig(
-                      locationId: state.config.locationId,
-                      serviceId: serviceWrapper.service.id
-                  )
-              )
-          ).then((result) {
-            if (result is DeleteServiceResult) {
-              getCubitInstance(context).handleDeleteServiceResult(result);
-            }
-          }
-          ),
+          onDelete: state.terminalState == null
+             ? (serviceWrapper) => showDialog(
+                    context: context,
+                    builder: (context) => DeleteServiceWidget(
+                        config: DeleteServiceConfig(
+                            locationId: state.config.locationId,
+                            serviceId: serviceWrapper.service.id
+                        )
+                    )
+                ).then((result) {
+                  if (result is DeleteServiceResult) {
+                    getCubitInstance(context).handleDeleteServiceResult(result);
+                  }
+                })
+            : null,
+          onTap: state.terminalState != null
+                ? (serviceWrapper) => showDialog(
+                      context: context,
+                      builder: (context) => AddClientWidget(
+                          config: AddClientConfig(
+                              locationId: state.config.locationId,
+                              serviceIds: [serviceWrapper.service.id]
+                          )
+                      )
+                  ).then((result) {
+                    if (result is AddClientResult) {
+                      if (state.terminalState?.terminalMode == TerminalMode.all) {
+                        Navigator.of(context).pop();
+                      }
+                    }
+                  })
+                : null
         );
       },
       itemCount: state.services.length,

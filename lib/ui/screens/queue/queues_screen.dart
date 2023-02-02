@@ -44,17 +44,19 @@ class _QueuesState extends BaseState<
       title: Text(
           state.locationName.isEmpty
               ? ''
-              : getLocalizations(context).locationPattern(state.locationName)
+              : getLocalizations(context).queuesInLocationPattern(state.locationName)
       )
     ),
     body: ListView.builder(
       itemBuilder: (context, index) {
         return QueueItemWidget(
           queue: state.queues[index],
-          onClick: (queue) => QueueConfig(
-              username: state.config.username,
-              locationId: state.config.locationId,
-              queueId: queue.id
+          onTap: (queue) => widget.emitConfig(
+            QueueConfig(
+                username: state.config.username,
+                locationId: state.config.locationId,
+                queueId: queue.id
+            )
           ),
           onDelete: (location) => showDialog(
               context: context,

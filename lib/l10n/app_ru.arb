@@ -71,6 +71,30 @@
     }
   }
 },
+"servicesSequencesInLocationPattern": "Наборы услуг в локации {name}",
+"@servicesSequencesInLocationPattern": {
+  "placeholders": {
+    "name": {
+      "type": "String"
+    }
+  }
+},
+"queueTypesInLocationPattern": "Типы очередей в локации {name}",
+"@queueTypesInLocationPattern": {
+  "placeholders": {
+    "name": {
+      "type": "String"
+    }
+  }
+},
+"queuesInLocationPattern": "Очереди в локации {name}",
+"@queuesInLocationPattern": {
+  "placeholders": {
+    "name": {
+      "type": "String"
+    }
+  }
+},
 "unknownError": "Неизвестная ошибка",
 "serverError": "Ошибка на сервере",
 "timeoutError": "Вышло время ожидания ответа",
@@ -87,5 +111,7 @@
 "queues": "Очереди",
 "deleteServiceQuestion": "Удалить очередь?",
 "select": "Выбрать",
-"allTypes": "Все виды"
+"allTypes": "Все виды",
+"connection": "Подключение",
+"connect": "Подключиться"
 }

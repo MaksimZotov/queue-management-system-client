@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import '../../domain/models/queue/queue_model.dart';
 
 class QueueItemWidget extends StatefulWidget {
-  final ValueChanged<QueueModel> onClick;
+  final ValueChanged<QueueModel> onTap;
   final ValueChanged<QueueModel> onDelete;
   final QueueModel queue;
 
   const QueueItemWidget({
     Key? key,
-    required this.onClick,
+    required this.onTap,
     required this.onDelete,
     required this.queue,
   }) : super(key: key);
@@ -50,7 +50,7 @@ class _QueueItemState extends State<QueueItemWidget> {
               ),
             )
             : null,
-        onTap: () => widget.onClick(widget.queue)
+        onTap: () => widget.onTap(widget.queue)
       ),
     );
   }

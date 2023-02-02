@@ -419,7 +419,7 @@ class ServerApi {
 
   Future<Result<QueueStateForClientModel>> confirmAccessKeyByClient(int clientId, String accessKey) => _execRequest(
       fromJson: QueueStateForClientModel.fromJson,
-      request: _dioApi.get(
+      request: _dioApi.post(
         '$url/client/confirm',
         queryParameters: {
           'client_id': clientId,
