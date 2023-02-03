@@ -173,6 +173,8 @@ class _ServicesState extends BaseState<
             if (result is AddClientResult) {
               if (state.terminalState?.terminalMode == TerminalMode.all) {
                 Navigator.of(context).pop();
+              } else {
+                getCubitInstance(context).clearSelect();
               }
             }
           })
