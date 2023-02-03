@@ -17,6 +17,7 @@ import '../../../domain/models/location/service_model.dart';
 import '../../../domain/models/terminal/terminal_state.dart';
 import '../../models/service/service_wrapper.dart';
 import '../../router/routes_config.dart';
+import '../../widgets/button_widget.dart';
 import '../../widgets/service_item_widget.dart';
 import '../client/add_client_dialog.dart';
 import 'create_service_dialog.dart';
@@ -55,12 +56,40 @@ class _ServicesState extends BaseState<
         ),
       )
       : null,
-    body: ListView.builder(
-      itemBuilder: (context, index) {
-        return ServiceItemWidget(
-          serviceWrapper: state.services[index],
-          onDelete: state.terminalState == null
-             ? (serviceWrapper) => showDialog(
+    body: _getBody(context, state, widget),
+    floatingActionButton: state.hasRights && state.terminalState == null
+        ? FloatingActionButton(
+            onPressed: () => showDialog(
+                context: context,
+                builder: (context) => CreateServiceWidget(
+                    config: CreateServiceConfig(
+                        locationId: state.config.locationId
+                    )
+                )
+            ).then((result) {
+              if (result is CreateServiceResult) {
+                getCubitInstance(context).handleCreateServiceResult(result);
+              }
+            }),
+            child: const Icon(Icons.add),
+          )
+        : null,
+  );
+
+  @override
+  ServicesCubit getCubit() => statesAssembler.getServicesCubit(widget.config);
+
+  Widget _getBody(
+      BuildContext context,
+      ServicesLogicState state,
+      ServicesWidget widget
+  ) {
+    if (state.terminalState == null) {
+      return ListView.builder(
+          itemBuilder: (context, index) {
+            return ServiceItemWidget(
+                serviceWrapper: state.services[index],
+                onDelete: (serviceWrapper) => showDialog(
                     context: context,
                     builder: (context) => DeleteServiceWidget(
                         config: DeleteServiceConfig(
@@ -73,49 +102,88 @@ class _ServicesState extends BaseState<
                     getCubitInstance(context).handleDeleteServiceResult(result);
                   }
                 })
-            : null,
-          onTap: state.terminalState != null
-                ? (serviceWrapper) => showDialog(
-                      context: context,
-                      builder: (context) => AddClientWidget(
-                          config: AddClientConfig(
-                              locationId: state.config.locationId,
-                              serviceIds: [serviceWrapper.service.id]
-                          )
+            );
+          },
+          itemCount: state.services.length,
+      );
+    }
+    if (state.terminalState?.multipleSelect == false) {
+      return ListView.builder(
+        itemBuilder: (context, index) {
+          return ServiceItemWidget(
+              serviceWrapper: state.services[index],
+              onTap: (serviceWrapper) => showDialog(
+                  context: context,
+                  builder: (context) => AddClientWidget(
+                      config: AddClientConfig(
+                          locationId: state.config.locationId,
+                          serviceIds: [serviceWrapper.service.id]
                       )
-                  ).then((result) {
-                    if (result is AddClientResult) {
-                      if (state.terminalState?.terminalMode == TerminalMode.all) {
-                        Navigator.of(context).pop();
-                      }
-                    }
-                  })
-                : null
-        );
-      },
-      itemCount: state.services.length,
-    ),
-    floatingActionButton: state.hasRights
-        ? FloatingActionButton(
-          onPressed: () => showDialog(
+                  )
+              ).then((result) {
+                if (result is AddClientResult) {
+                  if (state.terminalState?.terminalMode == TerminalMode.all) {
+                    Navigator.of(context).pop();
+                  }
+                }
+              })
+          );
+        },
+        itemCount: state.services.length,
+      );
+    }
+    if (state.terminalState?.multipleSelect == true && state.selectedServices.isEmpty) {
+      return ListView.builder(
+        itemBuilder: (context, index) {
+          return ServiceItemWidget(
+              serviceWrapper: state.services[index],
+              onTap: getCubitInstance(context).onClickServiceWhenServicesSelecting
+          );
+        },
+        itemCount: state.services.length,
+      );
+    }
+    return Column(
+      children: [
+        Expanded(
+          flex: 1,
+          child: ListView.builder(
+            itemBuilder: (context, index) {
+              return ServiceItemWidget(
+                  serviceWrapper: state.services[index],
+                  onTap: getCubitInstance(context).onClickServiceWhenServicesSelecting
+              );
+            },
+            itemCount: state.services.length,
+          ),
+        ),
+        ButtonWidget(
+          text: getLocalizations(context).connect,
+          onClick: () => showDialog(
               context: context,
-              builder: (context) => CreateServiceWidget(
-                  config: CreateServiceConfig(
-                      locationId: state.config.locationId
+              builder: (context) => AddClientWidget(
+                  config: AddClientConfig(
+                      locationId: state.config.locationId,
+                      serviceIds: state.selectedServices
+                          .map((serviceWrapper) => serviceWrapper.service.id)
+                          .toList()
                   )
               )
           ).then((result) {
-            if (result is CreateServiceResult) {
-              getCubitInstance(context).handleCreateServiceResult(result);
+            if (result is AddClientResult) {
+              if (state.terminalState?.terminalMode == TerminalMode.all) {
+                Navigator.of(context).pop();
+              }
             }
-          }),
-          child: const Icon(Icons.add),
+          })
+        ),
+        ButtonWidget(
+          text: getLocalizations(context).cancel,
+          onClick: getCubitInstance(context).clearSelect,
         )
-        : null,
-  );
-
-  @override
-  ServicesCubit getCubit() => statesAssembler.getServicesCubit(widget.config);
+      ],
+    );
+  }
 }
 
 class ServicesLogicState extends BaseLogicState {
@@ -129,6 +197,10 @@ class ServicesLogicState extends BaseLogicState {
   final List<ServiceWrapper> services;
 
   final TerminalState? terminalState;
+
+  List<ServiceWrapper> get selectedServices {
+    return List.from(services)..removeWhere((serviceWrapper) => !serviceWrapper.selected);
+  }
 
   ServicesLogicState({
     super.nextConfig,
@@ -151,8 +223,9 @@ class ServicesLogicState extends BaseLogicState {
     bool? loading,
     String? ownerUsername,
     String? locationName,
-    List<ServiceWrapper>? services,
     bool? hasRights,
+    List<ServiceWrapper>? services,
+    List<ServiceWrapper>? selectedServices,
     TerminalState? terminalState
   }) => ServicesLogicState(
       nextConfig: nextConfig,
@@ -207,6 +280,34 @@ class ServicesCubit extends BaseCubit<ServicesLogicState> {
       ..onError((result) {
         showError(result);
       });
+  }
+
+  void onClickServiceWhenServicesSelecting(ServiceWrapper serviceWrapper) {
+    emit(
+        state.copy(
+            services: state.services
+                .map((cur) {
+                  if (cur.service.id == serviceWrapper.service.id) {
+                    return serviceWrapper.copy(
+                        selected: !cur.selected
+                    );
+                  } else {
+                    return cur;
+                  }
+                })
+                .toList()
+        )
+    );
+  }
+
+  void clearSelect() {
+    emit(
+        state.copy(
+            services: state.services
+                .map((cur) => cur.copy(selected: false))
+                .toList()
+        )
+    );
   }
 
   void handleCreateServiceResult(CreateServiceResult result) {

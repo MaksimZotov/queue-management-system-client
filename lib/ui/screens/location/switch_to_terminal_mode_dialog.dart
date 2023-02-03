@@ -59,7 +59,7 @@ class _SwitchToTerminalModeState extends BaseDialogState<
       BuildContext context,
       SwitchToTerminalModeLogicState state,
       SwitchToTerminalModeWidget widget
-  ) => getLocalizations(context).creationOfQueue;
+  ) => getLocalizations(context).switchingToKioskMode;
 
   @override
   List<Widget> getDialogContentWidget(
@@ -68,17 +68,6 @@ class _SwitchToTerminalModeState extends BaseDialogState<
       SwitchToTerminalModeWidget widget
   ) {
     return [
-      TextFieldWidget(
-          label: getLocalizations(context).name,
-          text: state.name,
-          onTextChanged: getCubitInstance(context).setName
-      ),
-      TextFieldWidget(
-          maxLines: null,
-          label: getLocalizations(context).description,
-          text: state.description,
-          onTextChanged: getCubitInstance(context).setDescription
-      ),
       DropdownButtonFormField2(
         buttonOverlayColor: null,
         barrierColor: Colors.transparent,
@@ -101,7 +90,7 @@ class _SwitchToTerminalModeState extends BaseDialogState<
         ),
         iconSize: 30,
         buttonHeight: 60,
-        buttonPadding: const EdgeInsets.only(left: 20, right: 10),
+        buttonPadding: const EdgeInsets.only(right: 10),
         dropdownDecoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
         ),
@@ -120,8 +109,28 @@ class _SwitchToTerminalModeState extends BaseDialogState<
         onChanged: getCubitInstance(context).selectMode,
       ),
       const SizedBox(height: Dimens.contentMargin),
+      Row(
+        children: [
+          Expanded(flex: 1, child: Text('Тест')),
+          Transform.translate(
+            offset: const Offset(10, 0),
+            child: Switch(
+              activeColor: Colors.teal,
+              activeTrackColor: Colors.cyan,
+              inactiveThumbColor: Colors.blueGrey.shade600,
+              inactiveTrackColor: Colors.grey.shade400,
+              splashRadius: 0,
+              value: state.multipleSelect,
+              onChanged: state.multipleSelectDisabled
+                  ? null
+                  : getCubitInstance(context).setMultipleSelect,
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: Dimens.contentMargin),
       ButtonWidget(
-          text: getLocalizations(context).create,
+          text: getLocalizations(context).switchButton,
           onClick: getCubitInstance(context).switchToTerminalMode
       )
     ];
@@ -143,6 +152,7 @@ class SwitchToTerminalModeLogicState extends BaseDialogLogicState<
   final TerminalMode selectedMode;
   final bool multipleSelect;
   final bool multipleSelectDisabled;
+  final bool? prevMultipleSelect;
 
   SwitchToTerminalModeLogicState({
     super.nextConfig,
@@ -155,7 +165,8 @@ class SwitchToTerminalModeLogicState extends BaseDialogLogicState<
     required this.description,
     required this.selectedMode,
     required this.multipleSelect,
-    required this.multipleSelectDisabled
+    required this.multipleSelectDisabled,
+    this.prevMultipleSelect
   });
 
   @override
@@ -169,7 +180,8 @@ class SwitchToTerminalModeLogicState extends BaseDialogLogicState<
     String? description,
     TerminalMode? selectedMode,
     bool? multipleSelect,
-    bool? multipleSelectDisabled
+    bool? multipleSelectDisabled,
+    bool? prevMultipleSelect
   }) => SwitchToTerminalModeLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -181,7 +193,8 @@ class SwitchToTerminalModeLogicState extends BaseDialogLogicState<
       description: description ?? this.description,
       selectedMode: selectedMode ?? this.selectedMode,
       multipleSelect: multipleSelect ?? this.multipleSelect,
-      multipleSelectDisabled: multipleSelectDisabled ?? this.multipleSelectDisabled
+      multipleSelectDisabled: multipleSelectDisabled ?? this.multipleSelectDisabled,
+      prevMultipleSelect: prevMultipleSelect ?? this.prevMultipleSelect
   );
 }
 
@@ -210,9 +223,21 @@ class SwitchToTerminalModeCubit extends BaseDialogCubit<SwitchToTerminalModeLogi
   }
 
   void selectMode(TerminalMode? mode) {
+    bool multipleSelectDisabled = mode == TerminalMode.servicesSequences;
     emit(
         state.copy(
-            selectedMode: mode
+            selectedMode: mode,
+            multipleSelect: multipleSelectDisabled ? false : state.prevMultipleSelect,
+            multipleSelectDisabled: multipleSelectDisabled,
+            prevMultipleSelect: multipleSelectDisabled ? state.multipleSelect : null
+        )
+    );
+  }
+
+  void setMultipleSelect(bool multiple) {
+    emit(
+        state.copy(
+            multipleSelect: multiple
         )
     );
   }
