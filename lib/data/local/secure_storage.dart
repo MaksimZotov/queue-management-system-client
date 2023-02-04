@@ -7,7 +7,7 @@ class SecureStorage {
 
   static const _accessToken = 'ACCESS_TOKEN';
   static const _refreshToken = 'REFRESH_TOKEN';
-  static const _username = 'USERNAME';
+  static const _email = 'EMAIL';
 
   Future<void> setAccessToken({required String accessToken}) async {
     return await _storage.write(key: _accessToken, value: accessToken);
@@ -33,16 +33,16 @@ class SecureStorage {
     return await _storage.containsKey(key: _refreshToken);
   }
 
-  Future<void> setUsername({required String username}) async {
-    return await _storage.write(key: _username, value: username);
+  Future<void> setEmail({required String email}) async {
+    return await _storage.write(key: _email, value: email);
   }
 
-  Future<String?> getUsername() async {
-    return await _storage.read(key: _username);
+  Future<String?> getEmail() async {
+    return await _storage.read(key: _email);
   }
 
-  Future<bool> containsUsername() async {
-    return await _storage.containsKey(key: _username);
+  Future<bool> containsEmail() async {
+    return await _storage.containsKey(key: _email);
   }
 
   Future<void> deleteAll() async {

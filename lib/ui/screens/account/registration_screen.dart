@@ -43,7 +43,7 @@ class RegistrationState extends BaseState<
           context: context,
           builder: (context) => ConfirmRegistrationWidget(
             config: ConfirmRegistrationConfig(
-                username: state.username,
+                email: state.email,
                 password: state.password
             ),
           )
@@ -79,12 +79,6 @@ class RegistrationState extends BaseState<
                 ),
                 child: Column(
                   children: <Widget>[
-                    TextFieldWidget(
-                      text: state.username,
-                      label: getLocalizations(context).uniqueName,
-                      error: state.errors[RegistrationCubit.usernameKey],
-                      onTextChanged: getCubitInstance(context).setUsername,
-                    ),
                     TextFieldWidget(
                       text: state.email,
                       label: getLocalizations(context).email,
@@ -134,7 +128,6 @@ class RegistrationState extends BaseState<
 
 class RegistrationLogicState extends BaseLogicState {
 
-  final String username;
   final String email;
   final String firstName;
   final String lastName;
@@ -148,7 +141,6 @@ class RegistrationLogicState extends BaseLogicState {
     super.error,
     super.snackBar,
     super.loading,
-    required this.username,
     required this.email,
     required this.firstName,
     required this.lastName,
@@ -164,7 +156,6 @@ class RegistrationLogicState extends BaseLogicState {
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    String? username,
     String? email,
     String? firstName,
     String? lastName,
@@ -178,7 +169,6 @@ class RegistrationLogicState extends BaseLogicState {
       error: error,
       snackBar: snackBar,
       loading: loading ?? this.loading,
-      username: username ?? this.username,
       email: email ?? this.email,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
@@ -192,7 +182,6 @@ class RegistrationLogicState extends BaseLogicState {
 @injectable
 class RegistrationCubit extends BaseCubit<RegistrationLogicState> {
 
-  static const usernameKey = 'USERNAME';
   static const emailKey = 'EMAIL';
   static const firstNameKey = 'FIRST_NAME';
   static const lastNameKey = 'LAST_NAME';
@@ -205,7 +194,6 @@ class RegistrationCubit extends BaseCubit<RegistrationLogicState> {
     this._accountInteractor,
   ) : super(
       RegistrationLogicState(
-          username: '',
           email: '',
           firstName: '',
           lastName: '',
@@ -215,14 +203,6 @@ class RegistrationCubit extends BaseCubit<RegistrationLogicState> {
           errors: { }
       )
   );
-
-  void setUsername(String text) {
-    emit(state.copy(
-        username: text,
-        errors: Map.from(state.errors)
-          ..removeWhere((k, v) => k == usernameKey)
-    ));
-  }
 
   void setEmail(String text) {
     emit(state.copy(
@@ -268,7 +248,6 @@ class RegistrationCubit extends BaseCubit<RegistrationLogicState> {
     showLoad();
     await _accountInteractor.signup(
       SignupModel(
-        username: state.username,
         email: state.email,
         firstName: state.firstName,
         lastName: state.lastName,

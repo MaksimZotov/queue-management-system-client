@@ -1,71 +1,63 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/enums/terminal_mode.dart';
-import 'package:queue_management_system_client/domain/models/queue/create_queue_request.dart';
-import 'package:queue_management_system_client/domain/models/terminal/terminal_state.dart';
-import 'package:queue_management_system_client/ui/extensions/terminal/terminal_mode_extensions.dart';
+import 'package:queue_management_system_client/domain/enums/kiosk_mode.dart';
+import 'package:queue_management_system_client/ui/extensions/kiosk/kiosk_mode_extensions.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
-import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
-import '../../../domain/interactors/location_interactor.dart';
-import '../../../domain/interactors/queue_interactor.dart';
-import '../../../domain/interactors/terminal_interactor.dart';
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/location/queue_type_model.dart';
-import '../../../domain/models/queue/queue_model.dart';
+import '../../../domain/models/kiosk/kiosk_state.dart';
 import '../../router/routes_config.dart';
-import '../../widgets/queue_type_item_widget.dart';
 
-class SwitchToTerminalModeConfig extends BaseDialogConfig {
+class SwitchToKioskConfig extends BaseDialogConfig {
   final int locationId;
 
-  SwitchToTerminalModeConfig({
+  SwitchToKioskConfig({
     required this.locationId,
   });
 }
 
-class SwitchToTerminalModeResult extends BaseDialogResult {
-  final TerminalState terminalState;
+class SwitchToKioskResult extends BaseDialogResult {
+  final KioskState kioskState;
 
-  SwitchToTerminalModeResult({
-    required this.terminalState
+  SwitchToKioskResult({
+    required this.kioskState
   });
 }
 
-class SwitchToTerminalModeWidget extends BaseDialogWidget<SwitchToTerminalModeConfig> {
+class SwitchToKioskWidget extends BaseDialogWidget<SwitchToKioskConfig> {
 
-  const SwitchToTerminalModeWidget({
+  const SwitchToKioskWidget({
     super.key,
     required super.config
   });
 
   @override
-  State<SwitchToTerminalModeWidget> createState() => _SwitchToTerminalModeState();
+  State<SwitchToKioskWidget> createState() => _SwitchToKioskState();
 }
 
-class _SwitchToTerminalModeState extends BaseDialogState<
-    SwitchToTerminalModeWidget,
-    SwitchToTerminalModeLogicState,
-    SwitchToTerminalModeCubit
+class _SwitchToKioskState extends BaseDialogState<
+    SwitchToKioskWidget,
+    SwitchToKioskLogicState,
+    SwitchToKioskCubit
 > {
 
 
   @override
   String getTitle(
       BuildContext context,
-      SwitchToTerminalModeLogicState state,
-      SwitchToTerminalModeWidget widget
+      SwitchToKioskLogicState state,
+      SwitchToKioskWidget widget
   ) => getLocalizations(context).switchingToKioskMode;
 
   @override
   List<Widget> getDialogContentWidget(
       BuildContext context,
-      SwitchToTerminalModeLogicState state,
-      SwitchToTerminalModeWidget widget
+      SwitchToKioskLogicState state,
+      SwitchToKioskWidget widget
   ) {
     return [
       DropdownButtonFormField2(
@@ -94,9 +86,9 @@ class _SwitchToTerminalModeState extends BaseDialogState<
         dropdownDecoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
         ),
-        items: TerminalMode.values
+        items: KioskMode.values
             .map((item) =>
-            DropdownMenuItem<TerminalMode>(
+            DropdownMenuItem<KioskMode>(
               value: item,
               child: Text(
                 item.getName(getLocalizations(context)),
@@ -131,30 +123,30 @@ class _SwitchToTerminalModeState extends BaseDialogState<
       const SizedBox(height: Dimens.contentMargin),
       ButtonWidget(
           text: getLocalizations(context).switchButton,
-          onClick: getCubitInstance(context).switchToTerminalMode
+          onClick: getCubitInstance(context).SwitchToKiosk
       )
     ];
   }
 
     @override
-    SwitchToTerminalModeCubit getCubit() =>
-        statesAssembler.getSwitchToTerminalModeCubit(widget.config);
+    SwitchToKioskCubit getCubit() =>
+        statesAssembler.getSwitchToKioskCubit(widget.config);
 }
 
-class SwitchToTerminalModeLogicState extends BaseDialogLogicState<
-    SwitchToTerminalModeConfig,
-    SwitchToTerminalModeResult
+class SwitchToKioskLogicState extends BaseDialogLogicState<
+    SwitchToKioskConfig,
+    SwitchToKioskResult
 > {
 
   final String name;
   final String description;
 
-  final TerminalMode selectedMode;
+  final KioskMode selectedMode;
   final bool multipleSelect;
   final bool multipleSelectDisabled;
   final bool? prevMultipleSelect;
 
-  SwitchToTerminalModeLogicState({
+  SwitchToKioskLogicState({
     super.nextConfig,
     super.error,
     super.snackBar,
@@ -170,19 +162,19 @@ class SwitchToTerminalModeLogicState extends BaseDialogLogicState<
   });
 
   @override
-  SwitchToTerminalModeLogicState copy({
+  SwitchToKioskLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    SwitchToTerminalModeResult? result,
+    SwitchToKioskResult? result,
     String? name,
     String? description,
-    TerminalMode? selectedMode,
+    KioskMode? selectedMode,
     bool? multipleSelect,
     bool? multipleSelectDisabled,
     bool? prevMultipleSelect
-  }) => SwitchToTerminalModeLogicState(
+  }) => SwitchToKioskLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
@@ -199,16 +191,16 @@ class SwitchToTerminalModeLogicState extends BaseDialogLogicState<
 }
 
 @injectable
-class SwitchToTerminalModeCubit extends BaseDialogCubit<SwitchToTerminalModeLogicState> {
+class SwitchToKioskCubit extends BaseDialogCubit<SwitchToKioskLogicState> {
 
-  SwitchToTerminalModeCubit(
-      @factoryParam SwitchToTerminalModeConfig config
+  SwitchToKioskCubit(
+      @factoryParam SwitchToKioskConfig config
   ) : super(
-      SwitchToTerminalModeLogicState(
+      SwitchToKioskLogicState(
           config: config,
           name: '',
           description: '',
-          selectedMode: TerminalMode.all,
+          selectedMode: KioskMode.all,
           multipleSelect: true,
           multipleSelectDisabled: false
       )
@@ -222,8 +214,8 @@ class SwitchToTerminalModeCubit extends BaseDialogCubit<SwitchToTerminalModeLogi
     emit(state.copy(description: text));
   }
 
-  void selectMode(TerminalMode? mode) {
-    bool multipleSelectDisabled = mode == TerminalMode.servicesSequences;
+  void selectMode(KioskMode? mode) {
+    bool multipleSelectDisabled = mode == KioskMode.servicesSequences;
     emit(
         state.copy(
             selectedMode: mode,
@@ -242,11 +234,11 @@ class SwitchToTerminalModeCubit extends BaseDialogCubit<SwitchToTerminalModeLogi
     );
   }
 
-  Future<void> switchToTerminalMode() async {
+  Future<void> SwitchToKiosk() async {
     popResult(
-        SwitchToTerminalModeResult(
-            terminalState: TerminalState(
-              terminalMode: state.selectedMode,
+        SwitchToKioskResult(
+            kioskState: KioskState(
+              kioskMode: state.selectedMode,
               multipleSelect: state.multipleSelect
             )
         )

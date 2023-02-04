@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:queue_management_system_client/domain/enums/terminal_mode.dart';
-import 'package:queue_management_system_client/domain/models/location/queue_type_model.dart';
+import 'package:queue_management_system_client/domain/enums/kiosk_mode.dart';
+import 'package:queue_management_system_client/domain/models/location/specialist_model.dart';
 import 'package:queue_management_system_client/ui/models/service/service_wrapper.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/screens/client/add_client_dialog.dart';
@@ -13,11 +13,11 @@ import 'package:queue_management_system_client/ui/widgets/queue_type_item_widget
 import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';
-import '../../../domain/interactors/terminal_interactor.dart';
+import '../../../domain/interactors/kiosk_interactor.dart';
 import '../../../domain/models/base/result.dart';
+import '../../../domain/models/kiosk/kiosk_state.dart';
 import '../../../domain/models/location/service_model.dart';
 import '../../../domain/models/location/services_sequence_model.dart';
-import '../../../domain/models/terminal/terminal_state.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/button_widget.dart';
 import '../../widgets/service_item_widget.dart';
@@ -72,7 +72,7 @@ class _ServicesSequencesState extends BaseState<
       ServicesSequencesLogicState state,
       ServicesSequencesWidget widget
   ) => Scaffold(
-    appBar: state.terminalState == null
+    appBar: state.kioskState == null
       ? AppBar(
         title: Text(
             state.locationName.isEmpty
@@ -104,7 +104,7 @@ class _ServicesSequencesState extends BaseState<
           itemBuilder: (context, index) {
             return ServicesSequenceItemWidget(
               servicesSequence: state.servicesSequences[index],
-              onDelete: state.terminalState == null
+              onDelete: state.kioskState == null
                   ? (serviceSequence) => showDialog(
                       context: context,
                       builder: (context) => DeleteServicesSequenceWidget(
@@ -119,7 +119,7 @@ class _ServicesSequencesState extends BaseState<
                       }
                     })
                   : null,
-              onTap: state.terminalState != null
+              onTap: state.kioskState != null
                   ? (servicesSequence) => showDialog(
                         context: context,
                         builder: (context) => AddClientWidget(
@@ -130,7 +130,7 @@ class _ServicesSequencesState extends BaseState<
                         )
                     ).then((result) {
                       if (result is AddClientResult) {
-                        if (state.terminalState?.terminalMode == TerminalMode.all) {
+                        if (state.kioskState?.kioskMode == KioskMode.all) {
                           Navigator.of(context).pop();
                         }
                       }
@@ -231,7 +231,7 @@ class ServicesSequencesLogicState extends BaseLogicState {
 
   final ServicesSequencesStateEnum servicesSequencesStateEnum;
 
-  final String? ownerUsername;
+  final String? ownerEmail;
   final String locationName;
   final bool hasRights;
 
@@ -241,7 +241,7 @@ class ServicesSequencesLogicState extends BaseLogicState {
 
   final bool showCreateServicesSequenceDialog;
 
-  final TerminalState? terminalState;
+  final KioskState? kioskState;
 
   ServicesSequencesLogicState({
     super.nextConfig,
@@ -250,14 +250,14 @@ class ServicesSequencesLogicState extends BaseLogicState {
     super.loading,
     required this.config,
     required this.servicesSequencesStateEnum,
-    required this.ownerUsername,
+    required this.ownerEmail,
     required this.locationName,
     required this.hasRights,
     required this.servicesSequences,
     required this.services,
     required this.selectedServices,
     required this.showCreateServicesSequenceDialog,
-    required this.terminalState
+    required this.kioskState
   });
 
   @override
@@ -267,14 +267,14 @@ class ServicesSequencesLogicState extends BaseLogicState {
     String? snackBar,
     bool? loading,
     ServicesSequencesStateEnum? servicesSequencesStateEnum,
-    String? ownerUsername,
+    String? ownerEmail,
     String? locationName,
     bool? hasRights,
     List<ServicesSequenceModel>? servicesSequences,
     List<ServiceWrapper>? services,
     List<ServiceWrapper>? selectedServices,
     bool? showCreateServicesSequenceDialog,
-    TerminalState? terminalState
+    KioskState? kioskState
   }) => ServicesSequencesLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -282,21 +282,21 @@ class ServicesSequencesLogicState extends BaseLogicState {
       loading: loading ?? this.loading,
       servicesSequencesStateEnum: servicesSequencesStateEnum ?? this.servicesSequencesStateEnum,
       config: config,
-      ownerUsername: ownerUsername ?? this.ownerUsername,
+      ownerEmail: ownerEmail ?? this.ownerEmail,
       locationName: locationName ?? this.locationName,
       hasRights: hasRights ?? this.hasRights,
       servicesSequences: servicesSequences ?? this.servicesSequences,
       services: services ?? this.services,
       selectedServices: selectedServices ?? this.selectedServices,
       showCreateServicesSequenceDialog: showCreateServicesSequenceDialog ?? this.showCreateServicesSequenceDialog,
-      terminalState: terminalState ?? this.terminalState
+      kioskState: kioskState ?? this.kioskState
   );
 }
 
 @injectable
 class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
   final LocationInteractor _locationInteractor;
-  final TerminalInteractor _terminalInteractor;
+  final KioskInteractor _terminalInteractor;
 
   ServicesSequencesCubit(
       this._locationInteractor,
@@ -306,27 +306,27 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
       ServicesSequencesLogicState(
           config: config,
           servicesSequencesStateEnum: ServicesSequencesStateEnum.servicesSequencesViewing,
-          ownerUsername: null,
+          ownerEmail: null,
           locationName: '',
           hasRights: false,
           servicesSequences: [],
           services: [],
           selectedServices: [],
           showCreateServicesSequenceDialog: false,
-          terminalState: null
+          kioskState: null
       )
   );
 
   @override
   Future<void> onStart() async {
-    emit(state.copy(terminalState: await _terminalInteractor.getTerminalState()));
+    emit(state.copy(kioskState: await _terminalInteractor.getKioskState()));
     await _locationInteractor.getLocation(
-        state.config.locationId, state.config.username
+        state.config.locationId, state.config.email
     )
       ..onSuccess((result) async {
         emit(
             state.copy(
-                ownerUsername: result.data.ownerUsername,
+                ownerEmail: result.data.ownerEmail,
                 locationName: result.data.name,
                 hasRights: result.data.hasRights
             )

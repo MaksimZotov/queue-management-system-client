@@ -8,13 +8,13 @@ import 'package:queue_management_system_client/ui/screens/rights/rights_screen.d
 import 'package:queue_management_system_client/ui/screens/account/authorization_screen.dart';
 import 'package:queue_management_system_client/ui/screens/account/registration_screen.dart';
 import 'package:queue_management_system_client/ui/screens/account/initial_screen.dart';
-import 'package:queue_management_system_client/ui/screens/type/queue_types_screen.dart';
 
 import '../screens/location/location_screen.dart';
 import '../screens/location/locations_screen.dart';
 import '../screens/queue/queue_screen.dart';
 import '../screens/sequence/services_sequence_screen.dart';
 import '../screens/service/services_screen.dart';
+import '../screens/specialist/queue_types_screen.dart';
 
 abstract class BaseConfig {
   Page getPage(ValueChanged<BaseConfig> emitConfig);
@@ -86,16 +86,16 @@ class RegistrationConfig extends BaseConfig {
 }
 
 class LocationsConfig extends BaseConfig {
-  String username;
+  String email;
 
   LocationsConfig({
-    required this.username
+    required this.email
   });
 
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
     return RouterPage(
-        key: ValueKey('Locations Page $username'),
+        key: ValueKey('Locations Page $email'),
         child: LocationsWidget(
           config: this,
           emitConfig: emitConfig,
@@ -105,11 +105,11 @@ class LocationsConfig extends BaseConfig {
 }
 
 class LocationConfig extends BaseConfig {
-  String username;
+  String email;
   int locationId;
 
   LocationConfig({
-    required this.username,
+    required this.email,
     required this.locationId
   });
 
@@ -126,16 +126,16 @@ class LocationConfig extends BaseConfig {
 
   @override
   BaseConfig getPrevConfig() {
-    return LocationsConfig(username: username);
+    return LocationsConfig(email: email);
   }
 }
 
 class ServicesSequencesConfig extends BaseConfig {
-  String username;
+  String email;
   int locationId;
 
   ServicesSequencesConfig({
-    required this.username,
+    required this.email,
     required this.locationId
   });
 
@@ -152,16 +152,16 @@ class ServicesSequencesConfig extends BaseConfig {
 
   @override
   BaseConfig getPrevConfig() {
-    return LocationConfig(username: username, locationId: locationId);
+    return LocationConfig(email: email, locationId: locationId);
   }
 }
 
 class ServicesConfig extends BaseConfig {
-  String username;
+  String email;
   int locationId;
 
   ServicesConfig({
-    required this.username,
+    required this.email,
     required this.locationId
   });
 
@@ -178,25 +178,25 @@ class ServicesConfig extends BaseConfig {
 
   @override
   BaseConfig getPrevConfig() {
-    return LocationConfig(username: username, locationId: locationId);
+    return LocationConfig(email: email, locationId: locationId);
   }
 }
 
-class QueueTypesConfig extends BaseConfig {
-  String username;
+class SpecialistsConfig extends BaseConfig {
+  String email;
   int locationId;
-  int? addedQueueTypeId;
+  int? addedSpecialistId;
 
-  QueueTypesConfig({
-    required this.username,
+  SpecialistsConfig({
+    required this.email,
     required this.locationId
   });
 
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
     return RouterPage(
-        key: ValueKey('Queue Types Page $locationId $addedQueueTypeId'),
-        child: QueueTypesWidget(
+        key: ValueKey('Queue Types Page $locationId $addedSpecialistId'),
+        child: SpecialistsWidget(
           config: this,
           emitConfig: emitConfig,
         )
@@ -205,16 +205,16 @@ class QueueTypesConfig extends BaseConfig {
 
   @override
   BaseConfig getPrevConfig() {
-    return LocationConfig(username: username, locationId: locationId);
+    return LocationConfig(email: email, locationId: locationId);
   }
 }
 
 class QueuesConfig extends BaseConfig {
-  String username;
+  String email;
   int locationId;
 
   QueuesConfig({
-    required this.username,
+    required this.email,
     required this.locationId
   });
 
@@ -231,17 +231,17 @@ class QueuesConfig extends BaseConfig {
 
   @override
   BaseConfig getPrevConfig() {
-    return LocationConfig(username: username, locationId: locationId);
+    return LocationConfig(email: email, locationId: locationId);
   }
 }
 
 class QueueConfig extends BaseConfig {
-  String username;
+  String email;
   int locationId;
   int queueId;
 
   QueueConfig({
-    required this.username,
+    required this.email,
     required this.locationId,
     required this.queueId
   });
@@ -260,21 +260,17 @@ class QueueConfig extends BaseConfig {
   @override
   BaseConfig getPrevConfig() {
     return QueuesConfig(
-        username: username,
+        email: email,
         locationId: locationId
     );
   }
 }
 
 class ClientConfig extends BaseConfig {
-  String username;
-  int locationId;
   int clientId;
   String accessKey;
 
   ClientConfig({
-    required this.username,
-    required this.locationId,
     required this.clientId,
     required this.accessKey
   });
@@ -289,22 +285,14 @@ class ClientConfig extends BaseConfig {
         )
     );
   }
-
-  @override
-  BaseConfig? getPrevConfig() {
-    return QueuesConfig(
-        username: username,
-        locationId: locationId
-    );
-  }
 }
 
 class BoardConfig extends BaseConfig {
-  String username;
+  String email;
   int locationId;
 
   BoardConfig({
-    required this.username,
+    required this.email,
     required this.locationId,
   });
 
@@ -322,18 +310,18 @@ class BoardConfig extends BaseConfig {
   @override
   BaseConfig? getPrevConfig() {
     return QueuesConfig(
-        username: username,
+        email: email,
         locationId: locationId
     );
   }
 }
 
 class RightsConfig extends BaseConfig {
-  String username;
+  String email;
   int locationId;
 
   RightsConfig({
-    required this.username,
+    required this.email,
     required this.locationId,
   });
 
@@ -351,7 +339,7 @@ class RightsConfig extends BaseConfig {
   @override
   BaseConfig? getPrevConfig() {
     return QueuesConfig(
-        username: username,
+        email: email,
         locationId: locationId
     );
   }

@@ -9,13 +9,14 @@ import 'package:queue_management_system_client/domain/models/base/container_for_
 import 'package:queue_management_system_client/domain/models/location/board_model.dart';
 import 'package:queue_management_system_client/domain/models/client/queue_state_for_client_model.dart';
 import 'package:queue_management_system_client/domain/models/location/create_location_request.dart';
-import 'package:queue_management_system_client/domain/models/location/create_queue_type_request.dart';
+import 'package:queue_management_system_client/domain/models/location/create_specialist_request.dart';
 import 'package:queue_management_system_client/domain/models/location/create_service_request.dart';
 import 'package:queue_management_system_client/domain/models/location/create_services_sequence_request.dart';
 import 'package:queue_management_system_client/domain/models/location/has_rights_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
-import 'package:queue_management_system_client/domain/models/location/queue_type_model.dart';
+import 'package:queue_management_system_client/domain/models/location/specialist_model.dart';
 import 'package:queue_management_system_client/domain/models/location/services_sequence_model.dart';
+import 'package:queue_management_system_client/domain/models/rights/add_rights_request.dart';
 import 'package:queue_management_system_client/domain/models/rights/rights_model.dart';
 import 'package:queue_management_system_client/domain/models/account/confirm_model.dart';
 import 'package:stomp_dart_client/stomp.dart';
@@ -131,7 +132,7 @@ class ServerApi {
     final tokens = result.data;
     await _tokensStorage.setAccessToken(accessToken: tokens.access);
     await _tokensStorage.setRefreshToken(refreshToken: tokens.refresh);
-    await _tokensStorage.setUsername(username: tokens.username);
+    await _tokensStorage.setEmail(email: tokens.email);
   }
 
 
@@ -174,21 +175,19 @@ class ServerApi {
 
 
   // <======================== Location ========================>
-  Future<Result<ContainerForList<LocationModel>>> getLocations(String username) => _execRequestForList(
+  Future<Result<ContainerForList<LocationModel>>> getLocations(String email) => _execRequestForList(
       fromJson: LocationModel.fromJson,
       request: _dioApi.get(
         '$url/locations',
-        queryParameters: {
-          'username': username,
-        }
+        queryParameters: {'email': email,}
       )
   );
 
-  Future<Result<HasRightsModel>> checkHasRights(String username) => _execRequest(
+  Future<Result<HasRightsModel>> checkHasRights(String email) => _execRequest(
       fromJson: HasRightsModel.fromJson,
       request: _dioApi.get(
           '$url/locations/check',
-          queryParameters: { 'username': username }
+          queryParameters: { 'email': email }
       )
   );
 
@@ -206,19 +205,11 @@ class ServerApi {
       )
   );
 
-  Future<Result<LocationModel>> getLocation(int locationId, String? username) => _execRequest(
+  Future<Result<LocationModel>> getLocation(int locationId, String? email) => _execRequest(
       fromJson: LocationModel.fromJson,
       request: _dioApi.get(
           '$url/locations/$locationId',
-          queryParameters: { 'username': username }
-      )
-  );
-
-  Future<Result<LocationModel>> changeMaxColumns(int locationId, int maxColumns) => _execRequest(
-      fromJson: LocationModel.fromJson,
-      request: _dioApi.post(
-          '$url/locations/$locationId/change',
-          queryParameters: { 'max_columns': maxColumns }
+          queryParameters: { 'email': email }
       )
   );
 
@@ -271,34 +262,34 @@ class ServerApi {
       )
   );
 
-  Future<Result<ContainerForList<QueueTypeModel>>> getQueueTypesInLocation(int locationId) => _execRequestForList(
-      fromJson: QueueTypeModel.fromJson,
+  Future<Result<ContainerForList<SpecialistModel>>> getSpecialistsInLocation(int locationId) => _execRequestForList(
+      fromJson: SpecialistModel.fromJson,
       request: _dioApi.get(
-          '$url/locations/$locationId/types'
+          '$url/locations/$locationId/specialists'
       )
   );
 
-  Future<Result<QueueTypeModel>> createQueueTypeInLocation(int locationId, CreateQueueTypeRequest createQueueTypeRequest) => _execRequest(
-      fromJson: QueueTypeModel.fromJson,
+  Future<Result<SpecialistModel>> createSpecialistInLocation(int locationId, CreateSpecialistRequest createSpecialistRequest) => _execRequest(
+      fromJson: SpecialistModel.fromJson,
       request: _dioApi.post(
-          '$url/locations/$locationId/types/create',
-          data: createQueueTypeRequest.toJson()
+          '$url/locations/$locationId/specialists/create',
+          data: createSpecialistRequest.toJson()
       )
   );
 
-  Future<Result> deleteQueueTypeInLocation(int locationId, int queueTypeId) => _execRequest(
+  Future<Result> deleteSpecialistInLocation(int locationId, int specialistId) => _execRequest(
       request: _dioApi.delete(
-          '$url/locations/$locationId/types/$queueTypeId/delete'
+          '$url/locations/$locationId/specialists/$specialistId/delete'
       )
   );
 
-  Future<Result> pauseLocation(int locationId) => _execRequest(
+  Future<Result> enableLocation(int locationId) => _execRequest(
       request: _dioApi.post(
-          '$url/locations/$locationId/pause'
+          '$url/locations/$locationId/enable'
       )
   );
 
-  Future<Result> startLocation(int locationId) => _execRequest(
+  Future<Result> disableLocation(int locationId) => _execRequest(
       request: _dioApi.post(
           '$url/locations/$locationId/start'
       )
@@ -317,13 +308,13 @@ class ServerApi {
 
 
   // <======================== Queue ========================>
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String username) => _execRequestForList(
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String email) => _execRequestForList(
       fromJson: QueueModel.fromJson,
       request: _dioApi.get(
           '$url/queues',
           queryParameters: {
-            'username': username,
-            'location_id': locationId,
+            'email': email,
+            'location_id': locationId
           }
       )
   );
@@ -332,16 +323,14 @@ class ServerApi {
       fromJson: QueueModel.fromJson,
       request: _dioApi.post(
           '$url/queues/create',
-          data: createQueueRequest.toJson(),
-          queryParameters: {
-            'location_id': locationId
-          }
+          queryParameters: { 'location_id': locationId },
+          data: createQueueRequest.toJson()
       )
   );
 
   Future<Result> deleteQueue(int queueId) => _execRequest(
       request: _dioApi.delete(
-        '$url/queues/$queueId/delete',
+        '$url/queues/$queueId/delete'
       )
   );
 
@@ -353,15 +342,15 @@ class ServerApi {
       )
   );
 
-  Future<Result> pauseQueue(int queueId) => _execRequest(
+  Future<Result> enableQueue(int queueId) => _execRequest(
       request: _dioApi.post(
-          '$url/queues/$queueId/pause'
+          '$url/queues/$queueId/enable'
       )
   );
 
-  Future<Result> startQueue(int queueId) => _execRequest(
+  Future<Result> disableQueue(int queueId) => _execRequest(
       request: _dioApi.post(
-          '$url/queues/$queueId/start'
+          '$url/queues/$queueId/disable'
       )
   );
 
@@ -379,16 +368,6 @@ class ServerApi {
           '$url/queues/$queueId/notify',
           queryParameters: {
             'client_id': clientId
-          }
-      )
-  );
-
-  Future<Result> switchClientLateStateInQueue(int queueId, int clientId, bool late) => _execRequest(
-      request: _dioApi.post(
-          '$url/queues/$queueId/switch',
-          queryParameters: {
-            'client_id': clientId,
-            'late': late
           }
       )
   );
@@ -445,13 +424,11 @@ class ServerApi {
 
 
   // <======================== Rights ========================>
-  Future<Result> addRights(int locationId, String email) => _execRequest(
+  Future<Result> addRights(int locationId, AddRightsRequest addRightsRequest) => _execRequest(
       request: _dioApi.post(
           '$url/rights/add',
-          queryParameters: {
-            'location_id': locationId,
-            'email': email
-          }
+          queryParameters: {'location_id': locationId},
+          data: addRightsRequest.toJson()
       )
   );
 

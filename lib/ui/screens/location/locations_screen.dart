@@ -49,7 +49,7 @@ class _LocationsState extends BaseState<
               )
           ).then((result) {
             if (result is SearchLocationsResult) {
-              widget.emitConfig(LocationsConfig(username: result.username));
+              widget.emitConfig(LocationsConfig(email: result.email));
             }
           }),
         ),
@@ -64,7 +64,7 @@ class _LocationsState extends BaseState<
         location: state.locations[index],
         onClick: (location) => widget.emitConfig(
             LocationConfig(
-                username: state.config.username,
+                email: state.config.email,
                 locationId: location.id!
             )
         ),
@@ -170,7 +170,7 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
     if (await _accountInteractor.checkToken()) {
       emit(state.copy(hasToken: true));
     }
-    await _locationInteractor.checkHasRights(state.config.username)
+    await _locationInteractor.checkHasRights(state.config.email)
       ..onSuccess((result) async {
         emit(state.copy(hasRights: result.data.hasRights));
       })
@@ -199,7 +199,7 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
   }
 
   Future _load() async {
-    await _locationInteractor.getLocations(state.config.username)
+    await _locationInteractor.getLocations(state.config.email)
       ..onSuccess((result) {
         emit(state.copy(locations: result.data.results));
         hideLoad();

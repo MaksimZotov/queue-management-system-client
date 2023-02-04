@@ -8,71 +8,71 @@ import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 
-class DeleteQueueTypeConfig extends BaseDialogConfig {
+class DeleteSpecialistConfig extends BaseDialogConfig {
   final int locationId;
-  final int queueTypeId;
+  final int specialistId;
 
-  DeleteQueueTypeConfig({
+  DeleteSpecialistConfig({
     required this.locationId,
-    required this.queueTypeId
+    required this.specialistId
   });
 }
 
-class DeleteQueueTypeResult extends BaseDialogResult {
+class DeleteSpecialistResult extends BaseDialogResult {
   final int id;
 
-  DeleteQueueTypeResult({
+  DeleteSpecialistResult({
     required this.id,
   });
 }
 
-class DeleteQueueTypeWidget extends BaseDialogWidget<DeleteQueueTypeConfig> {
+class DeleteSpecialistWidget extends BaseDialogWidget<DeleteSpecialistConfig> {
 
-  const DeleteQueueTypeWidget({
+  const DeleteSpecialistWidget({
     super.key,
     required super.config
   });
 
   @override
-  State<DeleteQueueTypeWidget> createState() => _DeleteQueueTypeState();
+  State<DeleteSpecialistWidget> createState() => _DeleteSpecialistState();
 }
 
-class _DeleteQueueTypeState extends BaseDialogState<
-    DeleteQueueTypeWidget,
-    DeleteQueueTypeLogicState,
-    DeleteQueueTypeCubit
+class _DeleteSpecialistState extends BaseDialogState<
+    DeleteSpecialistWidget,
+    DeleteSpecialistLogicState,
+    DeleteSpecialistCubit
 > {
 
   @override
   String getTitle(
       BuildContext context,
-      DeleteQueueTypeLogicState state,
-      DeleteQueueTypeWidget widget
+      DeleteSpecialistLogicState state,
+      DeleteSpecialistWidget widget
   ) => getLocalizations(context).deleteQueueQuestion;
 
   @override
   List<Widget> getDialogContentWidget(
       BuildContext context,
-      DeleteQueueTypeLogicState state,
-      DeleteQueueTypeWidget widget
+      DeleteSpecialistLogicState state,
+      DeleteSpecialistWidget widget
   ) => [
     ButtonWidget(
         text: getLocalizations(context).delete,
-        onClick: getCubitInstance(context).deleteQueueType
+        onClick: getCubitInstance(context).deleteSpecialist
     )
   ];
 
   @override
-  DeleteQueueTypeCubit getCubit() =>
-      statesAssembler.getDeleteQueueTypeCubit(widget.config);
+  DeleteSpecialistCubit getCubit() =>
+      statesAssembler.getDeleteSpecialistCubit(widget.config);
 }
 
-class DeleteQueueTypeLogicState extends BaseDialogLogicState<
-    DeleteQueueTypeConfig,
-    DeleteQueueTypeResult
+class DeleteSpecialistLogicState extends BaseDialogLogicState<
+    DeleteSpecialistConfig,
+    DeleteSpecialistResult
 > {
 
-  DeleteQueueTypeLogicState({
+  DeleteSpecialistLogicState({
     super.nextConfig,
     super.error,
     super.snackBar,
@@ -82,13 +82,13 @@ class DeleteQueueTypeLogicState extends BaseDialogLogicState<
   });
 
   @override
-  DeleteQueueTypeLogicState copy({
+  DeleteSpecialistLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    DeleteQueueTypeResult? result
-  }) => DeleteQueueTypeLogicState(
+    DeleteSpecialistResult? result
+  }) => DeleteSpecialistLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
@@ -99,27 +99,27 @@ class DeleteQueueTypeLogicState extends BaseDialogLogicState<
 }
 
 @injectable
-class DeleteQueueTypeCubit extends BaseDialogCubit<DeleteQueueTypeLogicState> {
+class DeleteSpecialistCubit extends BaseDialogCubit<DeleteSpecialistLogicState> {
 
   final LocationInteractor _locationInteractor;
 
-  DeleteQueueTypeCubit(
+  DeleteSpecialistCubit(
       this._locationInteractor,
-      @factoryParam DeleteQueueTypeConfig config
+      @factoryParam DeleteSpecialistConfig config
   ) : super(
-      DeleteQueueTypeLogicState(
+      DeleteSpecialistLogicState(
           config: config
       )
   );
 
-  Future<void> deleteQueueType() async {
+  Future<void> deleteSpecialist() async {
     showLoad();
-    await _locationInteractor.deleteQueueTypeInLocation(
+    await _locationInteractor.deleteSpecialistInLocation(
         state.config.locationId,
-        state.config.queueTypeId
+        state.config.specialistId
     )
       ..onSuccess((result) {
-        popResult(DeleteQueueTypeResult(id: state.config.queueTypeId));
+        popResult(DeleteSpecialistResult(id: state.config.specialistId));
       })
       ..onError((result) {
         showError(result);

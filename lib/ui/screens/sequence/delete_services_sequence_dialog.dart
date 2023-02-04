@@ -114,7 +114,7 @@ class DeleteServicesSequenceCubit extends BaseDialogCubit<DeleteServicesSequence
 
   Future<void> deleteServicesSequence() async {
     showLoad();
-    await _locationInteractor.deleteQueueTypeInLocation(
+    await _locationInteractor.deleteSpecialistInLocation(
       state.config.locationId,
       state.config.servicesSequenceId
     )

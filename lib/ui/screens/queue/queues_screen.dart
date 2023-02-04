@@ -53,7 +53,7 @@ class _QueuesState extends BaseState<
           queue: state.queues[index],
           onTap: (queue) => widget.emitConfig(
             QueueConfig(
-                username: state.config.username,
+                email: state.config.email,
                 locationId: state.config.locationId,
                 queueId: queue.id
             )
@@ -100,7 +100,7 @@ class QueuesLogicState extends BaseLogicState {
 
   final QueuesConfig config;
 
-  final String? ownerUsername;
+  final String? ownerEmail;
   final String locationName;
   final bool hasRights;
 
@@ -112,7 +112,7 @@ class QueuesLogicState extends BaseLogicState {
     super.snackBar,
     super.loading,
     required this.config,
-    required this.ownerUsername,
+    required this.ownerEmail,
     required this.locationName,
     required this.hasRights,
     required this.queues,
@@ -124,7 +124,7 @@ class QueuesLogicState extends BaseLogicState {
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    String? ownerUsername,
+    String? ownerEmail,
     String? locationName,
     List<QueueModel>? queues,
     bool? hasRights
@@ -134,7 +134,7 @@ class QueuesLogicState extends BaseLogicState {
       snackBar: snackBar,
       loading: loading ?? this.loading,
       config: config,
-      ownerUsername: ownerUsername ?? this.ownerUsername,
+      ownerEmail: ownerEmail ?? this.ownerEmail,
       locationName: locationName ?? this.locationName,
       hasRights: hasRights ?? this.hasRights,
       queues: queues ?? this.queues
@@ -153,7 +153,7 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
   ) : super(
       QueuesLogicState(
             config: config,
-            ownerUsername: null,
+            ownerEmail: null,
             locationName: '',
             hasRights: false,
             queues: []
@@ -163,12 +163,12 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
   @override
   Future<void> onStart() async {
     await locationInteractor.getLocation(
-        state.config.locationId, state.config.username
+        state.config.locationId, state.config.email
     )
       ..onSuccess((result) async {
         emit(
             state.copy(
-                ownerUsername: result.data.ownerUsername,
+                ownerEmail: result.data.ownerEmail,
                 locationName: result.data.name,
                 hasRights: result.data.hasRights
             )
@@ -196,7 +196,7 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
   Future<void> _load() async {
     await queueInteractor.getQueues(
         state.config.locationId,
-        state.config.username
+        state.config.email
     )
       ..onSuccess((result) {
         emit(state.copy(queues: result.data.results));

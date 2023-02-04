@@ -8,71 +8,71 @@ import '../../../domain/interactors/rights_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 
-class DeleteRightConfig extends BaseDialogConfig {
+class DeleteRightsConfig extends BaseDialogConfig {
   final int locationId;
   final String email;
 
-  DeleteRightConfig({
+  DeleteRightsConfig({
     required this.locationId,
     required this.email,
   });
 }
 
-class DeleteRightResult extends BaseDialogResult {
+class DeleteRightsResult extends BaseDialogResult {
   final String email;
 
-  DeleteRightResult({
+  DeleteRightsResult({
     required this.email,
   });
 }
 
-class DeleteRightWidget extends BaseDialogWidget<DeleteRightConfig> {
+class DeleteRightsWidget extends BaseDialogWidget<DeleteRightsConfig> {
 
-  const DeleteRightWidget({
+  const DeleteRightsWidget({
     super.key,
     required super.config
   });
 
   @override
-  State<DeleteRightWidget> createState() => _DeleteRightState();
+  State<DeleteRightsWidget> createState() => _DeleteRightsState();
 }
 
-class _DeleteRightState extends BaseDialogState<
-    DeleteRightWidget,
-    DeleteRightLogicState,
-    DeleteRightCubit
+class _DeleteRightsState extends BaseDialogState<
+    DeleteRightsWidget,
+    DeleteRightsLogicState,
+    DeleteRightsCubit
 > {
 
   @override
   String getTitle(
       BuildContext context,
-      DeleteRightLogicState state,
-      DeleteRightWidget widget
+      DeleteRightsLogicState state,
+      DeleteRightsWidget widget
   ) => getLocalizations(context).revokeRightsQuestion;
 
   @override
   List<Widget> getDialogContentWidget(
       BuildContext context,
-      DeleteRightLogicState state,
-      DeleteRightWidget widget
+      DeleteRightsLogicState state,
+      DeleteRightsWidget widget
   ) => [
     ButtonWidget(
         text: getLocalizations(context).revoke,
-        onClick: getCubitInstance(context).deleteRight
+        onClick: getCubitInstance(context).deleteRights
     )
   ];
 
   @override
-  DeleteRightCubit getCubit() =>
-      statesAssembler.getDeleteRightCubit(widget.config);
+  DeleteRightsCubit getCubit() =>
+      statesAssembler.getDeleteRightsCubit(widget.config);
 }
 
-class DeleteRightLogicState extends BaseDialogLogicState<
-    DeleteRightConfig,
-    DeleteRightResult
+class DeleteRightsLogicState extends BaseDialogLogicState<
+    DeleteRightsConfig,
+    DeleteRightsResult
 > {
 
-  DeleteRightLogicState({
+  DeleteRightsLogicState({
     super.nextConfig,
     super.error,
     super.snackBar,
@@ -82,13 +82,13 @@ class DeleteRightLogicState extends BaseDialogLogicState<
   });
 
   @override
-  DeleteRightLogicState copy({
+  DeleteRightsLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    DeleteRightResult? result
-  }) => DeleteRightLogicState(
+    DeleteRightsResult? result
+  }) => DeleteRightsLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
@@ -99,27 +99,27 @@ class DeleteRightLogicState extends BaseDialogLogicState<
 }
 
 @injectable
-class DeleteRightCubit extends BaseDialogCubit<DeleteRightLogicState> {
+class DeleteRightsCubit extends BaseDialogCubit<DeleteRightsLogicState> {
 
   final RightsInteractor _rightsInteractor;
 
-  DeleteRightCubit(
+  DeleteRightsCubit(
       this._rightsInteractor,
-      @factoryParam DeleteRightConfig config
+      @factoryParam DeleteRightsConfig config
   ) : super(
-      DeleteRightLogicState(
+      DeleteRightsLogicState(
         config: config
       )
   );
 
-  Future<void> deleteRight() async {
+  Future<void> deleteRights() async {
     showLoad();
     await _rightsInteractor.deleteRights(
         state.config.locationId,
         state.config.email
     )
       ..onSuccess((result) {
-        popResult(DeleteRightResult(email: state.config.email));
+        popResult(DeleteRightsResult(email: state.config.email));
       })..onError((result) {
         showError(result);
       });

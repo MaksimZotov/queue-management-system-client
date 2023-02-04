@@ -2,7 +2,6 @@
 "enterAccount": "Вход в аккаунт",
 "authorization": "Авторизация",
 "registration": "Регистрация",
-"uniqueName": "Уникальное имя",
 "password": "Пароль",
 "login": "Войти",
 "email": "Почта",
@@ -79,8 +78,8 @@
     }
   }
 },
-"queueTypesInLocationPattern": "Типы очередей в локации {name}",
-"@queueTypesInLocationPattern": {
+"specialistsInLocationPattern": "Типы очередей в локации {name}",
+"@specialistsInLocationPattern": {
   "placeholders": {
     "name": {
       "type": "String"
@@ -104,10 +103,10 @@
 "creationOfService": "Создание услуги",
 "supposedDuration": "Предполагаемая длительность",
 "maxDuration": "Максимальная длительность",
-"creationOfQueueType": "Создание типа очередей",
+"creationOfSpecialist": "Создание типа очередей",
 "services": "Услуги",
 "servicesSequences": "Наборы услуг",
-"queueTypes": "Типы очередей",
+"specialists": "Типы очередей",
 "queues": "Очереди",
 "deleteServiceQuestion": "Удалить очередь?",
 "select": "Выбрать",
@@ -115,5 +114,6 @@
 "connection": "Подключение",
 "connect": "Подключиться",
 "switchingToKioskMode": "Переключение в режим киоска",
-"switchButton": "Переключить"
+"switchButton": "Переключить",
+"specialists": "Специалисты"
 }

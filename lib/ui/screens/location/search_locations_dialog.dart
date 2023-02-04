@@ -12,10 +12,10 @@ import '../base.dart';
 class SearchLocationsConfig extends BaseDialogConfig {}
 
 class SearchLocationsResult extends BaseDialogResult {
-  final String username;
+  final String email;
 
   SearchLocationsResult({
-    required this.username
+    required this.email
   });
 }
 
@@ -50,9 +50,9 @@ class _SearchLocationsState extends BaseDialogState<
       SearchLocationsWidget widget
   ) => [
     TextFieldWidget(
-        label: getLocalizations(context).uniqueName,
-        text: state.username,
-        onTextChanged: getCubitInstance(context).setUsername
+        label: getLocalizations(context).email,
+        text: state.email,
+        onTextChanged: getCubitInstance(context).setEmail
     ),
     const SizedBox(height: Dimens.contentMargin),
     ButtonWidget(
@@ -71,7 +71,7 @@ class SearchLocationsLogicState extends BaseDialogLogicState<
     SearchLocationsResult
 > {
 
-  final String username;
+  final String email;
 
   SearchLocationsLogicState({
     super.nextConfig,
@@ -80,7 +80,7 @@ class SearchLocationsLogicState extends BaseDialogLogicState<
     super.loading,
     required super.config,
     super.result,
-    required this.username
+    required this.email
   });
 
   @override
@@ -90,7 +90,7 @@ class SearchLocationsLogicState extends BaseDialogLogicState<
     String? snackBar,
     bool? loading,
     SearchLocationsResult? result,
-    String? username
+    String? email
   }) => SearchLocationsLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -98,7 +98,7 @@ class SearchLocationsLogicState extends BaseDialogLogicState<
       loading: loading ?? this.loading,
       config: config,
       result: result,
-      username: username ?? this.username
+      email: email ?? this.email
   );
 }
 
@@ -110,15 +110,15 @@ class SearchLocationsCubit extends BaseDialogCubit<SearchLocationsLogicState> {
   ) : super(
       SearchLocationsLogicState(
           config: config,
-          username: ''
+          email: ''
       )
   );
 
-  void setUsername(String text) {
-    emit(state.copy(username: text));
+  void setEmail(String text) {
+    emit(state.copy(email: text));
   }
 
   void findLocations() {
-    popResult(SearchLocationsResult(username: state.username));
+    popResult(SearchLocationsResult(email: state.email));
   }
 }

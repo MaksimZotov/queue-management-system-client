@@ -11,8 +11,8 @@ class QueueStateModel {
   final List<ClientInQueueModel> clients;
   @JsonKey(name: 'has_rights')
   final bool? hasRights;
-  @JsonKey(name: 'owner_username')
-  final String? ownerUsername;
+  @JsonKey(name: 'owner_email')
+  final String? ownerEmail;
 
   QueueStateModel({
     required this.id,
@@ -20,7 +20,7 @@ class QueueStateModel {
     this.description,
     required this.clients,
     this.hasRights,
-    this.ownerUsername
+    this.ownerEmail
   });
 
   static QueueStateModel fromJson(Map<String, dynamic> json) => _$QueueStateModelFromJson(json);

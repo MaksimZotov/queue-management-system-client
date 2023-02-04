@@ -9,5 +9,5 @@ abstract class AccountInteractor {
   Future<Result> login(LoginModel login);
   Future<bool> checkToken();
   Future<void> logout();
-  Future<String?> getCurrentUsername();
+  Future<String?> getCurrentEmail();
 }

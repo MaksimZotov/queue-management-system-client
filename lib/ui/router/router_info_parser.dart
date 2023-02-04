@@ -24,21 +24,29 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
             // "/registration"
             case 'registration':
               return RegistrationConfig();
+            // "/client?client_id={client_id}&access_key={access_key}"
+            case 'client':
+              int clientId = int.parse(uri.queryParameters['client_id']!);
+              String accessKey = uri.queryParameters['access_key']!;
+              return ClientConfig(
+                  clientId: clientId,
+                  accessKey: accessKey
+              );
           }
           break;
         case 2:
            switch (segments[1]) {
-             // "/{username}/locations"
+             // "/{email}/locations"
              case 'locations':
-               return LocationsConfig(username: segments[0]);
+               return LocationsConfig(email: segments[0]);
            }
            break;
         case 3:
           switch (segments[1]) {
-            // "/{username}/locations/{location_id}"
+            // "/{email}/locations/{location_id}"
             case 'locations':
               return LocationConfig(
-                  username: segments[0],
+                  email: segments[0],
                   locationId: int.parse(segments[2])
               );
           }
@@ -47,51 +55,41 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
           switch (segments[1]) {
             case 'locations':
               switch (segments[3]) {
-                // "/{username}/locations/{location_id}/services"
+                // "/{email}/locations/{location_id}/services"
                 case 'services':
                   return ServicesConfig(
-                      username: segments[0],
+                      email: segments[0],
                       locationId: int.parse(segments[2])
                   );
-                // "/{username}/locations/{location_id}/sequences"
+                // "/{email}/locations/{location_id}/sequences"
                 case 'sequences':
                   return ServicesSequencesConfig(
-                      username: segments[0],
+                      email: segments[0],
                       locationId: int.parse(segments[2])
                   );
-                // "/{username}/locations/{location_id}/types"
-                case 'types':
-                  return QueueTypesConfig(
-                      username: segments[0],
+                // "/{email}/locations/{location_id}/specialists"
+                case 'specialists':
+                  return SpecialistsConfig(
+                      email: segments[0],
                       locationId: int.parse(segments[2])
                   );
-                // "/{username}/locations/{location_id}/queues"
+                // "/{email}/locations/{location_id}/queues"
                 case 'queues':
                   return QueuesConfig(
-                      username: segments[0],
+                      email: segments[0],
                       locationId: int.parse(segments[2])
                   );
-                // "/{username}/locations/{location_id}/rights"
+                // "/{email}/locations/{location_id}/rights"
                 case 'rights':
                   return RightsConfig(
-                      username: segments[0],
+                      email: segments[0],
                       locationId: int.parse(segments[2])
                   );
-                // "/{username}/locations/{location_id}/board"
+                // "/{email}/locations/{location_id}/board"
                 case 'board':
                   return BoardConfig(
-                      username: segments[0],
+                      email: segments[0],
                       locationId: int.parse(segments[2])
-                  );
-                case 'client':
-                  int clientId = int.parse(uri.queryParameters['client_id']!);
-                  String accessKey = uri.queryParameters['access_key']!;
-                  // "/{username}/locations/{location_id}/client?client_id={client_id}&access_key={access_key}"
-                  return ClientConfig(
-                      username: segments[0],
-                      locationId: int.parse(segments[2]),
-                      clientId: clientId,
-                      accessKey: accessKey
                   );
               }
           }
@@ -100,10 +98,10 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
           switch (segments[1]) {
             case 'locations':
               switch (segments[3]) {
-                // "/{username}/locations/{location_id}/queues/{queue_id}"
+                // "/{email}/locations/{location_id}/queues/{queue_id}"
                 case 'queues':
                   return QueueConfig(
-                      username: segments[0],
+                      email: segments[0],
                       locationId: int.parse(segments[2]),
                       queueId: int.parse(segments[4])
                   );
@@ -128,75 +126,73 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
       return const RouteInformation(location: '/registration');
     }
     if (configuration is LocationsConfig) {
-      String username = configuration.username;
+      String email = configuration.email;
       return RouteInformation(
-          location: '/$username/locations'
+          location: '/$email/locations'
       );
     }
     if (configuration is LocationConfig) {
-      String username = configuration.username;
+      String email = configuration.email;
       int locationId = configuration.locationId;
       return RouteInformation(
-          location: '/$username/locations/$locationId'
+          location: '/$email/locations/$locationId'
       );
     }
     if (configuration is ServicesConfig) {
-      String username = configuration.username;
+      String email = configuration.email;
       int locationId = configuration.locationId;
       return RouteInformation(
-          location: '/$username/locations/$locationId/services'
+          location: '/$email/locations/$locationId/services'
       );
     }
     if (configuration is ServicesSequencesConfig) {
-      String username = configuration.username;
+      String email = configuration.email;
       int locationId = configuration.locationId;
       return RouteInformation(
-          location: '/$username/locations/$locationId/sequences'
+          location: '/$email/locations/$locationId/sequences'
       );
     }
-    if (configuration is QueueTypesConfig) {
-      String username = configuration.username;
+    if (configuration is SpecialistsConfig) {
+      String email = configuration.email;
       int locationId = configuration.locationId;
       return RouteInformation(
-          location: '/$username/locations/$locationId/types'
+          location: '/$email/locations/$locationId/specialists'
       );
     }
     if (configuration is QueuesConfig) {
-      String username = configuration.username;
+      String email = configuration.email;
       int locationId = configuration.locationId;
       return RouteInformation(
-          location: '/$username/locations/$locationId/queues'
+          location: '/$email/locations/$locationId/queues'
       );
     }
     if (configuration is QueueConfig) {
-      String username = configuration.username;
+      String email = configuration.email;
       int locationId = configuration.locationId;
       int queueId = configuration.queueId;
       return RouteInformation(
-          location: '/$username/locations/$locationId/queues/$queueId'
+          location: '/$email/locations/$locationId/queues/$queueId'
       );
     }
     if (configuration is ClientConfig) {
-      String username = configuration.username;
-      int locationId = configuration.locationId;
       int clientId = configuration.clientId;
       String accessKey = configuration.accessKey;
       return RouteInformation(
-          location: '/$username/locations/$locationId/client?client_id=$clientId&access_key=$accessKey'
+          location: '/client?client_id=$clientId&access_key=$accessKey'
       );
     }
     if (configuration is RightsConfig) {
-      String username = configuration.username;
+      String email = configuration.email;
       int locationId = configuration.locationId;
       return RouteInformation(
-          location: '/$username/locations/$locationId/rights'
+          location: '/$email/locations/$locationId/rights'
       );
     }
     if (configuration is BoardConfig) {
-      String username = configuration.username;
+      String email = configuration.email;
       int locationId = configuration.locationId;
       return RouteInformation(
-          location: '/$username/locations/$locationId/board'
+          location: '/$email/locations/$locationId/board'
       );
     }
     return null;

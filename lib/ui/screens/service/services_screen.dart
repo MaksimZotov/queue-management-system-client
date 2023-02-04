@@ -9,12 +9,12 @@ import 'package:queue_management_system_client/ui/screens/base.dart';
 
 import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
-import '../../../domain/enums/terminal_mode.dart';
+import '../../../domain/enums/kiosk_mode.dart';
 import '../../../domain/interactors/location_interactor.dart';
-import '../../../domain/interactors/terminal_interactor.dart';
+import '../../../domain/interactors/kiosk_interactor.dart';
 import '../../../domain/models/base/result.dart';
+import '../../../domain/models/kiosk/kiosk_state.dart';
 import '../../../domain/models/location/service_model.dart';
-import '../../../domain/models/terminal/terminal_state.dart';
 import '../../models/service/service_wrapper.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/button_widget.dart';
@@ -47,7 +47,7 @@ class _ServicesState extends BaseState<
       ServicesLogicState state,
       ServicesWidget widget
   ) => Scaffold(
-    appBar: state.terminalState == null
+    appBar: state.kioskState == null
       ? AppBar(
         title: Text(
             state.locationName.isEmpty
@@ -57,7 +57,7 @@ class _ServicesState extends BaseState<
       )
       : null,
     body: _getBody(context, state, widget),
-    floatingActionButton: state.hasRights && state.terminalState == null
+    floatingActionButton: state.hasRights && state.kioskState == null
         ? FloatingActionButton(
             onPressed: () => showDialog(
                 context: context,
@@ -84,7 +84,7 @@ class _ServicesState extends BaseState<
       ServicesLogicState state,
       ServicesWidget widget
   ) {
-    if (state.terminalState == null) {
+    if (state.kioskState == null) {
       return ListView.builder(
           itemBuilder: (context, index) {
             return ServiceItemWidget(
@@ -107,7 +107,7 @@ class _ServicesState extends BaseState<
           itemCount: state.services.length,
       );
     }
-    if (state.terminalState?.multipleSelect == false) {
+    if (state.kioskState?.multipleSelect == false) {
       return ListView.builder(
         itemBuilder: (context, index) {
           return ServiceItemWidget(
@@ -122,7 +122,7 @@ class _ServicesState extends BaseState<
                   )
               ).then((result) {
                 if (result is AddClientResult) {
-                  if (state.terminalState?.terminalMode == TerminalMode.all) {
+                  if (state.kioskState?.kioskMode == KioskMode.all) {
                     Navigator.of(context).pop();
                   }
                 }
@@ -132,7 +132,7 @@ class _ServicesState extends BaseState<
         itemCount: state.services.length,
       );
     }
-    if (state.terminalState?.multipleSelect == true && state.selectedServices.isEmpty) {
+    if (state.kioskState?.multipleSelect == true && state.selectedServices.isEmpty) {
       return ListView.builder(
         itemBuilder: (context, index) {
           return ServiceItemWidget(
@@ -171,7 +171,7 @@ class _ServicesState extends BaseState<
               )
           ).then((result) {
             if (result is AddClientResult) {
-              if (state.terminalState?.terminalMode == TerminalMode.all) {
+              if (state.kioskState?.kioskMode == KioskMode.all) {
                 Navigator.of(context).pop();
               } else {
                 getCubitInstance(context).clearSelect();
@@ -192,13 +192,13 @@ class ServicesLogicState extends BaseLogicState {
 
   final ServicesConfig config;
 
-  final String? ownerUsername;
+  final String? ownerEmail;
   final String locationName;
   final bool hasRights;
 
   final List<ServiceWrapper> services;
 
-  final TerminalState? terminalState;
+  final KioskState? kioskState;
 
   List<ServiceWrapper> get selectedServices {
     return List.from(services)..removeWhere((serviceWrapper) => !serviceWrapper.selected);
@@ -210,11 +210,11 @@ class ServicesLogicState extends BaseLogicState {
     super.snackBar,
     super.loading,
     required this.config,
-    required this.ownerUsername,
+    required this.ownerEmail,
     required this.locationName,
     required this.hasRights,
     required this.services,
-    required this.terminalState
+    required this.kioskState
   });
 
   @override
@@ -223,30 +223,30 @@ class ServicesLogicState extends BaseLogicState {
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    String? ownerUsername,
+    String? ownerEmail,
     String? locationName,
     bool? hasRights,
     List<ServiceWrapper>? services,
     List<ServiceWrapper>? selectedServices,
-    TerminalState? terminalState
+    KioskState? kioskState
   }) => ServicesLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
       loading: loading ?? this.loading,
       config: config,
-      ownerUsername: ownerUsername ?? this.ownerUsername,
+      ownerEmail: ownerEmail ?? this.ownerEmail,
       locationName: locationName ?? this.locationName,
       hasRights: hasRights ?? this.hasRights,
       services: services ?? this.services,
-      terminalState: terminalState ?? this.terminalState
+      kioskState: kioskState ?? this.kioskState
   );
 }
 
 @injectable
 class ServicesCubit extends BaseCubit<ServicesLogicState> {
   final LocationInteractor _locationInteractor;
-  final TerminalInteractor _terminalInteractor;
+  final KioskInteractor _terminalInteractor;
 
   ServicesCubit(
       this._locationInteractor,
@@ -255,24 +255,24 @@ class ServicesCubit extends BaseCubit<ServicesLogicState> {
   ) : super(
       ServicesLogicState(
           config: config,
-          ownerUsername: null,
+          ownerEmail: null,
           locationName: '',
           hasRights: false,
           services: [],
-          terminalState: null
+          kioskState: null
       )
   );
 
   @override
   Future<void> onStart() async {
-    emit(state.copy(terminalState: await _terminalInteractor.getTerminalState()));
+    emit(state.copy(kioskState: await _terminalInteractor.getKioskState()));
     await _locationInteractor.getLocation(
-        state.config.locationId, state.config.username
+        state.config.locationId, state.config.email
     )
       ..onSuccess((result) async {
         emit(
             state.copy(
-                ownerUsername: result.data.ownerUsername,
+                ownerEmail: result.data.ownerEmail,
                 locationName: result.data.name,
                 hasRights: result.data.hasRights
             )

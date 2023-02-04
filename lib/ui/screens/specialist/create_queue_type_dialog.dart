@@ -11,59 +11,59 @@ import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
 import '../../../domain/interactors/queue_interactor.dart';
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/location/create_queue_type_request.dart';
+import '../../../domain/models/location/create_specialist_request.dart';
 import '../../../domain/models/location/create_service_request.dart';
-import '../../../domain/models/location/queue_type_model.dart';
+import '../../../domain/models/location/specialist_model.dart';
 import '../../../domain/models/queue/queue_model.dart';
 import '../../router/routes_config.dart';
 
-class CreateQueueTypeConfig extends BaseDialogConfig {
+class CreateSpecialistConfig extends BaseDialogConfig {
   final int locationId;
   final List<int> serviceIds;
 
-  CreateQueueTypeConfig({
+  CreateSpecialistConfig({
     required this.locationId,
     required this.serviceIds
   });
 }
 
-class CreateQueueTypeResult extends BaseDialogResult {
-  final QueueTypeModel queueTypeModel;
+class CreateSpecialistResult extends BaseDialogResult {
+  final SpecialistModel specialistModel;
 
-  CreateQueueTypeResult({
-    required this.queueTypeModel
+  CreateSpecialistResult({
+    required this.specialistModel
   });
 }
 
-class CreateQueueTypeWidget extends BaseDialogWidget<CreateQueueTypeConfig> {
+class CreateSpecialistWidget extends BaseDialogWidget<CreateSpecialistConfig> {
 
-  const CreateQueueTypeWidget({
+  const CreateSpecialistWidget({
     super.key,
     required super.config
   });
 
   @override
-  State<CreateQueueTypeWidget> createState() => _CreateQueueTypeState();
+  State<CreateSpecialistWidget> createState() => _CreateSpecialistState();
 }
 
-class _CreateQueueTypeState extends BaseDialogState<
-    CreateQueueTypeWidget,
-    CreateQueueTypeLogicState,
-    CreateQueueTypeCubit
+class _CreateSpecialistState extends BaseDialogState<
+    CreateSpecialistWidget,
+    CreateSpecialistLogicState,
+    CreateSpecialistCubit
 > {
 
   @override
   String getTitle(
       BuildContext context,
-      CreateQueueTypeLogicState state,
-      CreateQueueTypeWidget widget
-  ) => getLocalizations(context).creationOfQueueType;
+      CreateSpecialistLogicState state,
+      CreateSpecialistWidget widget
+  ) => getLocalizations(context).creationOfSpecialist;
 
   @override
   List<Widget> getDialogContentWidget(
       BuildContext context,
-      CreateQueueTypeLogicState state,
-      CreateQueueTypeWidget widget
+      CreateSpecialistLogicState state,
+      CreateSpecialistWidget widget
       ) => [
     TextFieldWidget(
         label: getLocalizations(context).name,
@@ -79,24 +79,24 @@ class _CreateQueueTypeState extends BaseDialogState<
     const SizedBox(height: Dimens.contentMargin),
     ButtonWidget(
         text: getLocalizations(context).create,
-        onClick: getCubitInstance(context).createQueueType
+        onClick: getCubitInstance(context).createSpecialist
     )
   ];
 
   @override
-  CreateQueueTypeCubit getCubit() =>
-      statesAssembler.getCreateQueueTypeCubit(widget.config);
+  CreateSpecialistCubit getCubit() =>
+      statesAssembler.getCreateSpecialistCubit(widget.config);
 }
 
-class CreateQueueTypeLogicState extends BaseDialogLogicState<
-    CreateQueueTypeConfig,
-    CreateQueueTypeResult
+class CreateSpecialistLogicState extends BaseDialogLogicState<
+    CreateSpecialistConfig,
+    CreateSpecialistResult
 > {
 
   final String name;
   final String description;
 
-  CreateQueueTypeLogicState({
+  CreateSpecialistLogicState({
     super.nextConfig,
     super.error,
     super.snackBar,
@@ -108,15 +108,15 @@ class CreateQueueTypeLogicState extends BaseDialogLogicState<
   });
 
   @override
-  CreateQueueTypeLogicState copy({
+  CreateSpecialistLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    CreateQueueTypeResult? result,
+    CreateSpecialistResult? result,
     String? name,
     String? description
-  }) => CreateQueueTypeLogicState(
+  }) => CreateSpecialistLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
@@ -129,15 +129,15 @@ class CreateQueueTypeLogicState extends BaseDialogLogicState<
 }
 
 @injectable
-class CreateQueueTypeCubit extends BaseDialogCubit<CreateQueueTypeLogicState> {
+class CreateSpecialistCubit extends BaseDialogCubit<CreateSpecialistLogicState> {
 
   final LocationInteractor _locationInteractor;
 
-  CreateQueueTypeCubit(
+  CreateSpecialistCubit(
       this._locationInteractor,
-      @factoryParam CreateQueueTypeConfig config
+      @factoryParam CreateSpecialistConfig config
   ) : super(
-      CreateQueueTypeLogicState(
+      CreateSpecialistLogicState(
           config: config,
           name: '',
           description: ''
@@ -152,19 +152,19 @@ class CreateQueueTypeCubit extends BaseDialogCubit<CreateQueueTypeLogicState> {
     emit(state.copy(description: text));
   }
 
-  Future<void> createQueueType() async {
+  Future<void> createSpecialist() async {
     showLoad();
 
-    await _locationInteractor.createQueueTypeInLocation(
+    await _locationInteractor.createSpecialistInLocation(
         state.config.locationId,
-        CreateQueueTypeRequest(
+        CreateSpecialistRequest(
             name: state.name,
             description: state.description.isEmpty ? null : state.description,
             serviceIds: state.config.serviceIds
         )
     )
       ..onSuccess((result) {
-        popResult(CreateQueueTypeResult(queueTypeModel: result.data));
+        popResult(CreateSpecialistResult(specialistModel: result.data));
       })
       ..onError((result) {
         showError(result);

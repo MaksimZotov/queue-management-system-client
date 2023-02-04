@@ -43,7 +43,7 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
               ? ''
               : getLocalizations(context).queuePattern(state.queueStateModel.name)
       ),
-      actions: state.queueStateModel.ownerUsername != null
+      actions: state.queueStateModel.ownerEmail != null
           ? [
             IconButton(
                 icon: const Icon(Icons.qr_code),
@@ -163,22 +163,22 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
   }
 
   Future<void> share(String notificationText) async {
-    String username = state.queueStateModel.ownerUsername!;
+    String email = state.queueStateModel.ownerEmail!;
     int locationId = state.config.locationId;
     int queueId = state.config.queueId;
     await Clipboard.setData(
         ClipboardData(
-            text: '${ServerApi.clientUrl}/$username/locations/$locationId/queues/$queueId/client'
+            text: '${ServerApi.clientUrl}/$email/locations/$locationId/queues/$queueId/client'
         )
     );
     showSnackBar(notificationText);
   }
 
   Future<void> downloadQrCode() async {
-    String username = state.queueStateModel.ownerUsername!;
+    String email = state.queueStateModel.ownerEmail!;
     int locationId = state.config.locationId;
     int queueId = state.config.queueId;
-    String url = '${ServerApi.clientUrl}/$username/locations/$locationId/queues/$queueId/client';
+    String url = '${ServerApi.clientUrl}/$email/locations/$locationId/queues/$queueId/client';
 
     final image = await QrPainter(
       data: url,

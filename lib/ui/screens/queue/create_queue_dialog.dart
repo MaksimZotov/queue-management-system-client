@@ -10,10 +10,9 @@ import '../../../dimens.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/queue_interactor.dart';
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/location/queue_type_model.dart';
+import '../../../domain/models/location/specialist_model.dart';
 import '../../../domain/models/queue/queue_model.dart';
 import '../../router/routes_config.dart';
-import '../../widgets/queue_type_item_widget.dart';
 
 class CreateQueueConfig extends BaseDialogConfig {
   final int locationId;
@@ -72,8 +71,8 @@ class _CreateQueueState extends BaseDialogState<
         text: state.description,
         onTextChanged: getCubitInstance(context).setDescription
     ),
-    DropdownButton<QueueTypeModel>(
-      value: state.selectedQueueType,
+    DropdownButton<SpecialistModel>(
+      value: state.selectedSpecialist,
       icon: const Icon(Icons.arrow_downward),
       elevation: 16,
       style: const TextStyle(color: Colors.deepPurple),
@@ -81,9 +80,9 @@ class _CreateQueueState extends BaseDialogState<
         height: 2,
         color: Colors.deepPurpleAccent,
       ),
-      onChanged: getCubitInstance(context).selectQueueType,
-      items: state.queueTypes.map<DropdownMenuItem<QueueTypeModel>>((QueueTypeModel value) {
-        return DropdownMenuItem<QueueTypeModel>(
+      onChanged: getCubitInstance(context).selectSpecialist,
+      items: state.specialists.map<DropdownMenuItem<SpecialistModel>>((SpecialistModel value) {
+        return DropdownMenuItem<SpecialistModel>(
           value: value,
           child: Text(value.name),
         );
@@ -109,8 +108,8 @@ class CreateQueueLogicState extends BaseDialogLogicState<
   final String name;
   final String description;
 
-  final List<QueueTypeModel> queueTypes;
-  final QueueTypeModel? selectedQueueType;
+  final List<SpecialistModel> specialists;
+  final SpecialistModel? selectedSpecialist;
 
   CreateQueueLogicState({
     super.nextConfig,
@@ -121,8 +120,8 @@ class CreateQueueLogicState extends BaseDialogLogicState<
     super.result,
     required this.name,
     required this.description,
-    required this.queueTypes,
-    required this.selectedQueueType
+    required this.specialists,
+    required this.selectedSpecialist
   });
 
   @override
@@ -134,8 +133,8 @@ class CreateQueueLogicState extends BaseDialogLogicState<
     CreateQueueResult? result,
     String? name,
     String? description,
-    List<QueueTypeModel>? queueTypes,
-    QueueTypeModel? selectedQueueType
+    List<SpecialistModel>? specialists,
+    SpecialistModel? selectedSpecialist
   }) => CreateQueueLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -145,8 +144,8 @@ class CreateQueueLogicState extends BaseDialogLogicState<
       result: result,
       name: name ?? this.name,
       description: description ?? this.description,
-      queueTypes: queueTypes ?? this.queueTypes,
-      selectedQueueType: selectedQueueType ?? this.selectedQueueType
+      specialists: specialists ?? this.specialists,
+      selectedSpecialist: selectedSpecialist ?? this.selectedSpecialist
   );
 }
 
@@ -165,19 +164,19 @@ class CreateQueueCubit extends BaseDialogCubit<CreateQueueLogicState> {
           config: config,
           name: '',
           description: '',
-          queueTypes: [],
-          selectedQueueType: null
+          specialists: [],
+          selectedSpecialist: null
       )
   );
 
   @override
   Future<void> onStart() async {
     showLoad();
-    await _locationInteractor.getQueueTypesInLocation(
+    await _locationInteractor.getSpecialistsInLocation(
         state.config.locationId
     )
       ..onSuccess((result) async {
-        emit(state.copy(queueTypes: result.data.results));
+        emit(state.copy(specialists: result.data.results));
         hideLoad();
       })
       ..onError((result) {
@@ -193,10 +192,10 @@ class CreateQueueCubit extends BaseDialogCubit<CreateQueueLogicState> {
     emit(state.copy(description: text));
   }
 
-  void selectQueueType(QueueTypeModel? queueTypeModel) {
+  void selectSpecialist(SpecialistModel? specialistModel) {
     emit(
         state.copy(
-            selectedQueueType: queueTypeModel
+            selectedSpecialist: specialistModel
         )
     );
   }
@@ -207,7 +206,7 @@ class CreateQueueCubit extends BaseDialogCubit<CreateQueueLogicState> {
     await _queueInteractor.createQueue(
         state.config.locationId,
         CreateQueueRequest(
-            queueTypeId: state.selectedQueueType!.id,
+            specialistId: state.selectedSpecialist!.id,
             name: state.name,
             description: state.description.isEmpty ? null : state.description
         )

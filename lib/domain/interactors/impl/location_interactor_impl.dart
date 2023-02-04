@@ -9,10 +9,10 @@ import '../../models/base/container_for_list.dart';
 import '../../models/client/add_client_request.dart';
 import '../../models/location/board_model.dart';
 import '../../models/location/create_location_request.dart';
-import '../../models/location/create_queue_type_request.dart';
+import '../../models/location/create_specialist_request.dart';
 import '../../models/location/create_service_request.dart';
 import '../../models/location/create_services_sequence_request.dart';
-import '../../models/location/queue_type_model.dart';
+import '../../models/location/specialist_model.dart';
 import '../../models/location/service_model.dart';
 import '../../models/location/services_sequence_model.dart';
 
@@ -23,13 +23,13 @@ class LocationInteractorImpl extends LocationInteractor {
   LocationInteractorImpl(this._repository);
 
   @override
-  Future<Result<ContainerForList<LocationModel>>> getLocations(String? username) async {
-    return _repository.getLocations(username);
+  Future<Result<ContainerForList<LocationModel>>> getLocations(String? email) async {
+    return _repository.getLocations(email);
   }
 
   @override
-  Future<Result<HasRightsModel>> checkHasRights(String? username) {
-    return _repository.checkHasRights(username);
+  Future<Result<HasRightsModel>> checkHasRights(String? email) {
+    return _repository.checkHasRights(email);
   }
 
   @override
@@ -43,13 +43,8 @@ class LocationInteractorImpl extends LocationInteractor {
   }
 
   @override
-  Future<Result<LocationModel>> getLocation(int locationId, String? username) {
-    return _repository.getLocation(locationId, username);
-  }
-
-  @override
-  Future<Result<LocationModel>> changeMaxColumns(int locationId, int maxColumns) {
-    return _repository.changeMaxColumns(locationId, maxColumns);
+  Future<Result<LocationModel>> getLocation(int locationId, String? email) {
+    return _repository.getLocation(locationId, email);
   }
 
   @override
@@ -88,28 +83,28 @@ class LocationInteractorImpl extends LocationInteractor {
   }
 
   @override
-  Future<Result<ContainerForList<QueueTypeModel>>> getQueueTypesInLocation(int locationId) {
-    return _repository.getQueueTypesInLocation(locationId);
+  Future<Result<ContainerForList<SpecialistModel>>> getSpecialistsInLocation(int locationId) {
+    return _repository.getSpecialistsInLocation(locationId);
   }
 
   @override
-  Future<Result<QueueTypeModel>> createQueueTypeInLocation(int locationId, CreateQueueTypeRequest createQueueTypeRequest) {
-    return _repository.createQueueTypeInLocation(locationId, createQueueTypeRequest);
+  Future<Result<SpecialistModel>> createSpecialistInLocation(int locationId, CreateSpecialistRequest createSpecialistRequest) {
+    return _repository.createSpecialistInLocation(locationId, createSpecialistRequest);
   }
 
   @override
-  Future<Result> deleteQueueTypeInLocation(int locationId, int queueTypeId) {
-    return _repository.deleteQueueTypeInLocation(locationId, queueTypeId);
+  Future<Result> deleteSpecialistInLocation(int locationId, int specialistId) {
+    return _repository.deleteSpecialistInLocation(locationId, specialistId);
   }
 
   @override
-  Future<Result> pauseLocation(int locationId) {
-    return _repository.pauseLocation(locationId);
+  Future<Result> enableLocation(int locationId) {
+    return _repository.enableLocation(locationId);
   }
 
   @override
-  Future<Result> startLocation(int locationId) {
-    return _repository.startLocation(locationId);
+  Future<Result> disableLocation(int locationId) {
+    return _repository.disableLocation(locationId);
   }
 
   @override

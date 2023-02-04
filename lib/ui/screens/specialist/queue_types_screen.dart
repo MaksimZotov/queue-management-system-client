@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:queue_management_system_client/domain/models/location/queue_type_model.dart';
+import 'package:queue_management_system_client/domain/models/location/specialist_model.dart';
 import 'package:queue_management_system_client/ui/models/service/service_wrapper.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/queue_type_item_widget.dart';
@@ -11,42 +11,41 @@ import 'package:queue_management_system_client/ui/widgets/queue_type_item_widget
 import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/location_interactor.dart';
-import '../../../domain/interactors/terminal_interactor.dart';
+import '../../../domain/interactors/kiosk_interactor.dart';
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/location/service_model.dart';
-import '../../../domain/models/terminal/terminal_state.dart';
+import '../../../domain/models/kiosk/kiosk_state.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/button_widget.dart';
 import '../../widgets/service_item_widget.dart';
 import 'create_queue_type_dialog.dart';
 import 'delete_queue_type_dialog.dart';
 
-class QueueTypesWidget extends BaseWidget<QueueTypesConfig> {
+class SpecialistsWidget extends BaseWidget<SpecialistsConfig> {
 
-  const QueueTypesWidget({
+  const SpecialistsWidget({
     super.key,
     required super.config,
     required super.emitConfig
   });
 
   @override
-  State<QueueTypesWidget> createState() => _QueueTypesState();
+  State<SpecialistsWidget> createState() => _SpecialistsState();
 }
 
-class _QueueTypesState extends BaseState<
-    QueueTypesWidget,
-    QueueTypesLogicState,
-    QueueTypesCubit
+class _SpecialistsState extends BaseState<
+    SpecialistsWidget,
+    SpecialistsLogicState,
+    SpecialistsCubit
 > {
 
   @override
-  void handleEvent(BuildContext context, QueueTypesLogicState state, QueueTypesWidget widget) {
+  void handleEvent(BuildContext context, SpecialistsLogicState state, SpecialistsWidget widget) {
     super.handleEvent(context, state, widget);
-    if (state.showCreateQueueTypeDialog) {
+    if (state.showCreateSpecialistDialog) {
       showDialog(
           context: context,
-          builder: (context) => CreateQueueTypeWidget(
-              config: CreateQueueTypeConfig(
+          builder: (context) => CreateSpecialistWidget(
+              config: CreateSpecialistConfig(
                   locationId: state.config.locationId,
                   serviceIds: state.selectedServices
                       .map((serviceWrapper) => serviceWrapper.service.id)
@@ -54,8 +53,8 @@ class _QueueTypesState extends BaseState<
               )
           )
       ).then((result) {
-        if (result is CreateQueueTypeResult) {
-          getCubitInstance(context).handleCreateQueueTypeResult(result);
+        if (result is CreateSpecialistResult) {
+          getCubitInstance(context).handleCreateSpecialistResult(result);
         }
       });
     }
@@ -64,20 +63,20 @@ class _QueueTypesState extends BaseState<
   @override
   Widget getWidget(
       BuildContext context,
-      QueueTypesLogicState state,
-      QueueTypesWidget widget
+      SpecialistsLogicState state,
+      SpecialistsWidget widget
   ) => Scaffold(
-    appBar: state.terminalState == null
+    appBar: state.kioskState == null
       ? AppBar(
         title: Text(
             state.locationName.isEmpty
                 ? ''
-                : getLocalizations(context).queueTypesInLocationPattern(state.locationName)
+                : getLocalizations(context).specialistsInLocationPattern(state.locationName)
         ),
       )
       : null,
     body: _getBody(context, state, widget),
-    floatingActionButton: state.hasRights && state.queueTypesStateEnum == QueueTypesStateEnum.queueTypesViewing
+    floatingActionButton: state.hasRights && state.specialistsStateEnum == SpecialistsStateEnum.specialistsViewing
         ? FloatingActionButton(
           onPressed: getCubitInstance(context).switchToServicesSelecting,
           child: const Icon(Icons.add),
@@ -86,39 +85,39 @@ class _QueueTypesState extends BaseState<
   );
 
   @override
-  QueueTypesCubit getCubit() => statesAssembler.getQueueTypesCubit(widget.config);
+  SpecialistsCubit getCubit() => statesAssembler.getSpecialistsCubit(widget.config);
 
   Widget _getBody(
       BuildContext context,
-      QueueTypesLogicState state,
-      QueueTypesWidget widget
+      SpecialistsLogicState state,
+      SpecialistsWidget widget
   ) {
-    switch (state.queueTypesStateEnum) {
-      case QueueTypesStateEnum.queueTypesViewing:
+    switch (state.specialistsStateEnum) {
+      case SpecialistsStateEnum.specialistsViewing:
         return ListView.builder(
           itemBuilder: (context, index) {
-            return QueueTypeItemWidget(
-              queueType: state.queueTypes[index],
-              onDelete: state.terminalState == null
-                ? (queueType) => showDialog(
+            return SpecialistItemWidget(
+              specialist: state.specialists[index],
+              onDelete: state.kioskState == null
+                ? (specialist) => showDialog(
                       context: context,
-                      builder: (context) => DeleteQueueTypeWidget(
-                          config: DeleteQueueTypeConfig(
+                      builder: (context) => DeleteSpecialistWidget(
+                          config: DeleteSpecialistConfig(
                               locationId: state.config.locationId,
-                              queueTypeId: queueType.id
+                              specialistId: specialist.id
                           )
                       )
                   ).then((result) {
-                    if (result is DeleteQueueTypeResult) {
-                      getCubitInstance(context).handleDeleteQueueTypeResult(result);
+                    if (result is DeleteSpecialistResult) {
+                      getCubitInstance(context).handleDeleteSpecialistResult(result);
                     }
                   })
                 : null,
             );
           },
-          itemCount: state.queueTypes.length,
+          itemCount: state.specialists.length,
         );
-      case QueueTypesStateEnum.servicesSelecting:
+      case SpecialistsStateEnum.servicesSelecting:
         return Column(
           children: [
             Expanded(
@@ -139,11 +138,11 @@ class _QueueTypesState extends BaseState<
             ),
             ButtonWidget(
               text: getLocalizations(context).cancel,
-              onClick: getCubitInstance(context).switchToQueueTypesViewing,
+              onClick: getCubitInstance(context).switchToSpecialistsViewing,
             )
           ],
         );
-      case QueueTypesStateEnum.selectedServicesViewing:
+      case SpecialistsStateEnum.selectedServicesViewing:
         return Column(
           children: [
             Expanded(
@@ -163,7 +162,7 @@ class _QueueTypesState extends BaseState<
             ),
             ButtonWidget(
               text: getLocalizations(context).cancel,
-              onClick: getCubitInstance(context).switchToQueueTypesViewing,
+              onClick: getCubitInstance(context).switchToSpecialistsViewing,
             )
           ],
         );
@@ -171,114 +170,114 @@ class _QueueTypesState extends BaseState<
   }
 }
 
-enum QueueTypesStateEnum {
-  queueTypesViewing,
+enum SpecialistsStateEnum {
+  specialistsViewing,
   servicesSelecting,
   selectedServicesViewing
 }
 
-class QueueTypesLogicState extends BaseLogicState {
+class SpecialistsLogicState extends BaseLogicState {
 
-  final QueueTypesConfig config;
+  final SpecialistsConfig config;
   
-  final QueueTypesStateEnum queueTypesStateEnum;
+  final SpecialistsStateEnum specialistsStateEnum;
 
-  final String? ownerUsername;
+  final String? ownerEmail;
   final String locationName;
   final bool hasRights;
 
-  final List<QueueTypeModel> queueTypes;
+  final List<SpecialistModel> specialists;
   final List<ServiceWrapper> services;
   final List<ServiceWrapper> selectedServices;
 
-  final bool showCreateQueueTypeDialog;
+  final bool showCreateSpecialistDialog;
 
-  final TerminalState? terminalState;
+  final KioskState? kioskState;
 
-  QueueTypesLogicState({
+  SpecialistsLogicState({
     super.nextConfig,
     super.error,
     super.snackBar,
     super.loading,
     required this.config,
-    required this.queueTypesStateEnum,
-    required this.ownerUsername,
+    required this.specialistsStateEnum,
+    required this.ownerEmail,
     required this.locationName,
     required this.hasRights,
-    required this.queueTypes,
+    required this.specialists,
     required this.services,
     required this.selectedServices,
-    required this.showCreateQueueTypeDialog,
-    required this.terminalState
+    required this.showCreateSpecialistDialog,
+    required this.kioskState
   });
 
   @override
-  QueueTypesLogicState copy({
+  SpecialistsLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    QueueTypesStateEnum? queueTypesStateEnum,
-    String? ownerUsername,
+    SpecialistsStateEnum? specialistsStateEnum,
+    String? ownerEmail,
     String? locationName,
     bool? hasRights,
-    List<QueueTypeModel>? queueTypes,
+    List<SpecialistModel>? specialists,
     List<ServiceWrapper>? services,
     List<ServiceWrapper>? selectedServices,
-    bool? showCreateQueueTypeDialog,
-    TerminalState? terminalState
-  }) => QueueTypesLogicState(
+    bool? showCreateSpecialistDialog,
+    KioskState? kioskState
+  }) => SpecialistsLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
       loading: loading ?? this.loading,
-      queueTypesStateEnum: queueTypesStateEnum ?? this.queueTypesStateEnum,
+      specialistsStateEnum: specialistsStateEnum ?? this.specialistsStateEnum,
       config: config,
-      ownerUsername: ownerUsername ?? this.ownerUsername,
+      ownerEmail: ownerEmail ?? this.ownerEmail,
       locationName: locationName ?? this.locationName,
       hasRights: hasRights ?? this.hasRights,
-      queueTypes: queueTypes ?? this.queueTypes,
+      specialists: specialists ?? this.specialists,
       services: services ?? this.services,
       selectedServices: selectedServices ?? this.selectedServices,
-      showCreateQueueTypeDialog: showCreateQueueTypeDialog ?? this.showCreateQueueTypeDialog,
-      terminalState: terminalState ?? this.terminalState
+      showCreateSpecialistDialog: showCreateSpecialistDialog ?? this.showCreateSpecialistDialog,
+      kioskState: kioskState ?? this.kioskState
   );
 }
 
 @injectable
-class QueueTypesCubit extends BaseCubit<QueueTypesLogicState> {
+class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
   final LocationInteractor _locationInteractor;
-  final TerminalInteractor _terminalInteractor;
+  final KioskInteractor _terminalInteractor;
 
-  QueueTypesCubit(
+  SpecialistsCubit(
       this._locationInteractor,
       this._terminalInteractor,
-      @factoryParam QueueTypesConfig config
+      @factoryParam SpecialistsConfig config
   ) : super(
-      QueueTypesLogicState(
+      SpecialistsLogicState(
           config: config,
-          queueTypesStateEnum: QueueTypesStateEnum.queueTypesViewing,
-          ownerUsername: null,
+          specialistsStateEnum: SpecialistsStateEnum.specialistsViewing,
+          ownerEmail: null,
           locationName: '',
           hasRights: false,
-          queueTypes: [],
+          specialists: [],
           services: [],
           selectedServices: [],
-          showCreateQueueTypeDialog: false,
-          terminalState: null
+          showCreateSpecialistDialog: false,
+          kioskState: null
       )
   );
 
   @override
   Future<void> onStart() async {
-    emit(state.copy(terminalState: await _terminalInteractor.getTerminalState()));
+    emit(state.copy(kioskState: await _terminalInteractor.getKioskState()));
     await _locationInteractor.getLocation(
-        state.config.locationId, state.config.username
+        state.config.locationId, state.config.email
     )
       ..onSuccess((result) async {
         emit(
             state.copy(
-                ownerUsername: result.data.ownerUsername,
+                ownerEmail: result.data.ownerEmail,
                 locationName: result.data.name,
                 hasRights: result.data.hasRights
             )
@@ -290,23 +289,23 @@ class QueueTypesCubit extends BaseCubit<QueueTypesLogicState> {
       });
   }
 
-  void handleCreateQueueTypeResult(CreateQueueTypeResult result) {
+  void handleCreateSpecialistResult(CreateSpecialistResult result) {
     emit(
         state.copy(
-            queueTypesStateEnum: QueueTypesStateEnum.queueTypesViewing,
+            specialistsStateEnum: SpecialistsStateEnum.specialistsViewing,
             services: state.services
                 .map((serviceWrapper) => serviceWrapper.copy(selected: false))
                 .toList(),
             selectedServices: [],
-            queueTypes: state.queueTypes + [result.queueTypeModel]
+            specialists: state.specialists + [result.specialistModel]
         )
     );
   }
 
-  void handleDeleteQueueTypeResult(DeleteQueueTypeResult result) {
+  void handleDeleteSpecialistResult(DeleteSpecialistResult result) {
     emit(
         state.copy(
-            queueTypes: state.queueTypes
+            specialists: state.specialists
               ..removeWhere((element) => element.id == result.id)
         )
     );
@@ -331,23 +330,23 @@ class QueueTypesCubit extends BaseCubit<QueueTypesLogicState> {
   }
 
   void switchToServicesSelecting() {
-    emit(state.copy(queueTypesStateEnum: QueueTypesStateEnum.servicesSelecting));
+    emit(state.copy(specialistsStateEnum: SpecialistsStateEnum.servicesSelecting));
   }
 
   void switchToSelectedServicesViewing() {
     emit(
         state.copy(
-            queueTypesStateEnum: QueueTypesStateEnum.selectedServicesViewing,
+            specialistsStateEnum: SpecialistsStateEnum.selectedServicesViewing,
             selectedServices: state.services
                 ..removeWhere((serviceWrapper) => !serviceWrapper.selected)
         )
     );
   }
 
-  void switchToQueueTypesViewing() {
+  void switchToSpecialistsViewing() {
     emit(
         state.copy(
-          queueTypesStateEnum: QueueTypesStateEnum.queueTypesViewing,
+          specialistsStateEnum: SpecialistsStateEnum.specialistsViewing,
           services: state.services
               .map((serviceWrapper) => serviceWrapper.copy(selected: false))
               .toList(),
@@ -356,16 +355,16 @@ class QueueTypesCubit extends BaseCubit<QueueTypesLogicState> {
   }
 
   void confirmSelectedServices() {
-    emit(state.copy(showCreateQueueTypeDialog: true));
-    emit(state.copy(showCreateQueueTypeDialog: false));
+    emit(state.copy(showCreateSpecialistDialog: true));
+    emit(state.copy(showCreateSpecialistDialog: false));
   }
 
   Future<void> _load() async {
-    await _locationInteractor.getQueueTypesInLocation(
+    await _locationInteractor.getSpecialistsInLocation(
         state.config.locationId
     )
       ..onSuccess((result) async {
-        emit(state.copy(queueTypes: result.data.results));
+        emit(state.copy(specialists: result.data.results));
         await _locationInteractor.getServicesInLocation(
             state.config.locationId
         )

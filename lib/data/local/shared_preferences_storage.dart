@@ -1,42 +1,42 @@
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/enums/terminal_mode.dart';
+import 'package:queue_management_system_client/domain/enums/kiosk_mode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../domain/models/terminal/terminal_state.dart';
+import '../../domain/models/kiosk/kiosk_state.dart';
 
 @lazySingleton
 class SharedPreferencesStorage {
-  static const _terminalStateModeIndex = 'TERMINAL_STATE_MODE_INDEX';
-  static const _terminalStateMultipleSelect = 'TERMINAL_STATE_MULTIPLE_SELECT';
+  static const _kioskStateModeIndex = 'KIOSK_STATE_MODE_INDEX';
+  static const _kioskStateMultipleSelect = 'KIOSK_STATE_MULTIPLE_SELECT';
 
-  Future<void> setTerminalState({
-    required TerminalState terminalState
+  Future<void> setKioskState({
+    required KioskState kioskState
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setInt(_terminalStateModeIndex, terminalState.terminalMode.index);
-    prefs.setBool(_terminalStateMultipleSelect, terminalState.multipleSelect);
+    prefs.setInt(_kioskStateModeIndex, kioskState.kioskMode.index);
+    prefs.setBool(_kioskStateMultipleSelect, kioskState.multipleSelect);
   }
 
-  Future<TerminalState?> getTerminalState() async {
+  Future<KioskState?> getKioskState() async {
     final prefs = await SharedPreferences.getInstance();
-    int? modeIndex = prefs.getInt(_terminalStateModeIndex);
+    int? modeIndex = prefs.getInt(_kioskStateModeIndex);
     if (modeIndex == null) {
       return null;
     }
-    bool? multipleSelect = prefs.getBool(_terminalStateMultipleSelect);
+    bool? multipleSelect = prefs.getBool(_kioskStateMultipleSelect);
     if (multipleSelect == null) {
       return null;
     }
-    TerminalMode terminalMode = TerminalMode.values[modeIndex];
-    return TerminalState(
-        terminalMode: terminalMode,
+    KioskMode terminalMode = KioskMode.values[modeIndex];
+    return KioskState(
+        kioskMode: terminalMode,
         multipleSelect: multipleSelect
     );
   }
 
-  Future<void> clearTerminalState() async {
+  Future<void> clearKioskState() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_terminalStateModeIndex);
-    await prefs.remove(_terminalStateMultipleSelect);
+    await prefs.remove(_kioskStateModeIndex);
+    await prefs.remove(_kioskStateMultipleSelect);
   }
 }

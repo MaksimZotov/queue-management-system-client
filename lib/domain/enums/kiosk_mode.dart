@@ -1,6 +1,6 @@
-enum TerminalMode {
+enum KioskMode {
   all,
   services,
   servicesSequences,
-  queueTypes
+  specialists
 }

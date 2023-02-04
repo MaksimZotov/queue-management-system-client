@@ -4,11 +4,11 @@ part 'confirm_model.g.dart';
 
 @JsonSerializable()
 class ConfirmModel {
-  final String username;
+  final String email;
   final String code;
 
   ConfirmModel({
-    required this.username,
+    required this.email,
     required this.code
   });
 

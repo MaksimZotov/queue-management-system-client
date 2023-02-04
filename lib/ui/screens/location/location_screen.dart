@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
-import 'package:queue_management_system_client/ui/screens/location/switch_to_terminal_mode_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/location/switch_to_kiosk_dialog.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
-import '../../../domain/interactors/account_interactor.dart';
-import '../../../domain/interactors/terminal_interactor.dart';
+import '../../../domain/interactors/kiosk_interactor.dart';
 import '../../../domain/models/base/result.dart';
+import '../../../domain/models/kiosk/kiosk_state.dart';
 import '../../../domain/models/location/location_model.dart';
-import '../../../domain/models/terminal/terminal_state.dart';
 import '../../router/routes_config.dart';
 
 class LocationWidget extends BaseWidget<LocationConfig> {
@@ -41,7 +40,7 @@ class LocationState extends BaseState<
         child: CircularProgressIndicator(),
       )
       : Scaffold(
-        appBar: state.terminalState == null
+        appBar: state.kioskState == null
             ? AppBar(
                 title: state.locationModel != null
                     ? Text(getLocalizations(context).locationPattern(state.locationModel!.name))
@@ -51,13 +50,13 @@ class LocationState extends BaseState<
                       icon: const Icon(Icons.settings),
                       onPressed: () => showDialog(
                           context: context,
-                          builder: (context) => SwitchToTerminalModeWidget(
-                              config: SwitchToTerminalModeConfig(
+                          builder: (context) => SwitchToKioskWidget(
+                              config: SwitchToKioskConfig(
                                   locationId: state.config.locationId
                               )
                           )
                       ).then((result) {
-                        if (result is SwitchToTerminalModeResult) {
+                        if (result is SwitchToKioskResult) {
                           getCubitInstance(context).handleSwitchToTerminalModeResult(result);
                         }
                       })
@@ -76,7 +75,7 @@ class LocationState extends BaseState<
                   text: getLocalizations(context).services,
                   onClick: () => widget.emitConfig(
                       ServicesConfig(
-                          username: widget.config.username,
+                          email: widget.config.email,
                           locationId: widget.config.locationId
                       )
                   )
@@ -85,16 +84,16 @@ class LocationState extends BaseState<
                   text: getLocalizations(context).servicesSequences,
                   onClick: () => widget.emitConfig(
                       ServicesSequencesConfig(
-                          username: widget.config.username,
+                          email: widget.config.email,
                           locationId: widget.config.locationId
                       )
                   )
                 ),
                 ButtonWidget(
-                  text: getLocalizations(context).queueTypes,
+                  text: getLocalizations(context).specialists,
                   onClick: () => widget.emitConfig(
-                      QueueTypesConfig(
-                          username: widget.config.username,
+                      SpecialistsConfig(
+                          email: widget.config.email,
                           locationId: widget.config.locationId
                       )
                   )
@@ -103,7 +102,7 @@ class LocationState extends BaseState<
                   text: getLocalizations(context).queues,
                   onClick: () => widget.emitConfig(
                       QueuesConfig(
-                          username: widget.config.username,
+                          email: widget.config.email,
                           locationId: widget.config.locationId
                       )
                   )
@@ -124,7 +123,7 @@ class LocationLogicState extends BaseLogicState {
   
   final LocationModel? locationModel;
 
-  final TerminalState? terminalState;
+  final KioskState? kioskState;
 
   LocationLogicState({
     super.nextConfig,
@@ -133,7 +132,7 @@ class LocationLogicState extends BaseLogicState {
     super.loading = true,
     required this.config,
     required this.locationModel,
-    required this.terminalState
+    required this.kioskState
   });
 
   @override
@@ -143,7 +142,7 @@ class LocationLogicState extends BaseLogicState {
     String? snackBar,
     bool? loading,
     LocationModel? locationModel,
-    TerminalState? terminalState
+    KioskState? kioskState
   }) => LocationLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -151,14 +150,14 @@ class LocationLogicState extends BaseLogicState {
       loading: loading ?? this.loading,
       config: config,
       locationModel: locationModel ?? this.locationModel,
-      terminalState: terminalState ?? this.terminalState
+      kioskState: kioskState ?? this.kioskState
   );
 }
 
 @injectable
 class LocationCubit extends BaseCubit<LocationLogicState> {
   final LocationInteractor _locationInteractor;
-  final TerminalInteractor _terminalInteractor;
+  final KioskInteractor _terminalInteractor;
 
   LocationCubit(
       this._locationInteractor,
@@ -168,17 +167,17 @@ class LocationCubit extends BaseCubit<LocationLogicState> {
       LocationLogicState(
           config: config,
           locationModel: null,
-          terminalState: null
+          kioskState: null
       )
   );
 
   @override
   Future<void> onStart() async {
     showLoad();
-    await _terminalInteractor.clearTerminalState();
+    await _terminalInteractor.clearKioskState();
     await _locationInteractor.getLocation(
         state.config.locationId, 
-        state.config.username
+        state.config.email
     ) 
       ..onSuccess((result) {
         emit(state.copy(locationModel: result.data));
@@ -189,8 +188,8 @@ class LocationCubit extends BaseCubit<LocationLogicState> {
     hideLoad();
   }
 
-  Future<void> handleSwitchToTerminalModeResult(SwitchToTerminalModeResult result) async {
-    await _terminalInteractor.setTerminalState(result.terminalState);
-    emit(state.copy(terminalState: result.terminalState));
+  Future<void> handleSwitchToTerminalModeResult(SwitchToKioskResult result) async {
+    await _terminalInteractor.setKioskState(result.kioskState);
+    emit(state.copy(kioskState: result.kioskState));
   }
 }

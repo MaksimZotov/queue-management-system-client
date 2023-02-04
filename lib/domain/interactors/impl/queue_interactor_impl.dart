@@ -16,8 +16,8 @@ class QueueInteractorImpl extends QueueInteractor {
   QueueInteractorImpl(this._repository);
 
   @override
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String username) {
-    return _repository.getQueues(locationId, username);
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String email) {
+    return _repository.getQueues(locationId, email);
   }
 
   @override
@@ -36,13 +36,13 @@ class QueueInteractorImpl extends QueueInteractor {
   }
 
   @override
-  Future<Result> pauseQueue(int queueId) {
-    return _repository.pauseQueue(queueId);
+  Future<Result> enableQueue(int queueId) {
+    return _repository.enableQueue(queueId);
   }
 
   @override
-  Future<Result> startQueue(int queueId) {
-    return _repository.startQueue(queueId);
+  Future<Result> disableQueue(int queueId) {
+    return _repository.disableQueue(queueId);
   }
 
   @override
@@ -53,11 +53,6 @@ class QueueInteractorImpl extends QueueInteractor {
   @override
   Future<Result> serveClientInQueue(int queueId, int clientId) {
     return _repository.serveClientInQueue(queueId, clientId);
-  }
-
-  @override
-  Future<Result> switchClientLateStateInQueue(int queueId, int clientId, bool late) {
-    return _repository.switchClientLateStateInQueue(queueId, clientId, late);
   }
 
   @override

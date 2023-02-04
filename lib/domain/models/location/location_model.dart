@@ -5,8 +5,8 @@ part 'location_model.g.dart';
 @JsonSerializable()
 class LocationModel {
   final int? id;
-  @JsonKey(name: 'owner_username')
-  final String? ownerUsername;
+  @JsonKey(name: 'owner_email')
+  final String? ownerEmail;
   final String name;
   final String? description;
   @JsonKey(name: 'has_rights')
@@ -14,7 +14,7 @@ class LocationModel {
 
   LocationModel({
     required this.id,
-    this.ownerUsername,
+    this.ownerEmail,
     required this.name,
     this.description,
     this.hasRights
