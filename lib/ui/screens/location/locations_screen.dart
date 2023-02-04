@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
@@ -6,7 +7,7 @@ import 'package:queue_management_system_client/ui/router/routes_config.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/screens/location/create_location_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/delete_location_dialog.dart';
-import 'package:queue_management_system_client/ui/screens/location/search_locations_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/location/navigation_to_another_owner.dart';
 import 'package:queue_management_system_client/ui/widgets/location_item_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
@@ -41,19 +42,28 @@ class _LocationsState extends BaseState<
       title: Text(getLocalizations(context).locations),
       actions: <Widget>[
         IconButton(
+          tooltip: getLocalizations(context).shareOwnerEmail,
+          icon: const Icon(Icons.share),
+          onPressed: () => getCubitInstance(context).share(
+              getLocalizations(context).ownerEmailCopied
+          ),
+        ),
+        IconButton(
+          tooltip: getLocalizations(context).navigateToAnotherOwner,
           icon: const Icon(Icons.move_up),
           onPressed: () => showDialog(
               context: context,
-              builder: (context) => SearchLocationsWidget(
-                  config: SearchLocationsConfig()
+              builder: (context) => NavigationToAnotherOwnerWidget(
+                  config: NavigationToAnotherOwnerConfig()
               )
           ).then((result) {
-            if (result is SearchLocationsResult) {
+            if (result is NavigationToAnotherOwnerResult) {
               widget.emitConfig(LocationsConfig(email: result.email));
             }
           }),
         ),
         IconButton(
+          tooltip: state.hasToken ? getLocalizations(context).logout : getLocalizations(context).login,
           icon: Icon(state.hasToken ? Icons.logout : Icons.login),
           onPressed: getCubitInstance(context).logout,
         )
@@ -196,6 +206,11 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
               ..removeWhere((element) => element.id == result.id)
         )
     );
+  }
+
+  Future<void> share(String notificationText) async {
+    await Clipboard.setData(ClipboardData(text: state.config.email));
+    showSnackBar(notificationText);
   }
 
   Future _load() async {

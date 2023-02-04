@@ -47,7 +47,18 @@ class LocationState extends BaseState<
                     : null,
                 actions: [
                   IconButton(
-                      icon: const Icon(Icons.settings),
+                      tooltip: getLocalizations(context).switchToBoardMode,
+                      icon: const Icon(Icons.monitor),
+                      onPressed: () => widget.emitConfig(
+                          BoardConfig(
+                              email: state.config.email,
+                              locationId: state.config.locationId
+                          )
+                      )
+                  ),
+                  IconButton(
+                      tooltip: getLocalizations(context).switchToKioskMode,
+                      icon: const Icon(Icons.co_present_sharp),
                       onPressed: () => showDialog(
                           context: context,
                           builder: (context) => SwitchToKioskWidget(
@@ -60,6 +71,16 @@ class LocationState extends BaseState<
                           getCubitInstance(context).handleSwitchToTerminalModeResult(result);
                         }
                       })
+                  ),
+                  IconButton(
+                      tooltip: getLocalizations(context).rightsSettings,
+                      icon: const Icon(Icons.people_sharp),
+                      onPressed: () => widget.emitConfig(
+                          RightsConfig(
+                              email: state.config.email,
+                              locationId: state.config.locationId
+                          )
+                      )
                   )
                 ],
             )

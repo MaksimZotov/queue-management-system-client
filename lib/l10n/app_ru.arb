@@ -20,7 +20,7 @@
 "create": "Создать",
 "delete": "Удалить",
 "deleteLocationQuestion": "Удалить локацию?",
-"linkCopied": "Ссылка скопирована",
+"ownerEmailCopied": "Почта владельца скопирована",
 "deleteQueueQuestion": "Удалить очередь?",
 "creationOfQueue": "Создание очереди",
 "connectionOfClientToQueue": "Подключение клиента к очереди",
@@ -98,7 +98,8 @@
 "serverError": "Ошибка на сервере",
 "timeoutError": "Вышло время ожидания ответа",
 "connectionError": "Нет соединения",
-"navigateToAnotherName": "Переход на другое имя",
+"navigationToAnotherOwner": "Переход к локациям другого владельца",
+"emailOwner": "Почта владельца",
 "navigate": "Перейти",
 "creationOfService": "Создание услуги",
 "supposedDuration": "Предполагаемая длительность",
@@ -115,5 +116,11 @@
 "connect": "Подключиться",
 "switchingToKioskMode": "Переключение в режим киоска",
 "switchButton": "Переключить",
-"specialists": "Специалисты"
+"specialists": "Специалисты",
+"shareOwnerEmail": "Поделиться почтой владельца",
+"navigateToAnotherOwner": "Перейти к локациям другого владельца",
+"login": "Войти",
+"logout": "Выйти",
+"switchToBoardMode": "Переключиться в режим табло",
+"switchToKioskMode": "Переключиться в режим киоска"
 }

@@ -4,7 +4,7 @@ import 'package:queue_management_system_client/ui/screens/client/add_client_dial
 import 'package:queue_management_system_client/ui/screens/client/client_screen.dart';
 import 'package:queue_management_system_client/ui/screens/location/create_location_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/delete_location_dialog.dart';
-import 'package:queue_management_system_client/ui/screens/location/search_locations_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/location/navigation_to_another_owner.dart';
 import 'package:queue_management_system_client/ui/screens/location/switch_to_kiosk_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queue_screen.dart';
 import 'package:queue_management_system_client/ui/screens/queue/queues_screen.dart';
@@ -28,7 +28,7 @@ import '../../ui/screens/service/create_service_dialog.dart';
 import '../../ui/screens/service/delete_service_dialog.dart';
 import '../../ui/screens/specialist/create_queue_type_dialog.dart';
 import '../../ui/screens/specialist/delete_queue_type_dialog.dart';
-import '../../ui/screens/specialist/queue_types_screen.dart';
+import '../../ui/screens/specialist/specialists_screen.dart';
 import '../main/main.dart';
 
 class StatesAssembler {
@@ -43,7 +43,7 @@ class StatesAssembler {
   LocationCubit getLocationCubit(LocationConfig config) => getIt.get(param1: config);
   CreateLocationCubit getCreateLocationCubit(CreateLocationConfig config) => getIt.get(param1: config);
   DeleteLocationCubit getDeleteLocationCubit(DeleteLocationConfig config) => getIt.get(param1: config);
-  SearchLocationsCubit getSearchLocationsCubit(SearchLocationsConfig config) => getIt.get(param1: config);
+  NavigationToAnotherOwnerCubit getNavigationToAnotherOwnerCubit(NavigationToAnotherOwnerConfig config) => getIt.get(param1: config);
 
   QueuesCubit getQueuesCubit(QueuesConfig config) => getIt.get(param1: config);
   CreateQueueCubit getCreateQueueCubit(CreateQueueConfig config) => getIt.get(param1: config);

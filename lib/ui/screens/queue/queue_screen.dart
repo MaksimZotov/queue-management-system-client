@@ -47,13 +47,7 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
           ? [
             IconButton(
                 icon: const Icon(Icons.qr_code),
-                onPressed: BlocProvider.of<QueueCubit>(context).downloadQrCode
-            ),
-            IconButton(
-              icon: const Icon(Icons.share),
-              onPressed: () => BlocProvider.of<QueueCubit>(context).share(
-                  getLocalizations(context).linkCopied
-              ),
+                onPressed: getCubitInstance(context).downloadQrCode
             ),
           ]
           : null,
@@ -61,12 +55,12 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
     body: ListView.builder(
       itemBuilder: (context, index) {
         return ClientItemWidget(
-          client: state.queueStateModel.clients![index],
-          onNotify: BlocProvider.of<QueueCubit>(context).notify,
-          onServe: BlocProvider.of<QueueCubit>(context).serve,
+          client: state.queueStateModel.clients[index],
+          onNotify: getCubitInstance(context).notify,
+          onServe: getCubitInstance(context).serve,
         );
       },
-      itemCount: state.queueStateModel.clients!.length,
+      itemCount: state.queueStateModel.clients.length,
     )
   );
 
@@ -160,18 +154,6 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
       ..onError((result) {
         showError(result);
     });
-  }
-
-  Future<void> share(String notificationText) async {
-    String email = state.queueStateModel.ownerEmail!;
-    int locationId = state.config.locationId;
-    int queueId = state.config.queueId;
-    await Clipboard.setData(
-        ClipboardData(
-            text: '${ServerApi.clientUrl}/$email/locations/$locationId/queues/$queueId/client'
-        )
-    );
-    showSnackBar(notificationText);
   }
 
   Future<void> downloadQrCode() async {

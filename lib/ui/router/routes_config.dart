@@ -14,7 +14,7 @@ import '../screens/location/locations_screen.dart';
 import '../screens/queue/queue_screen.dart';
 import '../screens/sequence/services_sequence_screen.dart';
 import '../screens/service/services_screen.dart';
-import '../screens/specialist/queue_types_screen.dart';
+import '../screens/specialist/specialists_screen.dart';
 
 abstract class BaseConfig {
   Page getPage(ValueChanged<BaseConfig> emitConfig);
@@ -309,7 +309,7 @@ class BoardConfig extends BaseConfig {
 
   @override
   BaseConfig? getPrevConfig() {
-    return QueuesConfig(
+    return LocationConfig(
         email: email,
         locationId: locationId
     );
@@ -338,7 +338,7 @@ class RightsConfig extends BaseConfig {
 
   @override
   BaseConfig? getPrevConfig() {
-    return QueuesConfig(
+    return LocationConfig(
         email: email,
         locationId: locationId
     );

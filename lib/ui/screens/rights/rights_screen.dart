@@ -23,7 +23,10 @@ class RightsWidget extends BaseWidget<RightsConfig> {
 }
 
 class _RightsState extends BaseState<
-    RightsWidget, RightsLogicState, RightsCubit> {
+    RightsWidget,
+    RightsLogicState,
+    RightsCubit
+> {
 
   @override
   Widget getWidget(

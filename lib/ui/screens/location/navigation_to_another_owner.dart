@@ -9,48 +9,48 @@ import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 import '../base.dart';
 
-class SearchLocationsConfig extends BaseDialogConfig {}
+class NavigationToAnotherOwnerConfig extends BaseDialogConfig {}
 
-class SearchLocationsResult extends BaseDialogResult {
+class NavigationToAnotherOwnerResult extends BaseDialogResult {
   final String email;
 
-  SearchLocationsResult({
+  NavigationToAnotherOwnerResult({
     required this.email
   });
 }
 
-class SearchLocationsWidget extends BaseDialogWidget<SearchLocationsConfig> {
+class NavigationToAnotherOwnerWidget extends BaseDialogWidget<NavigationToAnotherOwnerConfig> {
 
-  const SearchLocationsWidget({
+  const NavigationToAnotherOwnerWidget({
     super.key,
     required super.config
   });
 
   @override
-  State<SearchLocationsWidget> createState() => _SearchLocationsState();
+  State<NavigationToAnotherOwnerWidget> createState() => _NavigationToAnotherOwnerState();
 }
 
-class _SearchLocationsState extends BaseDialogState<
-    SearchLocationsWidget,
-    SearchLocationsLogicState,
-    SearchLocationsCubit
+class _NavigationToAnotherOwnerState extends BaseDialogState<
+    NavigationToAnotherOwnerWidget,
+    NavigationToAnotherOwnerLogicState,
+    NavigationToAnotherOwnerCubit
 > {
 
   @override
   String getTitle(
       BuildContext context,
-      SearchLocationsLogicState state,
-      SearchLocationsWidget widget
-  ) => getLocalizations(context).navigateToAnotherName;
+      NavigationToAnotherOwnerLogicState state,
+      NavigationToAnotherOwnerWidget widget
+  ) => getLocalizations(context).navigationToAnotherOwner;
 
   @override
   List<Widget> getDialogContentWidget(
       BuildContext context,
-      SearchLocationsLogicState state,
-      SearchLocationsWidget widget
+      NavigationToAnotherOwnerLogicState state,
+      NavigationToAnotherOwnerWidget widget
   ) => [
     TextFieldWidget(
-        label: getLocalizations(context).email,
+        label: getLocalizations(context).emailOwner,
         text: state.email,
         onTextChanged: getCubitInstance(context).setEmail
     ),
@@ -62,18 +62,18 @@ class _SearchLocationsState extends BaseDialogState<
   ];
 
   @override
-  SearchLocationsCubit getCubit() =>
-      statesAssembler.getSearchLocationsCubit(widget.config);
+  NavigationToAnotherOwnerCubit getCubit() =>
+      statesAssembler.getNavigationToAnotherOwnerCubit(widget.config);
 }
 
-class SearchLocationsLogicState extends BaseDialogLogicState<
-    SearchLocationsConfig,
-    SearchLocationsResult
+class NavigationToAnotherOwnerLogicState extends BaseDialogLogicState<
+    NavigationToAnotherOwnerConfig,
+    NavigationToAnotherOwnerResult
 > {
 
   final String email;
 
-  SearchLocationsLogicState({
+  NavigationToAnotherOwnerLogicState({
     super.nextConfig,
     super.error,
     super.snackBar,
@@ -84,14 +84,14 @@ class SearchLocationsLogicState extends BaseDialogLogicState<
   });
 
   @override
-  SearchLocationsLogicState copy({
+  NavigationToAnotherOwnerLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    SearchLocationsResult? result,
+    NavigationToAnotherOwnerResult? result,
     String? email
-  }) => SearchLocationsLogicState(
+  }) => NavigationToAnotherOwnerLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
@@ -103,12 +103,12 @@ class SearchLocationsLogicState extends BaseDialogLogicState<
 }
 
 @injectable
-class SearchLocationsCubit extends BaseDialogCubit<SearchLocationsLogicState> {
+class NavigationToAnotherOwnerCubit extends BaseDialogCubit<NavigationToAnotherOwnerLogicState> {
 
-  SearchLocationsCubit(
-      @factoryParam SearchLocationsConfig config
+  NavigationToAnotherOwnerCubit(
+      @factoryParam NavigationToAnotherOwnerConfig config
   ) : super(
-      SearchLocationsLogicState(
+      NavigationToAnotherOwnerLogicState(
           config: config,
           email: ''
       )
@@ -119,6 +119,6 @@ class SearchLocationsCubit extends BaseDialogCubit<SearchLocationsLogicState> {
   }
 
   void findLocations() {
-    popResult(SearchLocationsResult(email: state.email));
+    popResult(NavigationToAnotherOwnerResult(email: state.email));
   }
 }
