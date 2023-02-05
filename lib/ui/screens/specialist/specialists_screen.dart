@@ -10,6 +10,7 @@ import 'package:queue_management_system_client/ui/widgets/queue_type_item_widget
 
 import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../domain/enums/kiosk_mode.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/kiosk_interactor.dart';
 import '../../../domain/models/base/result.dart';
@@ -67,7 +68,7 @@ class _SpecialistsState extends BaseState<
       SpecialistsLogicState state,
       SpecialistsWidget widget
   ) => Scaffold(
-    appBar: state.kioskState == null
+    appBar: state.kioskState == null || state.kioskState?.kioskMode == KioskMode.all
       ? AppBar(
         title: Text(
             state.locationName.isEmpty
@@ -305,7 +306,7 @@ class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
   void handleDeleteSpecialistResult(DeleteSpecialistResult result) {
     emit(
         state.copy(
-            specialists: state.specialists
+            specialists: List.from(state.specialists)
               ..removeWhere((element) => element.id == result.id)
         )
     );
@@ -337,7 +338,7 @@ class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
     emit(
         state.copy(
             specialistsStateEnum: SpecialistsStateEnum.selectedServicesViewing,
-            selectedServices: state.services
+            selectedServices: List.from(state.services)
                 ..removeWhere((serviceWrapper) => !serviceWrapper.selected)
         )
     );

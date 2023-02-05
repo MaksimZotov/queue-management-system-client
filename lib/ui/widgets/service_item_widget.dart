@@ -23,12 +23,12 @@ class _ServiceItemState extends State<ServiceItemWidget> {
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
-          tileColor: widget.serviceWrapper.selected
-              ? Colors.cyanAccent
-              : Colors.white,
-          leading: const SizedBox(
-              height: double.infinity,
-              child: Icon(Icons.design_services, color: Colors.teal)),
+          leading: widget.serviceWrapper.selected
+              ? const SizedBox(
+                  height: double.infinity,
+                  child: Icon(Icons.done, color: Colors.teal)
+              )
+              : null,
           title: Text(widget.serviceWrapper.service.name, maxLines: 1),
           subtitle: widget.serviceWrapper.service.description != null
             ? ConstrainedBox(

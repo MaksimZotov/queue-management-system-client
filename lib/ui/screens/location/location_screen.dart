@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
+import 'package:queue_management_system_client/domain/enums/kiosk_mode.dart';
 import 'package:queue_management_system_client/domain/enums/rights_status.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
@@ -78,7 +79,7 @@ class LocationState extends BaseState<
                     ? [
                         IconButton(
                             tooltip: getLocalizations(context).rightsSettings,
-                            icon: const Icon(Icons.people_sharp),
+                            icon: const Icon(Icons.manage_accounts),
                             onPressed: () => widget.emitConfig(
                                 RightsConfig(
                                     accountId: state.config.accountId,
@@ -125,16 +126,21 @@ class LocationState extends BaseState<
                       )
                   )
                 ),
-                ButtonWidget(
-                  text: getLocalizations(context).queues,
-                  onClick: () => widget.emitConfig(
-                      QueuesConfig(
-                          accountId: widget.config.accountId,
-                          locationId: widget.config.locationId
-                      )
-                  )
-                )
-              ],
+              ] + (
+                  (state.kioskState == null)
+                      ? [
+                          ButtonWidget(
+                              text: getLocalizations(context).queues,
+                              onClick: () => widget.emitConfig(
+                                  QueuesConfig(
+                                      accountId: widget.config.accountId,
+                                      locationId: widget.config.locationId
+                                  )
+                              )
+                          )
+                        ]
+                      : []
+                  ),
             ),
           ),
         ),
@@ -214,6 +220,33 @@ class LocationCubit extends BaseCubit<LocationLogicState> {
 
   Future<void> handleSwitchToTerminalModeResult(SwitchToKioskResult result) async {
     await _terminalInteractor.setKioskState(result.kioskState);
-    emit(state.copy(kioskState: result.kioskState));
+    switch (result.kioskState.kioskMode) {
+      case KioskMode.all:
+        emit(state.copy(kioskState: result.kioskState));
+        break;
+      case KioskMode.services:
+        navigate(
+            ServicesConfig(
+                accountId: state.config.accountId,
+                locationId: state.config.locationId
+            )
+        );
+        break;
+      case KioskMode.servicesSequences:
+        navigate(
+            ServicesSequencesConfig(
+                accountId: state.config.accountId,
+                locationId: state.config.locationId
+            )
+        );
+        break;
+      case KioskMode.specialists:
+        navigate(
+            SpecialistsConfig(
+                accountId: state.config.accountId,
+                locationId: state.config.locationId
+            )
+        );
+    }
   }
 }

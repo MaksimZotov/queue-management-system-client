@@ -73,7 +73,7 @@ class _ServicesSequencesState extends BaseState<
       ServicesSequencesLogicState state,
       ServicesSequencesWidget widget
   ) => Scaffold(
-    appBar: state.kioskState == null
+    appBar: state.kioskState == null || state.kioskState?.kioskMode == KioskMode.all
       ? AppBar(
         title: Text(
             state.locationName.isEmpty
@@ -354,7 +354,7 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
   void handleDeleteServicesSequenceResult(DeleteServicesSequenceResult result) {
     emit(
         state.copy(
-            servicesSequences: state.servicesSequences
+            servicesSequences: List.from(state.servicesSequences)
               ..removeWhere((element) => element.id == result.servicesSequenceId)
         )
     );
@@ -506,7 +506,7 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
   void switchToSelectedServicesViewing() {
     int i = 0;
 
-    List<ServiceWrapper> selectedServices = state.services
+    List<ServiceWrapper> selectedServices = List.from(state.services)
       ..removeWhere((serviceWrapper) => !serviceWrapper.selected);
 
     selectedServices = selectedServices

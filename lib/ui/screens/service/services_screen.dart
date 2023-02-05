@@ -48,7 +48,7 @@ class _ServicesState extends BaseState<
       ServicesLogicState state,
       ServicesWidget widget
   ) => Scaffold(
-    appBar: state.kioskState == null
+    appBar: state.kioskState == null || state.kioskState?.kioskMode == KioskMode.all
       ? AppBar(
         title: Text(
             state.locationName.isEmpty
