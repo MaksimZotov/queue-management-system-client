@@ -103,7 +103,7 @@ class RepositoryImpl extends Repository {
   @override
   Future<Result<CheckIsOwnerModel>> checkIsOwner(String? email) async {
     if (email == null && !(await _secureStorage.containsEmail())) {
-      return SuccessResult(data: CheckIsOwnerModel(hasRights: false));
+      return SuccessResult(data: CheckIsOwnerModel(isOwner: false));
     }
     return await _serverApi.checkIsOwner(email ?? (await _secureStorage.getEmail())!);
   }

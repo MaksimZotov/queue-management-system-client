@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
+import 'package:queue_management_system_client/domain/enums/rights_status.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/screens/location/switch_to_kiosk_dialog.dart';
@@ -72,17 +73,22 @@ class LocationState extends BaseState<
                         }
                       })
                   ),
-                  IconButton(
-                      tooltip: getLocalizations(context).rightsSettings,
-                      icon: const Icon(Icons.people_sharp),
-                      onPressed: () => widget.emitConfig(
-                          RightsConfig(
-                              email: state.config.email,
-                              locationId: state.config.locationId
-                          )
-                      )
-                  )
-                ],
+                ] + (
+                    (state.locationModel?.isOwner == true || state.locationModel?.rightsStatus == RightsStatus.administrator)
+                    ? [
+                        IconButton(
+                            tooltip: getLocalizations(context).rightsSettings,
+                            icon: const Icon(Icons.people_sharp),
+                            onPressed: () => widget.emitConfig(
+                                RightsConfig(
+                                    email: state.config.email,
+                                    locationId: state.config.locationId
+                                )
+                            )
+                        )
+                      ]
+                    : []
+                ),
             )
             : null,
         body: Center(

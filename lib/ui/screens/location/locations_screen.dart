@@ -91,7 +91,7 @@ class _LocationsState extends BaseState<
       ),
       itemCount: state.locations.length,
     ),
-    floatingActionButton: state.hasRights
+    floatingActionButton: state.isOwner
         ? FloatingActionButton(
           onPressed: () => showDialog(
               context: context,
@@ -118,7 +118,7 @@ class LocationsLogicState extends BaseLogicState {
 
   final List<LocationModel> locations;
 
-  final bool hasRights;
+  final bool isOwner;
   final bool hasToken;
 
   LocationsLogicState({
@@ -128,7 +128,7 @@ class LocationsLogicState extends BaseLogicState {
     super.loading,
     required this.config,
     required this.locations,
-    required this.hasRights,
+    required this.isOwner,
     required this.hasToken,
   });
 
@@ -139,7 +139,7 @@ class LocationsLogicState extends BaseLogicState {
     String? snackBar,
     bool? loading,
     List<LocationModel>? locations,
-    bool? hasRights,
+    bool? isOwner,
     bool? hasToken
   }) => LocationsLogicState(
       nextConfig: nextConfig,
@@ -148,7 +148,7 @@ class LocationsLogicState extends BaseLogicState {
       loading: loading ?? this.loading,
       config: config,
       locations: locations ?? this.locations,
-      hasRights: hasRights ?? this.hasRights,
+      isOwner: isOwner ?? this.isOwner,
       hasToken: hasToken ?? this.hasToken
   );
 }
@@ -167,7 +167,7 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
     LocationsLogicState(
       config: config,
       locations: [],
-      hasRights: false,
+      isOwner: false,
       hasToken: false,
       snackBar: null,
       loading: false
@@ -182,7 +182,7 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
     }
     await _locationInteractor.checkIsOwner(state.config.email)
       ..onSuccess((result) async {
-        emit(state.copy(hasRights: result.data.hasRights));
+        emit(state.copy(isOwner: result.data.isOwner));
       })
       ..onError((result) {
         showError(result);

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
+import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/screens/queue/create_queue_dialog.dart';
@@ -166,11 +167,12 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
         state.config.locationId, state.config.email
     )
       ..onSuccess((result) async {
+        LocationModel location = result.data;
         emit(
             state.copy(
-                ownerEmail: result.data.ownerEmail,
-                locationName: result.data.name,
-                hasRights: result.data.hasRights
+                ownerEmail: location.ownerEmail,
+                locationName: location.name,
+                hasRights: location.isOwner ? true : location.rightsStatus != null
             )
         );
         await _load();

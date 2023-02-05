@@ -14,6 +14,7 @@ import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/kiosk_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/kiosk/kiosk_state.dart';
+import '../../../domain/models/location/location_model.dart';
 import '../../../domain/models/location/service_model.dart';
 import '../../models/service/service_wrapper.dart';
 import '../../router/routes_config.dart';
@@ -270,11 +271,12 @@ class ServicesCubit extends BaseCubit<ServicesLogicState> {
         state.config.locationId, state.config.email
     )
       ..onSuccess((result) async {
+        LocationModel location = result.data;
         emit(
             state.copy(
-                ownerEmail: result.data.ownerEmail,
-                locationName: result.data.name,
-                hasRights: result.data.hasRights
+                ownerEmail: location.ownerEmail,
+                locationName: location.name,
+                hasRights: location.isOwner ? true : location.rightsStatus != null
             )
         );
         await _load();

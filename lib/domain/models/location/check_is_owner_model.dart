@@ -4,11 +4,11 @@ part 'check_is_owner_model.g.dart';
 
 @JsonSerializable()
 class CheckIsOwnerModel {
-  @JsonKey(name: 'has_rights')
-  final bool hasRights;
+  @JsonKey(name: 'is_owner')
+  final bool isOwner;
 
   CheckIsOwnerModel({
-    required this.hasRights
+    required this.isOwner
   });
 
   static CheckIsOwnerModel fromJson(Map<String, dynamic> json) => _$CheckIsOwnerModelFromJson(json);

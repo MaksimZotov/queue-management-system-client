@@ -113,7 +113,7 @@ class InitialCubit extends BaseCubit<InitialLogicState> {
       if (email != null) {
         await _locationInteractor.checkIsOwner(email)
           ..onSuccess((result) {
-            if (result.data.hasRights) {
+            if (result.data.isOwner) {
               navigate(LocationsConfig(email: email));
             }
           });

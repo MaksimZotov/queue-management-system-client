@@ -14,6 +14,7 @@ import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/kiosk_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/kiosk/kiosk_state.dart';
+import '../../../domain/models/location/location_model.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/button_widget.dart';
 import '../../widgets/service_item_widget.dart';
@@ -275,11 +276,12 @@ class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
         state.config.locationId, state.config.email
     )
       ..onSuccess((result) async {
+        LocationModel location = result.data;
         emit(
             state.copy(
-                ownerEmail: result.data.ownerEmail,
-                locationName: result.data.name,
-                hasRights: result.data.hasRights
+                ownerEmail: location.ownerEmail,
+                locationName: location.name,
+                hasRights: location.isOwner ? true : location.rightsStatus != null
             )
         );
         await _load();

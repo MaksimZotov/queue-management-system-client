@@ -40,7 +40,7 @@ class _LocationItemState extends State<LocationItemWidget> {
               ),
             )
             : null,
-        trailing: widget.location.hasRights == true
+        trailing: widget.location.isOwner
             ? SizedBox(
                 height: double.infinity,
                 child: IconButton(
