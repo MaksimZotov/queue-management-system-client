@@ -40,7 +40,7 @@ class AccountInteractorImpl extends AccountInteractor {
   }
 
   @override
-  Future<String?> getCurrentEmail() {
-    return _repository.getCurrentEmail();
+  Future<int?> getCurrentAccountId() {
+    return _repository.getCurrentAccountId();
   }
 }

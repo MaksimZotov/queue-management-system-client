@@ -161,7 +161,7 @@ class AuthorizationCubit extends BaseCubit<AuthorizationLogicState> {
       ..onSuccess((result) {
         emit(state.copy(errors: {}));
         hideLoad();
-        navigate(LocationsConfig(email: state.email));
+        navigate(LocationsConfig(accountId: result.data.accountId));
       })
       ..onError((result) {
         emit(state.copy(errors: result.errors));

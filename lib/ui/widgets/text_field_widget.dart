@@ -9,6 +9,7 @@ class TextFieldWidget extends StatefulWidget {
   final String text;
   final String? error;
   final int? maxLines;
+  final TextInputType? keyboardType;
 
   const TextFieldWidget({
     Key? key,
@@ -17,6 +18,7 @@ class TextFieldWidget extends StatefulWidget {
     required this.text,
     this.error,
     this.maxLines = 1,
+    this.keyboardType
   }) : super(key: key);
 
   @override
@@ -82,6 +84,7 @@ class TextFieldState<T extends TextFieldWidget> extends State<T> {
 
   TextFormField getTextFormField() => TextFormField(
       initialValue: widget.text,
+      keyboardType: widget.keyboardType,
       decoration: const InputDecoration(
           border: InputBorder.none
       ),

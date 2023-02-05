@@ -76,11 +76,11 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<String?> getCurrentEmail() async {
-    if (!(await _secureStorage.containsEmail())) {
+  Future<int?> getCurrentAccountId() async {
+    if (!(await _secureStorage.containsAccountId())) {
       return null;
     }
-    return (await _secureStorage.getEmail());
+    return (await _secureStorage.getAccountId());
   }
   // <======================== Account ========================>
 
@@ -90,22 +90,22 @@ class RepositoryImpl extends Repository {
 
   // <======================== Location ========================>
   @override
-  Future<Result<ContainerForList<LocationModel>>> getLocations(String? email) async {
-    if (email == null && await _secureStorage.containsEmail()) {
-      return await _serverApi.getLocations((await _secureStorage.getEmail())!);
+  Future<Result<ContainerForList<LocationModel>>> getLocations(int? accountId) async {
+    if (accountId == null && await _secureStorage.containsAccountId()) {
+      return await _serverApi.getLocations((await _secureStorage.getAccountId())!);
     }
-    if (email != null) {
-      return await _serverApi.getLocations(email);
+    if (accountId != null) {
+      return await _serverApi.getLocations(accountId);
     }
     return ErrorResult(type: ErrorType.unknown);
   }
 
   @override
-  Future<Result<CheckIsOwnerModel>> checkIsOwner(String? email) async {
-    if (email == null && !(await _secureStorage.containsEmail())) {
+  Future<Result<CheckIsOwnerModel>> checkIsOwner(int? accountId) async {
+    if (accountId == null && !(await _secureStorage.containsAccountId())) {
       return SuccessResult(data: CheckIsOwnerModel(isOwner: false));
     }
-    return await _serverApi.checkIsOwner(email ?? (await _secureStorage.getEmail())!);
+    return await _serverApi.checkIsOwner(accountId ?? (await _secureStorage.getAccountId())!);
   }
 
   @override
@@ -119,8 +119,8 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result<LocationModel>> getLocation(int locationId, String? email) {
-    return _serverApi.getLocation(locationId, email);
+  Future<Result<LocationModel>> getLocation(int locationId) {
+    return _serverApi.getLocation(locationId);
   }
 
   @override
@@ -195,8 +195,8 @@ class RepositoryImpl extends Repository {
 
   // <======================== Queue ========================>
   @override
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String email) {
-    return _serverApi.getQueues(locationId, email);
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId) {
+    return _serverApi.getQueues(locationId);
   }
 
   @override

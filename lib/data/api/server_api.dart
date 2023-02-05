@@ -132,7 +132,7 @@ class ServerApi {
     final tokens = result.data;
     await _tokensStorage.setAccessToken(accessToken: tokens.access);
     await _tokensStorage.setRefreshToken(refreshToken: tokens.refresh);
-    await _tokensStorage.setEmail(email: tokens.email);
+    await _tokensStorage.setAccountId(accountId: tokens.accountId);
   }
 
 
@@ -175,19 +175,19 @@ class ServerApi {
 
 
   // <======================== Location ========================>
-  Future<Result<ContainerForList<LocationModel>>> getLocations(String email) => _execRequestForList(
+  Future<Result<ContainerForList<LocationModel>>> getLocations(int accountId) => _execRequestForList(
       fromJson: LocationModel.fromJson,
       request: _dioApi.get(
         '$url/locations',
-        queryParameters: {'email': email,}
+        queryParameters: { 'account_id': accountId }
       )
   );
 
-  Future<Result<CheckIsOwnerModel>> checkIsOwner(String email) => _execRequest(
+  Future<Result<CheckIsOwnerModel>> checkIsOwner(int accountId) => _execRequest(
       fromJson: CheckIsOwnerModel.fromJson,
       request: _dioApi.get(
           '$url/locations/check',
-          queryParameters: { 'email': email }
+          queryParameters: { 'account_id': accountId }
       )
   );
 
@@ -205,11 +205,10 @@ class ServerApi {
       )
   );
 
-  Future<Result<LocationModel>> getLocation(int locationId, String? email) => _execRequest(
+  Future<Result<LocationModel>> getLocation(int locationId) => _execRequest(
       fromJson: LocationModel.fromJson,
       request: _dioApi.get(
-          '$url/locations/$locationId',
-          queryParameters: { 'email': email }
+          '$url/locations/$locationId'
       )
   );
 
@@ -308,14 +307,11 @@ class ServerApi {
 
 
   // <======================== Queue ========================>
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String email) => _execRequestForList(
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId) => _execRequestForList(
       fromJson: QueueModel.fromJson,
       request: _dioApi.get(
           '$url/queues',
-          queryParameters: {
-            'email': email,
-            'location_id': locationId
-          }
+          queryParameters: { 'location_id': locationId }
       )
   );
 

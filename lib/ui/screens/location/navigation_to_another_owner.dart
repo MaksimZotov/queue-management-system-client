@@ -12,10 +12,10 @@ import '../base.dart';
 class NavigationToAnotherOwnerConfig extends BaseDialogConfig {}
 
 class NavigationToAnotherOwnerResult extends BaseDialogResult {
-  final String email;
+  final int accountId;
 
   NavigationToAnotherOwnerResult({
-    required this.email
+    required this.accountId
   });
 }
 
@@ -50,14 +50,15 @@ class _NavigationToAnotherOwnerState extends BaseDialogState<
       NavigationToAnotherOwnerWidget widget
   ) => [
     TextFieldWidget(
-        label: getLocalizations(context).emailOwner,
-        text: state.email,
-        onTextChanged: getCubitInstance(context).setEmail
+        label: getLocalizations(context).ownerIdentifier,
+        text: state.accountId,
+        onTextChanged: getCubitInstance(context).setAccountId,
+        keyboardType: TextInputType.number,
     ),
     const SizedBox(height: Dimens.contentMargin),
     ButtonWidget(
         text: getLocalizations(context).navigate,
-        onClick: getCubitInstance(context).findLocations
+        onClick: () => getCubitInstance(context).findLocations(getLocalizations(context).identifierMustBeANumber)
     )
   ];
 
@@ -71,7 +72,7 @@ class NavigationToAnotherOwnerLogicState extends BaseDialogLogicState<
     NavigationToAnotherOwnerResult
 > {
 
-  final String email;
+  final String accountId;
 
   NavigationToAnotherOwnerLogicState({
     super.nextConfig,
@@ -80,7 +81,7 @@ class NavigationToAnotherOwnerLogicState extends BaseDialogLogicState<
     super.loading,
     required super.config,
     super.result,
-    required this.email
+    required this.accountId
   });
 
   @override
@@ -90,7 +91,7 @@ class NavigationToAnotherOwnerLogicState extends BaseDialogLogicState<
     String? snackBar,
     bool? loading,
     NavigationToAnotherOwnerResult? result,
-    String? email
+    String? accountId
   }) => NavigationToAnotherOwnerLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -98,7 +99,7 @@ class NavigationToAnotherOwnerLogicState extends BaseDialogLogicState<
       loading: loading ?? this.loading,
       config: config,
       result: result,
-      email: email ?? this.email
+      accountId: accountId ?? this.accountId
   );
 }
 
@@ -110,15 +111,20 @@ class NavigationToAnotherOwnerCubit extends BaseDialogCubit<NavigationToAnotherO
   ) : super(
       NavigationToAnotherOwnerLogicState(
           config: config,
-          email: ''
+          accountId: ''
       )
   );
 
-  void setEmail(String text) {
-    emit(state.copy(email: text));
+  void setAccountId(String text) {
+    emit(state.copy(accountId: text));
   }
 
-  void findLocations() {
-    popResult(NavigationToAnotherOwnerResult(email: state.email));
+  void findLocations(String parseErrorMessage) {
+    int? accountId = int.tryParse(state.accountId);
+    if (accountId == null) {
+      showSnackBar(parseErrorMessage);
+    } else {
+      popResult(NavigationToAnotherOwnerResult(accountId: int.parse(state.accountId)));
+    }
   }
 }

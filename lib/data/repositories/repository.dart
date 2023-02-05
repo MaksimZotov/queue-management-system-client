@@ -32,15 +32,15 @@ abstract class Repository {
   Future<Result<TokensModel>> login(LoginModel login);
   Future<bool> checkToken();
   Future<void> logout();
-  Future<String?> getCurrentEmail();
+  Future<int?> getCurrentAccountId();
   // <======================== Account ========================>
 
   // <======================== Location ========================>
-  Future<Result<ContainerForList<LocationModel>>> getLocations(String? email);
-  Future<Result<CheckIsOwnerModel>> checkIsOwner(String? email);
+  Future<Result<ContainerForList<LocationModel>>> getLocations(int? accountId);
+  Future<Result<CheckIsOwnerModel>> checkIsOwner(int? accountId);
   Future<Result<LocationModel>> createLocation(CreateLocationRequest createLocationRequest);
   Future<Result> deleteLocation(int locationId);
-  Future<Result<LocationModel>> getLocation(int locationId, String? email);
+  Future<Result<LocationModel>> getLocation(int locationId);
   Future<Result<BoardModel>> getLocationBoard(int locationId);
   Future<Result<ContainerForList<ServiceModel>>> getServicesInLocation(int locationId);
   Future<Result<ServiceModel>> createServiceInLocation(int locationId, CreateServiceRequest createServiceRequest);
@@ -57,7 +57,7 @@ abstract class Repository {
   // <======================== Location ========================>
 
   // <======================== Queue ========================>
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String email);
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId);
   Future<Result<QueueModel>> createQueue(int locationId, CreateQueueRequest createQueueRequest);
   Future<Result> deleteQueue(int queueId);
   Future<Result<QueueStateModel>> getQueueState(int queueId);

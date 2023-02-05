@@ -42,10 +42,10 @@ class _LocationsState extends BaseState<
       title: Text(getLocalizations(context).locations),
       actions: <Widget>[
         IconButton(
-          tooltip: getLocalizations(context).shareOwnerEmail,
+          tooltip: getLocalizations(context).shareOwnerIdentifier,
           icon: const Icon(Icons.share),
           onPressed: () => getCubitInstance(context).share(
-              getLocalizations(context).ownerEmailCopied
+              getLocalizations(context).ownerIdentifierCopied
           ),
         ),
         IconButton(
@@ -58,7 +58,7 @@ class _LocationsState extends BaseState<
               )
           ).then((result) {
             if (result is NavigationToAnotherOwnerResult) {
-              widget.emitConfig(LocationsConfig(email: result.email));
+              widget.emitConfig(LocationsConfig(accountId: result.accountId));
             }
           }),
         ),
@@ -74,7 +74,7 @@ class _LocationsState extends BaseState<
         location: state.locations[index],
         onClick: (location) => widget.emitConfig(
             LocationConfig(
-                email: state.config.email,
+                accountId: state.config.accountId,
                 locationId: location.id!
             )
         ),
@@ -180,7 +180,7 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
     if (await _accountInteractor.checkToken()) {
       emit(state.copy(hasToken: true));
     }
-    await _locationInteractor.checkIsOwner(state.config.email)
+    await _locationInteractor.checkIsOwner(state.config.accountId)
       ..onSuccess((result) async {
         emit(state.copy(isOwner: result.data.isOwner));
       })
@@ -209,12 +209,12 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
   }
 
   Future<void> share(String notificationText) async {
-    await Clipboard.setData(ClipboardData(text: state.config.email));
+    await Clipboard.setData(ClipboardData(text: state.config.accountId.toString()));
     showSnackBar(notificationText);
   }
 
   Future _load() async {
-    await _locationInteractor.getLocations(state.config.email)
+    await _locationInteractor.getLocations(state.config.accountId)
       ..onSuccess((result) {
         emit(state.copy(locations: result.data.results));
         hideLoad();

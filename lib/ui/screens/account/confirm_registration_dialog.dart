@@ -156,7 +156,7 @@ class ConfirmRegistrationCubit extends BaseDialogCubit<
             popResult(
                 ConfirmRegistrationResult(
                     locationsConfig: LocationsConfig(
-                        email: state.config.email
+                        accountId: result.data.accountId
                     )
                 )
             );

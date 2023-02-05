@@ -23,13 +23,13 @@ class LocationInteractorImpl extends LocationInteractor {
   LocationInteractorImpl(this._repository);
 
   @override
-  Future<Result<ContainerForList<LocationModel>>> getLocations(String? email) async {
-    return _repository.getLocations(email);
+  Future<Result<ContainerForList<LocationModel>>> getLocations(int? accountId) async {
+    return _repository.getLocations(accountId);
   }
 
   @override
-  Future<Result<CheckIsOwnerModel>> checkIsOwner(String? email) {
-    return _repository.checkIsOwner(email);
+  Future<Result<CheckIsOwnerModel>> checkIsOwner(int? accountId) {
+    return _repository.checkIsOwner(accountId);
   }
 
   @override
@@ -43,8 +43,8 @@ class LocationInteractorImpl extends LocationInteractor {
   }
 
   @override
-  Future<Result<LocationModel>> getLocation(int locationId, String? email) {
-    return _repository.getLocation(locationId, email);
+  Future<Result<LocationModel>> getLocation(int locationId) {
+    return _repository.getLocation(locationId);
   }
 
   @override

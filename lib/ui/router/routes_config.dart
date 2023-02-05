@@ -86,16 +86,16 @@ class RegistrationConfig extends BaseConfig {
 }
 
 class LocationsConfig extends BaseConfig {
-  String email;
+  int accountId;
 
   LocationsConfig({
-    required this.email
+    required this.accountId
   });
 
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
     return RouterPage(
-        key: ValueKey('Locations Page $email'),
+        key: ValueKey('Locations Page $accountId'),
         child: LocationsWidget(
           config: this,
           emitConfig: emitConfig,
@@ -105,11 +105,11 @@ class LocationsConfig extends BaseConfig {
 }
 
 class LocationConfig extends BaseConfig {
-  String email;
+  int accountId;
   int locationId;
 
   LocationConfig({
-    required this.email,
+    required this.accountId,
     required this.locationId
   });
 
@@ -126,16 +126,16 @@ class LocationConfig extends BaseConfig {
 
   @override
   BaseConfig getPrevConfig() {
-    return LocationsConfig(email: email);
+    return LocationsConfig(accountId: accountId);
   }
 }
 
 class ServicesSequencesConfig extends BaseConfig {
-  String email;
+  int accountId;
   int locationId;
 
   ServicesSequencesConfig({
-    required this.email,
+    required this.accountId,
     required this.locationId
   });
 
@@ -152,16 +152,19 @@ class ServicesSequencesConfig extends BaseConfig {
 
   @override
   BaseConfig getPrevConfig() {
-    return LocationConfig(email: email, locationId: locationId);
+    return LocationConfig(
+        accountId: accountId,
+        locationId: locationId
+    );
   }
 }
 
 class ServicesConfig extends BaseConfig {
-  String email;
+  int accountId;
   int locationId;
 
   ServicesConfig({
-    required this.email,
+    required this.accountId,
     required this.locationId
   });
 
@@ -178,24 +181,26 @@ class ServicesConfig extends BaseConfig {
 
   @override
   BaseConfig getPrevConfig() {
-    return LocationConfig(email: email, locationId: locationId);
+    return LocationConfig(
+        accountId: accountId,
+        locationId: locationId
+    );
   }
 }
 
 class SpecialistsConfig extends BaseConfig {
-  String email;
+  int accountId;
   int locationId;
-  int? addedSpecialistId;
 
   SpecialistsConfig({
-    required this.email,
+    required this.accountId,
     required this.locationId
   });
 
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
     return RouterPage(
-        key: ValueKey('Queue Types Page $locationId $addedSpecialistId'),
+        key: ValueKey('Queue Types Page $locationId'),
         child: SpecialistsWidget(
           config: this,
           emitConfig: emitConfig,
@@ -205,16 +210,19 @@ class SpecialistsConfig extends BaseConfig {
 
   @override
   BaseConfig getPrevConfig() {
-    return LocationConfig(email: email, locationId: locationId);
+    return LocationConfig(
+        accountId: accountId,
+        locationId: locationId
+    );
   }
 }
 
 class QueuesConfig extends BaseConfig {
-  String email;
+  int accountId;
   int locationId;
 
   QueuesConfig({
-    required this.email,
+    required this.accountId,
     required this.locationId
   });
 
@@ -231,17 +239,20 @@ class QueuesConfig extends BaseConfig {
 
   @override
   BaseConfig getPrevConfig() {
-    return LocationConfig(email: email, locationId: locationId);
+    return LocationConfig(
+        accountId: accountId,
+        locationId: locationId
+    );
   }
 }
 
 class QueueConfig extends BaseConfig {
-  String email;
+  int accountId;
   int locationId;
   int queueId;
 
   QueueConfig({
-    required this.email,
+    required this.accountId,
     required this.locationId,
     required this.queueId
   });
@@ -260,7 +271,7 @@ class QueueConfig extends BaseConfig {
   @override
   BaseConfig getPrevConfig() {
     return QueuesConfig(
-        email: email,
+        accountId: accountId,
         locationId: locationId
     );
   }
@@ -288,11 +299,11 @@ class ClientConfig extends BaseConfig {
 }
 
 class BoardConfig extends BaseConfig {
-  String email;
+  int accountId;
   int locationId;
 
   BoardConfig({
-    required this.email,
+    required this.accountId,
     required this.locationId,
   });
 
@@ -310,18 +321,18 @@ class BoardConfig extends BaseConfig {
   @override
   BaseConfig? getPrevConfig() {
     return LocationConfig(
-        email: email,
+        accountId: accountId,
         locationId: locationId
     );
   }
 }
 
 class RightsConfig extends BaseConfig {
-  String email;
+  int accountId;
   int locationId;
 
   RightsConfig({
-    required this.email,
+    required this.accountId,
     required this.locationId,
   });
 
@@ -339,7 +350,7 @@ class RightsConfig extends BaseConfig {
   @override
   BaseConfig? getPrevConfig() {
     return LocationConfig(
-        email: email,
+        accountId: accountId,
         locationId: locationId
     );
   }

@@ -109,12 +109,12 @@ class InitialCubit extends BaseCubit<InitialLogicState> {
   @override
   Future<void> onStart() async {
     if (await _accountInteractor.checkToken()) {
-      String? email = await _accountInteractor.getCurrentEmail();
-      if (email != null) {
-        await _locationInteractor.checkIsOwner(email)
+      int? accountId = await _accountInteractor.getCurrentAccountId();
+      if (accountId != null) {
+        await _locationInteractor.checkIsOwner(accountId)
           ..onSuccess((result) {
             if (result.data.isOwner) {
-              navigate(LocationsConfig(email: email));
+              navigate(LocationsConfig(accountId: accountId));
             }
           });
       }

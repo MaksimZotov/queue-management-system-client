@@ -54,7 +54,7 @@ class _QueuesState extends BaseState<
           queue: state.queues[index],
           onTap: (queue) => widget.emitConfig(
             QueueConfig(
-                email: state.config.email,
+                accountId: state.config.accountId,
                 locationId: state.config.locationId,
                 queueId: queue.id
             )
@@ -163,9 +163,7 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
 
   @override
   Future<void> onStart() async {
-    await locationInteractor.getLocation(
-        state.config.locationId, state.config.email
-    )
+    await locationInteractor.getLocation(state.config.locationId)
       ..onSuccess((result) async {
         LocationModel location = result.data;
         emit(
@@ -196,10 +194,7 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
   }
 
   Future<void> _load() async {
-    await queueInteractor.getQueues(
-        state.config.locationId,
-        state.config.email
-    )
+    await queueInteractor.getQueues(state.config.locationId)
       ..onSuccess((result) {
         emit(state.copy(queues: result.data.results));
         hideLoad();

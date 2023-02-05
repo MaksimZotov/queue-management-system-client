@@ -52,7 +52,7 @@ class LocationState extends BaseState<
                       icon: const Icon(Icons.monitor),
                       onPressed: () => widget.emitConfig(
                           BoardConfig(
-                              email: state.config.email,
+                              accountId: state.config.accountId,
                               locationId: state.config.locationId
                           )
                       )
@@ -81,7 +81,7 @@ class LocationState extends BaseState<
                             icon: const Icon(Icons.people_sharp),
                             onPressed: () => widget.emitConfig(
                                 RightsConfig(
-                                    email: state.config.email,
+                                    accountId: state.config.accountId,
                                     locationId: state.config.locationId
                                 )
                             )
@@ -102,7 +102,7 @@ class LocationState extends BaseState<
                   text: getLocalizations(context).services,
                   onClick: () => widget.emitConfig(
                       ServicesConfig(
-                          email: widget.config.email,
+                          accountId: widget.config.accountId,
                           locationId: widget.config.locationId
                       )
                   )
@@ -111,7 +111,7 @@ class LocationState extends BaseState<
                   text: getLocalizations(context).servicesSequences,
                   onClick: () => widget.emitConfig(
                       ServicesSequencesConfig(
-                          email: widget.config.email,
+                          accountId: widget.config.accountId,
                           locationId: widget.config.locationId
                       )
                   )
@@ -120,7 +120,7 @@ class LocationState extends BaseState<
                   text: getLocalizations(context).specialists,
                   onClick: () => widget.emitConfig(
                       SpecialistsConfig(
-                          email: widget.config.email,
+                          accountId: widget.config.accountId,
                           locationId: widget.config.locationId
                       )
                   )
@@ -129,7 +129,7 @@ class LocationState extends BaseState<
                   text: getLocalizations(context).queues,
                   onClick: () => widget.emitConfig(
                       QueuesConfig(
-                          email: widget.config.email,
+                          accountId: widget.config.accountId,
                           locationId: widget.config.locationId
                       )
                   )
@@ -202,10 +202,7 @@ class LocationCubit extends BaseCubit<LocationLogicState> {
   Future<void> onStart() async {
     showLoad();
     await _terminalInteractor.clearKioskState();
-    await _locationInteractor.getLocation(
-        state.config.locationId, 
-        state.config.email
-    ) 
+    await _locationInteractor.getLocation(state.config.locationId)
       ..onSuccess((result) {
         emit(state.copy(locationModel: result.data));
       })

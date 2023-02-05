@@ -272,9 +272,7 @@ class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
   @override
   Future<void> onStart() async {
     emit(state.copy(kioskState: await _terminalInteractor.getKioskState()));
-    await _locationInteractor.getLocation(
-        state.config.locationId, state.config.email
-    )
+    await _locationInteractor.getLocation(state.config.locationId)
       ..onSuccess((result) async {
         LocationModel location = result.data;
         emit(

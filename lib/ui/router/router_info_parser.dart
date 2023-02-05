@@ -34,78 +34,95 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
               );
           }
           break;
-        case 2:
-           switch (segments[1]) {
-             // "/{email}/locations"
-             case 'locations':
-               return LocationsConfig(email: segments[0]);
-           }
-           break;
         case 3:
-          switch (segments[1]) {
-            // "/{email}/locations/{location_id}"
-            case 'locations':
-              return LocationConfig(
-                  email: segments[0],
-                  locationId: int.parse(segments[2])
-              );
+          switch (segments[0]) {
+          case 'accounts':
+            switch (segments[2]) {
+              // "/accounts/{account_id}/locations"
+              case 'locations':
+                return LocationsConfig(
+                    accountId: int.parse(segments[1])
+                );
+            }
           }
           break;
         case 4:
-          switch (segments[1]) {
-            case 'locations':
-              switch (segments[3]) {
-                // "/{email}/locations/{location_id}/services"
-                case 'services':
-                  return ServicesConfig(
-                      email: segments[0],
-                      locationId: int.parse(segments[2])
-                  );
-                // "/{email}/locations/{location_id}/sequences"
-                case 'sequences':
-                  return ServicesSequencesConfig(
-                      email: segments[0],
-                      locationId: int.parse(segments[2])
-                  );
-                // "/{email}/locations/{location_id}/specialists"
-                case 'specialists':
-                  return SpecialistsConfig(
-                      email: segments[0],
-                      locationId: int.parse(segments[2])
-                  );
-                // "/{email}/locations/{location_id}/queues"
-                case 'queues':
-                  return QueuesConfig(
-                      email: segments[0],
-                      locationId: int.parse(segments[2])
-                  );
-                // "/{email}/locations/{location_id}/rights"
-                case 'rights':
-                  return RightsConfig(
-                      email: segments[0],
-                      locationId: int.parse(segments[2])
-                  );
-                // "/{email}/locations/{location_id}/board"
-                case 'board':
-                  return BoardConfig(
-                      email: segments[0],
-                      locationId: int.parse(segments[2])
+          switch (segments[0]) {
+            case 'accounts':
+              switch (segments[2]) {
+                // "/accounts/{account_id}/locations/{location_id}"
+                case 'locations':
+                  return LocationConfig(
+                      accountId: int.parse(segments[1]),
+                      locationId: int.parse(segments[3])
                   );
               }
+              break;
           }
           break;
         case 5:
-          switch (segments[1]) {
-            case 'locations':
-              switch (segments[3]) {
-                // "/{email}/locations/{location_id}/queues/{queue_id}"
-                case 'queues':
-                  return QueueConfig(
-                      email: segments[0],
-                      locationId: int.parse(segments[2]),
-                      queueId: int.parse(segments[4])
-                  );
+          switch (segments[0]) {
+            case 'accounts':
+              switch (segments[2]) {
+                case 'locations':
+                  switch (segments[3]) {
+                    // "/accounts/{account_id}/locations/{location_id}/services"
+                    case 'services':
+                      return ServicesConfig(
+                          accountId: int.parse(segments[1]),
+                          locationId: int.parse(segments[3])
+                      );
+                    // "/accounts/{account_id}/locations/{location_id}/sequences"
+                    case 'sequences':
+                      return ServicesSequencesConfig(
+                          accountId: int.parse(segments[1]),
+                          locationId: int.parse(segments[3])
+                      );
+                    // "/accounts/{account_id}/locations/{location_id}/specialists"
+                    case 'specialists':
+                      return SpecialistsConfig(
+                          accountId: int.parse(segments[1]),
+                          locationId: int.parse(segments[3])
+                      );
+                    // "/accounts/{account_id}/locations/{location_id}/queues"
+                    case 'queues':
+                      return QueuesConfig(
+                          accountId: int.parse(segments[1]),
+                          locationId: int.parse(segments[3])
+                      );
+                    // "/accounts/{account_id}/locations/{location_id}/rights"
+                    case 'rights':
+                      return RightsConfig(
+                          accountId: int.parse(segments[1]),
+                          locationId: int.parse(segments[3])
+                      );
+                    // "/accounts/{account_id}/locations/{location_id}/board"
+                    case 'board':
+                      return BoardConfig(
+                          accountId: int.parse(segments[1]),
+                          locationId: int.parse(segments[3])
+                      );
+                  }
               }
+              break;
+          }
+          break;
+        case 6:
+          switch (segments[0]) {
+            case 'accounts':
+              switch (segments[2]) {
+                case 'locations':
+                  switch (segments[3]) {
+                    // "/accounts/{account_id}/locations/{location_id}/queues/{queue_id}"
+                    case 'queues':
+                      return QueueConfig(
+                          accountId: int.parse(segments[1]),
+                          locationId: int.parse(segments[3]),
+                          queueId: int.parse(segments[5])
+                      );
+                  }
+              }
+              break;
           }
       }
     } on Exception {
@@ -126,52 +143,52 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
       return const RouteInformation(location: '/registration');
     }
     if (configuration is LocationsConfig) {
-      String email = configuration.email;
+      int accountId = configuration.accountId;
       return RouteInformation(
-          location: '/$email/locations'
+          location: '/accounts/$accountId/locations'
       );
     }
     if (configuration is LocationConfig) {
-      String email = configuration.email;
+      int accountId = configuration.accountId;
       int locationId = configuration.locationId;
       return RouteInformation(
-          location: '/$email/locations/$locationId'
+          location: '/accounts/$accountId/locations/$locationId'
       );
     }
     if (configuration is ServicesConfig) {
-      String email = configuration.email;
+      int accountId = configuration.accountId;
       int locationId = configuration.locationId;
       return RouteInformation(
-          location: '/$email/locations/$locationId/services'
+          location: '/accounts/$accountId/locations/$locationId/services'
       );
     }
     if (configuration is ServicesSequencesConfig) {
-      String email = configuration.email;
+      int accountId = configuration.accountId;
       int locationId = configuration.locationId;
       return RouteInformation(
-          location: '/$email/locations/$locationId/sequences'
+          location: '/accounts/$accountId/locations/$locationId/sequences'
       );
     }
     if (configuration is SpecialistsConfig) {
-      String email = configuration.email;
+      int accountId = configuration.accountId;
       int locationId = configuration.locationId;
       return RouteInformation(
-          location: '/$email/locations/$locationId/specialists'
+          location: '/accounts/$accountId/locations/$locationId/specialists'
       );
     }
     if (configuration is QueuesConfig) {
-      String email = configuration.email;
+      int accountId = configuration.accountId;
       int locationId = configuration.locationId;
       return RouteInformation(
-          location: '/$email/locations/$locationId/queues'
+          location: '/accounts/$accountId/locations/$locationId/queues'
       );
     }
     if (configuration is QueueConfig) {
-      String email = configuration.email;
+      int accountId = configuration.accountId;
       int locationId = configuration.locationId;
       int queueId = configuration.queueId;
       return RouteInformation(
-          location: '/$email/locations/$locationId/queues/$queueId'
+          location: '/accounts/$accountId/locations/$locationId/queues/$queueId'
       );
     }
     if (configuration is ClientConfig) {
@@ -182,17 +199,17 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
       );
     }
     if (configuration is RightsConfig) {
-      String email = configuration.email;
+      int accountId = configuration.accountId;
       int locationId = configuration.locationId;
       return RouteInformation(
-          location: '/$email/locations/$locationId/rights'
+          location: '/accounts/$accountId/locations/$locationId/rights'
       );
     }
     if (configuration is BoardConfig) {
-      String email = configuration.email;
+      int accountId = configuration.accountId;
       int locationId = configuration.locationId;
       return RouteInformation(
-          location: '/$email/locations/$locationId/board'
+          location: '/accounts/$accountId/locations/$locationId/board'
       );
     }
     return null;

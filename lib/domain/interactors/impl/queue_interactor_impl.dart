@@ -16,8 +16,8 @@ class QueueInteractorImpl extends QueueInteractor {
   QueueInteractorImpl(this._repository);
 
   @override
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String email) {
-    return _repository.getQueues(locationId, email);
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId) {
+    return _repository.getQueues(locationId);
   }
 
   @override
