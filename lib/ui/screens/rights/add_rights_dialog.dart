@@ -1,7 +1,9 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/enums/rights_status.dart';
 import 'package:queue_management_system_client/domain/models/rights/add_rights_request.dart';
+import 'package:queue_management_system_client/ui/extensions/rights/rights_status_extensions.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
@@ -23,9 +25,11 @@ class AddRightsConfig extends BaseDialogConfig {
 
 class AddRightsResult extends BaseDialogResult {
   final String email;
+  final RightsStatus status;
 
   AddRightsResult({
     required this.email,
+    required this.status
   });
 }
 
@@ -64,6 +68,46 @@ class _AddRightsState extends BaseDialogState<
         text: state.email,
         onTextChanged: getCubitInstance(context).setEmail
     ),
+    DropdownButtonFormField2(
+      buttonOverlayColor: null,
+      barrierColor: Colors.transparent,
+      buttonHighlightColor: Colors.transparent,
+      focusColor: Colors.transparent,
+      buttonSplashColor: Colors.transparent,
+      decoration: InputDecoration(
+        hoverColor: Colors.yellow,
+        isDense: true,
+        contentPadding: EdgeInsets.zero,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+      ),
+      isExpanded: true,
+      value: state.status,
+      icon: const Icon(
+        Icons.arrow_drop_down,
+        color: Colors.black45,
+      ),
+      iconSize: 30,
+      buttonHeight: 60,
+      buttonPadding: const EdgeInsets.only(right: 10),
+      dropdownDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      items: RightsStatus.values
+          .map((item) =>
+          DropdownMenuItem<RightsStatus>(
+            value: item,
+            child: Text(
+              item.getName(getLocalizations(context)),
+              style: const TextStyle(
+                fontSize: 14,
+              ),
+            ),
+          ))
+          .toList(),
+      onChanged: getCubitInstance(context).selectStatus,
+    ),
     const SizedBox(height: Dimens.contentMargin),
     ButtonWidget(
         text: getLocalizations(context).add,
@@ -81,6 +125,7 @@ class AddRightsLogicState extends BaseDialogLogicState<
 > {
 
   final String email;
+  final RightsStatus status;
 
   AddRightsLogicState({
     super.nextConfig,
@@ -90,6 +135,7 @@ class AddRightsLogicState extends BaseDialogLogicState<
     required super.config,
     super.result,
     required this.email,
+    required this.status
   });
 
   @override
@@ -99,7 +145,8 @@ class AddRightsLogicState extends BaseDialogLogicState<
     String? snackBar,
     bool? loading,
     AddRightsResult? result,
-    String? email
+    String? email,
+    RightsStatus? status
   }) => AddRightsLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -107,7 +154,8 @@ class AddRightsLogicState extends BaseDialogLogicState<
       loading: loading ?? this.loading,
       config: config,
       result: result,
-      email: email ?? this.email
+      email: email ?? this.email,
+      status: status ?? this.status
   );
 }
 
@@ -122,12 +170,17 @@ class AddRightsCubit extends BaseDialogCubit<AddRightsLogicState> {
   ) : super(
       AddRightsLogicState(
           config: config,
-          email: ''
+          email: '',
+          status: RightsStatus.employee
       )
   );
 
   void setEmail(String text) {
     emit(state.copy(email: text));
+  }
+
+  void selectStatus(RightsStatus? status) {
+    emit(state.copy(status: status));
   }
 
   Future<void> addRights() async {
@@ -136,11 +189,16 @@ class AddRightsCubit extends BaseDialogCubit<AddRightsLogicState> {
         state.config.locationId,
         AddRightsRequest(
             email: state.email,
-            status: RightsStatus.administrator
+            status: state.status
         )
     )
       ..onSuccess((result) {
-        popResult(AddRightsResult(email: state.email));
+        popResult(
+            AddRightsResult(
+                email: state.email,
+                status: state.status
+            )
+        );
       })..onError((result) {
         showError(result);
       });

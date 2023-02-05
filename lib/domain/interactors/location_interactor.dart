@@ -6,7 +6,7 @@ import '../models/location/create_location_request.dart';
 import '../models/location/create_specialist_request.dart';
 import '../models/location/create_service_request.dart';
 import '../models/location/create_services_sequence_request.dart';
-import '../models/location/has_rights_model.dart';
+import '../models/location/check_is_owner_model.dart';
 import '../models/location/location_model.dart';
 import '../models/location/specialist_model.dart';
 import '../models/location/service_model.dart';
@@ -14,7 +14,7 @@ import '../models/location/services_sequence_model.dart';
 
 abstract class LocationInteractor {
   Future<Result<ContainerForList<LocationModel>>> getLocations(String? email);
-  Future<Result<HasRightsModel>> checkHasRights(String? email);
+  Future<Result<CheckIsOwnerModel>> checkIsOwner(String? email);
   Future<Result<LocationModel>> createLocation(CreateLocationRequest createLocationRequest);
   Future<Result> deleteLocation(int locationId);
   Future<Result<LocationModel>> getLocation(int locationId, String? email);

@@ -111,7 +111,7 @@ class InitialCubit extends BaseCubit<InitialLogicState> {
     if (await _accountInteractor.checkToken()) {
       String? email = await _accountInteractor.getCurrentEmail();
       if (email != null) {
-        await _locationInteractor.checkHasRights(email)
+        await _locationInteractor.checkIsOwner(email)
           ..onSuccess((result) {
             if (result.data.hasRights) {
               navigate(LocationsConfig(email: email));

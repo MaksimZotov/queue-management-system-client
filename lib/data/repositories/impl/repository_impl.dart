@@ -11,7 +11,7 @@ import 'package:queue_management_system_client/domain/models/location/board_mode
 import 'package:queue_management_system_client/domain/models/location/create_specialist_request.dart';
 import 'package:queue_management_system_client/domain/models/location/create_service_request.dart';
 import 'package:queue_management_system_client/domain/models/location/create_services_sequence_request.dart';
-import 'package:queue_management_system_client/domain/models/location/has_rights_model.dart';
+import 'package:queue_management_system_client/domain/models/location/check_is_owner_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 import 'package:queue_management_system_client/domain/models/location/specialist_model.dart';
 import 'package:queue_management_system_client/domain/models/location/services_sequence_model.dart';
@@ -101,11 +101,11 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result<HasRightsModel>> checkHasRights(String? email) async {
+  Future<Result<CheckIsOwnerModel>> checkIsOwner(String? email) async {
     if (email == null && !(await _secureStorage.containsEmail())) {
-      return SuccessResult(data: HasRightsModel(hasRights: false));
+      return SuccessResult(data: CheckIsOwnerModel(hasRights: false));
     }
-    return await _serverApi.checkHasRights(email ?? (await _secureStorage.getEmail())!);
+    return await _serverApi.checkIsOwner(email ?? (await _secureStorage.getEmail())!);
   }
 
   @override

@@ -180,7 +180,7 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
     if (await _accountInteractor.checkToken()) {
       emit(state.copy(hasToken: true));
     }
-    await _locationInteractor.checkHasRights(state.config.email)
+    await _locationInteractor.checkIsOwner(state.config.email)
       ..onSuccess((result) async {
         emit(state.copy(hasRights: result.data.hasRights));
       })

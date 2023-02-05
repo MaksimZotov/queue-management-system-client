@@ -139,7 +139,8 @@ class RightsCubit extends BaseCubit<RightsLogicState> {
             rights: state.rights + [
               RightsModel(
                   locationId: state.config.locationId,
-                  email: result.email
+                  email: result.email,
+                  status: result.status
               )
             ]
         )
@@ -149,7 +150,7 @@ class RightsCubit extends BaseCubit<RightsLogicState> {
   void handleDeleteResult(DeleteRightsResult result) {
     emit(
         state.copy(
-            rights: state.rights
+            rights: List.from(state.rights)
               ..removeWhere((element) => element.email == result.email)
         )
     );

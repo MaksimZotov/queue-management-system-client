@@ -122,5 +122,7 @@
 "login": "Войти",
 "logout": "Выйти",
 "switchToBoardMode": "Переключиться в режим табло",
-"switchToKioskMode": "Переключиться в режим киоска"
+"switchToKioskMode": "Переключиться в режим киоска",
+"employee": "Сотрудник",
+"administrator": "Администратор"
 }

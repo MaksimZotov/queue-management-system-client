@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
-import 'package:queue_management_system_client/domain/models/location/has_rights_model.dart';
+import 'package:queue_management_system_client/domain/models/location/check_is_owner_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 
 import '../../../data/repositories/repository.dart';
@@ -28,8 +28,8 @@ class LocationInteractorImpl extends LocationInteractor {
   }
 
   @override
-  Future<Result<HasRightsModel>> checkHasRights(String? email) {
-    return _repository.checkHasRights(email);
+  Future<Result<CheckIsOwnerModel>> checkIsOwner(String? email) {
+    return _repository.checkIsOwner(email);
   }
 
   @override
