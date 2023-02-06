@@ -374,6 +374,13 @@ class ServerApi {
           '$url/queues/$queueId/services'
       )
   );
+
+  Future<Result<ContainerForList<ServiceModel>>> getServicesInSpecialist(int specialistId) => _execRequestForList(
+      fromJson: ServiceModel.fromJson,
+      request: _dioApi.get(
+          '$url/queues/specialists/$specialistId'
+      )
+  );
   // <======================== Queue ========================>
 
 

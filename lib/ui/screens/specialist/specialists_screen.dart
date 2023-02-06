@@ -13,6 +13,7 @@ import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/enums/kiosk_mode.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/kiosk_interactor.dart';
+import '../../../domain/interactors/queue_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/kiosk/kiosk_state.dart';
 import '../../../domain/models/location/location_model.dart';
@@ -80,6 +81,7 @@ class _SpecialistsState extends BaseState<
     body: _getBody(context, state, widget),
     floatingActionButton: state.hasRights && state.specialistsStateEnum == SpecialistsStateEnum.specialistsViewing
         ? FloatingActionButton(
+          tooltip: getLocalizations(context).createSpecialist,
           onPressed: getCubitInstance(context).switchToServicesSelecting,
           child: const Icon(Icons.add),
         )
@@ -115,6 +117,7 @@ class _SpecialistsState extends BaseState<
                     }
                   })
                 : null,
+              onTap: getCubitInstance(context).switchToServicesInSpecialist,
             );
           },
           itemCount: state.specialists.length,
@@ -250,10 +253,12 @@ class SpecialistsLogicState extends BaseLogicState {
 class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
   final LocationInteractor _locationInteractor;
   final KioskInteractor _terminalInteractor;
+  final QueueInteractor _queueInteractor;
 
   SpecialistsCubit(
       this._locationInteractor,
       this._terminalInteractor,
+      this._queueInteractor,
       @factoryParam SpecialistsConfig config
   ) : super(
       SpecialistsLogicState(
@@ -358,6 +363,29 @@ class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
   void confirmSelectedServices() {
     emit(state.copy(showCreateSpecialistDialog: true));
     emit(state.copy(showCreateSpecialistDialog: false));
+  }
+
+  Future<void> switchToServicesInSpecialist(SpecialistModel? specialistModel) async {
+    if (specialistModel == null) {
+      return;
+    }
+    showLoad();
+    await _queueInteractor.getServicesInSpecialist(specialistModel.id)
+      ..onSuccess((result) {
+        hideLoad();
+        emit(
+            state.copy(
+                specialistsStateEnum: SpecialistsStateEnum.servicesSelecting,
+                services: result.data.results
+                    .map((service) => ServiceWrapper(service: service))
+                    .toList()
+            )
+        );
+        hideLoad();
+      })
+      ..onError((result) {
+        showError(result);
+      });
   }
 
   Future<void> _load() async {

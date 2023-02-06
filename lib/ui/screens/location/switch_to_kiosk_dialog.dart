@@ -103,7 +103,10 @@ class _SwitchToKioskState extends BaseDialogState<
       const SizedBox(height: Dimens.contentMargin),
       Row(
         children: [
-          Expanded(flex: 1, child: Text('Тест')),
+          Expanded(
+              flex: 1,
+              child: Text(getLocalizations(context).multipleSelect)
+          ),
           Transform.translate(
             offset: const Offset(10, 0),
             child: Switch(

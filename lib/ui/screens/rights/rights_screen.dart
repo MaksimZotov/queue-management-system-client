@@ -57,6 +57,7 @@ class _RightsState extends BaseState<
       itemCount: state.rights.length,
     ),
     floatingActionButton: FloatingActionButton(
+      tooltip: getLocalizations(context).addEmployee,
       onPressed: () => showDialog(
           context: context,
           builder: (context) => AddRightsWidget(

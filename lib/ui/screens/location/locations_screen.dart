@@ -93,6 +93,7 @@ class _LocationsState extends BaseState<
     ),
     floatingActionButton: state.isOwner
         ? FloatingActionButton(
+          tooltip: getLocalizations(context).createLocation,
           onPressed: () => showDialog(
               context: context,
               builder: (context) => CreateLocationWidget(

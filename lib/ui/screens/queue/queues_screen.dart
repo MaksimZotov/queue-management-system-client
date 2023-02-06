@@ -76,6 +76,7 @@ class _QueuesState extends BaseState<
     ),
     floatingActionButton: state.hasRights
         ? FloatingActionButton(
+          tooltip: getLocalizations(context).createQueue,
           onPressed: () => showDialog(
               context: context,
               builder: (context) => CreateQueueWidget(

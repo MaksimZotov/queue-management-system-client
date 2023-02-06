@@ -5,7 +5,7 @@ part 'create_queue_request.g.dart';
 
 @JsonSerializable()
 class CreateQueueRequest {
-  @JsonKey(name: 'queue_type_id')
+  @JsonKey(name: 'specialist_id')
   final int specialistId;
   final String name;
   final String? description;

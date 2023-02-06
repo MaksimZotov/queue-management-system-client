@@ -85,6 +85,7 @@ class _ServicesSequencesState extends BaseState<
     body: _getBody(context, state, widget),
     floatingActionButton: state.hasRights && state.servicesSequencesStateEnum == ServicesSequencesStateEnum.servicesSequencesViewing
         ? FloatingActionButton(
+          tooltip: getLocalizations(context).createServicesSequence,
           onPressed: getCubitInstance(context).switchToServicesSelecting,
           child: const Icon(Icons.add),
         )

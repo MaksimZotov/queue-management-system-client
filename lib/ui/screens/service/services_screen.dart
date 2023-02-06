@@ -60,6 +60,7 @@ class _ServicesState extends BaseState<
     body: _getBody(context, state, widget),
     floatingActionButton: state.hasRights && state.kioskState == null
         ? FloatingActionButton(
+            tooltip: getLocalizations(context).createService,
             onPressed: () => showDialog(
                 context: context,
                 builder: (context) => CreateServiceWidget(

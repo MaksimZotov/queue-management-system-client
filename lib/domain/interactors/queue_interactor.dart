@@ -15,4 +15,5 @@ abstract class QueueInteractor {
   Future<Result> serveClientInQueue(int queueId, int clientId);
   Future<Result> notifyClientInQueue(int queueId, int clientId);
   Future<Result<ContainerForList<ServiceModel>>> getServicesInQueue(int queueId);
+  Future<Result<ContainerForList<ServiceModel>>> getServicesInSpecialist(int specialistId);
 }

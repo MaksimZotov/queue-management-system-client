@@ -78,7 +78,7 @@
     }
   }
 },
-"specialistsInLocationPattern": "Типы очередей в локации {name}",
+"specialistsInLocationPattern": "Специалисты в локации {name}",
 "@specialistsInLocationPattern": {
   "placeholders": {
     "name": {
@@ -107,7 +107,7 @@
 "creationOfSpecialist": "Создание типа очередей",
 "services": "Услуги",
 "servicesSequences": "Наборы услуг",
-"specialists": "Типы очередей",
+"specialists": "Специалисты",
 "queues": "Очереди",
 "deleteServiceQuestion": "Удалить очередь?",
 "select": "Выбрать",
@@ -125,5 +125,13 @@
 "switchToBoardMode": "Переключиться в режим табло",
 "switchToKioskMode": "Переключиться в режим киоска",
 "employee": "Сотрудник",
-"administrator": "Администратор"
+"administrator": "Администратор",
+"createLocation": "Создать локацию",
+"createService": "Создать услугу",
+"createSpecialist": "Создать специалиста",
+"createServicesSequence": "Создать последовательность услуг",
+"createQueue": "Создать очередь",
+"addEmployee": "Добавить сотрудника",
+"rights": "Права",
+"multipleSelect": "Множественный выбор"
 }
