@@ -68,14 +68,22 @@ class _AddRightsState extends BaseDialogState<
         text: state.email,
         onTextChanged: getCubitInstance(context).setEmail
     ),
+    const SizedBox(height: Dimens.contentMargin),
+    Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+          getLocalizations(context).rights,
+          style: const TextStyle(
+              fontSize: Dimens.labelFontSize
+          )
+      ),
+    ),
+    const SizedBox(height: Dimens.fieldElementsMargin),
     DropdownButtonFormField2(
-      buttonOverlayColor: null,
-      barrierColor: Colors.transparent,
       buttonHighlightColor: Colors.transparent,
-      focusColor: Colors.transparent,
       buttonSplashColor: Colors.transparent,
+      focusColor: Colors.transparent,
       decoration: InputDecoration(
-        hoverColor: Colors.yellow,
         isDense: true,
         contentPadding: EdgeInsets.zero,
         border: OutlineInputBorder(
@@ -96,19 +104,18 @@ class _AddRightsState extends BaseDialogState<
       ),
       items: RightsStatus.values
           .map((item) =>
-          DropdownMenuItem<RightsStatus>(
-            value: item,
-            child: Text(
-              item.getName(getLocalizations(context)),
-              style: const TextStyle(
-                fontSize: 14,
-              ),
-            ),
-          ))
+              DropdownMenuItem<RightsStatus>(
+                value: item,
+                child: Text(
+                  item.getName(getLocalizations(context)),
+                  style: const TextStyle(fontSize: 14)
+                ),
+              )
+          )
           .toList(),
       onChanged: getCubitInstance(context).selectStatus,
     ),
-    const SizedBox(height: Dimens.contentMargin),
+    const SizedBox(height: Dimens.contentMargin * 2),
     ButtonWidget(
         text: getLocalizations(context).add,
         onClick: getCubitInstance(context).addRights
