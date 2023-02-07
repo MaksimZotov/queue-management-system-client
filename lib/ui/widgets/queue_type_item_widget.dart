@@ -40,7 +40,7 @@ class _SpecialistItemState extends State<SpecialistItemWidget> {
                     height: double.infinity,
                     child: IconButton(
                         tooltip: AppLocalizations.of(context)!.delete,
-                        icon: const Icon(Icons.delete, color: Colors.red),
+                        icon: const Icon(Icons.delete),
                         onPressed: () => widget.onDelete?.call(widget.specialist)),
                   )
                 : null,

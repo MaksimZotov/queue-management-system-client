@@ -45,7 +45,7 @@ class _QueueItemState extends State<QueueItemWidget> {
             ? SizedBox(
               height: double.infinity,
               child: IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
+                icon: const Icon(Icons.delete),
                 onPressed: () => widget.onDelete(widget.queue)
               ),
             )

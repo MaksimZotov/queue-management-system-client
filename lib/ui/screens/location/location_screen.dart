@@ -4,6 +4,7 @@ import 'package:queue_management_system_client/domain/enums/kiosk_mode.dart';
 import 'package:queue_management_system_client/domain/enums/rights_status.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
+import 'package:queue_management_system_client/ui/screens/location/switch_to_board_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/switch_to_kiosk_dialog.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 
@@ -51,28 +52,12 @@ class LocationState extends BaseState<
                   IconButton(
                       tooltip: getLocalizations(context).switchToBoardMode,
                       icon: const Icon(Icons.monitor),
-                      onPressed: () => widget.emitConfig(
-                          BoardConfig(
-                              accountId: state.config.accountId,
-                              locationId: state.config.locationId
-                          )
-                      )
+                      onPressed: () => _showSwitchToBoardDialog(context, state)
                   ),
                   IconButton(
                       tooltip: getLocalizations(context).switchToKioskMode,
                       icon: const Icon(Icons.co_present_sharp),
-                      onPressed: () => showDialog(
-                          context: context,
-                          builder: (context) => SwitchToKioskWidget(
-                              config: SwitchToKioskConfig(
-                                  locationId: state.config.locationId
-                              )
-                          )
-                      ).then((result) {
-                        if (result is SwitchToKioskResult) {
-                          getCubitInstance(context).handleSwitchToTerminalModeResult(result);
-                        }
-                      })
+                      onPressed: () => _showSwitchToKioskDialog(context, state)
                   ),
                 ] + (
                     (state.locationModel?.isOwner == true || state.locationModel?.rightsStatus == RightsStatus.administrator)
@@ -148,6 +133,42 @@ class LocationState extends BaseState<
 
   @override
   LocationCubit getCubit() => statesAssembler.getLocationCubit(widget.config);
+
+
+  void _showSwitchToBoardDialog(
+      BuildContext context,
+      LocationLogicState state
+  ) => showDialog(
+      context: context,
+      builder: (context) => SwitchToBoardWidget(
+          config: SwitchToBoardConfig()
+      )
+  ).then((result) {
+    if (result is SwitchToBoardResult) {
+      widget.emitConfig(
+          BoardConfig(
+              accountId: state.config.accountId,
+              locationId: state.config.locationId
+          )
+      );
+    }
+  });
+
+  void _showSwitchToKioskDialog(
+      BuildContext context,
+      LocationLogicState state
+  ) => showDialog(
+      context: context,
+      builder: (context) => SwitchToKioskWidget(
+          config: SwitchToKioskConfig(
+              locationId: state.config.locationId
+          )
+      )
+  ).then((result) {
+    if (result is SwitchToKioskResult) {
+      getCubitInstance(context).handleSwitchToTerminalModeResult(result);
+    }
+  });
 }
 
 class LocationLogicState extends BaseLogicState {

@@ -67,7 +67,6 @@
 "allTypes": "Все виды",
 "connection": "Подключение",
 "connect": "Подключиться",
-"switchingToKioskMode": "Переключение в режим киоска",
 "switchButton": "Переключить",
 "specialists": "Специалисты",
 "shareOwnerIdentifier": "Поделиться идентификатором владельца",
@@ -78,6 +77,8 @@
 "logoutFromAccount": "Выйти из своего аккаунта",
 "switchToBoardMode": "Переключиться в режим табло",
 "switchToKioskMode": "Переключиться в режим киоска",
+"switchToBoardModeQuestion": "Переключиться в режим табло?",
+"switchingToKioskMode": "Переключение в режим киоска",
 "employee": "Сотрудник",
 "administrator": "Администратор",
 "createLocation": "Создать локацию",
@@ -92,5 +93,7 @@
 "callClient": "Вызвать клиента",
 "maxDurationMustBeANumber": "Максимальная длительность должен быть числом",
 "supposedDurationMustBeANumber": "Предполагаемая длительность должна быть числом",
-"logoutFromAccountQuestion": "Выйти из аккаунта?"
+"logoutFromAccountQuestion": "Выйти из аккаунта?",
+"mode": "Режим",
+"yes": "Да"
 }

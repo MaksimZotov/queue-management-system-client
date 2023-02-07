@@ -46,7 +46,7 @@ class _ServiceItemState extends State<ServiceItemWidget> {
                   height: double.infinity,
                   child: IconButton(
                       tooltip: AppLocalizations.of(context)!.delete,
-                      icon: const Icon(Icons.delete, color: Colors.red),
+                      icon: const Icon(Icons.delete),
                       onPressed: () => widget.onDelete?.call(widget.serviceWrapper)),
                 )
               : null,

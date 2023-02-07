@@ -60,14 +60,22 @@ class _SwitchToKioskState extends BaseDialogState<
       SwitchToKioskWidget widget
   ) {
     return [
+      const SizedBox(height: Dimens.contentMargin),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+            getLocalizations(context).mode,
+            style: const TextStyle(
+                fontSize: Dimens.labelFontSize
+            )
+        ),
+      ),
+      const SizedBox(height: Dimens.fieldElementsMargin),
       DropdownButtonFormField2(
-        buttonOverlayColor: null,
-        barrierColor: Colors.transparent,
         buttonHighlightColor: Colors.transparent,
-        focusColor: Colors.transparent,
         buttonSplashColor: Colors.transparent,
+        focusColor: Colors.transparent,
         decoration: InputDecoration(
-          hoverColor: Colors.yellow,
           isDense: true,
           contentPadding: EdgeInsets.zero,
           border: OutlineInputBorder(
@@ -75,7 +83,6 @@ class _SwitchToKioskState extends BaseDialogState<
           ),
         ),
         isExpanded: true,
-        value: state.selectedMode,
         icon: const Icon(
           Icons.arrow_drop_down,
           color: Colors.black45,
@@ -86,26 +93,33 @@ class _SwitchToKioskState extends BaseDialogState<
         dropdownDecoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
         ),
-        items: KioskMode.values
-            .map((item) =>
-            DropdownMenuItem<KioskMode>(
-              value: item,
-              child: Text(
-                item.getName(getLocalizations(context)),
-                style: const TextStyle(
-                  fontSize: 14,
-                ),
-              ),
-            ))
-            .toList(),
-        onChanged: getCubitInstance(context).selectMode,
+        value: state.selectedMode,
+          items: KioskMode.values
+              .map((item) =>
+                DropdownMenuItem<KioskMode>(
+                  value: item,
+                  child: Text(
+                    item.getName(getLocalizations(context)),
+                    style: const TextStyle(
+                      fontSize: 14,
+                    ),
+                  ),
+                )
+              )
+              .toList(),
+          onChanged: getCubitInstance(context).selectMode
       ),
-      const SizedBox(height: Dimens.contentMargin),
+      const SizedBox(height: Dimens.contentMargin * 2),
       Row(
         children: [
           Expanded(
               flex: 1,
-              child: Text(getLocalizations(context).multipleSelect)
+              child: Text(
+                  getLocalizations(context).multipleSelect,
+                  style: const TextStyle(
+                      fontSize: 16
+                  )
+              )
           ),
           Transform.translate(
             offset: const Offset(10, 0),
@@ -123,7 +137,7 @@ class _SwitchToKioskState extends BaseDialogState<
           ),
         ],
       ),
-      const SizedBox(height: Dimens.contentMargin),
+      const SizedBox(height: Dimens.contentMargin * 2),
       ButtonWidget(
           text: getLocalizations(context).switchButton,
           onClick: getCubitInstance(context).SwitchToKiosk

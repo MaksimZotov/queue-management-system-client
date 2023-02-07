@@ -21,6 +21,7 @@ import 'package:queue_management_system_client/ui/screens/service/services_scree
 import '../../ui/screens/account/initial_screen.dart';
 import '../../ui/screens/location/location_screen.dart';
 import '../../ui/screens/location/locations_screen.dart';
+import '../../ui/screens/location/switch_to_board_dialog.dart';
 import '../../ui/screens/queue/create_queue_dialog.dart';
 import '../../ui/screens/queue/delete_queue_dialog.dart';
 import '../../ui/screens/rights/rights_screen.dart';
@@ -45,6 +46,7 @@ class StatesAssembler {
   CreateLocationCubit getCreateLocationCubit(CreateLocationConfig config) => getIt.get(param1: config);
   DeleteLocationCubit getDeleteLocationCubit(DeleteLocationConfig config) => getIt.get(param1: config);
   NavigationToAnotherOwnerCubit getNavigationToAnotherOwnerCubit(NavigationToAnotherOwnerConfig config) => getIt.get(param1: config);
+  SwitchToBoardCubit getSwitchToBoardCubit(SwitchToBoardConfig config) => getIt.get(param1: config);
   LogoutFromAccountCubit getLogoutFromAccountCubit(LogoutFromAccountConfig config) => getIt.get(param1: config);
 
   QueuesCubit getQueuesCubit(QueuesConfig config) => getIt.get(param1: config);

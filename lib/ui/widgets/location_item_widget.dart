@@ -46,7 +46,7 @@ class _LocationItemState extends State<LocationItemWidget> {
                 height: double.infinity,
                 child: IconButton(
                   tooltip: AppLocalizations.of(context)!.delete,
-                  icon: const Icon(Icons.delete, color: Colors.red),
+                  icon: const Icon(Icons.delete),
                   onPressed: () => widget.onDelete(widget.location),
                 ),
             )
