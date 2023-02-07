@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../domain/models/location/services_sequence_model.dart';
 
@@ -38,6 +39,7 @@ class _ServicesSequenceItemState extends State<ServicesSequenceItemWidget> {
                 ? SizedBox(
                     height: double.infinity,
                     child: IconButton(
+                        tooltip: AppLocalizations.of(context)!.delete,
                         icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () => widget.onDelete?.call(widget.servicesSequence)),
                   )

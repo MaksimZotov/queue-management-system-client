@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 
 class LocationItemWidget extends StatefulWidget {
@@ -44,6 +45,7 @@ class _LocationItemState extends State<LocationItemWidget> {
             ? SizedBox(
                 height: double.infinity,
                 child: IconButton(
+                  tooltip: AppLocalizations.of(context)!.delete,
                   icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: () => widget.onDelete(widget.location),
                 ),

@@ -45,7 +45,7 @@ class LocationState extends BaseState<
         appBar: state.kioskState == null
             ? AppBar(
                 title: state.locationModel != null
-                    ? Text(getLocalizations(context).locationPattern(state.locationModel!.name))
+                    ? Text(state.locationModel!.name)
                     : null,
                 actions: [
                   IconButton(

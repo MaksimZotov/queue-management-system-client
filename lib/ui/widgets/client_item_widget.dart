@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:queue_management_system_client/domain/enums/client_in_queue_status.dart';
 import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 
@@ -31,10 +32,12 @@ class _ClientItemState extends State<ClientItemWidget> {
           (widget.client.email == null ? '' : '${widget.client.email} ') + '(${widget.client.accessKey})',
         ),
         leading: IconButton(
+          tooltip: AppLocalizations.of(context)!.finishServing,
           icon: const Icon(Icons.done_outline_rounded),
           onPressed: () => widget.onServe(widget.client),
         ),
         trailing: IconButton(
+          tooltip: AppLocalizations.of(context)!.callClient,
           icon: const Icon(Icons.notifications),
           onPressed: () => widget.onNotify(widget.client),
         ),

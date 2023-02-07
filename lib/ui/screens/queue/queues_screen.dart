@@ -45,7 +45,7 @@ class _QueuesState extends BaseState<
       title: Text(
           state.locationName.isEmpty
               ? ''
-              : getLocalizations(context).queuesInLocationPattern(state.locationName)
+              : getLocalizations(context).queues
       )
     ),
     body: ListView.builder(

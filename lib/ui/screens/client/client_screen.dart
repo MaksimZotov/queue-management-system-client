@@ -35,11 +35,9 @@ class _ClientState extends BaseState<
       BuildContext context,
       ClientLogicState state,
       ClientWidget widget
-  ) =>  Scaffold(
+  ) => Scaffold(
     appBar: AppBar(
-      title: Text(
-          getLocalizations(context).queuePattern(state.clientState.queueName)
-      ),
+      title: Text(state.clientState.queueName),
     ),
     body: state.loading ? const Center(
       child: CircularProgressIndicator(),

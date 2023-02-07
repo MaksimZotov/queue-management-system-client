@@ -74,7 +74,7 @@ class _SpecialistsState extends BaseState<
         title: Text(
             state.locationName.isEmpty
                 ? ''
-                : getLocalizations(context).specialistsInLocationPattern(state.locationName)
+                : getLocalizations(context).specialists
         ),
       )
       : null,

@@ -53,7 +53,7 @@ class _ServicesState extends BaseState<
         title: Text(
             state.locationName.isEmpty
                 ? ''
-                : getLocalizations(context).servicesInLocationPattern(state.locationName)
+                : getLocalizations(context).services
         ),
       )
       : null,

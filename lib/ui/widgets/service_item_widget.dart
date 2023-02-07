@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../models/service/service_wrapper.dart';
 
@@ -44,11 +45,14 @@ class _ServiceItemState extends State<ServiceItemWidget> {
               ? SizedBox(
                   height: double.infinity,
                   child: IconButton(
+                      tooltip: AppLocalizations.of(context)!.delete,
                       icon: const Icon(Icons.delete, color: Colors.red),
                       onPressed: () => widget.onDelete?.call(widget.serviceWrapper)),
                 )
               : null,
-          onTap: () => widget.onTap?.call(widget.serviceWrapper),
+          onTap: widget.onTap != null
+              ? () => widget.onTap?.call(widget.serviceWrapper)
+              : null,
       )
     );
   }

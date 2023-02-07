@@ -39,6 +39,7 @@ class _RightsItemState extends State<RightsItemWidget> {
         trailing: SizedBox(
           height: double.infinity,
           child: IconButton(
+            tooltip: AppLocalizations.of(context)!.revokeRights,
             icon: const Icon(Icons.delete, color: Colors.red),
             onPressed: () => widget.onDelete(widget.rights)
           ),

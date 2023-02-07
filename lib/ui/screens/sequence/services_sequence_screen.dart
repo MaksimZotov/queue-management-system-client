@@ -78,7 +78,7 @@ class _ServicesSequencesState extends BaseState<
         title: Text(
             state.locationName.isEmpty
                 ? ''
-                : getLocalizations(context).servicesSequencesInLocationPattern(state.locationName)
+                : getLocalizations(context).servicesSequences
         ),
       )
       : null,

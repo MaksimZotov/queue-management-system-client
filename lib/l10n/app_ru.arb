@@ -27,6 +27,7 @@
 "add": "Добавить",
 "addAndSave": "Добавить и сохранить",
 "rightsSettings": "Настройки доступа",
+"revokeRights": "Лишить прав",
 "revokeRightsQuestion": "Лишить прав?",
 "revoke": "Лишить",
 "addingOfEmployee": "Добавление сотрудника",
@@ -46,54 +47,6 @@
 "lastNameWithColon": "Фамилия:",
 "codeWithColon": "Код:",
 "beforeMeWithColon": "Перед вами:",
-"queuePattern": "Очередь: {name}",
-"@queuePattern": {
-  "placeholders": {
-    "name": {
-      "type": "String"
-    }
-  }
-},
-"locationPattern": "Локация: {name}",
-"@locationPattern": {
-  "placeholders": {
-    "name": {
-      "type": "String"
-    }
-  }
-},
-"servicesInLocationPattern": "Услуги в локации {name}",
-"@servicesInLocationPattern": {
-  "placeholders": {
-    "name": {
-      "type": "String"
-    }
-  }
-},
-"servicesSequencesInLocationPattern": "Наборы услуг в локации {name}",
-"@servicesSequencesInLocationPattern": {
-  "placeholders": {
-    "name": {
-      "type": "String"
-    }
-  }
-},
-"specialistsInLocationPattern": "Специалисты в локации {name}",
-"@specialistsInLocationPattern": {
-  "placeholders": {
-    "name": {
-      "type": "String"
-    }
-  }
-},
-"queuesInLocationPattern": "Очереди в локации {name}",
-"@queuesInLocationPattern": {
-  "placeholders": {
-    "name": {
-      "type": "String"
-    }
-  }
-},
 "unknownError": "Неизвестная ошибка",
 "serverError": "Ошибка на сервере",
 "timeoutError": "Вышло время ожидания ответа",
@@ -109,7 +62,7 @@
 "servicesSequences": "Наборы услуг",
 "specialists": "Специалисты",
 "queues": "Очереди",
-"deleteServiceQuestion": "Удалить очередь?",
+"deleteServiceQuestion": "Удалить услугу?",
 "select": "Выбрать",
 "allTypes": "Все виды",
 "connection": "Подключение",
@@ -122,6 +75,7 @@
 "navigateToAnotherOwner": "Перейти к локациям другого владельца",
 "login": "Войти",
 "logout": "Выйти",
+"logoutFromAccount": "Выйти из своего аккаунта",
 "switchToBoardMode": "Переключиться в режим табло",
 "switchToKioskMode": "Переключиться в режим киоска",
 "employee": "Сотрудник",
@@ -133,5 +87,10 @@
 "createQueue": "Создать очередь",
 "addEmployee": "Добавить сотрудника",
 "rights": "Права",
-"multipleSelect": "Множественный выбор"
+"multipleSelect": "Множественный выбор",
+"finishServing": "Завершить обслуживание",
+"callClient": "Вызвать клиента",
+"maxDurationMustBeANumber": "Максимальная длительность должен быть числом",
+"supposedDurationMustBeANumber": "Предполагаемая длительность должна быть числом",
+"logoutFromAccountQuestion": "Выйти из аккаунта?"
 }

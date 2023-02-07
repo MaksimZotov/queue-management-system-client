@@ -38,19 +38,7 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
       QueueWidget widget
   ) => Scaffold(
     appBar: AppBar(
-      title: Text(
-          state.queueStateModel.name.isEmpty
-              ? ''
-              : getLocalizations(context).queuePattern(state.queueStateModel.name)
-      ),
-      actions: state.queueStateModel.ownerEmail != null
-          ? [
-            IconButton(
-                icon: const Icon(Icons.qr_code),
-                onPressed: getCubitInstance(context).downloadQrCode
-            ),
-          ]
-          : null,
+      title: Text(state.queueStateModel.name)
     ),
     body: ListView.builder(
       itemBuilder: (context, index) {
