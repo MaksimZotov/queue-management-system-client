@@ -10,6 +10,7 @@ import 'package:queue_management_system_client/ui/widgets/specialist_item_widget
 
 import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../dimens.dart';
 import '../../../domain/enums/kiosk_mode.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/kiosk_interactor.dart';
@@ -20,6 +21,7 @@ import '../../../domain/models/location/location_model.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/button_widget.dart';
 import '../../widgets/service_item_widget.dart';
+import '../client/add_client_dialog.dart';
 import 'create_specialist_dialog.dart';
 import 'delete_specialist_dialog.dart';
 
@@ -68,28 +70,34 @@ class _SpecialistsState extends BaseState<
       BuildContext context,
       SpecialistsLogicState state,
       SpecialistsWidget widget
-  ) => Scaffold(
-    appBar: state.kioskState == null || state.kioskState?.kioskMode == KioskMode.all
-      ? AppBar(
-        title: Text(
-            state.locationName.isEmpty
-                ? ''
-                : getLocalizations(context).specialists
-        ),
-      )
-      : null,
-    body: _getBody(context, state, widget),
-    floatingActionButton: _checkFloatingActionButton(state)
-        ? FloatingActionButton(
-          tooltip: getLocalizations(context).createSpecialist,
-          onPressed: getCubitInstance(context).switchToServicesSelecting,
-          child: const Icon(Icons.add),
-        )
-        : null,
+  ) => WillPopScope(
+    onWillPop: () async {
+      if (state.specialistsStateEnum == SpecialistsStateEnum.specialistsViewing) {
+        return true;
+      }
+      getCubitInstance(context).switchToSpecialistsViewing();
+      return false;
+    },
+    child: Scaffold(
+      appBar: state.kioskState == null || state.kioskState?.kioskMode == KioskMode.all
+          ? AppBar(
+              title: Text(_getTitleText(context, state))
+          )
+          : null,
+      body: _getBody(context, state, widget),
+      floatingActionButton: _checkFloatingActionButton(state)
+          ? FloatingActionButton(
+            tooltip: getLocalizations(context).createSpecialist,
+            onPressed: getCubitInstance(context).switchToServicesSelecting,
+            child: const Icon(Icons.add),
+          )
+          : null,
+    )
   );
 
   @override
-  SpecialistsCubit getCubit() => statesAssembler.getSpecialistsCubit(widget.config);
+  SpecialistsCubit getCubit() =>
+      statesAssembler.getSpecialistsCubit(widget.config);
 
   Widget _getBody(
       BuildContext context,
@@ -125,30 +133,51 @@ class _SpecialistsState extends BaseState<
           itemCount: state.specialists.length,
         );
       case SpecialistsStateEnum.servicesSelecting:
-        return Column(
-          children: [
-            Expanded(
-              flex: 1,
-              child: ListView.builder(
-                itemBuilder: (context, index) {
-                  return ServiceItemWidget(
-                      serviceWrapper: state.services[index],
-                      onTap: getCubitInstance(context).onClickServiceWhenServicesSelecting
-                  );
-                },
-                itemCount: state.services.length,
+        if (state.selectedServices.isEmpty) {
+          return ListView.builder(
+            itemBuilder: (context, index) {
+              return ServiceItemWidget(
+                  serviceWrapper: state.services[index],
+                  onTap: state.kioskState?.multipleSelect == false
+                      ? (serviceWrapper) => _showAddClientDialog(context, state, [serviceWrapper])
+                      : getCubitInstance(context).onClickServiceWhenServicesSelecting
+              );
+            },
+            itemCount: state.services.length,
+          );
+        } else {
+          return Column(
+            children: [
+              Expanded(
+                flex: 1,
+                child: ListView.builder(
+                  itemBuilder: (context, index) {
+                    return ServiceItemWidget(
+                        serviceWrapper: state.services[index],
+                        onTap: getCubitInstance(context).onClickServiceWhenServicesSelecting
+                    );
+                  },
+                  itemCount: state.services.length,
+                ),
               ),
-            ),
-            ButtonWidget(
-              text: getLocalizations(context).select,
-              onClick: getCubitInstance(context).switchToSelectedServicesViewing,
-            ),
-            ButtonWidget(
-              text: getLocalizations(context).cancel,
-              onClick: getCubitInstance(context).switchToSpecialistsViewing,
-            )
-          ],
-        );
+              Container(height: 2, color: Colors.grey),
+              const SizedBox(height: Dimens.contentMargin),
+              ButtonWidget(
+                  text: state.kioskState == null
+                      ? getLocalizations(context).select
+                      : getLocalizations(context).connect,
+                  onClick: state.kioskState == null
+                      ? getCubitInstance(context).switchToSelectedServicesViewing
+                      : () => _showAddClientDialog(context, state, state.selectedServices)
+              ),
+              ButtonWidget(
+                text: getLocalizations(context).cancel,
+                onClick: getCubitInstance(context).switchToSpecialistsViewing,
+              ),
+              const SizedBox(height: Dimens.contentMargin)
+            ],
+          );
+        }
       case SpecialistsStateEnum.selectedServicesViewing:
         return Column(
           children: [
@@ -163,6 +192,8 @@ class _SpecialistsState extends BaseState<
                 itemCount: state.selectedServices.length,
               ),
             ),
+            Container(height: 2, color: Colors.grey),
+            const SizedBox(height: Dimens.contentMargin),
             ButtonWidget(
               text: getLocalizations(context).confirm,
               onClick: getCubitInstance(context).confirmSelectedServices,
@@ -170,7 +201,8 @@ class _SpecialistsState extends BaseState<
             ButtonWidget(
               text: getLocalizations(context).cancel,
               onClick: getCubitInstance(context).switchToSpecialistsViewing,
-            )
+            ),
+            const SizedBox(height: Dimens.contentMargin)
           ],
         );
     }
@@ -178,6 +210,40 @@ class _SpecialistsState extends BaseState<
 
   bool _checkFloatingActionButton(SpecialistsLogicState state) =>
       state.hasRights && state.specialistsStateEnum == SpecialistsStateEnum.specialistsViewing && state.kioskState == null;
+
+  String _getTitleText(BuildContext context, SpecialistsLogicState state) {
+    if (state.specialistsStateEnum == SpecialistsStateEnum.specialistsViewing) {
+      if (state.locationName.isEmpty) {
+        return '';
+      }
+      return getLocalizations(context).specialists;
+    }
+    return getLocalizations(context).services;
+  }
+
+  void _showAddClientDialog(
+      BuildContext context,
+      SpecialistsLogicState state,
+      List<ServiceWrapper> serviceWrappers
+  ) => showDialog(
+      context: context,
+      builder: (context) => AddClientWidget(
+          config: AddClientConfig(
+              locationId: state.config.locationId,
+              serviceIds: serviceWrappers
+                  .map((serviceWrapper) => serviceWrapper.service.id)
+                  .toList()
+          )
+      )
+  ).then((result) {
+    if (result is AddClientResult) {
+      if (state.kioskState?.kioskMode == KioskMode.all) {
+        Navigator.of(context).pop();
+      } else {
+        getCubitInstance(context).switchToSpecialistsViewing();
+      }
+    }
+  });
 }
 
 enum SpecialistsStateEnum {
@@ -198,11 +264,14 @@ class SpecialistsLogicState extends BaseLogicState {
 
   final List<SpecialistModel> specialists;
   final List<ServiceWrapper> services;
-  final List<ServiceWrapper> selectedServices;
 
   final bool showCreateSpecialistDialog;
 
   final KioskState? kioskState;
+
+  List<ServiceWrapper> get selectedServices {
+    return List.from(services)..removeWhere((serviceWrapper) => !serviceWrapper.selected);
+  }
 
   SpecialistsLogicState({
     super.nextConfig,
@@ -216,7 +285,6 @@ class SpecialistsLogicState extends BaseLogicState {
     required this.hasRights,
     required this.specialists,
     required this.services,
-    required this.selectedServices,
     required this.showCreateSpecialistDialog,
     required this.kioskState
   });
@@ -233,7 +301,6 @@ class SpecialistsLogicState extends BaseLogicState {
     bool? hasRights,
     List<SpecialistModel>? specialists,
     List<ServiceWrapper>? services,
-    List<ServiceWrapper>? selectedServices,
     bool? showCreateSpecialistDialog,
     KioskState? kioskState
   }) => SpecialistsLogicState(
@@ -248,7 +315,6 @@ class SpecialistsLogicState extends BaseLogicState {
       hasRights: hasRights ?? this.hasRights,
       specialists: specialists ?? this.specialists,
       services: services ?? this.services,
-      selectedServices: selectedServices ?? this.selectedServices,
       showCreateSpecialistDialog: showCreateSpecialistDialog ?? this.showCreateSpecialistDialog,
       kioskState: kioskState ?? this.kioskState
   );
@@ -274,7 +340,6 @@ class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
           hasRights: false,
           specialists: [],
           services: [],
-          selectedServices: [],
           showCreateSpecialistDialog: false,
           kioskState: null
       )
@@ -307,7 +372,6 @@ class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
             services: state.services
                 .map((serviceWrapper) => serviceWrapper.copy(selected: false))
                 .toList(),
-            selectedServices: [],
             specialists: state.specialists + [result.specialistModel]
         )
     );
@@ -347,9 +411,7 @@ class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
   void switchToSelectedServicesViewing() {
     emit(
         state.copy(
-            specialistsStateEnum: SpecialistsStateEnum.selectedServicesViewing,
-            selectedServices: List.from(state.services)
-                ..removeWhere((serviceWrapper) => !serviceWrapper.selected)
+            specialistsStateEnum: SpecialistsStateEnum.selectedServicesViewing
         )
     );
   }
@@ -360,8 +422,7 @@ class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
           specialistsStateEnum: SpecialistsStateEnum.specialistsViewing,
           services: state.services
               .map((serviceWrapper) => serviceWrapper.copy(selected: false))
-              .toList(),
-          selectedServices: [],
+              .toList()
         ));
   }
 

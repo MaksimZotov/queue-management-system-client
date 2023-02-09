@@ -12,6 +12,7 @@ import 'package:queue_management_system_client/ui/widgets/specialist_item_widget
 
 import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../dimens.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/kiosk_interactor.dart';
 import '../../../domain/models/base/result.dart';
@@ -157,6 +158,8 @@ class _ServicesSequencesState extends BaseState<
                 itemCount: state.services.length,
               ),
             ),
+            Container(height: 2, color: Colors.grey),
+            const SizedBox(height: Dimens.contentMargin),
             ButtonWidget(
               text: getLocalizations(context).select,
               onClick: getCubitInstance(context).switchToSelectedServicesViewing,
@@ -164,7 +167,8 @@ class _ServicesSequencesState extends BaseState<
             ButtonWidget(
               text: getLocalizations(context).cancel,
               onClick: getCubitInstance(context).switchToServicesSequencesViewing,
-            )
+            ),
+            const SizedBox(height: Dimens.contentMargin)
           ],
         );
       case ServicesSequencesStateEnum.selectedServicesViewing:
@@ -207,6 +211,8 @@ class _ServicesSequencesState extends BaseState<
                     .toList()
               ),
             ),
+            Container(height: 2, color: Colors.grey),
+            const SizedBox(height: Dimens.contentMargin),
             ButtonWidget(
               text: getLocalizations(context).confirm,
               onClick: getCubitInstance(context).confirmSelectedServices,
@@ -214,7 +220,8 @@ class _ServicesSequencesState extends BaseState<
             ButtonWidget(
               text: getLocalizations(context).cancel,
               onClick: getCubitInstance(context).switchToServicesSequencesViewing,
-            )
+            ),
+            const SizedBox(height: Dimens.contentMargin)
           ],
         );
     }

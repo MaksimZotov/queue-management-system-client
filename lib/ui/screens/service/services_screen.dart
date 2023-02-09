@@ -9,6 +9,7 @@ import 'package:queue_management_system_client/ui/screens/base.dart';
 
 import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../dimens.dart';
 import '../../../domain/enums/kiosk_mode.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/kiosk_interactor.dart';
@@ -114,21 +115,7 @@ class _ServicesState extends BaseState<
         itemBuilder: (context, index) {
           return ServiceItemWidget(
               serviceWrapper: state.services[index],
-              onTap: (serviceWrapper) => showDialog(
-                  context: context,
-                  builder: (context) => AddClientWidget(
-                      config: AddClientConfig(
-                          locationId: state.config.locationId,
-                          serviceIds: [serviceWrapper.service.id]
-                      )
-                  )
-              ).then((result) {
-                if (result is AddClientResult) {
-                  if (state.kioskState?.kioskMode == KioskMode.all) {
-                    Navigator.of(context).pop();
-                  }
-                }
-              })
+              onTap: (serviceWrapper) => _showAddClientDialog(context, state, [serviceWrapper])
           );
         },
         itemCount: state.services.length,
@@ -159,35 +146,44 @@ class _ServicesState extends BaseState<
             itemCount: state.services.length,
           ),
         ),
+        Container(height: 2, color: Colors.grey),
+        const SizedBox(height: Dimens.contentMargin),
         ButtonWidget(
           text: getLocalizations(context).connect,
-          onClick: () => showDialog(
-              context: context,
-              builder: (context) => AddClientWidget(
-                  config: AddClientConfig(
-                      locationId: state.config.locationId,
-                      serviceIds: state.selectedServices
-                          .map((serviceWrapper) => serviceWrapper.service.id)
-                          .toList()
-                  )
-              )
-          ).then((result) {
-            if (result is AddClientResult) {
-              if (state.kioskState?.kioskMode == KioskMode.all) {
-                Navigator.of(context).pop();
-              } else {
-                getCubitInstance(context).clearSelect();
-              }
-            }
-          })
+          onClick: () => _showAddClientDialog(context, state, state.selectedServices),
         ),
         ButtonWidget(
           text: getLocalizations(context).cancel,
           onClick: getCubitInstance(context).clearSelect,
-        )
+        ),
+        const SizedBox(height: Dimens.contentMargin),
       ],
     );
   }
+
+  void _showAddClientDialog(
+      BuildContext context,
+      ServicesLogicState state,
+      List<ServiceWrapper> serviceWrappers
+  ) => showDialog(
+      context: context,
+      builder: (context) => AddClientWidget(
+          config: AddClientConfig(
+              locationId: state.config.locationId,
+              serviceIds: serviceWrappers
+                  .map((serviceWrapper) => serviceWrapper.service.id)
+                  .toList()
+          )
+      )
+  ).then((result) {
+    if (result is AddClientResult) {
+      if (state.kioskState?.kioskMode == KioskMode.all) {
+        Navigator.of(context).pop();
+      } else {
+        getCubitInstance(context).clearSelect();
+      }
+    }
+  });
 }
 
 class ServicesLogicState extends BaseLogicState {
@@ -229,7 +225,6 @@ class ServicesLogicState extends BaseLogicState {
     String? locationName,
     bool? hasRights,
     List<ServiceWrapper>? services,
-    List<ServiceWrapper>? selectedServices,
     KioskState? kioskState
   }) => ServicesLogicState(
       nextConfig: nextConfig,
