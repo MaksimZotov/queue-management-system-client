@@ -48,14 +48,14 @@ class _DeleteServicesSequenceState extends BaseDialogState<
       BuildContext context,
       DeleteServicesSequenceLogicState state,
       DeleteServicesSequenceWidget widget
-      ) => getLocalizations(context).deleteQueueQuestion;
+  ) => getLocalizations(context).deleteServicesSequenceQuestion;
 
   @override
   List<Widget> getDialogContentWidget(
       BuildContext context,
       DeleteServicesSequenceLogicState state,
       DeleteServicesSequenceWidget widget
-      ) => [
+  ) => [
     ButtonWidget(
         text: getLocalizations(context).delete,
         onClick: getCubitInstance(context).deleteServicesSequence

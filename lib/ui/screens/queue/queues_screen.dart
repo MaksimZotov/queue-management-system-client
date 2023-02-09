@@ -86,7 +86,10 @@ class _QueuesState extends BaseState<
               )
           ).then((result) {
             if (result is CreateQueueResult) {
-              getCubitInstance(context).handleCreateQueueResult(result);
+              getCubitInstance(context).handleCreateQueueResult(
+                  result,
+                  getLocalizations(context).locationDoesNotContainSpecialists
+              );
             }
           }),
           child: const Icon(Icons.add),
@@ -181,8 +184,16 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
       });
   }
 
-  void handleCreateQueueResult(CreateQueueResult result) {
-    emit(state.copy(queues: state.queues + [result.queueModel]));
+  void handleCreateQueueResult(
+      CreateQueueResult result,
+      String emptySpecialistsError
+  ) {
+    QueueModel? queueModel = result.queueModel;
+    if (queueModel == null) {
+      showSnackBar(emptySpecialistsError);
+    } else {
+      emit(state.copy(queues: state.queues + [queueModel]));
+    }
   }
 
   void handleDeleteQueueResult(DeleteQueueResult result) {

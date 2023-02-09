@@ -52,14 +52,14 @@ class _CreateServicesSequenceState extends BaseDialogState<
       BuildContext context,
       CreateServicesSequenceLogicState state,
       CreateServicesSequenceWidget widget
-      ) => getLocalizations(context).creationOfQueue;
+  ) => getLocalizations(context).creationOfServicesSequence;
 
   @override
   List<Widget> getDialogContentWidget(
       BuildContext context,
       CreateServicesSequenceLogicState state,
       CreateServicesSequenceWidget widget
-      ) => [
+  ) => [
     TextFieldWidget(
         label: getLocalizations(context).name,
         text: state.name,

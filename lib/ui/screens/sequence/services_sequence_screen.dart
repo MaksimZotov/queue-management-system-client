@@ -8,7 +8,7 @@ import 'package:queue_management_system_client/domain/models/location/specialist
 import 'package:queue_management_system_client/ui/models/service/service_wrapper.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/screens/client/add_client_dialog.dart';
-import 'package:queue_management_system_client/ui/widgets/queue_type_item_widget.dart';
+import 'package:queue_management_system_client/ui/widgets/specialist_item_widget.dart';
 
 import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';

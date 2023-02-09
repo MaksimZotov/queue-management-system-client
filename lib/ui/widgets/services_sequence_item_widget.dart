@@ -25,16 +25,15 @@ class _ServicesSequenceItemState extends State<ServicesSequenceItemWidget> {
     return Card(
         child: ListTile(
             title: Text(widget.servicesSequence.name, maxLines: 1),
-            subtitle: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 200),
-              child: widget.servicesSequence.description != null
-                  ? Text(
-                      widget.servicesSequence.description!,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    )
-                  : null,
-            ),
+            subtitle: widget.servicesSequence.description != null
+                ? ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 200),
+                  child: Text(
+                    widget.servicesSequence.description!,
+                    overflow: TextOverflow.ellipsis,
+                  )
+                )
+                : null,
             trailing: widget.onDelete != null
                 ? SizedBox(
                     height: double.infinity,
@@ -44,7 +43,9 @@ class _ServicesSequenceItemState extends State<ServicesSequenceItemWidget> {
                         onPressed: () => widget.onDelete?.call(widget.servicesSequence)),
                   )
                 : null,
-            onTap: widget.onTap != null ? () => widget.onTap?.call(widget.servicesSequence) : null,
+            onTap: widget.onTap != null
+                ? () => widget.onTap?.call(widget.servicesSequence)
+                : null,
         )
     );
   }

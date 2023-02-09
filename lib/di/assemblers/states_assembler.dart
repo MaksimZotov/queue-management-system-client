@@ -28,8 +28,8 @@ import '../../ui/screens/rights/rights_screen.dart';
 import '../../ui/screens/account/confirm_registration_dialog.dart';
 import '../../ui/screens/service/create_service_dialog.dart';
 import '../../ui/screens/service/delete_service_dialog.dart';
-import '../../ui/screens/specialist/create_queue_type_dialog.dart';
-import '../../ui/screens/specialist/delete_queue_type_dialog.dart';
+import '../../ui/screens/specialist/create_specialist_dialog.dart';
+import '../../ui/screens/specialist/delete_specialist_dialog.dart';
 import '../../ui/screens/specialist/specialists_screen.dart';
 import '../main/main.dart';
 

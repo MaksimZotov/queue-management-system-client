@@ -57,7 +57,7 @@
 "creationOfService": "Создание услуги",
 "supposedDuration": "Предполагаемая длительность",
 "maxDuration": "Максимальная длительность",
-"creationOfSpecialist": "Создание типа очередей",
+"creationOfSpecialist": "Создание специалиста",
 "services": "Услуги",
 "servicesSequences": "Наборы услуг",
 "specialists": "Специалисты",
@@ -95,5 +95,10 @@
 "supposedDurationMustBeANumber": "Предполагаемая длительность должна быть числом",
 "logoutFromAccountQuestion": "Выйти из аккаунта?",
 "mode": "Режим",
-"yes": "Да"
+"yes": "Да",
+"creationOfServicesSequence": "Создание набора услуг",
+"deleteSpecialistQuestion": "Удалить специалиста?",
+"deleteServicesSequenceQuestion": "Удалить набор услуг?",
+"specialist": "Специалист",
+"locationDoesNotContainSpecialists": "В локации нет специалистов"
 }

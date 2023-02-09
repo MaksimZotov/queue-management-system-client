@@ -31,16 +31,16 @@ class _QueueItemState extends State<QueueItemWidget> {
           widget.queue.name,
           maxLines: 1
         ),
-        subtitle: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 200),
-          child: widget.queue.description != null
-              ? Text(
-                  widget.queue.description!,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
+        subtitle: widget.queue.description != null
+            ? ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 200),
+              child: Text(
+                widget.queue.description!,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
               )
-              : null,
-        ),
+            )
+            : null,
         trailing: widget.queue.hasRights == true
             ? SizedBox(
               height: double.infinity,

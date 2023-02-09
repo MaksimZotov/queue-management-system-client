@@ -6,7 +6,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/domain/models/location/specialist_model.dart';
 import 'package:queue_management_system_client/ui/models/service/service_wrapper.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
-import 'package:queue_management_system_client/ui/widgets/queue_type_item_widget.dart';
+import 'package:queue_management_system_client/ui/widgets/specialist_item_widget.dart';
 
 import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
@@ -20,8 +20,8 @@ import '../../../domain/models/location/location_model.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/button_widget.dart';
 import '../../widgets/service_item_widget.dart';
-import 'create_queue_type_dialog.dart';
-import 'delete_queue_type_dialog.dart';
+import 'create_specialist_dialog.dart';
+import 'delete_specialist_dialog.dart';
 
 class SpecialistsWidget extends BaseWidget<SpecialistsConfig> {
 
@@ -117,7 +117,9 @@ class _SpecialistsState extends BaseState<
                     }
                   })
                 : null,
-              onTap: getCubitInstance(context).switchToServicesInSpecialist,
+              onTap: state.kioskState != null
+                  ? getCubitInstance(context).switchToServicesInSpecialist
+                  : null
             );
           },
           itemCount: state.specialists.length,

@@ -1,5 +1,7 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
+import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
 import 'package:queue_management_system_client/domain/models/queue/create_queue_request.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
@@ -23,7 +25,7 @@ class CreateQueueConfig extends BaseDialogConfig {
 }
 
 class CreateQueueResult extends BaseDialogResult {
-  final QueueModel queueModel;
+  final QueueModel? queueModel;
 
   CreateQueueResult({
     required this.queueModel
@@ -71,24 +73,49 @@ class _CreateQueueState extends BaseDialogState<
         text: state.description,
         onTextChanged: getCubitInstance(context).setDescription
     ),
-    DropdownButton<SpecialistModel>(
-      value: state.selectedSpecialist,
-      icon: const Icon(Icons.arrow_downward),
-      elevation: 16,
-      style: const TextStyle(color: Colors.deepPurple),
-      underline: Container(
-        height: 2,
-        color: Colors.deepPurpleAccent,
-      ),
-      onChanged: getCubitInstance(context).selectSpecialist,
-      items: state.specialists.map<DropdownMenuItem<SpecialistModel>>((SpecialistModel value) {
-        return DropdownMenuItem<SpecialistModel>(
-          value: value,
-          child: Text(value.name),
-        );
-      }).toList(),
-    ),
     const SizedBox(height: Dimens.contentMargin),
+    Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+          getLocalizations(context).specialist,
+          style: const TextStyle(
+              fontSize: Dimens.labelFontSize
+          )
+      ),
+    ),
+    const SizedBox(height: Dimens.fieldElementsMargin),
+    DropdownButtonFormField2(
+        buttonHighlightColor: Colors.transparent,
+        buttonSplashColor: Colors.transparent,
+        focusColor: Colors.transparent,
+        decoration: InputDecoration(
+          isDense: true,
+          contentPadding: EdgeInsets.zero,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+        ),
+        isExpanded: true,
+        icon: const Icon(
+          Icons.arrow_drop_down,
+          color: Colors.black45,
+        ),
+        iconSize: 30,
+        buttonHeight: 60,
+        buttonPadding: const EdgeInsets.only(right: 10),
+        dropdownDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        value: state.selectedSpecialist,
+        onChanged: getCubitInstance(context).selectSpecialist,
+        items: state.specialists.map<DropdownMenuItem<SpecialistModel>>((SpecialistModel value) =>
+          DropdownMenuItem<SpecialistModel>(
+            value: value,
+            child: Text(value.name),
+          )
+        ).toList()
+    ),
+    const SizedBox(height: Dimens.contentMargin * 2),
     ButtonWidget(
         text: getLocalizations(context).create,
         onClick: getCubitInstance(context).createQueue
@@ -176,8 +203,18 @@ class CreateQueueCubit extends BaseDialogCubit<CreateQueueLogicState> {
         state.config.locationId
     )
       ..onSuccess((result) async {
-        emit(state.copy(specialists: result.data.results));
-        hideLoad();
+        List<SpecialistModel> specialists = result.data.results;
+        if (specialists.isEmpty) {
+          popResult(CreateQueueResult(queueModel: null));
+        } else {
+          emit(
+              state.copy(
+                  specialists: specialists,
+                  selectedSpecialist: specialists.first
+              )
+          );
+          hideLoad();
+        }
       })
       ..onError((result) {
         showError(result);

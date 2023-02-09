@@ -48,7 +48,7 @@ class _DeleteSpecialistState extends BaseDialogState<
       BuildContext context,
       DeleteSpecialistLogicState state,
       DeleteSpecialistWidget widget
-  ) => getLocalizations(context).deleteQueueQuestion;
+  ) => getLocalizations(context).deleteSpecialistQuestion;
 
   @override
   List<Widget> getDialogContentWidget(

@@ -32,15 +32,14 @@ class _ServiceItemState extends State<ServiceItemWidget> {
               : null,
           title: Text(widget.serviceWrapper.service.name, maxLines: 1),
           subtitle: widget.serviceWrapper.service.description != null
-            ? ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 200),
-              child: Text(
-                  widget.serviceWrapper.service.description!,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
+              ? ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 200),
+                child: Text(
+                    widget.serviceWrapper.service.description!,
+                    overflow: TextOverflow.ellipsis,
+                )
               )
-            )
-            : null,
+              : null,
           trailing: widget.onDelete != null
               ? SizedBox(
                   height: double.infinity,

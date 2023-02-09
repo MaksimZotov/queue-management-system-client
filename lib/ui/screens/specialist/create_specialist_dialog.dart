@@ -64,7 +64,7 @@ class _CreateSpecialistState extends BaseDialogState<
       BuildContext context,
       CreateSpecialistLogicState state,
       CreateSpecialistWidget widget
-      ) => [
+  ) => [
     TextFieldWidget(
         label: getLocalizations(context).name,
         text: state.name,
