@@ -79,7 +79,7 @@ class _SpecialistsState extends BaseState<
       )
       : null,
     body: _getBody(context, state, widget),
-    floatingActionButton: state.hasRights && state.specialistsStateEnum == SpecialistsStateEnum.specialistsViewing
+    floatingActionButton: _checkFloatingActionButton(state)
         ? FloatingActionButton(
           tooltip: getLocalizations(context).createSpecialist,
           onPressed: getCubitInstance(context).switchToServicesSelecting,
@@ -175,6 +175,9 @@ class _SpecialistsState extends BaseState<
         );
     }
   }
+
+  bool _checkFloatingActionButton(SpecialistsLogicState state) =>
+      state.hasRights && state.specialistsStateEnum == SpecialistsStateEnum.specialistsViewing && state.kioskState == null;
 }
 
 enum SpecialistsStateEnum {

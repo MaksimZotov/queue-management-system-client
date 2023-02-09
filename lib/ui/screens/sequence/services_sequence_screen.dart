@@ -83,7 +83,7 @@ class _ServicesSequencesState extends BaseState<
       )
       : null,
     body: _getBody(context, state, widget),
-    floatingActionButton: state.hasRights && state.servicesSequencesStateEnum == ServicesSequencesStateEnum.servicesSequencesViewing
+    floatingActionButton: _checkFloatingActionButton(state)
         ? FloatingActionButton(
           tooltip: getLocalizations(context).createServicesSequence,
           onPressed: getCubitInstance(context).switchToServicesSelecting,
@@ -219,6 +219,9 @@ class _ServicesSequencesState extends BaseState<
         );
     }
   }
+
+  bool _checkFloatingActionButton(ServicesSequencesLogicState state) =>
+      state.hasRights && state.servicesSequencesStateEnum == ServicesSequencesStateEnum.servicesSequencesViewing && state.kioskState == null;
 }
 
 enum ServicesSequencesStateEnum {
