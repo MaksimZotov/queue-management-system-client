@@ -25,6 +25,20 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+       <receiver
+           android:name=".MyDeviceAdminReceiver"
+           android:label="queue_management_system_client"
+           android:permission="android.permission.BIND_DEVICE_ADMIN"
+           android:exported="true" >
+           <meta-data
+               android:name="android.app.device_admin"
+               android:resource="@xml/policies" />
+           <intent-filter>
+               <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+               <action android:name="android.app.action.PROFILE_PROVISIONING_COMPLETE"/>
+               <action android:name="android.intent.action.BOOT_COMPLETED"/>
+           </intent-filter>
+       </receiver>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

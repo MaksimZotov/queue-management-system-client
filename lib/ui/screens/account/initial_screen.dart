@@ -9,6 +9,20 @@ import '../../../domain/interactors/account_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 
+import 'package:flutter/services.dart';
+
+class KioskMode {
+  static const platform = MethodChannel('kioskModeLocked');
+
+  static startKioskMode() async {
+    await platform.invokeMethod('startKioskMode');
+  }
+
+  static stopKioskMode() async {
+    await platform.invokeMethod('stopKioskMode');
+  }
+}
+
 class InitialWidget extends BaseWidget<InitialConfig> {
 
   const InitialWidget({
@@ -50,13 +64,13 @@ class InitialState extends BaseState<
                 ButtonWidget(
                   text: getLocalizations(context).authorization,
                   onClick: () {
-                    widget.emitConfig(AuthorizationConfig());
+                    KioskMode.startKioskMode();//widget.emitConfig(AuthorizationConfig());
                   },
                 ),
                 ButtonWidget(
                   text: getLocalizations(context).registration,
                   onClick: () {
-                    widget.emitConfig(RegistrationConfig());
+                    KioskMode.stopKioskMode();//widget.emitConfig(RegistrationConfig());
                   },
                 ),
               ],
