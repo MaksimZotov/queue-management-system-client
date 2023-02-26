@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../domain/models/queue/queue_model.dart';
 
@@ -45,6 +46,7 @@ class _QueueItemState extends State<QueueItemWidget> {
             ? SizedBox(
               height: double.infinity,
               child: IconButton(
+                tooltip: AppLocalizations.of(context)!.delete,
                 icon: const Icon(Icons.delete),
                 onPressed: () => widget.onDelete(widget.queue)
               ),

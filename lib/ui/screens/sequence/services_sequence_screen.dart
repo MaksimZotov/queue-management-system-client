@@ -391,6 +391,8 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
     List<ServiceWrapper> selectedServices = state.selectedServices;
     int order = serviceWrapper.orderNumber;
 
+    ServiceWrapper Function(ServiceWrapper serviceWrapper) mapServices;
+
     if (!serviceWrapper.selected) {
       bool hasPrev = false;
       bool hasNext = false;
@@ -405,50 +407,42 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
       }
 
       if (hasPrev && hasNext) {
-        selectedServices = selectedServices
-          .map((cur) {
-            if ([order - 1, order, order + 1].contains(cur.orderNumber)) {
-              return cur.copy(selected: true, orderNumber: order - 1);
-            }
-            if (cur.orderNumber >= order) {
-              return cur.copy(orderNumber: cur.orderNumber - 1);
-            }
-            return cur;
-          })
-          .toList();
+        mapServices = (cur) {
+          if ([order - 1, order, order + 1].contains(cur.orderNumber)) {
+            return cur.copy(selected: true, orderNumber: order - 1);
+          }
+          if (cur.orderNumber >= order) {
+            return cur.copy(orderNumber: cur.orderNumber - 1);
+          }
+          return cur;
+        };
       } else if (hasPrev) {
-        selectedServices = selectedServices
-            .map((cur) {
-              if ([order - 1, order].contains(cur.orderNumber)) {
-                return cur.copy(selected: true, orderNumber: order - 1);
-              }
-              if (cur.orderNumber >= order) {
-                return cur.copy(orderNumber: cur.orderNumber - 1);
-              }
-              return cur;
-            })
-            .toList();
+        mapServices = (cur) {
+          if ([order - 1, order].contains(cur.orderNumber)) {
+            return cur.copy(selected: true, orderNumber: order - 1);
+          }
+          if (cur.orderNumber >= order) {
+            return cur.copy(orderNumber: cur.orderNumber - 1);
+          }
+          return cur;
+        };
       } else if (hasNext) {
-        selectedServices = selectedServices
-            .map((cur) {
-              if ([order, order + 1].contains(cur.orderNumber)) {
-                return cur.copy(selected: true, orderNumber: order);
-              }
-              if (cur.orderNumber >= order) {
-                return cur.copy(orderNumber: cur.orderNumber - 1);
-              }
-              return cur;
-            })
-            .toList();
+        mapServices = (cur) {
+          if ([order, order + 1].contains(cur.orderNumber)) {
+            return cur.copy(selected: true, orderNumber: order);
+          }
+          if (cur.orderNumber >= order) {
+            return cur.copy(orderNumber: cur.orderNumber - 1);
+          }
+          return cur;
+        };
       } else {
-        selectedServices = selectedServices
-            .map((cur) {
-              if (cur.service.id == serviceWrapper.service.id) {
-                return cur.copy(selected: true);
-              }
-              return cur;
-            })
-            .toList();
+        mapServices = (cur) {
+          if (cur.service.id == serviceWrapper.service.id) {
+            return cur.copy(selected: true);
+          }
+          return cur;
+        };
       }
     } else {
       bool hasTheSameOrder = false;
@@ -461,36 +455,32 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
       }
 
       if (hasTheSameOrder) {
-        selectedServices = selectedServices
-            .map((cur) {
-              if (cur.orderNumber > serviceWrapper.orderNumber) {
-                return cur.copy(
-                    orderNumber: cur.orderNumber + 1
-                );
-              }
-              if (cur.service.id == serviceWrapper.service.id) {
-                return cur.copy(
-                    selected: false,
-                    orderNumber: cur.orderNumber + 1
-                );
-              }
-              return cur;
-            })
-            .toList();
+        mapServices = (cur) {
+          if (cur.orderNumber > serviceWrapper.orderNumber) {
+            return cur.copy(
+                orderNumber: cur.orderNumber + 1
+            );
+          }
+          if (cur.service.id == serviceWrapper.service.id) {
+            return cur.copy(
+                selected: false,
+                orderNumber: cur.orderNumber + 1
+            );
+          }
+          return cur;
+        };
       } else {
-        selectedServices = selectedServices
-            .map((cur) {
-              if (cur.service.id == serviceWrapper.service.id) {
-                return cur.copy(selected: false);
-              }
-              return cur;
-            })
-            .toList();
+        mapServices = (cur) {
+          if (cur.service.id == serviceWrapper.service.id) {
+            return cur.copy(selected: false);
+          }
+          return cur;
+        };
       }
     }
-    
-    selectedServices.sort((a, b) => a.orderNumber.compareTo(b.orderNumber));
 
+    selectedServices = selectedServices.map(mapServices).toList();
+    selectedServices.sort((a, b) => a.orderNumber.compareTo(b.orderNumber));
     emit(state.copy(selectedServices: selectedServices));
   }
 
