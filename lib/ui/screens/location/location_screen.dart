@@ -1,5 +1,7 @@
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/domain/enums/kiosk_mode.dart';
 import 'package:queue_management_system_client/domain/enums/rights_status.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
@@ -9,7 +11,9 @@ import 'package:queue_management_system_client/ui/screens/location/switch_to_boa
 import 'package:queue_management_system_client/ui/screens/location/switch_to_kiosk_dialog.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 
+import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../dimens.dart';
 import '../../../domain/interactors/kiosk_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/kiosk/kiosk_state.dart';
@@ -119,7 +123,7 @@ class LocationState extends BaseState<
                 ),
               ] + (
                   (state.kioskState == null)
-                      ? [
+                      ? <Widget>[
                           ButtonWidget(
                               text: getLocalizations(context).queues,
                               onClick: () => widget.emitConfig(
@@ -128,10 +132,15 @@ class LocationState extends BaseState<
                                       locationId: widget.config.locationId
                                   )
                               )
-                          )
+                          ),
+                          const SizedBox(height: Dimens.contentMargin),
+                          ButtonWidget(
+                              text: getLocalizations(context).downloadQrCode,
+                              onClick: getCubitInstance(context).downloadQrCode
+                          ),
                         ]
                       : []
-                  ),
+                  )
             ),
           ),
         ),
@@ -288,6 +297,29 @@ class LocationCubit extends BaseCubit<LocationLogicState> {
                 locationId: state.config.locationId
             )
         );
+    }
+  }
+
+  Future<void> downloadQrCode() async {
+    int accountId = state.config.accountId;
+    int locationId = state.config.locationId;
+    String url = '${ServerApi.clientUrl}/accounts/$accountId/locations/$locationId';
+
+    final image = await QrPainter(
+      data: url,
+      version: QrVersions.auto,
+      errorCorrectionLevel: QrErrorCorrectLevel.Q,
+      color: Colors.black,
+      emptyColor: Colors.white,
+    ).toImageData(1024);
+
+    if (image != null) {
+      await FileSaver.instance.saveFile(
+          url,
+          image.buffer.asUint8List(),
+          'png',
+          mimeType: MimeType.PNG
+      );
     }
   }
 }

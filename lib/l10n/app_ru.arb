@@ -113,5 +113,6 @@
 "locationPausing": "Постановка локации на паузу",
 "queuePausing": "Постановка очереди на паузу",
 "turnOnQueue": "Включить очередь",
-"turnOffQueue": "Выключить очередь"
+"turnOffQueue": "Выключить очередь",
+"downloadQrCode": "Скачать QR-код"
 }

@@ -180,30 +180,6 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
     });
   }
 
-  Future<void> downloadQrCode() async {
-    String email = state.queueStateModel.ownerEmail!;
-    int locationId = state.config.locationId;
-    int queueId = state.config.queueId;
-    String url = '${ServerApi.clientUrl}/$email/locations/$locationId/queues/$queueId/client';
-
-    final image = await QrPainter(
-      data: url,
-      version: QrVersions.auto,
-      errorCorrectionLevel: QrErrorCorrectLevel.Q,
-      color: Colors.black,
-      emptyColor: Colors.white,
-    ).toImageData(1024);
-
-    if (image != null) {
-      await FileSaver.instance.saveFile(
-          url,
-          image.buffer.asUint8List(),
-          'png',
-          mimeType: MimeType.PNG
-      );
-    }
-  }
-
   @override
   Future<void> close() async {
     _socketInteractor.disconnectFromSocket(
