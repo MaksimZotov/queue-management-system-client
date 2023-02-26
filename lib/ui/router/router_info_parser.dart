@@ -65,7 +65,7 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
             case 'accounts':
               switch (segments[2]) {
                 case 'locations':
-                  switch (segments[3]) {
+                  switch (segments[4]) {
                     // "/accounts/{account_id}/locations/{location_id}/services"
                     case 'services':
                       return ServicesConfig(
@@ -112,7 +112,7 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
             case 'accounts':
               switch (segments[2]) {
                 case 'locations':
-                  switch (segments[3]) {
+                  switch (segments[4]) {
                     // "/accounts/{account_id}/locations/{location_id}/queues/{queue_id}"
                     case 'queues':
                       return QueueConfig(
