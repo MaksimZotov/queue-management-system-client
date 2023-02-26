@@ -1,7 +1,5 @@
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/data/api/server_api.dart';
@@ -39,7 +37,22 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
       QueueWidget widget
   ) => Scaffold(
     appBar: AppBar(
-      title: Text(state.queueStateModel.name)
+      title: Text(state.queueStateModel.name),
+        actions: state.queueStateModel.enabled != null
+            ? [
+              IconButton(
+                  tooltip: state.queueStateModel.enabled == true
+                      ? getLocalizations(context).turnOffQueue
+                      : getLocalizations(context).turnOnQueue,
+                  icon: Icon(
+                      state.queueStateModel.enabled == true
+                          ? Icons.bedtime_off
+                          : Icons.bedtime
+                  ),
+                  onPressed: getCubitInstance(context).changeQueueEnableState
+              )
+            ]
+            : null
     ),
     body: ListView.builder(
       itemBuilder: (context, index) {
@@ -153,6 +166,18 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
       ..onError((result) {
         showError(result);
       });
+  }
+
+  Future<void> changeQueueEnableState() async {
+    Result result;
+    if (state.queueStateModel.enabled == true) {
+      result = await _queueInteractor.disableQueue(state.config.queueId);
+    } else {
+      result = await _queueInteractor.enableQueue(state.config.queueId);
+    }
+    result.onError((result) {
+      showError(result);
+    });
   }
 
   Future<void> downloadQrCode() async {

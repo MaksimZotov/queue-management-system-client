@@ -4,6 +4,7 @@ import 'package:queue_management_system_client/domain/enums/kiosk_mode.dart';
 import 'package:queue_management_system_client/domain/enums/rights_status.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
+import 'package:queue_management_system_client/ui/screens/location/enable_location_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/switch_to_board_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/switch_to_kiosk_dialog.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
@@ -59,6 +60,11 @@ class LocationState extends BaseState<
                       icon: const Icon(Icons.co_present_sharp),
                       onPressed: () => _showSwitchToKioskDialog(context, state)
                   ),
+                  IconButton(
+                      tooltip: getLocalizations(context).turnOnTurnOffLocation,
+                      icon: const Icon(Icons.bedtime),
+                      onPressed: () => _showEnableLocationDialog(context, state)
+                  )
                 ] + (
                     (state.locationModel?.isOwner == true || state.locationModel?.rightsStatus == RightsStatus.administrator)
                     ? [
@@ -171,6 +177,18 @@ class LocationState extends BaseState<
       getCubitInstance(context).handleSwitchToTerminalModeResult(result);
     }
   });
+
+  void _showEnableLocationDialog(
+      BuildContext context,
+      LocationLogicState state
+  ) => showDialog(
+      context: context,
+      builder: (context) => EnableLocationWidget(
+          config: EnableLocationConfig(
+              locationId: state.config.locationId
+          )
+      )
+  );
 }
 
 class LocationLogicState extends BaseLogicState {

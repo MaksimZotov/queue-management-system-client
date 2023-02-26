@@ -290,7 +290,7 @@ class ServerApi {
 
   Future<Result> disableLocation(int locationId) => _execRequest(
       request: _dioApi.post(
-          '$url/locations/$locationId/start'
+          '$url/locations/$locationId/disable'
       )
   );
 

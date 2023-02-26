@@ -106,5 +106,12 @@
 "switchFrequency": "Частота переключения",
 "maxColumnsAmountMustBeNonNegativeNumber": "Количество столбцов должно быть неотрицательным числом",
 "switchFrequencyMustBeNonNegativeNumber": "Частота переключения должна быть неотрицательным числом",
-"deleteClient": "Удалить клиента"
+"deleteClient": "Удалить клиента",
+"turnOn": "Включить",
+"turnOff": "Выключить",
+"turnOnTurnOffLocation": "Включить/выключить локацию",
+"locationPausing": "Постановка локации на паузу",
+"queuePausing": "Постановка очереди на паузу",
+"turnOnQueue": "Включить очередь",
+"turnOffQueue": "Выключить очередь"
 }
