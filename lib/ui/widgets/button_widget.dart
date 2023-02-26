@@ -4,14 +4,14 @@ import 'package:flutter/foundation.dart';
 import '../../dimens.dart';
 
 class ButtonWidget extends StatefulWidget {
+  final VoidCallback? onClick;
+  final String text;
+
   const ButtonWidget({
     Key? key,
     this.onClick,
     required this.text,
   }) : super(key: key);
-
-  final VoidCallback? onClick;
-  final String text;
 
   @override
   State createState() => _ButtonState();

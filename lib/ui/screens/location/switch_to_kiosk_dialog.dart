@@ -5,6 +5,7 @@ import 'package:queue_management_system_client/domain/enums/kiosk_mode.dart';
 import 'package:queue_management_system_client/ui/extensions/kiosk/kiosk_mode_extensions.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
+import 'package:queue_management_system_client/ui/widgets/dropdown_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
@@ -71,43 +72,11 @@ class _SwitchToKioskState extends BaseDialogState<
         ),
       ),
       const SizedBox(height: Dimens.fieldElementsMargin),
-      DropdownButtonFormField2(
-        buttonHighlightColor: Colors.transparent,
-        buttonSplashColor: Colors.transparent,
-        focusColor: Colors.transparent,
-        decoration: InputDecoration(
-          isDense: true,
-          contentPadding: EdgeInsets.zero,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-        ),
-        isExpanded: true,
-        icon: const Icon(
-          Icons.arrow_drop_down,
-          color: Colors.black45,
-        ),
-        iconSize: 30,
-        buttonHeight: 60,
-        buttonPadding: const EdgeInsets.only(right: 10),
-        dropdownDecoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        value: state.selectedMode,
-          items: KioskMode.values
-              .map((item) =>
-                DropdownMenuItem<KioskMode>(
-                  value: item,
-                  child: Text(
-                    item.getName(getLocalizations(context)),
-                    style: const TextStyle(
-                      fontSize: 14,
-                    ),
-                  ),
-                )
-              )
-              .toList(),
-          onChanged: getCubitInstance(context).selectMode
+      DropdownWidget<KioskMode>(
+          value: state.selectedMode,
+          items: KioskMode.values,
+          onChanged: getCubitInstance(context).selectMode,
+          getText: (item) => item.getName(getLocalizations(context))
       ),
       const SizedBox(height: Dimens.contentMargin * 2),
       Row(

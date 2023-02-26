@@ -211,11 +211,11 @@ class LocationLogicState extends BaseLogicState {
 @injectable
 class LocationCubit extends BaseCubit<LocationLogicState> {
   final LocationInteractor _locationInteractor;
-  final KioskInteractor _terminalInteractor;
+  final KioskInteractor _kioskInteractor;
 
   LocationCubit(
       this._locationInteractor,
-      this._terminalInteractor,
+      this._kioskInteractor,
       @factoryParam LocationConfig config
   ) : super(
       LocationLogicState(
@@ -228,7 +228,7 @@ class LocationCubit extends BaseCubit<LocationLogicState> {
   @override
   Future<void> onStart() async {
     showLoad();
-    await _terminalInteractor.clearKioskState();
+    await _kioskInteractor.clearKioskState();
     await _locationInteractor.getLocation(state.config.locationId)
       ..onSuccess((result) {
         emit(state.copy(locationModel: result.data));
@@ -240,7 +240,7 @@ class LocationCubit extends BaseCubit<LocationLogicState> {
   }
 
   Future<void> handleSwitchToTerminalModeResult(SwitchToKioskResult result) async {
-    await _terminalInteractor.setKioskState(result.kioskState);
+    await _kioskInteractor.setKioskState(result.kioskState);
     switch (result.kioskState.kioskMode) {
       case KioskMode.all:
         emit(state.copy(kioskState: result.kioskState));

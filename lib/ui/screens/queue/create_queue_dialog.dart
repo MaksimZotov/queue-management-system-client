@@ -15,6 +15,7 @@ import '../../../domain/models/base/result.dart';
 import '../../../domain/models/location/specialist_model.dart';
 import '../../../domain/models/queue/queue_model.dart';
 import '../../router/routes_config.dart';
+import '../../widgets/dropdown_widget.dart';
 
 class CreateQueueConfig extends BaseDialogConfig {
   final int locationId;
@@ -84,36 +85,11 @@ class _CreateQueueState extends BaseDialogState<
       ),
     ),
     const SizedBox(height: Dimens.fieldElementsMargin),
-    DropdownButtonFormField2(
-        buttonHighlightColor: Colors.transparent,
-        buttonSplashColor: Colors.transparent,
-        focusColor: Colors.transparent,
-        decoration: InputDecoration(
-          isDense: true,
-          contentPadding: EdgeInsets.zero,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-        ),
-        isExpanded: true,
-        icon: const Icon(
-          Icons.arrow_drop_down,
-          color: Colors.black45,
-        ),
-        iconSize: 30,
-        buttonHeight: 60,
-        buttonPadding: const EdgeInsets.only(right: 10),
-        dropdownDecoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-        ),
+    DropdownWidget<SpecialistModel>(
         value: state.selectedSpecialist,
+        items: state.specialists,
         onChanged: getCubitInstance(context).selectSpecialist,
-        items: state.specialists.map<DropdownMenuItem<SpecialistModel>>((SpecialistModel value) =>
-          DropdownMenuItem<SpecialistModel>(
-            value: value,
-            child: Text(value.name),
-          )
-        ).toList()
+        getText: (item) => item.name
     ),
     const SizedBox(height: Dimens.contentMargin * 2),
     ButtonWidget(
