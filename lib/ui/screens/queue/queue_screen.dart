@@ -12,6 +12,7 @@ import 'package:queue_management_system_client/domain/models/queue/queue_state_m
 import 'package:queue_management_system_client/ui/widgets/client_item_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../domain/interactors/client_interactor.dart';
 import '../../../domain/interactors/socket_interactor.dart';
 import '../../router/routes_config.dart';
 import '../base.dart';
@@ -46,6 +47,7 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
           client: state.queueStateModel.clients[index],
           onNotify: getCubitInstance(context).notify,
           onServe: getCubitInstance(context).serve,
+          onDelete: getCubitInstance(context).delete,
         );
       },
       itemCount: state.queueStateModel.clients.length,
@@ -92,12 +94,14 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
 
   static const String _queueTopic = '/topic/queues/';
 
-  final QueueInteractor queueInteractor;
-  final SocketInteractor socketInteractor;
+  final QueueInteractor _queueInteractor;
+  final ClientInteractor _clientInteractor;
+  final SocketInteractor _socketInteractor;
 
   QueueCubit(
-    this.queueInteractor,
-    this.socketInteractor,
+    this._queueInteractor,
+    this._clientInteractor,
+    this._socketInteractor,
     @factoryParam QueueConfig config
   ) : super(
       QueueLogicState(
@@ -112,7 +116,7 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
 
   @override
   Future<void> onStart() async {
-    await queueInteractor.getQueueState(
+    await _queueInteractor.getQueueState(
         state.config.queueId
     )..onSuccess((result) {
       emit(state.copy(queueStateModel: result.data));
@@ -120,7 +124,7 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
       showError(result);
     });
 
-    socketInteractor.connectToSocket<QueueStateModel>(
+    _socketInteractor.connectToSocket<QueueStateModel>(
       _queueTopic + state.config.queueId.toString(),
       () => { /* Do nothing */ },
       (queue) => {
@@ -131,17 +135,24 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
   }
 
   Future<void> notify(ClientInQueueModel client) async {
-    await queueInteractor.notifyClientInQueue(state.config.queueId, client.id)
+    await _queueInteractor.notifyClientInQueue(state.config.queueId, client.id)
       ..onError((result) {
         showError(result);
       });
   }
 
   Future<void> serve(ClientInQueueModel client) async {
-    await queueInteractor.serveClientInQueue(state.config.queueId, client.id)
+    await _queueInteractor.serveClientInQueue(state.config.queueId, client.id)
       ..onError((result) {
         showError(result);
     });
+  }
+
+  Future<void> delete(ClientInQueueModel client) async {
+    await _clientInteractor.deleteClientInLocation(state.config.locationId, client.id)
+      ..onError((result) {
+        showError(result);
+      });
   }
 
   Future<void> downloadQrCode() async {
@@ -170,7 +181,7 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
 
   @override
   Future<void> close() async {
-    socketInteractor.disconnectFromSocket(
+    _socketInteractor.disconnectFromSocket(
         _queueTopic + state.config.queueId.toString()
     );
     return super.close();

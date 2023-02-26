@@ -6,12 +6,14 @@ import 'package:queue_management_system_client/domain/models/queue/client_in_que
 class ClientItemWidget extends StatefulWidget {
   final ValueChanged<ClientInQueueModel> onNotify;
   final ValueChanged<ClientInQueueModel> onServe;
+  final ValueChanged<ClientInQueueModel> onDelete;
   final ClientInQueueModel client;
 
   const ClientItemWidget({
     Key? key,
     required this.onNotify,
     required this.onServe,
+    required this.onDelete,
     required this.client,
   }) : super(key: key);
 
@@ -36,11 +38,21 @@ class _ClientItemState extends State<ClientItemWidget> {
           icon: const Icon(Icons.done_outline_rounded),
           onPressed: () => widget.onServe(widget.client),
         ),
-        trailing: IconButton(
-          tooltip: AppLocalizations.of(context)!.callClient,
-          icon: const Icon(Icons.notifications),
-          onPressed: () => widget.onNotify(widget.client),
-        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              tooltip: AppLocalizations.of(context)!.callClient,
+              icon: const Icon(Icons.notifications),
+              onPressed: () => widget.onNotify(widget.client),
+            ),
+            IconButton(
+              tooltip: AppLocalizations.of(context)!.deleteClient,
+              icon: const Icon(Icons.close),
+              onPressed: () => widget.onDelete(widget.client),
+            ),
+          ],
+        )
       ),
     );
   }

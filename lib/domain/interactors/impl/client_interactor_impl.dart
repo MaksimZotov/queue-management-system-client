@@ -25,4 +25,9 @@ class ClientInteractorImpl extends ClientInteractor {
   Future<Result<QueueStateForClientModel>> leaveQueue(int clientId, String accessKey) {
     return _repository.leaveQueue(clientId, accessKey);
   }
+
+  @override
+  Future<Result> deleteClientInLocation(int locationId, int clientId) {
+    return _repository.deleteClientInLocation(locationId, clientId);
+  }
 }

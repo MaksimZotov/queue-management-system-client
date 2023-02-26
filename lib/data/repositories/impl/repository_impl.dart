@@ -264,6 +264,11 @@ class RepositoryImpl extends Repository {
   Future<Result<QueueStateForClientModel>> leaveQueue(int clientId, String accessKey) async {
     return _serverApi.leaveQueue(clientId, accessKey);
   }
+
+  @override
+  Future<Result> deleteClientInLocation(int locationId, int clientId) {
+    return _serverApi.deleteClientInLocation(locationId, clientId);
+  }
   // <======================== Client ========================>
 
 
@@ -320,5 +325,5 @@ class RepositoryImpl extends Repository {
   void disconnectFromSocket(String destination) {
     _serverApi.disconnectFromSocket(destination);
   }
-// <======================== Socket ========================>
+  // <======================== Socket ========================>
 }

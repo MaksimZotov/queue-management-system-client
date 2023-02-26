@@ -73,6 +73,7 @@ abstract class Repository {
   Future<Result<QueueStateForClientModel>> getQueueStateForClient(int clientId, String accessKey);
   Future<Result<QueueStateForClientModel>> confirmAccessKeyByClient(int clientId, String accessKey);
   Future<Result<QueueStateForClientModel>> leaveQueue(int clientId, String accessKey);
+  Future<Result> deleteClientInLocation(int locationId, int clientId);
   // <======================== Client ========================>
 
   // <======================== Rights ========================>

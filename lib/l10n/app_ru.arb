@@ -105,5 +105,6 @@
 "columnsAmount": "Количество столбцов",
 "switchFrequency": "Частота переключения",
 "maxColumnsAmountMustBeNonNegativeNumber": "Количество столбцов должно быть неотрицательным числом",
-"switchFrequencyMustBeNonNegativeNumber": "Частота переключения должна быть неотрицательным числом"
+"switchFrequencyMustBeNonNegativeNumber": "Частота переключения должна быть неотрицательным числом",
+"deleteClient": "Удалить клиента"
 }

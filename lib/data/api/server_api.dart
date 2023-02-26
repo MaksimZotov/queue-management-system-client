@@ -420,6 +420,16 @@ class ServerApi {
           },
       )
   );
+
+  Future<Result> deleteClientInLocation(int locationId, int clientId) => _execRequest(
+      fromJson: QueueStateForClientModel.fromJson,
+      request: _dioApi.delete(
+        '$url/client/$clientId/delete',
+        queryParameters: {
+          'location_id': locationId
+        },
+      )
+  );
   // <======================== Client ========================>
 
 

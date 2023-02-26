@@ -64,13 +64,15 @@ class InitialState extends BaseState<
                 ButtonWidget(
                   text: getLocalizations(context).authorization,
                   onClick: () {
-                    KioskMode.startKioskMode();//widget.emitConfig(AuthorizationConfig());
+                    //KioskMode.startKioskMode();//
+                    widget.emitConfig(AuthorizationConfig());
                   },
                 ),
                 ButtonWidget(
                   text: getLocalizations(context).registration,
                   onClick: () {
-                    KioskMode.stopKioskMode();//widget.emitConfig(RegistrationConfig());
+                    //KioskMode.stopKioskMode();//
+                    widget.emitConfig(RegistrationConfig());
                   },
                 ),
               ],
