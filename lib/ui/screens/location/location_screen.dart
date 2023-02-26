@@ -148,7 +148,9 @@ class LocationState extends BaseState<
       widget.emitConfig(
           BoardConfig(
               accountId: state.config.accountId,
-              locationId: state.config.locationId
+              locationId: state.config.locationId,
+              columnsAmount: result.columnsAmount,
+              switchFrequency: result.switchFrequency
           )
       );
     }

@@ -3,12 +3,23 @@ import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../dimens.dart';
 import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
+import '../../widgets/text_field_widget.dart';
 import '../base.dart';
 
 class SwitchToBoardConfig extends BaseDialogConfig {}
-class SwitchToBoardResult extends BaseDialogResult {}
+
+class SwitchToBoardResult extends BaseDialogResult {
+  final int columnsAmount;
+  final int switchFrequency;
+
+  SwitchToBoardResult({
+    required this.columnsAmount,
+    required this.switchFrequency
+  });
+}
 
 class SwitchToBoardWidget extends BaseDialogWidget<SwitchToBoardConfig> {
 
@@ -40,9 +51,23 @@ class _SwitchToBoardState extends BaseDialogState<
       SwitchToBoardLogicState state,
       SwitchToBoardWidget widget
   ) => [
+    TextFieldWidget(
+        label: getLocalizations(context).columnsAmount,
+        text: state.columnsAmount,
+        onTextChanged: getCubitInstance(context).setColumnsAmount
+    ),
+    TextFieldWidget(
+        label: getLocalizations(context).switchFrequency,
+        text: state.switchFrequency,
+        onTextChanged: getCubitInstance(context).setSwitchFrequency
+    ),
+    const SizedBox(height: Dimens.contentMargin),
     ButtonWidget(
-        text: getLocalizations(context).yes,
-        onClick: getCubitInstance(context).switchToBoard
+        text: getLocalizations(context).switchVerb,
+        onClick: () => getCubitInstance(context).switchToBoard(
+            getLocalizations(context).maxColumnsAmountMustBeNonNegativeNumber,
+            getLocalizations(context).switchFrequencyMustBeNonNegativeNumber
+        )
     )
   ];
 
@@ -56,6 +81,9 @@ class SwitchToBoardLogicState extends BaseDialogLogicState<
     SwitchToBoardResult
 > {
 
+  final String columnsAmount;
+  final String switchFrequency;
+
   SwitchToBoardLogicState({
     super.nextConfig,
     super.error,
@@ -63,6 +91,8 @@ class SwitchToBoardLogicState extends BaseDialogLogicState<
     required super.config,
     super.result,
     super.loading,
+    required this.columnsAmount,
+    required this.switchFrequency
   });
 
   @override
@@ -71,6 +101,8 @@ class SwitchToBoardLogicState extends BaseDialogLogicState<
     ErrorResult? error,
     String? snackBar,
     bool? loading,
+    String? columnsAmount,
+    String? switchFrequency,
     SwitchToBoardResult? result
   }) => SwitchToBoardLogicState(
       nextConfig: nextConfig,
@@ -78,6 +110,8 @@ class SwitchToBoardLogicState extends BaseDialogLogicState<
       snackBar: snackBar,
       loading: loading ?? this.loading,
       config: config,
+      columnsAmount: columnsAmount ?? this.columnsAmount,
+      switchFrequency: switchFrequency ?? this.switchFrequency,
       result: result
   );
 }
@@ -90,10 +124,38 @@ class SwitchToBoardCubit extends BaseDialogCubit<SwitchToBoardLogicState> {
   ) : super(
       SwitchToBoardLogicState(
         config: config,
+          columnsAmount: '5',
+          switchFrequency: '5'
       )
   );
 
-  void switchToBoard() {
-    popResult(SwitchToBoardResult());
+  void setColumnsAmount(String text) {
+    emit(state.copy(columnsAmount: text));
+  }
+
+  void setSwitchFrequency(String text) {
+    emit(state.copy(switchFrequency: text));
+  }
+
+  void switchToBoard(
+      String parseColumnsAmountErrorMessage,
+      String parseSwitchFrequencyErrorMessage
+  ) {
+    int? columnsAmount = int.tryParse(state.columnsAmount);
+    if (columnsAmount == null || columnsAmount < 0) {
+      showSnackBar(parseColumnsAmountErrorMessage);
+      return;
+    }
+    int? switchFrequency = int.tryParse(state.switchFrequency);
+    if (switchFrequency == null || switchFrequency < 0) {
+      showSnackBar(parseSwitchFrequencyErrorMessage);
+      return;
+    }
+    popResult(
+        SwitchToBoardResult(
+          columnsAmount: columnsAmount,
+          switchFrequency: switchFrequency
+        )
+    );
   }
 }

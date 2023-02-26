@@ -86,8 +86,8 @@ class _CreateServiceState extends BaseDialogState<
     ButtonWidget(
         text: getLocalizations(context).create,
         onClick: () => getCubitInstance(context).createService(
-          getLocalizations(context).supposedDurationMustBeANumber,
-          getLocalizations(context).maxDurationMustBeANumber
+          getLocalizations(context).supposedDurationMustBeNonNegativeNumber,
+          getLocalizations(context).maxDurationMustBeNonNegativeNumber
         )
     )
   ];
@@ -184,12 +184,12 @@ class CreateServiceCubit extends BaseDialogCubit<CreateServiceLogicState> {
       String parseMaxDurationErrorMessage
   ) async {
     int? supposedDuration = int.tryParse(state.supposedDuration);
-    if (supposedDuration == null) {
+    if (supposedDuration == null || supposedDuration < 0) {
       showSnackBar(parseSupposedDurationErrorMessage);
       return;
     }
     int? maxDuration = int.tryParse(state.maxDuration);
-    if (maxDuration == null) {
+    if (maxDuration == null || maxDuration < 0) {
       showSnackBar(parseMaxDurationErrorMessage);
       return;
     }

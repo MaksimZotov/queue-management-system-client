@@ -91,14 +91,19 @@
 "multipleSelect": "Множественный выбор",
 "finishServing": "Завершить обслуживание",
 "callClient": "Вызвать клиента",
-"maxDurationMustBeANumber": "Максимальная длительность должен быть числом",
-"supposedDurationMustBeANumber": "Предполагаемая длительность должна быть числом",
+"maxDurationMustBeNonNegativeNumber": "Максимальная длительность должен быть неотрицательным числом",
+"supposedDurationMustBeNonNegativeNumber": "Предполагаемая длительность должна быть неотрицательным числом",
 "logoutFromAccountQuestion": "Выйти из аккаунта?",
 "mode": "Режим",
 "yes": "Да",
+"switchVerb": "Переключиться",
 "creationOfServicesSequence": "Создание набора услуг",
 "deleteSpecialistQuestion": "Удалить специалиста?",
 "deleteServicesSequenceQuestion": "Удалить набор услуг?",
 "specialist": "Специалист",
-"locationDoesNotContainSpecialists": "В локации нет специалистов"
+"locationDoesNotContainSpecialists": "В локации нет специалистов",
+"columnsAmount": "Количество столбцов",
+"switchFrequency": "Частота переключения",
+"maxColumnsAmountMustBeNonNegativeNumber": "Количество столбцов должно быть неотрицательным числом",
+"switchFrequencyMustBeNonNegativeNumber": "Частота переключения должна быть неотрицательным числом"
 }

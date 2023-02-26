@@ -38,8 +38,8 @@ class _BoardState extends BaseState<BoardWidget, BoardLogicState, BoardCubit> {
     if (queues.isEmpty) {
       return Row(children: const []);
     }
-    int startIndex = state.page * BoardLogicState._pageSize;
-    int lastIndex = startIndex + BoardLogicState._pageSize - 1;
+    int startIndex = state.page * state.config.columnsAmount;
+    int lastIndex = startIndex + state.config.columnsAmount - 1;
     List<BoardQueue> sublist = queues.sublist(
         startIndex,
         queues.length < lastIndex + 1
@@ -158,8 +158,6 @@ class _BoardState extends BaseState<BoardWidget, BoardLogicState, BoardCubit> {
 
 class BoardLogicState extends BaseLogicState {
 
-  static const int _pageSize = 5;
-
   final BoardConfig config;
   final BoardModel board;
   final int page;
@@ -251,9 +249,9 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
   }
 
   void _startSwitchPages() async {
-    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+    _timer = Timer.periodic(Duration(seconds: state.config.switchFrequency), (timer) {
       int nextPage = state.page + 1;
-      if (nextPage * BoardLogicState._pageSize >= state.board.queues.length) {
+      if (nextPage * state.config.columnsAmount >= state.board.queues.length) {
         emit(state.copy(page: 0));
       } else {
         emit(state.copy(page: state.page + 1));

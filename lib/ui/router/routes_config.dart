@@ -301,10 +301,14 @@ class ClientConfig extends BaseConfig {
 class BoardConfig extends BaseConfig {
   int accountId;
   int locationId;
+  final int columnsAmount;
+  final int switchFrequency;
 
   BoardConfig({
     required this.accountId,
     required this.locationId,
+    this.columnsAmount = 5,
+    this.switchFrequency = 5
   });
 
   @override
