@@ -18,6 +18,7 @@ class ClientInQueueModel {
   @JsonKey(name: 'access_key')
   final String accessKey;
   final ClientInQueueStatus status;
+  final List<String> services;
 
   ClientInQueueModel({
     required this.id,
@@ -27,7 +28,8 @@ class ClientInQueueModel {
     required this.orderNumber,
     required this.publicCode,
     required this.accessKey,
-    required this.status
+    required this.status,
+    required this.services
   });
 
   static ClientInQueueModel fromJson(Map<String, dynamic> json) => _$ClientInQueueModelFromJson(json);

@@ -24,6 +24,10 @@ class ClientItemWidget extends StatefulWidget {
 class _ClientItemState extends State<ClientItemWidget> {
   @override
   Widget build(BuildContext context) {
+    StringBuffer stringBuffer = StringBuffer();
+    for (String service in widget.client.services) {
+      stringBuffer.write('\n$service');
+    }
     return Card(
       color: widget.client.status == ClientInQueueStatus.confirmed
           ? Colors.white
@@ -31,7 +35,10 @@ class _ClientItemState extends State<ClientItemWidget> {
       child: ListTile(
         title: Text('${widget.client.firstName} ${widget.client.lastName}'),
         subtitle: Text(
-          (widget.client.email == null ? '' : '${widget.client.email} ') + '(${widget.client.accessKey})',
+          ((widget.client.email == null)
+              ? ''
+              : ('${widget.client.email} ') + '(${widget.client.accessKey})')
+          + stringBuffer.toString(),
         ),
         leading: IconButton(
           tooltip: AppLocalizations.of(context)!.finishServing,
