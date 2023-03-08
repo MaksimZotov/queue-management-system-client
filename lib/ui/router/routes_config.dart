@@ -9,8 +9,12 @@ import 'package:queue_management_system_client/ui/screens/account/authorization_
 import 'package:queue_management_system_client/ui/screens/account/registration_screen.dart';
 import 'package:queue_management_system_client/ui/screens/account/initial_screen.dart';
 
+import '../screens/location/location_screen.dart';
 import '../screens/location/locations_screen.dart';
 import '../screens/queue/queue_screen.dart';
+import '../screens/sequence/services_sequence_screen.dart';
+import '../screens/service/services_screen.dart';
+import '../screens/specialist/specialists_screen.dart';
 
 abstract class BaseConfig {
   Page getPage(ValueChanged<BaseConfig> emitConfig);
@@ -82,16 +86,16 @@ class RegistrationConfig extends BaseConfig {
 }
 
 class LocationsConfig extends BaseConfig {
-  String username;
+  int accountId;
 
   LocationsConfig({
-    required this.username
+    required this.accountId
   });
 
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
     return RouterPage(
-        key: ValueKey('Locations Page $username'),
+        key: ValueKey('Locations Page $accountId'),
         child: LocationsWidget(
           config: this,
           emitConfig: emitConfig,
@@ -100,12 +104,125 @@ class LocationsConfig extends BaseConfig {
   }
 }
 
+class LocationConfig extends BaseConfig {
+  int accountId;
+  int locationId;
+
+  LocationConfig({
+    required this.accountId,
+    required this.locationId
+  });
+
+  @override
+  Page getPage(ValueChanged<BaseConfig> emitConfig) {
+    return RouterPage(
+        key: ValueKey('Location Page $locationId'),
+        child: LocationWidget(
+          config: this,
+          emitConfig: emitConfig,
+        )
+    );
+  }
+
+  @override
+  BaseConfig getPrevConfig() {
+    return LocationsConfig(accountId: accountId);
+  }
+}
+
+class ServicesSequencesConfig extends BaseConfig {
+  int accountId;
+  int locationId;
+
+  ServicesSequencesConfig({
+    required this.accountId,
+    required this.locationId
+  });
+
+  @override
+  Page getPage(ValueChanged<BaseConfig> emitConfig) {
+    return RouterPage(
+        key: ValueKey('Services Sequences Page $locationId'),
+        child: ServicesSequencesWidget(
+          config: this,
+          emitConfig: emitConfig,
+        )
+    );
+  }
+
+  @override
+  BaseConfig getPrevConfig() {
+    return LocationConfig(
+        accountId: accountId,
+        locationId: locationId
+    );
+  }
+}
+
+class ServicesConfig extends BaseConfig {
+  int accountId;
+  int locationId;
+
+  ServicesConfig({
+    required this.accountId,
+    required this.locationId
+  });
+
+  @override
+  Page getPage(ValueChanged<BaseConfig> emitConfig) {
+    return RouterPage(
+        key: ValueKey('Services Page $locationId'),
+        child: ServicesWidget(
+          config: this,
+          emitConfig: emitConfig,
+        )
+    );
+  }
+
+  @override
+  BaseConfig getPrevConfig() {
+    return LocationConfig(
+        accountId: accountId,
+        locationId: locationId
+    );
+  }
+}
+
+class SpecialistsConfig extends BaseConfig {
+  int accountId;
+  int locationId;
+
+  SpecialistsConfig({
+    required this.accountId,
+    required this.locationId
+  });
+
+  @override
+  Page getPage(ValueChanged<BaseConfig> emitConfig) {
+    return RouterPage(
+        key: ValueKey('Queue Types Page $locationId'),
+        child: SpecialistsWidget(
+          config: this,
+          emitConfig: emitConfig,
+        )
+    );
+  }
+
+  @override
+  BaseConfig getPrevConfig() {
+    return LocationConfig(
+        accountId: accountId,
+        locationId: locationId
+    );
+  }
+}
+
 class QueuesConfig extends BaseConfig {
-  String username;
+  int accountId;
   int locationId;
 
   QueuesConfig({
-    required this.username,
+    required this.accountId,
     required this.locationId
   });
 
@@ -122,17 +239,20 @@ class QueuesConfig extends BaseConfig {
 
   @override
   BaseConfig getPrevConfig() {
-    return LocationsConfig(username: username);
+    return LocationConfig(
+        accountId: accountId,
+        locationId: locationId
+    );
   }
 }
 
 class QueueConfig extends BaseConfig {
-  String username;
+  int accountId;
   int locationId;
   int queueId;
 
   QueueConfig({
-    required this.username,
+    required this.accountId,
     required this.locationId,
     required this.queueId
   });
@@ -151,50 +271,44 @@ class QueueConfig extends BaseConfig {
   @override
   BaseConfig getPrevConfig() {
     return QueuesConfig(
-        username: username,
+        accountId: accountId,
         locationId: locationId
     );
   }
 }
 
 class ClientConfig extends BaseConfig {
-  String username;
-  int locationId;
-  int queueId;
+  int clientId;
+  String accessKey;
 
   ClientConfig({
-    required this.username,
-    required this.locationId,
-    required this.queueId
+    required this.clientId,
+    required this.accessKey
   });
 
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
     return RouterPage(
-        key: ValueKey('Client Page $queueId'),
+        key: ValueKey('Client Page $clientId $accessKey'),
         child: ClientWidget(
           config: this,
           emitConfig: emitConfig
         )
     );
   }
-
-  @override
-  BaseConfig? getPrevConfig() {
-    return QueuesConfig(
-        username: username,
-        locationId: locationId
-    );
-  }
 }
 
 class BoardConfig extends BaseConfig {
-  String username;
+  int accountId;
   int locationId;
+  final int columnsAmount;
+  final int switchFrequency;
 
   BoardConfig({
-    required this.username,
+    required this.accountId,
     required this.locationId,
+    this.columnsAmount = 5,
+    this.switchFrequency = 5
   });
 
   @override
@@ -210,19 +324,19 @@ class BoardConfig extends BaseConfig {
 
   @override
   BaseConfig? getPrevConfig() {
-    return QueuesConfig(
-        username: username,
+    return LocationConfig(
+        accountId: accountId,
         locationId: locationId
     );
   }
 }
 
 class RightsConfig extends BaseConfig {
-  String username;
+  int accountId;
   int locationId;
 
   RightsConfig({
-    required this.username,
+    required this.accountId,
     required this.locationId,
   });
 
@@ -239,8 +353,8 @@ class RightsConfig extends BaseConfig {
 
   @override
   BaseConfig? getPrevConfig() {
-    return QueuesConfig(
-        username: username,
+    return LocationConfig(
+        accountId: accountId,
         locationId: locationId
     );
   }

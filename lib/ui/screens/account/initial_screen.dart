@@ -9,6 +9,20 @@ import '../../../domain/interactors/account_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 
+import 'package:flutter/services.dart';
+
+class KioskMode {
+  static const platform = MethodChannel('kioskModeLocked');
+
+  static startKioskMode() async {
+    await platform.invokeMethod('startKioskMode');
+  }
+
+  static stopKioskMode() async {
+    await platform.invokeMethod('stopKioskMode');
+  }
+}
+
 class InitialWidget extends BaseWidget<InitialConfig> {
 
   const InitialWidget({
@@ -18,19 +32,19 @@ class InitialWidget extends BaseWidget<InitialConfig> {
   });
 
   @override
-  State<InitialWidget> createState() => SelectState();
+  State<InitialWidget> createState() => InitialState();
 }
 
-class SelectState extends BaseState<
+class InitialState extends BaseState<
     InitialWidget,
-    SelectLogicState,
-    SelectCubit
+    InitialLogicState,
+    InitialCubit
 > {
 
   @override
   Widget getWidget(
       BuildContext context,
-      SelectLogicState state,
+      InitialLogicState state,
       InitialWidget widget
   ) => state.loading
       ? const Center(
@@ -50,12 +64,14 @@ class SelectState extends BaseState<
                 ButtonWidget(
                   text: getLocalizations(context).authorization,
                   onClick: () {
+                    //KioskMode.startKioskMode();//
                     widget.emitConfig(AuthorizationConfig());
                   },
                 ),
                 ButtonWidget(
                   text: getLocalizations(context).registration,
                   onClick: () {
+                    //KioskMode.stopKioskMode();//
                     widget.emitConfig(RegistrationConfig());
                   },
                 ),
@@ -66,16 +82,16 @@ class SelectState extends BaseState<
   );
 
   @override
-  SelectCubit getCubit() => statesAssembler.getSelectCubit();
+  InitialCubit getCubit() => statesAssembler.getInitialCubit();
 }
 
-enum SelectStateEnum {
+enum InitialStateEnum {
   loading, stay, goToLocations
 }
 
-class SelectLogicState extends BaseLogicState {
+class InitialLogicState extends BaseLogicState {
 
-  SelectLogicState({
+  InitialLogicState({
     super.nextConfig,
     super.error,
     super.snackBar,
@@ -83,12 +99,12 @@ class SelectLogicState extends BaseLogicState {
   });
 
   @override
-  SelectLogicState copy({
+  InitialLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
     bool? loading
-  }) => SelectLogicState(
+  }) => InitialLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
@@ -97,24 +113,24 @@ class SelectLogicState extends BaseLogicState {
 }
 
 @injectable
-class SelectCubit extends BaseCubit<SelectLogicState> {
+class InitialCubit extends BaseCubit<InitialLogicState> {
   final LocationInteractor _locationInteractor;
   final AccountInteractor _accountInteractor;
 
-  SelectCubit(
+  InitialCubit(
      this._locationInteractor,
      this._accountInteractor,
-  ) : super(SelectLogicState());
+  ) : super(InitialLogicState());
 
   @override
   Future<void> onStart() async {
     if (await _accountInteractor.checkToken()) {
-      String? username = await _accountInteractor.getCurrentUsername();
-      if (username != null) {
-        await _locationInteractor.checkHasRights(username)
+      int? accountId = await _accountInteractor.getCurrentAccountId();
+      if (accountId != null) {
+        await _locationInteractor.checkIsOwner(accountId)
           ..onSuccess((result) {
-            if (result.data.hasRights) {
-              navigate(LocationsConfig(username: username));
+            if (result.data.isOwner) {
+              navigate(LocationsConfig(accountId: accountId));
             }
           });
       }

@@ -5,6 +5,7 @@ import 'package:queue_management_system_client/domain/models/rights/rights_model
 
 import '../../../data/repositories/repository.dart';
 import '../../models/base/container_for_list.dart';
+import '../../models/rights/add_rights_request.dart';
 
 @Singleton(as: RightsInteractor)
 class RightsInteractorImpl extends RightsInteractor {
@@ -13,8 +14,8 @@ class RightsInteractorImpl extends RightsInteractor {
   RightsInteractorImpl(this._repository);
 
   @override
-  Future<Result> addRights(int locationId, String email) {
-    return _repository.addRights(locationId, email);
+  Future<Result> addRights(int locationId, AddRightsRequest addRightsRequest) {
+    return _repository.addRights(locationId, addRightsRequest);
   }
 
   @override

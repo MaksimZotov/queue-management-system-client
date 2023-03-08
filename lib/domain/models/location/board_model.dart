@@ -1,5 +1,6 @@
-import 'board_queue.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import 'board_queue.dart';
 
 part 'board_model.g.dart';
 

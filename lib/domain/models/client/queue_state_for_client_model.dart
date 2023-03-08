@@ -1,10 +1,10 @@
 import '../../enums/client_in_queue_status.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'client_model.g.dart';
+part 'queue_state_for_client_model.g.dart';
 
 @JsonSerializable()
-class ClientModel {
+class QueueStateForClientModel {
   @JsonKey(name: 'in_queue')
   final bool inQueue;
 
@@ -24,7 +24,7 @@ class ClientModel {
   final String? accessKey;
   final ClientInQueueStatus? status;
 
-  ClientModel({
+  QueueStateForClientModel({
     required this.inQueue,
     required this.queueName,
     required this.queueLength,
@@ -36,6 +36,6 @@ class ClientModel {
     this.status
   });
 
-  static ClientModel fromJson(Map<String, dynamic> json) => _$ClientModelFromJson(json);
-  Map<String, dynamic> toJson() => _$ClientModelToJson(this);
+  static QueueStateForClientModel fromJson(Map<String, dynamic> json) => _$QueueStateForClientModelFromJson(json);
+  Map<String, dynamic> toJson() => _$QueueStateForClientModelToJson(this);
 }

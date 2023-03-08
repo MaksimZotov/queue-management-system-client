@@ -6,12 +6,13 @@ part 'tokens_model.g.dart';
 class TokensModel {
   final String access;
   final String refresh;
-  final String username;
+  @JsonKey(name: 'account_id')
+  final int accountId;
 
   TokensModel({
     required this.access,
     required this.refresh,
-    required this.username
+    required this.accountId
   });
 
   static TokensModel fromJson(Map<String, dynamic> json) => _$TokensModelFromJson(json);

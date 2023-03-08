@@ -1,39 +1,42 @@
 import 'package:injectable/injectable.dart';
+import 'package:queue_management_system_client/domain/enums/kiosk_mode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../domain/models/kiosk/kiosk_state.dart';
 
 @lazySingleton
 class SharedPreferencesStorage {
-  static const _clientInQueueEmail = 'CLIENT_IN_QUEUE_EMAIL';
-  static const _clientInQueueAccessKey = 'CLIENT_IN_QUEUE_ACCESS_KEY';
+  static const _kioskStateModeIndex = 'KIOSK_STATE_MODE_INDEX';
+  static const _kioskStateMultipleSelect = 'KIOSK_STATE_MULTIPLE_SELECT';
 
-  Future<void> setClientInQueueEmail({required String? email}) async {
+  Future<void> setKioskState({
+    required KioskState kioskState
+  }) async {
     final prefs = await SharedPreferences.getInstance();
-    if (email == null) {
-      await prefs.remove(_clientInQueueEmail);
-    } else {
-      await prefs.setString(_clientInQueueEmail, email);
+    prefs.setInt(_kioskStateModeIndex, kioskState.kioskMode.index);
+    prefs.setBool(_kioskStateMultipleSelect, kioskState.multipleSelect);
+  }
+
+  Future<KioskState?> getKioskState() async {
+    final prefs = await SharedPreferences.getInstance();
+    int? modeIndex = prefs.getInt(_kioskStateModeIndex);
+    if (modeIndex == null) {
+      return null;
     }
-  }
-
-  Future<String?> getClientInQueueEmail() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? email = prefs.getString(_clientInQueueEmail);
-    return email;
-  }
-
-  Future<void> setClientInQueueAccessKey({required String? accessKey}) async {
-    final prefs = await SharedPreferences.getInstance();
-    if (accessKey == null) {
-      await prefs.remove(_clientInQueueAccessKey);
-    } else {
-      await prefs.setString(_clientInQueueAccessKey, accessKey);
+    bool? multipleSelect = prefs.getBool(_kioskStateMultipleSelect);
+    if (multipleSelect == null) {
+      return null;
     }
+    KioskMode terminalMode = KioskMode.values[modeIndex];
+    return KioskState(
+        kioskMode: terminalMode,
+        multipleSelect: multipleSelect
+    );
   }
 
-  Future<String?> getClientInQueueAccessKey() async {
+  Future<void> clearKioskState() async {
     final prefs = await SharedPreferences.getInstance();
-    String? accessKey = prefs.getString(_clientInQueueAccessKey);
-    return accessKey;
+    await prefs.remove(_kioskStateModeIndex);
+    await prefs.remove(_kioskStateMultipleSelect);
   }
-
 }

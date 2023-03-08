@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 
 class LocationItemWidget extends StatefulWidget {
@@ -30,19 +31,22 @@ class _LocationItemState extends State<LocationItemWidget> {
           widget.location.name,
           maxLines: 1,
         ),
-        subtitle: SizedBox(
-          width: 5,
-          child: Text(
-            widget.location.description,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        trailing: widget.location.hasRights == true
+        subtitle: widget.location.description != null
+            ? SizedBox(
+                width: 5,
+                child: Text(
+                  widget.location.description!,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+            )
+            : null,
+        trailing: widget.location.isOwner
             ? SizedBox(
                 height: double.infinity,
                 child: IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
+                  tooltip: AppLocalizations.of(context)!.delete,
+                  icon: const Icon(Icons.delete),
                   onPressed: () => widget.onDelete(widget.location),
                 ),
             )

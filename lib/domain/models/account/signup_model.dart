@@ -4,7 +4,6 @@ part 'signup_model.g.dart';
 
 @JsonSerializable()
 class SignupModel {
-  final String username;
   final String email;
   @JsonKey(name: 'first_name')
   final String firstName;
@@ -15,7 +14,6 @@ class SignupModel {
   final String repeatPassword;
 
   SignupModel({
-    required this.username,
     required this.email,
     required this.firstName,
     required this.lastName,

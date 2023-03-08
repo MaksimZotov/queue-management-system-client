@@ -1,21 +1,19 @@
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
 import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
-import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
+import 'package:queue_management_system_client/domain/models/queue/queue_state_model.dart';
 import 'package:queue_management_system_client/ui/widgets/client_item_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../domain/interactors/client_interactor.dart';
 import '../../../domain/interactors/socket_interactor.dart';
 import '../../router/routes_config.dart';
 import '../base.dart';
-import 'add_client_dialog.dart';
 
 
 class QueueWidget extends BaseWidget<QueueConfig> {
@@ -39,48 +37,34 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
       QueueWidget widget
   ) => Scaffold(
     appBar: AppBar(
-      title: Text(
-          state.queueState.name.isEmpty
-              ? ''
-              : getLocalizations(context).queuePattern(state.queueState.name)
-      ),
-      actions: state.queueState.ownerUsername != null
-          ? [
-            IconButton(
-                icon: const Icon(Icons.qr_code),
-                onPressed: BlocProvider.of<QueueCubit>(context).downloadQrCode
-            ),
-            IconButton(
-              icon: const Icon(Icons.share),
-              onPressed: () => BlocProvider.of<QueueCubit>(context).share(
-                  getLocalizations(context).linkCopied
-              ),
-            ),
-          ]
-          : null,
+      title: Text(state.queueStateModel.name),
+        actions: state.queueStateModel.enabled != null
+            ? [
+              IconButton(
+                  tooltip: state.queueStateModel.enabled == true
+                      ? getLocalizations(context).turnOffQueue
+                      : getLocalizations(context).turnOnQueue,
+                  icon: Icon(
+                      state.queueStateModel.enabled == true
+                          ? Icons.bedtime_off
+                          : Icons.bedtime
+                  ),
+                  onPressed: getCubitInstance(context).changeQueueEnableState
+              )
+            ]
+            : null
     ),
     body: ListView.builder(
       itemBuilder: (context, index) {
         return ClientItemWidget(
-          client: state.queueState.clients![index],
-          onNotify: BlocProvider.of<QueueCubit>(context).notify,
-          onServe: BlocProvider.of<QueueCubit>(context).serve,
+          client: state.queueStateModel.clients[index],
+          onNotify: getCubitInstance(context).notify,
+          onServe: getCubitInstance(context).serve,
+          onDelete: getCubitInstance(context).delete,
         );
       },
-      itemCount: state.queueState.clients!.length,
-    ),
-    floatingActionButton: FloatingActionButton(
-      onPressed: () => showDialog(
-          context: context,
-          builder: (context) => AddClientWidget(
-              config: AddClientConfig(
-                queueId: state.config.queueId,
-                queueName: state.queueState.name
-              ),
-          )
-      ),
-      child: const Icon(Icons.add),
-    ),
+      itemCount: state.queueStateModel.clients.length,
+    )
   );
 
   @override
@@ -90,7 +74,7 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
 class QueueLogicState extends BaseLogicState {
 
   final QueueConfig config;
-  final QueueModel queueState;
+  final QueueStateModel queueStateModel;
   
   QueueLogicState({
     super.nextConfig,
@@ -98,7 +82,7 @@ class QueueLogicState extends BaseLogicState {
     super.snackBar,
     super.loading,
     required this.config,
-    required this.queueState,
+    required this.queueStateModel,
   });
 
   @override
@@ -107,14 +91,14 @@ class QueueLogicState extends BaseLogicState {
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    QueueModel? queueState,
+    QueueStateModel? queueStateModel,
   }) => QueueLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
       loading: loading ?? this.loading,
       config: config,
-      queueState: queueState ?? this.queueState
+      queueStateModel: queueStateModel ?? this.queueStateModel
   );
 }
 
@@ -123,20 +107,21 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
 
   static const String _queueTopic = '/topic/queues/';
 
-  final QueueInteractor queueInteractor;
-  final SocketInteractor socketInteractor;
+  final QueueInteractor _queueInteractor;
+  final ClientInteractor _clientInteractor;
+  final SocketInteractor _socketInteractor;
 
   QueueCubit(
-    this.queueInteractor,
-    this.socketInteractor,
+    this._queueInteractor,
+    this._clientInteractor,
+    this._socketInteractor,
     @factoryParam QueueConfig config
   ) : super(
       QueueLogicState(
           config: config,
-          queueState: QueueModel(
+          queueStateModel: QueueStateModel(
             id: config.queueId,
             name: '',
-            description: '',
             clients: []
           ),
       )
@@ -144,77 +129,60 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
 
   @override
   Future<void> onStart() async {
-    await queueInteractor.getQueueState(
+    await _queueInteractor.getQueueState(
         state.config.queueId
     )..onSuccess((result) {
-      emit(state.copy(queueState: result.data));
+      emit(state.copy(queueStateModel: result.data));
     })..onError((result) {
       showError(result);
     });
 
-    socketInteractor.connectToSocket<QueueModel>(
+    _socketInteractor.connectToSocket<QueueStateModel>(
       _queueTopic + state.config.queueId.toString(),
       () => { /* Do nothing */ },
       (queue) => {
-        emit(state.copy(queueState: queue))
+        emit(state.copy(queueStateModel: queue))
       },
       (error) => { /* Do nothing */ }
     );
   }
 
   Future<void> notify(ClientInQueueModel client) async {
-    await queueInteractor.notifyClientInQueue(state.config.queueId, client.id)
+    await _queueInteractor.notifyClientInQueue(state.config.queueId, client.id)
       ..onError((result) {
         showError(result);
       });
   }
 
   Future<void> serve(ClientInQueueModel client) async {
-    await queueInteractor.serveClientInQueue(state.config.queueId, client.id)
+    await _queueInteractor.serveClientInQueue(state.config.queueId, client.id)
       ..onError((result) {
         showError(result);
     });
   }
 
-  Future<void> share(String notificationText) async {
-    String username = state.queueState.ownerUsername!;
-    int locationId = state.config.locationId;
-    int queueId = state.config.queueId;
-    await Clipboard.setData(
-        ClipboardData(
-            text: '${ServerApi.clientUrl}/$username/locations/$locationId/queues/$queueId/client'
-        )
-    );
-    showSnackBar(notificationText);
+  Future<void> delete(ClientInQueueModel client) async {
+    await _clientInteractor.deleteClientInLocation(state.config.locationId, client.id)
+      ..onError((result) {
+        showError(result);
+      });
   }
 
-  Future<void> downloadQrCode() async {
-    String username = state.queueState.ownerUsername!;
-    int locationId = state.config.locationId;
-    int queueId = state.config.queueId;
-    String url = '${ServerApi.clientUrl}/$username/locations/$locationId/queues/$queueId/client';
-
-    final image = await QrPainter(
-      data: url,
-      version: QrVersions.auto,
-      errorCorrectionLevel: QrErrorCorrectLevel.Q,
-      color: Colors.black,
-      emptyColor: Colors.white,
-    ).toImageData(1024);
-
-    if (image != null) {
-      await FileSaver.instance.saveFile(
-          url,
-          image.buffer.asUint8List(),
-          'png',
-          mimeType: MimeType.PNG
-      );
+  Future<void> changeQueueEnableState() async {
+    Result result;
+    if (state.queueStateModel.enabled == true) {
+      result = await _queueInteractor.disableQueue(state.config.queueId);
+    } else {
+      result = await _queueInteractor.enableQueue(state.config.queueId);
     }
+    result.onError((result) {
+      showError(result);
+    });
   }
 
   @override
   Future<void> close() async {
-    socketInteractor.disconnectFromSocket(
+    _socketInteractor.disconnectFromSocket(
         _queueTopic + state.config.queueId.toString()
     );
     return super.close();

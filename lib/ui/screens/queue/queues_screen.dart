@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
+import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/screens/queue/create_queue_dialog.dart';
@@ -44,62 +45,24 @@ class _QueuesState extends BaseState<
       title: Text(
           state.locationName.isEmpty
               ? ''
-              : getLocalizations(context).locationPattern(state.locationName)
-      ),
-      actions: state.ownerUsername != null
-          ? (state.hasRights ? <Widget>[
-            IconButton(
-                icon: const Icon(Icons.settings),
-                onPressed: () => widget.emitConfig(
-                    RightsConfig(
-                        username: widget.config.username,
-                        locationId: widget.config.locationId
-                    )
-                )
-            )
-          ] : <Widget>[]) +
-          [
-            IconButton(
-                icon: const Icon(Icons.desktop_windows_outlined),
-                onPressed: () => widget.emitConfig(
-                    BoardConfig(
-                        username: widget.config.username,
-                        locationId: widget.config.locationId
-                    )
-                )
-            ),
-            IconButton(
-                icon: const Icon(Icons.qr_code),
-                onPressed: getCubitInstance(context).downloadQrCode
-            ),
-            IconButton(
-              icon: const Icon(Icons.share),
-              onPressed: () => getCubitInstance(context).share(
-                  getLocalizations(context).linkCopied
-              ),
-            ),
-          ]
-          : null,
+              : getLocalizations(context).queues
+      )
     ),
     body: ListView.builder(
       itemBuilder: (context, index) {
         return QueueItemWidget(
           queue: state.queues[index],
-          onClick: (queue) => widget.emitConfig(
-              state.hasRights ? QueueConfig(
-                  username: state.config.username,
-                  locationId: state.config.locationId,
-                  queueId: queue.id!
-              ) : ClientConfig(
-                  username: state.config.username,
-                  locationId: state.config.locationId,
-                  queueId: queue.id!
-              )
+          onTap: (queue) => widget.emitConfig(
+            QueueConfig(
+                accountId: state.config.accountId,
+                locationId: state.config.locationId,
+                queueId: queue.id
+            )
           ),
           onDelete: (location) => showDialog(
               context: context,
               builder: (context) => DeleteQueueWidget(
-                  config: DeleteQueueConfig(id: location.id!)
+                  config: DeleteQueueConfig(id: location.id)
               )
           ).then((result) {
             if (result is DeleteQueueResult) {
@@ -113,6 +76,7 @@ class _QueuesState extends BaseState<
     ),
     floatingActionButton: state.hasRights
         ? FloatingActionButton(
+          tooltip: getLocalizations(context).createQueue,
           onPressed: () => showDialog(
               context: context,
               builder: (context) => CreateQueueWidget(
@@ -122,7 +86,10 @@ class _QueuesState extends BaseState<
               )
           ).then((result) {
             if (result is CreateQueueResult) {
-              getCubitInstance(context).handleCreateQueueResult(result);
+              getCubitInstance(context).handleCreateQueueResult(
+                  result,
+                  getLocalizations(context).locationDoesNotContainSpecialists
+              );
             }
           }),
           child: const Icon(Icons.add),
@@ -138,7 +105,7 @@ class QueuesLogicState extends BaseLogicState {
 
   final QueuesConfig config;
 
-  final String? ownerUsername;
+  final String? ownerEmail;
   final String locationName;
   final bool hasRights;
 
@@ -150,7 +117,7 @@ class QueuesLogicState extends BaseLogicState {
     super.snackBar,
     super.loading,
     required this.config,
-    required this.ownerUsername,
+    required this.ownerEmail,
     required this.locationName,
     required this.hasRights,
     required this.queues,
@@ -162,7 +129,7 @@ class QueuesLogicState extends BaseLogicState {
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    String? ownerUsername,
+    String? ownerEmail,
     String? locationName,
     List<QueueModel>? queues,
     bool? hasRights
@@ -172,7 +139,7 @@ class QueuesLogicState extends BaseLogicState {
       snackBar: snackBar,
       loading: loading ?? this.loading,
       config: config,
-      ownerUsername: ownerUsername ?? this.ownerUsername,
+      ownerEmail: ownerEmail ?? this.ownerEmail,
       locationName: locationName ?? this.locationName,
       hasRights: hasRights ?? this.hasRights,
       queues: queues ?? this.queues
@@ -191,7 +158,7 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
   ) : super(
       QueuesLogicState(
             config: config,
-            ownerUsername: null,
+            ownerEmail: null,
             locationName: '',
             hasRights: false,
             queues: []
@@ -200,15 +167,14 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
 
   @override
   Future<void> onStart() async {
-    await locationInteractor.getLocation(
-        state.config.locationId, state.config.username
-    )
+    await locationInteractor.getLocation(state.config.locationId)
       ..onSuccess((result) async {
+        LocationModel location = result.data;
         emit(
             state.copy(
-                ownerUsername: result.data.ownerUsername,
-                locationName: result.data.name,
-                hasRights: result.data.hasRights
+                ownerEmail: location.ownerEmail,
+                locationName: location.name,
+                hasRights: location.isOwner ? true : location.rightsStatus != null
             )
         );
         await _load();
@@ -218,8 +184,16 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
       });
   }
 
-  void handleCreateQueueResult(CreateQueueResult result) {
-    emit(state.copy(queues: state.queues + [result.queueModel]));
+  void handleCreateQueueResult(
+      CreateQueueResult result,
+      String emptySpecialistsError
+  ) {
+    QueueModel? queueModel = result.queueModel;
+    if (queueModel == null) {
+      showSnackBar(emptySpecialistsError);
+    } else {
+      emit(state.copy(queues: state.queues + [queueModel]));
+    }
   }
 
   void handleDeleteQueueResult(DeleteQueueResult result) {
@@ -231,45 +205,8 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
     );
   }
 
-  Future<void> share(String notificationText) async {
-    String username = state.ownerUsername!;
-    int locationId = state.config.locationId;
-    await Clipboard.setData(
-        ClipboardData(
-            text: '${ServerApi.clientUrl}/$username/locations/$locationId/queues'
-        )
-    );
-    showSnackBar(notificationText);
-  }
-
-  Future<void> downloadQrCode() async {
-    String username = state.ownerUsername!;
-    int locationId = state.config.locationId;
-    String url = '${ServerApi.clientUrl}/$username/locations/$locationId/queues';
-
-    final image = await QrPainter(
-      data: url,
-      version: QrVersions.auto,
-      errorCorrectionLevel: QrErrorCorrectLevel.Q,
-      color: Colors.black,
-      emptyColor: Colors.white,
-    ).toImageData(1024);
-
-    if (image != null) {
-      await FileSaver.instance.saveFile(
-          url,
-          image.buffer.asUint8List(),
-          'png',
-          mimeType: MimeType.PNG
-      );
-    }
-  }
-
   Future<void> _load() async {
-    await queueInteractor.getQueues(
-        state.config.locationId,
-        state.config.username
-    )
+    await queueInteractor.getQueues(state.config.locationId)
       ..onSuccess((result) {
         emit(state.copy(queues: result.data.results));
         hideLoad();

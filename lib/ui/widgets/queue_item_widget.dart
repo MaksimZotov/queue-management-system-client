@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../domain/models/queue/queue_model.dart';
 
 class QueueItemWidget extends StatefulWidget {
-  final ValueChanged<QueueModel> onClick;
+  final ValueChanged<QueueModel> onTap;
   final ValueChanged<QueueModel> onDelete;
   final QueueModel queue;
 
   const QueueItemWidget({
     Key? key,
-    required this.onClick,
+    required this.onTap,
     required this.onDelete,
     required this.queue,
   }) : super(key: key);
@@ -31,24 +32,27 @@ class _QueueItemState extends State<QueueItemWidget> {
           widget.queue.name,
           maxLines: 1
         ),
-        subtitle: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 200),
-          child: Text(
-            widget.queue.description,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
+        subtitle: widget.queue.description != null
+            ? ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 200),
+              child: Text(
+                widget.queue.description!,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              )
+            )
+            : null,
         trailing: widget.queue.hasRights == true
             ? SizedBox(
               height: double.infinity,
               child: IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
+                tooltip: AppLocalizations.of(context)!.delete,
+                icon: const Icon(Icons.delete),
                 onPressed: () => widget.onDelete(widget.queue)
               ),
             )
             : null,
-        onTap: () => widget.onClick(widget.queue)
+        onTap: () => widget.onTap(widget.queue)
       ),
     );
   }

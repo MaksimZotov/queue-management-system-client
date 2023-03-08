@@ -43,7 +43,7 @@ class InterceptorsWrapperServerApi extends InterceptorsWrapper {
           final tokens = TokensModel.fromJson(response.data!);
           await _secureStorage.setAccessToken(accessToken: tokens.access);
           await _secureStorage.setRefreshToken(refreshToken: tokens.refresh);
-          await _secureStorage.setUsername(username: tokens.username);
+          await _secureStorage.setAccountId(accountId: tokens.accountId);
           final requestOptions = err.requestOptions;
           final options = Options(
             method: requestOptions.method,

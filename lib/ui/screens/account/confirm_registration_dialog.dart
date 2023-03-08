@@ -12,11 +12,11 @@ import '../../router/routes_config.dart';
 import '../../widgets/text_field_widget.dart';
 
 class ConfirmRegistrationConfig extends BaseDialogConfig {
-  final String username;
+  final String email;
   final String password;
 
   ConfirmRegistrationConfig({
-    required this.username,
+    required this.email,
     required this.password
   });
 }
@@ -140,14 +140,14 @@ class ConfirmRegistrationCubit extends BaseDialogCubit<
     showLoad();
     await _accountInteractor.confirm(
         ConfirmModel(
-            username: state.config.username,
+            email: state.config.email,
             code: state.code
         )
     )
       ..onSuccess((result) async {
         await _accountInteractor.login(
             LoginModel(
-                username: state.config.username,
+                email: state.config.email,
                 password: state.config.password
             )
         )
@@ -156,7 +156,7 @@ class ConfirmRegistrationCubit extends BaseDialogCubit<
             popResult(
                 ConfirmRegistrationResult(
                     locationsConfig: LocationsConfig(
-                        username: state.config.username
+                        accountId: result.data.accountId
                     )
                 )
             );

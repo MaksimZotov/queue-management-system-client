@@ -1,11 +1,12 @@
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 
 import '../../../data/repositories/repository.dart';
 import '../../models/base/container_for_list.dart';
 import '../../models/base/result.dart';
-import '../../models/queue/add_client_info.dart';
+import '../../models/location/service_model.dart';
+import '../../models/queue/create_queue_request.dart';
 import '../../models/queue/queue_model.dart';
+import '../../models/queue/queue_state_model.dart';
 import '../queue_interactor.dart';
 
 @Singleton(as: QueueInteractor)
@@ -15,23 +16,33 @@ class QueueInteractorImpl extends QueueInteractor {
   QueueInteractorImpl(this._repository);
 
   @override
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String username) {
-    return _repository.getQueues(locationId, username);
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId) {
+    return _repository.getQueues(locationId);
   }
 
   @override
-  Future<Result<QueueModel>> createQueue(int locationId, QueueModel queue) {
-    return _repository.createQueue(locationId, queue);
+  Future<Result<QueueModel>> createQueue(int locationId, CreateQueueRequest createQueueRequest) {
+    return _repository.createQueue(locationId, createQueueRequest);
   }
 
   @override
-  Future<Result> deleteQueue(int id) {
-    return _repository.deleteQueue(id);
+  Future<Result> deleteQueue(int queueId) {
+    return _repository.deleteQueue(queueId);
   }
 
   @override
-  Future<Result<QueueModel>> getQueueState(int id) {
-    return _repository.getQueueState(id);
+  Future<Result<QueueStateModel>> getQueueState(int queueId) {
+    return _repository.getQueueState(queueId);
+  }
+
+  @override
+  Future<Result> enableQueue(int queueId) {
+    return _repository.enableQueue(queueId);
+  }
+
+  @override
+  Future<Result> disableQueue(int queueId) {
+    return _repository.disableQueue(queueId);
   }
 
   @override
@@ -45,7 +56,12 @@ class QueueInteractorImpl extends QueueInteractor {
   }
 
   @override
-  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, AddClientInfo addClientInfo) {
-    return _repository.addClientToQueue(queueId, addClientInfo);
+  Future<Result<ContainerForList<ServiceModel>>> getServicesInQueue(int queueId) {
+    return _repository.getServicesInQueue(queueId);
+  }
+
+  @override
+  Future<Result<ContainerForList<ServiceModel>>> getServicesInSpecialist(int specialistId) {
+    return _repository.getServicesInSpecialist(specialistId);
   }
 }

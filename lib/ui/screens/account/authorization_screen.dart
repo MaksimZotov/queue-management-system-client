@@ -54,10 +54,10 @@ class AuthorizationState extends BaseState<
                 child: Column(
                   children: <Widget>[
                     TextFieldWidget(
-                      text: state.username,
-                      label: getLocalizations(context).uniqueName,
-                      error: state.errors[AuthorizationCubit.usernameKey],
-                      onTextChanged: getCubitInstance(context).setUsername,
+                      text: state.email,
+                      label: getLocalizations(context).email,
+                      error: state.errors[AuthorizationCubit.emailKey],
+                      onTextChanged: getCubitInstance(context).setEmail,
                     ),
                     PasswordWidget(
                       text: state.password,
@@ -83,7 +83,7 @@ class AuthorizationState extends BaseState<
 }
 
 class AuthorizationLogicState extends BaseLogicState {
-  final String username;
+  final String email;
   final String password;
   final Map<String, String> errors;
 
@@ -92,7 +92,7 @@ class AuthorizationLogicState extends BaseLogicState {
     super.error,
     super.snackBar,
     super.loading,
-    required this.username,
+    required this.email,
     required this.password,
     required this.errors
   });
@@ -103,7 +103,7 @@ class AuthorizationLogicState extends BaseLogicState {
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    String? username,
+    String? email,
     String? password,
     Map<String, String>? errors
   }) => AuthorizationLogicState(
@@ -111,7 +111,7 @@ class AuthorizationLogicState extends BaseLogicState {
       error: error,
       snackBar: snackBar,
       loading: loading ?? this.loading,
-      username: username ?? this.username,
+      email: email ?? this.email,
       password: password ?? this.password,
       errors: errors ?? this.errors
   );
@@ -119,7 +119,7 @@ class AuthorizationLogicState extends BaseLogicState {
 
 @injectable
 class AuthorizationCubit extends BaseCubit<AuthorizationLogicState> {
-  static const usernameKey = 'USERNAME';
+  static const emailKey = 'EMAIL';
   static const passwordKey = 'PASSWORD';
 
   final AccountInteractor _accountInteractor;
@@ -128,17 +128,17 @@ class AuthorizationCubit extends BaseCubit<AuthorizationLogicState> {
     this._accountInteractor
   ) : super(
       AuthorizationLogicState(
-          username: '',
+          email: '',
           password: '',
           errors: {}
       )
   );
 
-  void setUsername(String text) {
+  void setEmail(String text) {
     emit(state.copy(
-        username: text,
+        email: text,
         errors: Map.from(state.errors)
-          ..removeWhere((k, v) => k == usernameKey)
+          ..removeWhere((k, v) => k == emailKey)
     ));
   }
 
@@ -154,14 +154,14 @@ class AuthorizationCubit extends BaseCubit<AuthorizationLogicState> {
     showLoad();
     await _accountInteractor.login(
         LoginModel(
-            username: state.username,
+            email: state.email,
             password: state.password
         )
     )
       ..onSuccess((result) {
         emit(state.copy(errors: {}));
         hideLoad();
-        navigate(LocationsConfig(username: state.username));
+        navigate(LocationsConfig(accountId: result.data.accountId));
       })
       ..onError((result) {
         emit(state.copy(errors: result.errors));

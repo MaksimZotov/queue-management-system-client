@@ -3,8 +3,8 @@ import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/models/rights/rights_model.dart';
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
-import 'package:queue_management_system_client/ui/screens/rights/add_right_dialog.dart';
-import 'package:queue_management_system_client/ui/screens/rights/delete_right_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/rights/add_rights_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/rights/delete_rights_dialog.dart';
 import 'package:queue_management_system_client/ui/widgets/rights_item_widget.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/rights_interactor.dart';
@@ -23,7 +23,10 @@ class RightsWidget extends BaseWidget<RightsConfig> {
 }
 
 class _RightsState extends BaseState<
-    RightsWidget, RightsLogicState, RightsCubit> {
+    RightsWidget,
+    RightsLogicState,
+    RightsCubit
+> {
 
   @override
   Widget getWidget(
@@ -39,14 +42,14 @@ class _RightsState extends BaseState<
         rights: state.rights[index],
         onDelete: (rights) => showDialog(
             context: context,
-            builder: (context) => DeleteRightWidget(
-                config: DeleteRightConfig(
+            builder: (context) => DeleteRightsWidget(
+                config: DeleteRightsConfig(
                     locationId: state.config.locationId,
                     email: rights.email
                 )
             )
         ).then((result) {
-          if (result is DeleteRightResult) {
+          if (result is DeleteRightsResult) {
             getCubitInstance(context).handleDeleteResult(result);
           }
         }),
@@ -54,15 +57,16 @@ class _RightsState extends BaseState<
       itemCount: state.rights.length,
     ),
     floatingActionButton: FloatingActionButton(
+      tooltip: getLocalizations(context).addEmployee,
       onPressed: () => showDialog(
           context: context,
-          builder: (context) => AddRightWidget(
-              config: AddRightConfig(
+          builder: (context) => AddRightsWidget(
+              config: AddRightsConfig(
                 locationId: state.config.locationId
               )
           )
       ).then((result) {
-        if (result is AddRightResult) {
+        if (result is AddRightsResult) {
           getCubitInstance(context).handleAddResult(result);
         }
       }),
@@ -130,23 +134,24 @@ class RightsCubit extends BaseCubit<RightsLogicState> {
     _load();
   }
 
-  void handleAddResult(AddRightResult result) {
+  void handleAddResult(AddRightsResult result) {
     emit(
         state.copy(
             rights: state.rights + [
               RightsModel(
                   locationId: state.config.locationId,
-                  email: result.email
+                  email: result.email,
+                  status: result.status
               )
             ]
         )
     );
   }
 
-  void handleDeleteResult(DeleteRightResult result) {
+  void handleDeleteResult(DeleteRightsResult result) {
     emit(
         state.copy(
-            rights: state.rights
+            rights: List.from(state.rights)
               ..removeWhere((element) => element.email == result.email)
         )
     );

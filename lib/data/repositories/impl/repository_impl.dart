@@ -5,21 +5,30 @@ import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/data/repositories/repository.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
-import 'package:queue_management_system_client/domain/models/board/board_model.dart';
-import 'package:queue_management_system_client/domain/models/client/client_model.dart';
-import 'package:queue_management_system_client/domain/models/location/has_rights_model.dart';
+import 'package:queue_management_system_client/domain/models/client/add_client_request.dart';
+import 'package:queue_management_system_client/domain/models/client/queue_state_for_client_model.dart';
+import 'package:queue_management_system_client/domain/models/location/board_model.dart';
+import 'package:queue_management_system_client/domain/models/location/create_specialist_request.dart';
+import 'package:queue_management_system_client/domain/models/location/create_service_request.dart';
+import 'package:queue_management_system_client/domain/models/location/create_services_sequence_request.dart';
+import 'package:queue_management_system_client/domain/models/location/check_is_owner_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
+import 'package:queue_management_system_client/domain/models/location/specialist_model.dart';
+import 'package:queue_management_system_client/domain/models/location/services_sequence_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
 import 'package:queue_management_system_client/domain/models/rights/rights_model.dart';
 
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/client/client_join_info.dart';
-import '../../../domain/models/queue/add_client_info.dart';
-import '../../../domain/models/queue/client_in_queue_model.dart';
+import '../../../domain/models/kiosk/kiosk_state.dart';
+import '../../../domain/models/location/create_location_request.dart';
+import '../../../domain/models/location/service_model.dart';
 import '../../../domain/models/account/confirm_model.dart';
 import '../../../domain/models/account/login_model.dart';
 import '../../../domain/models/account/signup_model.dart';
 import '../../../domain/models/account/tokens_model.dart';
+import '../../../domain/models/queue/create_queue_request.dart';
+import '../../../domain/models/queue/queue_state_model.dart';
+import '../../../domain/models/rights/add_rights_request.dart';
 import '../../local/secure_storage.dart';
 import '../../local/shared_preferences_storage.dart';
 
@@ -40,6 +49,7 @@ class RepositoryImpl extends Repository {
 
 
 
+  // <======================== Account ========================>
   @override
   Future<Result<TokensModel>> login(LoginModel login) {
     return _serverApi.login(login);
@@ -66,35 +76,41 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<String?> getCurrentUsername() async {
-    if (!(await _secureStorage.containsUsername())) {
+  Future<int?> getCurrentAccountId() async {
+    if (!(await _secureStorage.containsAccountId())) {
       return null;
     }
-    return (await _secureStorage.getUsername());
+    return (await _secureStorage.getAccountId());
   }
+  // <======================== Account ========================>
 
 
 
 
+
+  // <======================== Location ========================>
   @override
-  Future<Result<ContainerForList<LocationModel>>> getLocations(String? username) async {
-    if (username == null && await _secureStorage.containsUsername()) {
-      return await _serverApi.getLocations((await _secureStorage.getUsername())!);
+  Future<Result<ContainerForList<LocationModel>>> getLocations(int? accountId) async {
+    if (accountId == null && await _secureStorage.containsAccountId()) {
+      return await _serverApi.getLocations((await _secureStorage.getAccountId())!);
     }
-    if (username != null) {
-      return await _serverApi.getLocations(username);
+    if (accountId != null) {
+      return await _serverApi.getLocations(accountId);
     }
     return ErrorResult(type: ErrorType.unknown);
   }
 
   @override
-  Future<Result<LocationModel>> createLocation(LocationModel location) {
-    return _serverApi.createLocation(location);
+  Future<Result<CheckIsOwnerModel>> checkIsOwner(int? accountId) async {
+    if (accountId == null && !(await _secureStorage.containsAccountId())) {
+      return SuccessResult(data: CheckIsOwnerModel(isOwner: false));
+    }
+    return await _serverApi.checkIsOwner(accountId ?? (await _secureStorage.getAccountId())!);
   }
 
   @override
-  Future<Result<LocationModel>> getLocation(int id, String? username) {
-    return _serverApi.getLocation(id, username);
+  Future<Result<LocationModel>> createLocation(CreateLocationRequest createLocationRequest) {
+    return _serverApi.createLocation(createLocationRequest);
   }
 
   @override
@@ -103,35 +119,109 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result<HasRightsModel>> checkHasRights(String? username) async {
-    if (username == null && !(await _secureStorage.containsUsername())) {
-      return SuccessResult(data: HasRightsModel(hasRights: false));
-    }
-    return await _serverApi.checkHasRights(username ?? (await _secureStorage.getUsername())!);
-  }
-
-
-
-
-
-  @override
-  Future<Result<QueueModel>> createQueue(int locationId, QueueModel queue) {
-    return _serverApi.createQueue(locationId, queue);
+  Future<Result<LocationModel>> getLocation(int locationId) {
+    return _serverApi.getLocation(locationId);
   }
 
   @override
-  Future<Result> deleteQueue(int id) {
-    return _serverApi.deleteQueue(id);
+  Future<Result<BoardModel>> getLocationBoard(int locationId) {
+    return _serverApi.getLocationBoard(locationId);
   }
 
   @override
-  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId, String username) {
-    return _serverApi.getQueues(locationId, username);
+  Future<Result<ContainerForList<ServiceModel>>> getServicesInLocation(int locationId) {
+    return _serverApi.getServicesInLocation(locationId);
   }
 
   @override
-  Future<Result<QueueModel>> getQueueState(int id) {
-    return _serverApi.getQueueState(id);
+  Future<Result<ServiceModel>> createServiceInLocation(int locationId, CreateServiceRequest createServiceRequest) {
+    return _serverApi.createServiceInLocation(locationId, createServiceRequest);
+  }
+
+  @override
+  Future<Result> deleteServiceInLocation(int locationId, int serviceId) {
+    return _serverApi.deleteServiceInLocation(locationId, serviceId);
+  }
+
+  @override
+  Future<Result<ContainerForList<ServicesSequenceModel>>> getServicesSequencesInLocation(int locationId) {
+    return _serverApi.getServicesSequencesInLocation(locationId);
+  }
+
+  @override
+  Future<Result<ServicesSequenceModel>> createServicesSequenceInLocation(int locationId, CreateServicesSequenceRequest createServicesSequenceRequest) {
+    return _serverApi.createServicesSequenceInLocation(locationId, createServicesSequenceRequest);
+  }
+
+  @override
+  Future<Result> deleteServicesSequenceInLocation(int locationId, int servicesSequence) {
+    return _serverApi.deleteServicesSequenceInLocation(locationId, servicesSequence);
+  }
+
+  @override
+  Future<Result<ContainerForList<SpecialistModel>>> getSpecialistsInLocation(int locationId) {
+    return _serverApi.getSpecialistsInLocation(locationId);
+  }
+
+  @override
+  Future<Result<SpecialistModel>> createSpecialistInLocation(int locationId, CreateSpecialistRequest createSpecialistRequest) {
+    return _serverApi.createSpecialistInLocation(locationId, createSpecialistRequest);
+  }
+
+  @override
+  Future<Result> deleteSpecialistInLocation(int locationId, int SpecialistId) {
+    return _serverApi.deleteSpecialistInLocation(locationId, SpecialistId);
+  }
+
+  @override
+  Future<Result> enableLocation(int locationId) {
+    return _serverApi.enableLocation(locationId);
+  }
+
+  @override
+  Future<Result> disableLocation(int locationId) {
+    return _serverApi.disableLocation(locationId);
+  }
+
+  @override
+  Future<Result> addClientInLocation(int locationId, AddClientRequest addClientRequest) {
+    return _serverApi.addClientInLocation(locationId, addClientRequest);
+  }
+  // <======================== Location ========================>
+
+
+
+
+
+  // <======================== Queue ========================>
+  @override
+  Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId) {
+    return _serverApi.getQueues(locationId);
+  }
+
+  @override
+  Future<Result<QueueModel>> createQueue(int locationId, CreateQueueRequest createQueueRequest) {
+    return _serverApi.createQueue(locationId, createQueueRequest);
+  }
+
+  @override
+  Future<Result> deleteQueue(int queueId) {
+    return _serverApi.deleteQueue(queueId);
+  }
+
+  @override
+  Future<Result<QueueStateModel>> getQueueState(int queueId) {
+    return _serverApi.getQueueState(queueId);
+  }
+
+  @override
+  Future<Result> enableQueue(int queueId) {
+    return _serverApi.enableQueue(queueId);
+  }
+
+  @override
+  Future<Result> disableQueue(int queueId) {
+    return _serverApi.disableQueue(queueId);
   }
 
   @override
@@ -145,76 +235,50 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result<ClientInQueueModel>> addClientToQueue(int queueId, AddClientInfo addClientInfo) {
-    return _serverApi.addClientToQueue(queueId, addClientInfo);
+  Future<Result<ContainerForList<ServiceModel>>> getServicesInQueue(int queueId) {
+    return _serverApi.getServicesInQueue(queueId);
   }
 
   @override
-  void connectToSocket<T>(String destination, VoidCallback onConnected, ValueChanged<T> onQueueChanged, ValueChanged onError) {
-    _serverApi.connectToSocket(destination, onConnected, onQueueChanged, onError);
+  Future<Result<ContainerForList<ServiceModel>>> getServicesInSpecialist(int specialistId) {
+    return _serverApi.getServicesInSpecialist(specialistId);
+  }
+  // <======================== Queue ========================>
+
+
+
+
+
+  // <======================== Client ========================>
+  @override
+  Future<Result<QueueStateForClientModel>> getQueueStateForClient(int clientId, String accessKey) {
+    return _serverApi.getQueueStateForClient(clientId, accessKey);
   }
 
   @override
-  void disconnectFromSocket(String destination) {
-    _serverApi.disconnectFromSocket(destination);
-  }
-
-
-
-
-
-  @override
-  Future<Result<ClientModel>> getClientInQueue(String username, int locationId, int queueId) async {
-    String? email = await _sharedPreferencesStorage.getClientInQueueEmail();
-    String? accessKey = await _sharedPreferencesStorage.getClientInQueueAccessKey();
-    return await _serverApi.getClientInQueue(username, locationId, queueId, email, accessKey);
+  Future<Result<QueueStateForClientModel>> confirmAccessKeyByClient(int clientId, String accessKey) {
+    return _serverApi.confirmAccessKeyByClient(clientId, accessKey);
   }
 
   @override
-  Future<Result<ClientModel>> joinClientToQueue(int queueId, ClientJoinInfo clientJoinInfo) async {
-    return await _serverApi.joinClientToQueue(queueId, clientJoinInfo)
-      ..onSuccess((result) async {
-        await _sharedPreferencesStorage.setClientInQueueEmail(email: result.data.email);
-        await _sharedPreferencesStorage.setClientInQueueAccessKey(accessKey: result.data.accessKey);
-      });
+  Future<Result<QueueStateForClientModel>> leaveQueue(int clientId, String accessKey) async {
+    return _serverApi.leaveQueue(clientId, accessKey);
   }
 
   @override
-  Future<Result<ClientModel>> confirmClientCodeInQueue(int queueId, String email, String code) async {
-    return await _serverApi.confirmClientCodeInQueue(queueId, email, code)
-      ..onSuccess((result) async {
-        await _sharedPreferencesStorage.setClientInQueueEmail(email: result.data.email);
-        await _sharedPreferencesStorage.setClientInQueueAccessKey(accessKey: result.data.accessKey);
-      });
+  Future<Result> deleteClientInLocation(int locationId, int clientId) {
+    return _serverApi.deleteClientInLocation(locationId, clientId);
   }
+  // <======================== Client ========================>
 
+
+
+
+
+  // <======================== Rights ========================>
   @override
-  Future<Result<ClientModel>> leaveQueue(int queueId) async {
-    String? email = await _sharedPreferencesStorage.getClientInQueueEmail();
-    String? accessKey = await _sharedPreferencesStorage.getClientInQueueAccessKey();
-    return await _serverApi.leaveQueue(queueId, email, accessKey)
-      ..onSuccess((result) async {
-        await _sharedPreferencesStorage.setClientInQueueEmail(email: result.data.email);
-        await _sharedPreferencesStorage.setClientInQueueAccessKey(accessKey: result.data.accessKey);
-      });
-  }
-
-  @override
-  Future<Result<ClientModel>> rejoinClientToQueue(int queueId, String email) async {
-    return await _serverApi.rejoinClientToQueue(queueId, email)
-      ..onSuccess((result) async {
-        await _sharedPreferencesStorage.setClientInQueueEmail(email: result.data.email);
-        await _sharedPreferencesStorage.setClientInQueueAccessKey(accessKey: result.data.accessKey);
-      });
-  }
-
-
-
-
-
-  @override
-  Future<Result> addRights(int locationId, String email) {
-    return _serverApi.addRights(locationId, email);
+  Future<Result> addRights(int locationId, AddRightsRequest addRightsRequest) {
+    return _serverApi.addRights(locationId, addRightsRequest);
   }
 
   @override
@@ -226,14 +290,40 @@ class RepositoryImpl extends Repository {
   Future<Result<ContainerForList<RightsModel>>> getRights(int locationId) {
     return _serverApi.getRights(locationId);
   }
+  // <======================== Rights ========================>
 
 
 
 
 
   @override
-  Future<Result<BoardModel>> getBoard(int locationId) {
-    return _serverApi.getBoard(locationId);
+  Future<void> setKioskState(KioskState kioskState) {
+    return _sharedPreferencesStorage.setKioskState(kioskState: kioskState);
   }
 
+  @override
+  Future<KioskState?> getKioskState() {
+    return _sharedPreferencesStorage.getKioskState();
+  }
+
+  @override
+  Future<void> clearKioskState() {
+    return _sharedPreferencesStorage.clearKioskState();
+  }
+
+
+
+
+
+  // <======================== Socket ========================>
+  @override
+  void connectToSocket<T>(String destination, VoidCallback onConnected, ValueChanged<T> onQueueChanged, ValueChanged onError) {
+    _serverApi.connectToSocket(destination, onConnected, onQueueChanged, onError);
+  }
+
+  @override
+  void disconnectFromSocket(String destination) {
+    _serverApi.disconnectFromSocket(destination);
+  }
+  // <======================== Socket ========================>
 }

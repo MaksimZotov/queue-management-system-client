@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
@@ -6,7 +7,8 @@ import 'package:queue_management_system_client/ui/router/routes_config.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/screens/location/create_location_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/delete_location_dialog.dart';
-import 'package:queue_management_system_client/ui/screens/location/search_locations_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/location/logout_from_account_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/location/navigation_to_another_owner.dart';
 import 'package:queue_management_system_client/ui/widgets/location_item_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
@@ -41,21 +43,29 @@ class _LocationsState extends BaseState<
       title: Text(getLocalizations(context).locations),
       actions: <Widget>[
         IconButton(
-          icon: const Icon(Icons.move_up),
-          onPressed: () => showDialog(
-              context: context,
-              builder: (context) => SearchLocationsWidget(
-                  config: SearchLocationsConfig()
-              )
-          ).then((result) {
-            if (result is SearchLocationsResult) {
-              widget.emitConfig(LocationsConfig(username: result.username));
-            }
-          }),
+          tooltip: getLocalizations(context).shareOwnerIdentifier,
+          icon: const Icon(Icons.share),
+          onPressed: () => getCubitInstance(context).share(
+              getLocalizations(context).ownerIdentifierCopied
+          ),
         ),
         IconButton(
-          icon: Icon(state.hasToken ? Icons.logout : Icons.login),
-          onPressed: getCubitInstance(context).logout,
+          tooltip: getLocalizations(context).navigateToAnotherOwner,
+          icon: const Icon(Icons.move_up),
+          onPressed: () => _showNavigationToAnotherOwnerDialog(context),
+        ),
+        IconButton(
+          tooltip: state.hasToken
+              ? getLocalizations(context).logoutFromAccount
+              : getLocalizations(context).login,
+          icon: Icon(
+              state.hasToken
+                  ? Icons.logout
+                  : Icons.login
+          ),
+          onPressed: state.hasToken
+              ? () => _showLogoutFromAccountDialog(context)
+              : () => widget.emitConfig(InitialConfig()),
         )
       ],
     ),
@@ -63,43 +73,77 @@ class _LocationsState extends BaseState<
       itemBuilder: (context, index) => LocationItemWidget(
         location: state.locations[index],
         onClick: (location) => widget.emitConfig(
-            QueuesConfig(
-                username: state.config.username,
+            LocationConfig(
+                accountId: state.config.accountId,
                 locationId: location.id!
             )
         ),
-        onDelete: (location) => showDialog(
-            context: context,
-            builder: (context) => DeleteLocationWidget(
-                config: DeleteLocationConfig(id: location.id!)
-            )
-        ).then((result) {
-          if (result is DeleteLocationResult) {
-            getCubitInstance(context).handleDeleteLocationResult(result);
-          }
-        }),
+        onDelete: (locationModel) => _showDeleteLocationDialog(
+            context,
+            locationModel
+        ),
       ),
       itemCount: state.locations.length,
     ),
-    floatingActionButton: state.hasRights
+    floatingActionButton: state.isOwner
         ? FloatingActionButton(
-          onPressed: () => showDialog(
-              context: context,
-              builder: (context) => CreateLocationWidget(
-                  config: CreateLocationConfig()
-              )
-          ).then((result) {
-            if (result is CreateLocationResult) {
-              getCubitInstance(context).handleCreateLocationResult(result);
-            }
-          }),
-          child: const Icon(Icons.add),
+            tooltip: getLocalizations(context).createLocation,
+            onPressed: () => _showCreateLocationDialog(context),
+            child: const Icon(Icons.add),
         )
         : null,
   );
 
   @override
   LocationsCubit getCubit() => statesAssembler.getLocationsCubit(widget.config);
+
+
+  void _showNavigationToAnotherOwnerDialog(BuildContext context) => showDialog(
+      context: context,
+      builder: (context) => NavigationToAnotherOwnerWidget(
+          config: NavigationToAnotherOwnerConfig()
+      )
+  ).then((result) {
+    if (result is NavigationToAnotherOwnerResult) {
+      widget.emitConfig(LocationsConfig(accountId: result.accountId));
+    }
+  });
+
+  void _showLogoutFromAccountDialog(BuildContext context) => showDialog(
+      context: context,
+      builder: (context) => LogoutFromAccountWidget(
+          config: LogoutFromAccountConfig()
+      )
+  ).then((result) {
+    if (result is LogoutFromAccountResult) {
+      getCubitInstance(context).logout();
+    }
+  });
+
+  void _showCreateLocationDialog(BuildContext context) => showDialog(
+      context: context,
+      builder: (context) => CreateLocationWidget(
+          config: CreateLocationConfig()
+      )
+  ).then((result) {
+    if (result is CreateLocationResult) {
+      getCubitInstance(context).handleCreateLocationResult(result);
+    }
+  });
+
+  void _showDeleteLocationDialog(
+      BuildContext context,
+      LocationModel locationModel
+  ) => showDialog(
+      context: context,
+      builder: (context) => DeleteLocationWidget(
+          config: DeleteLocationConfig(id: locationModel.id!)
+      )
+  ).then((result) {
+    if (result is DeleteLocationResult) {
+      getCubitInstance(context).handleDeleteLocationResult(result);
+    }
+  });
 }
 
 class LocationsLogicState extends BaseLogicState {
@@ -108,7 +152,7 @@ class LocationsLogicState extends BaseLogicState {
 
   final List<LocationModel> locations;
 
-  final bool hasRights;
+  final bool isOwner;
   final bool hasToken;
 
   LocationsLogicState({
@@ -118,7 +162,7 @@ class LocationsLogicState extends BaseLogicState {
     super.loading,
     required this.config,
     required this.locations,
-    required this.hasRights,
+    required this.isOwner,
     required this.hasToken,
   });
 
@@ -129,7 +173,7 @@ class LocationsLogicState extends BaseLogicState {
     String? snackBar,
     bool? loading,
     List<LocationModel>? locations,
-    bool? hasRights,
+    bool? isOwner,
     bool? hasToken
   }) => LocationsLogicState(
       nextConfig: nextConfig,
@@ -138,7 +182,7 @@ class LocationsLogicState extends BaseLogicState {
       loading: loading ?? this.loading,
       config: config,
       locations: locations ?? this.locations,
-      hasRights: hasRights ?? this.hasRights,
+      isOwner: isOwner ?? this.isOwner,
       hasToken: hasToken ?? this.hasToken
   );
 }
@@ -157,7 +201,7 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
     LocationsLogicState(
       config: config,
       locations: [],
-      hasRights: false,
+      isOwner: false,
       hasToken: false,
       snackBar: null,
       loading: false
@@ -170,9 +214,9 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
     if (await _accountInteractor.checkToken()) {
       emit(state.copy(hasToken: true));
     }
-    await _locationInteractor.checkHasRights(state.config.username)
+    await _locationInteractor.checkIsOwner(state.config.accountId)
       ..onSuccess((result) async {
-        emit(state.copy(hasRights: result.data.hasRights));
+        emit(state.copy(isOwner: result.data.isOwner));
       })
       ..onError((result) {
         showError(result);
@@ -192,14 +236,21 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
   Future handleDeleteLocationResult(DeleteLocationResult result) async {
     emit(
         state.copy(
-            locations: state.locations
+            locations: List.from(state.locations)
               ..removeWhere((element) => element.id == result.id)
         )
     );
   }
 
+  Future<void> share(String notificationText) async {
+    await Clipboard.setData(
+        ClipboardData(text: state.config.accountId.toString())
+    );
+    showSnackBar(notificationText);
+  }
+
   Future _load() async {
-    await _locationInteractor.getLocations(state.config.username)
+    await _locationInteractor.getLocations(state.config.accountId)
       ..onSuccess((result) {
         emit(state.copy(locations: result.data.results));
         hideLoad();
