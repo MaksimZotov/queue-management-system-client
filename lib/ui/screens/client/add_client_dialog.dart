@@ -66,16 +66,6 @@ class _AddClientState extends BaseDialogState<
         text: state.email,
         onTextChanged: getCubitInstance(context).setEmail
     ),
-    TextFieldWidget(
-        label: getLocalizations(context).firstName,
-        text: state.firstName,
-        onTextChanged: getCubitInstance(context).setFirstName
-    ),
-    TextFieldWidget(
-        label: getLocalizations(context).lastName,
-        text: state.lastName,
-        onTextChanged: getCubitInstance(context).setLastName
-    ),
     const SizedBox(height: Dimens.contentMargin),
     ButtonWidget(
         text: getLocalizations(context).connect,
@@ -94,8 +84,6 @@ class AddClientLogicState extends BaseDialogLogicState<
 > {
 
   final String email;
-  final String firstName;
-  final String lastName;
 
   AddClientLogicState({
     super.nextConfig,
@@ -104,9 +92,7 @@ class AddClientLogicState extends BaseDialogLogicState<
     super.loading,
     required super.config,
     super.result,
-    required this.email,
-    required this.firstName,
-    required this.lastName
+    required this.email
   });
 
   @override
@@ -126,9 +112,7 @@ class AddClientLogicState extends BaseDialogLogicState<
       loading: loading ?? this.loading,
       config: config,
       result: result,
-      email: email ?? this.email,
-      firstName: firstName ?? this.firstName,
-      lastName: lastName ?? this.lastName,
+      email: email ?? this.email
   );
 }
 
@@ -145,22 +129,12 @@ class AddClientCubit extends BaseDialogCubit<
   ) : super(
       AddClientLogicState(
           config: config,
-          email: '',
-          firstName: '',
-          lastName: ''
+          email: ''
       )
   );
 
   void setEmail(String text) {
     emit(state.copy(email: text));
-  }
-
-  void setFirstName(String text) {
-    emit(state.copy(firstName: text));
-  }
-
-  void setLastName(String text) {
-    emit(state.copy(lastName: text));
   }
 
   Future<void> connect() async {
@@ -169,8 +143,6 @@ class AddClientCubit extends BaseDialogCubit<
         state.config.locationId,
         AddClientRequest(
             email: state.email,
-            firstName: state.firstName,
-            lastName: state.lastName,
             serviceIds: state.config.serviceIds,
             servicesSequenceId: state.config.servicesSequenceId
         )

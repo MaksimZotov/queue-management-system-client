@@ -5,10 +5,6 @@ part 'add_client_request.g.dart';
 @JsonSerializable()
 class AddClientRequest {
   final String email;
-  @JsonKey(name: 'first_name')
-  final String firstName;
-  @JsonKey(name: 'last_name')
-  final String lastName;
   @JsonKey(name: 'service_ids')
   final List<int>? serviceIds;
   @JsonKey(name: 'services_sequence_id')
@@ -16,8 +12,6 @@ class AddClientRequest {
 
   AddClientRequest({
     required this.email,
-    required this.firstName,
-    required this.lastName,
     required this.serviceIds,
     required this.servicesSequenceId
   });
