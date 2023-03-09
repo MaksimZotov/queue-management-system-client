@@ -72,16 +72,6 @@ class _CreateServiceState extends BaseDialogState<
         text: state.description,
         onTextChanged: getCubitInstance(context).setDescription
     ),
-    TextFieldWidget(
-        label: getLocalizations(context).supposedDuration,
-        text: state.supposedDuration,
-        onTextChanged: getCubitInstance(context).setSupposedDuration
-    ),
-    TextFieldWidget(
-        label: getLocalizations(context).maxDuration,
-        text: state.maxDuration,
-        onTextChanged: getCubitInstance(context).setMaxDuration
-    ),
     const SizedBox(height: Dimens.contentMargin),
     ButtonWidget(
         text: getLocalizations(context).create,
@@ -104,8 +94,6 @@ class CreateServiceLogicState extends BaseDialogLogicState<
 
   final String name;
   final String description;
-  final String supposedDuration;
-  final String maxDuration;
 
   CreateServiceLogicState({
     super.nextConfig,
@@ -115,9 +103,7 @@ class CreateServiceLogicState extends BaseDialogLogicState<
     required super.config,
     super.result,
     required this.name,
-    required this.description,
-    required this.supposedDuration,
-    required this.maxDuration
+    required this.description
   });
 
   @override
@@ -128,9 +114,7 @@ class CreateServiceLogicState extends BaseDialogLogicState<
     bool? loading,
     CreateServiceResult? result,
     String? name,
-    String? description,
-    String? supposedDuration,
-    String? maxDuration
+    String? description
   }) => CreateServiceLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -139,9 +123,7 @@ class CreateServiceLogicState extends BaseDialogLogicState<
       config: config,
       result: result,
       name: name ?? this.name,
-      description: description ?? this.description,
-      supposedDuration: supposedDuration ?? this.supposedDuration,
-      maxDuration: maxDuration ?? this.maxDuration,
+      description: description ?? this.description
   );
 }
 
@@ -157,9 +139,7 @@ class CreateServiceCubit extends BaseDialogCubit<CreateServiceLogicState> {
       CreateServiceLogicState(
           config: config,
           name: '',
-          description: '',
-          supposedDuration: '0',
-          maxDuration: '60'
+          description: ''
       )
   );
 
@@ -171,37 +151,16 @@ class CreateServiceCubit extends BaseDialogCubit<CreateServiceLogicState> {
     emit(state.copy(description: text));
   }
 
-  void setSupposedDuration(String text) {
-    emit(state.copy(supposedDuration: text));
-  }
-
-  void setMaxDuration(String text) {
-    emit(state.copy(maxDuration: text));
-  }
-
   Future<void> createService(
       String parseSupposedDurationErrorMessage,
       String parseMaxDurationErrorMessage
   ) async {
-    int? supposedDuration = int.tryParse(state.supposedDuration);
-    if (supposedDuration == null || supposedDuration < 0) {
-      showSnackBar(parseSupposedDurationErrorMessage);
-      return;
-    }
-    int? maxDuration = int.tryParse(state.maxDuration);
-    if (maxDuration == null || maxDuration < 0) {
-      showSnackBar(parseMaxDurationErrorMessage);
-      return;
-    }
-
     showLoad();
     await _locationInteractor.createServiceInLocation(
         state.config.locationId,
         CreateServiceRequest(
             name: state.name,
-            description: state.description.isEmpty ? null : state.description,
-            supposedDuration: supposedDuration,
-            maxDuration: maxDuration
+            description: state.description.isEmpty ? null : state.description
         )
     )
       ..onSuccess((result) {
