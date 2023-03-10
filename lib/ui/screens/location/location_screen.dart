@@ -166,6 +166,7 @@ class LocationState extends BaseState<
               accountId: state.config.accountId,
               locationId: state.config.locationId,
               columnsAmount: result.columnsAmount,
+              rowsAmount: result.rowsAmount,
               switchFrequency: result.switchFrequency
           )
       );

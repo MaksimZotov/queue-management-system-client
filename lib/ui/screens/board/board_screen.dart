@@ -5,11 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
-import 'package:queue_management_system_client/ui/screens/location/location_screen.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/socket_interactor.dart';
 import '../../../domain/models/base/result.dart';
+import '../../../domain/models/locationnew/location_state.dart';
 import '../../router/routes_config.dart';
 
 class BoardWidget extends BaseWidget<BoardConfig> {
@@ -217,12 +217,11 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
 
   @override
   Future<void> onStart() async {
-    /*
     showLoad();
-    await _locationInteractor.getLocationBoard(
+    await _locationInteractor.getLocationState(
         state.config.locationId
     )..onSuccess((result) {
-      emit(state.copy(board: result.data));
+      emit(state.copy(locationState: result.data));
       hideLoad();
     })..onError((result) {
       showError(result);
@@ -238,8 +237,6 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
     );
 
     _startSwitchPages();
-
-     */
   }
 
   @override
@@ -261,7 +258,6 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
         emit(state.copy(page: state.page + 1));
       }
     });
-
      */
   }
 }

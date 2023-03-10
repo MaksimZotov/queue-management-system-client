@@ -326,12 +326,14 @@ class BoardConfig extends BaseConfig {
   int accountId;
   int locationId;
   final int columnsAmount;
+  final int rowsAmount;
   final int switchFrequency;
 
   BoardConfig({
     required this.accountId,
     required this.locationId,
     this.columnsAmount = 5,
+    this.rowsAmount = 5,
     this.switchFrequency = 5
   });
 

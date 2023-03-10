@@ -13,10 +13,12 @@ class SwitchToBoardConfig extends BaseDialogConfig {}
 
 class SwitchToBoardResult extends BaseDialogResult {
   final int columnsAmount;
+  final int rowsAmount;
   final int switchFrequency;
 
   SwitchToBoardResult({
     required this.columnsAmount,
+    required this.rowsAmount,
     required this.switchFrequency
   });
 }
@@ -57,6 +59,11 @@ class _SwitchToBoardState extends BaseDialogState<
         onTextChanged: getCubitInstance(context).setColumnsAmount
     ),
     TextFieldWidget(
+        label: getLocalizations(context).rowsAmount,
+        text: state.rowsAmount,
+        onTextChanged: getCubitInstance(context).setRowsAmount
+    ),
+    TextFieldWidget(
         label: getLocalizations(context).switchFrequency,
         text: state.switchFrequency,
         onTextChanged: getCubitInstance(context).setSwitchFrequency
@@ -66,6 +73,7 @@ class _SwitchToBoardState extends BaseDialogState<
         text: getLocalizations(context).switchVerb,
         onClick: () => getCubitInstance(context).switchToBoard(
             getLocalizations(context).maxColumnsAmountMustBeNonNegativeNumber,
+            getLocalizations(context).maxRowsAmountMustBeNonNegativeNumber,
             getLocalizations(context).switchFrequencyMustBeNonNegativeNumber
         )
     )
@@ -82,6 +90,7 @@ class SwitchToBoardLogicState extends BaseDialogLogicState<
 > {
 
   final String columnsAmount;
+  final String rowsAmount;
   final String switchFrequency;
 
   SwitchToBoardLogicState({
@@ -92,6 +101,7 @@ class SwitchToBoardLogicState extends BaseDialogLogicState<
     super.result,
     super.loading,
     required this.columnsAmount,
+    required this.rowsAmount,
     required this.switchFrequency
   });
 
@@ -102,6 +112,7 @@ class SwitchToBoardLogicState extends BaseDialogLogicState<
     String? snackBar,
     bool? loading,
     String? columnsAmount,
+    String? rowsAmount,
     String? switchFrequency,
     SwitchToBoardResult? result
   }) => SwitchToBoardLogicState(
@@ -111,6 +122,7 @@ class SwitchToBoardLogicState extends BaseDialogLogicState<
       loading: loading ?? this.loading,
       config: config,
       columnsAmount: columnsAmount ?? this.columnsAmount,
+      rowsAmount: rowsAmount ?? this.rowsAmount,
       switchFrequency: switchFrequency ?? this.switchFrequency,
       result: result
   );
@@ -125,6 +137,7 @@ class SwitchToBoardCubit extends BaseDialogCubit<SwitchToBoardLogicState> {
       SwitchToBoardLogicState(
         config: config,
           columnsAmount: '5',
+          rowsAmount: '5',
           switchFrequency: '5'
       )
   );
@@ -133,17 +146,27 @@ class SwitchToBoardCubit extends BaseDialogCubit<SwitchToBoardLogicState> {
     emit(state.copy(columnsAmount: text));
   }
 
+  void setRowsAmount(String text) {
+    emit(state.copy(rowsAmount: text));
+  }
+
   void setSwitchFrequency(String text) {
     emit(state.copy(switchFrequency: text));
   }
 
   void switchToBoard(
       String parseColumnsAmountErrorMessage,
+      String parseRowsAmountErrorMessage,
       String parseSwitchFrequencyErrorMessage
   ) {
     int? columnsAmount = int.tryParse(state.columnsAmount);
     if (columnsAmount == null || columnsAmount < 0) {
       showSnackBar(parseColumnsAmountErrorMessage);
+      return;
+    }
+    int? rowsAmount = int.tryParse(state.rowsAmount);
+    if (rowsAmount == null || rowsAmount < 0) {
+      showSnackBar(parseRowsAmountErrorMessage);
       return;
     }
     int? switchFrequency = int.tryParse(state.switchFrequency);
@@ -154,6 +177,7 @@ class SwitchToBoardCubit extends BaseDialogCubit<SwitchToBoardLogicState> {
     popResult(
         SwitchToBoardResult(
           columnsAmount: columnsAmount,
+          rowsAmount: rowsAmount,
           switchFrequency: switchFrequency
         )
     );
