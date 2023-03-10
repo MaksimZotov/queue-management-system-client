@@ -253,7 +253,17 @@ class ServicesSequencesLogicState extends BaseLogicState {
 
   final bool showCreateServicesSequenceDialog;
 
-  final KioskState? kioskState;
+  KioskState? get kioskState  {
+    for (KioskMode mode in KioskMode.values) {
+      if (mode.name == config.kioskMode) {
+        return KioskState(
+            kioskMode: mode,
+            multipleSelect: config.multipleSelect ?? false
+        );
+      }
+    }
+    return null;
+  }
 
   ServicesSequencesLogicState({
     super.nextConfig,
@@ -269,7 +279,6 @@ class ServicesSequencesLogicState extends BaseLogicState {
     required this.services,
     required this.selectedServices,
     required this.showCreateServicesSequenceDialog,
-    required this.kioskState
   });
 
   @override
@@ -285,8 +294,7 @@ class ServicesSequencesLogicState extends BaseLogicState {
     List<ServicesSequenceModel>? servicesSequences,
     List<ServiceWrapper>? services,
     List<ServiceWrapper>? selectedServices,
-    bool? showCreateServicesSequenceDialog,
-    KioskState? kioskState
+    bool? showCreateServicesSequenceDialog
   }) => ServicesSequencesLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -300,8 +308,7 @@ class ServicesSequencesLogicState extends BaseLogicState {
       servicesSequences: servicesSequences ?? this.servicesSequences,
       services: services ?? this.services,
       selectedServices: selectedServices ?? this.selectedServices,
-      showCreateServicesSequenceDialog: showCreateServicesSequenceDialog ?? this.showCreateServicesSequenceDialog,
-      kioskState: kioskState ?? this.kioskState
+      showCreateServicesSequenceDialog: showCreateServicesSequenceDialog ?? this.showCreateServicesSequenceDialog
   );
 }
 
@@ -324,14 +331,12 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
           servicesSequences: [],
           services: [],
           selectedServices: [],
-          showCreateServicesSequenceDialog: false,
-          kioskState: null
+          showCreateServicesSequenceDialog: false
       )
   );
 
   @override
   Future<void> onStart() async {
-    emit(state.copy(kioskState: await _terminalInteractor.getKioskState()));
     await _locationInteractor.getLocation(state.config.locationId)
       ..onSuccess((result) async {
         LocationModel location = result.data;

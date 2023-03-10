@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:queue_management_system_client/ui/extensions/string.dart';
 
 import 'routes_config.dart';
 
@@ -54,7 +55,9 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
                 case 'locations':
                   return LocationConfig(
                       accountId: int.parse(segments[1]),
-                      locationId: int.parse(segments[3])
+                      locationId: int.parse(segments[3]),
+                      kioskMode: uri.queryParameters['mode'],
+                      multipleSelect: uri.queryParameters['multiple'].toBool()
                   );
               }
               break;
@@ -70,19 +73,25 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
                     case 'services':
                       return ServicesConfig(
                           accountId: int.parse(segments[1]),
-                          locationId: int.parse(segments[3])
+                          locationId: int.parse(segments[3]),
+                          kioskMode: uri.queryParameters['mode'],
+                          multipleSelect: uri.queryParameters['multiple'].toBool()
                       );
                     // "/accounts/{account_id}/locations/{location_id}/sequences"
                     case 'sequences':
                       return ServicesSequencesConfig(
                           accountId: int.parse(segments[1]),
-                          locationId: int.parse(segments[3])
+                          locationId: int.parse(segments[3]),
+                          kioskMode: uri.queryParameters['mode'],
+                          multipleSelect: uri.queryParameters['multiple'].toBool()
                       );
                     // "/accounts/{account_id}/locations/{location_id}/specialists"
                     case 'specialists':
                       return SpecialistsConfig(
                           accountId: int.parse(segments[1]),
-                          locationId: int.parse(segments[3])
+                          locationId: int.parse(segments[3]),
+                          kioskMode: uri.queryParameters['mode'],
+                          multipleSelect: uri.queryParameters['multiple'].toBool()
                       );
                     // "/accounts/{account_id}/locations/{location_id}/queues"
                     case 'queues':
@@ -151,29 +160,57 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
     if (configuration is LocationConfig) {
       int accountId = configuration.accountId;
       int locationId = configuration.locationId;
+
+      String? kioskMode = configuration.kioskMode;
+      String urlEnd = '';
+      if (kioskMode != null) {
+        urlEnd = '?mode=$kioskMode&multiple=${configuration.multipleSelect}';
+      }
+
       return RouteInformation(
-          location: '/accounts/$accountId/locations/$locationId'
+          location: '/accounts/$accountId/locations/$locationId$urlEnd'
       );
     }
     if (configuration is ServicesConfig) {
       int accountId = configuration.accountId;
       int locationId = configuration.locationId;
+
+      String? kioskMode = configuration.kioskMode;
+      String urlEnd = '';
+      if (kioskMode != null) {
+        urlEnd = '?mode=$kioskMode&multiple=${configuration.multipleSelect}';
+      }
+
       return RouteInformation(
-          location: '/accounts/$accountId/locations/$locationId/services'
+          location: '/accounts/$accountId/locations/$locationId/services$urlEnd'
       );
     }
     if (configuration is ServicesSequencesConfig) {
       int accountId = configuration.accountId;
       int locationId = configuration.locationId;
+
+      String? kioskMode = configuration.kioskMode;
+      String urlEnd = '';
+      if (kioskMode != null) {
+        urlEnd = '?mode=$kioskMode&multiple=${configuration.multipleSelect}';
+      }
+
       return RouteInformation(
-          location: '/accounts/$accountId/locations/$locationId/sequences'
+          location: '/accounts/$accountId/locations/$locationId/sequences$urlEnd'
       );
     }
     if (configuration is SpecialistsConfig) {
       int accountId = configuration.accountId;
       int locationId = configuration.locationId;
+
+      String? kioskMode = configuration.kioskMode;
+      String urlEnd = '';
+      if (kioskMode != null) {
+        urlEnd = '?mode=$kioskMode&multiple=${configuration.multipleSelect}';
+      }
+
       return RouteInformation(
-          location: '/accounts/$accountId/locations/$locationId/specialists'
+          location: '/accounts/$accountId/locations/$locationId/specialists$urlEnd'
       );
     }
     if (configuration is QueuesConfig) {

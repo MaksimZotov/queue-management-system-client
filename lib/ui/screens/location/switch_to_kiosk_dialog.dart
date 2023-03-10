@@ -1,12 +1,15 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/domain/enums/kiosk_mode.dart';
 import 'package:queue_management_system_client/ui/extensions/kiosk/kiosk_mode_extensions.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/dropdown_widget.dart';
 
+import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
 import '../../../domain/models/base/result.dart';
@@ -14,10 +17,12 @@ import '../../../domain/models/kiosk/kiosk_state.dart';
 import '../../router/routes_config.dart';
 
 class SwitchToKioskConfig extends BaseDialogConfig {
+  final int accountId;
   final int locationId;
 
   SwitchToKioskConfig({
-    required this.locationId,
+    required this.accountId,
+    required this.locationId
   });
 }
 
@@ -109,8 +114,12 @@ class _SwitchToKioskState extends BaseDialogState<
       const SizedBox(height: Dimens.contentMargin * 2),
       ButtonWidget(
           text: getLocalizations(context).switchButton,
-          onClick: getCubitInstance(context).SwitchToKiosk
-      )
+          onClick: getCubitInstance(context).switchToKiosk
+      ),
+      ButtonWidget(
+          text: getLocalizations(context).downloadQrCode,
+          onClick: getCubitInstance(context).downloadQrCode
+      ),
     ];
   }
 
@@ -201,7 +210,7 @@ class SwitchToKioskCubit extends BaseDialogCubit<SwitchToKioskLogicState> {
   }
 
   void selectMode(KioskMode? mode) {
-    bool multipleSelectDisabled = mode == KioskMode.servicesSequences;
+    bool multipleSelectDisabled = mode == KioskMode.sequences;
     emit(
         state.copy(
             selectedMode: mode,
@@ -220,7 +229,7 @@ class SwitchToKioskCubit extends BaseDialogCubit<SwitchToKioskLogicState> {
     );
   }
 
-  Future<void> SwitchToKiosk() async {
+  Future<void> switchToKiosk() async {
     popResult(
         SwitchToKioskResult(
             kioskState: KioskState(
@@ -229,5 +238,28 @@ class SwitchToKioskCubit extends BaseDialogCubit<SwitchToKioskLogicState> {
             )
         )
     );
+  }
+
+  Future<void> downloadQrCode() async {
+    int accountId = state.config.accountId;
+    int locationId = state.config.locationId;
+    String url = '${ServerApi.clientUrl}/accounts/$accountId/locations/$locationId?mode=${state.selectedMode.name}&multiple=${state.multipleSelect}';
+
+    final image = await QrPainter(
+      data: url,
+      version: QrVersions.auto,
+      errorCorrectionLevel: QrErrorCorrectLevel.Q,
+      color: Colors.black,
+      emptyColor: Colors.white,
+    ).toImageData(1024);
+
+    if (image != null) {
+      await FileSaver.instance.saveFile(
+          url,
+          image.buffer.asUint8List(),
+          'png',
+          mimeType: MimeType.PNG
+      );
+    }
   }
 }

@@ -75,7 +75,9 @@ class _LocationsState extends BaseState<
         onClick: (location) => widget.emitConfig(
             LocationConfig(
                 accountId: state.config.accountId,
-                locationId: location.id!
+                locationId: location.id!,
+                kioskMode: null,
+                multipleSelect: null
             )
         ),
         onDelete: (locationModel) => _showDeleteLocationDialog(

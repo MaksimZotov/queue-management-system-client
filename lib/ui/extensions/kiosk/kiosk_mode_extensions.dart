@@ -9,7 +9,7 @@ extension KioskModeExtensions on KioskMode {
         return localizations.allTypes;
       case KioskMode.services:
         return localizations.services;
-      case KioskMode.servicesSequences:
+      case KioskMode.sequences:
         return localizations.servicesSequences;
       case KioskMode.specialists:
         return localizations.specialists;

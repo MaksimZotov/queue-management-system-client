@@ -107,16 +107,20 @@ class LocationsConfig extends BaseConfig {
 class LocationConfig extends BaseConfig {
   int accountId;
   int locationId;
+  String? kioskMode;
+  bool? multipleSelect;
 
   LocationConfig({
     required this.accountId,
-    required this.locationId
+    required this.locationId,
+    required this.kioskMode,
+    required this.multipleSelect
   });
 
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
     return RouterPage(
-        key: ValueKey('Location Page $locationId'),
+        key: ValueKey('Location Page $locationId $kioskMode $multipleSelect'),
         child: LocationWidget(
           config: this,
           emitConfig: emitConfig,
@@ -133,10 +137,14 @@ class LocationConfig extends BaseConfig {
 class ServicesSequencesConfig extends BaseConfig {
   int accountId;
   int locationId;
+  String? kioskMode;
+  bool? multipleSelect;
 
   ServicesSequencesConfig({
     required this.accountId,
-    required this.locationId
+    required this.locationId,
+    required this.kioskMode,
+    required this.multipleSelect
   });
 
   @override
@@ -154,7 +162,9 @@ class ServicesSequencesConfig extends BaseConfig {
   BaseConfig getPrevConfig() {
     return LocationConfig(
         accountId: accountId,
-        locationId: locationId
+        locationId: locationId,
+        kioskMode: kioskMode,
+        multipleSelect: multipleSelect
     );
   }
 }
@@ -162,10 +172,14 @@ class ServicesSequencesConfig extends BaseConfig {
 class ServicesConfig extends BaseConfig {
   int accountId;
   int locationId;
+  String? kioskMode;
+  bool? multipleSelect;
 
   ServicesConfig({
     required this.accountId,
-    required this.locationId
+    required this.locationId,
+    required this.kioskMode,
+    required this.multipleSelect
   });
 
   @override
@@ -183,7 +197,9 @@ class ServicesConfig extends BaseConfig {
   BaseConfig getPrevConfig() {
     return LocationConfig(
         accountId: accountId,
-        locationId: locationId
+        locationId: locationId,
+        kioskMode: kioskMode,
+        multipleSelect: multipleSelect
     );
   }
 }
@@ -191,10 +207,14 @@ class ServicesConfig extends BaseConfig {
 class SpecialistsConfig extends BaseConfig {
   int accountId;
   int locationId;
+  String? kioskMode;
+  bool? multipleSelect;
 
   SpecialistsConfig({
     required this.accountId,
-    required this.locationId
+    required this.locationId,
+    required this.kioskMode,
+    required this.multipleSelect
   });
 
   @override
@@ -212,7 +232,9 @@ class SpecialistsConfig extends BaseConfig {
   BaseConfig getPrevConfig() {
     return LocationConfig(
         accountId: accountId,
-        locationId: locationId
+        locationId: locationId,
+        kioskMode: kioskMode,
+        multipleSelect: multipleSelect
     );
   }
 }
@@ -241,7 +263,9 @@ class QueuesConfig extends BaseConfig {
   BaseConfig getPrevConfig() {
     return LocationConfig(
         accountId: accountId,
-        locationId: locationId
+        locationId: locationId,
+        kioskMode: null,
+        multipleSelect: null
     );
   }
 }
@@ -326,7 +350,9 @@ class BoardConfig extends BaseConfig {
   BaseConfig? getPrevConfig() {
     return LocationConfig(
         accountId: accountId,
-        locationId: locationId
+        locationId: locationId,
+        kioskMode: null,
+        multipleSelect: null
     );
   }
 }
@@ -355,7 +381,9 @@ class RightsConfig extends BaseConfig {
   BaseConfig? getPrevConfig() {
     return LocationConfig(
         accountId: accountId,
-        locationId: locationId
+        locationId: locationId,
+        kioskMode: null,
+        multipleSelect: null
     );
   }
 }

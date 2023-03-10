@@ -1,6 +1,6 @@
 enum KioskMode {
   all,
   services,
-  servicesSequences,
+  sequences,
   specialists
 }

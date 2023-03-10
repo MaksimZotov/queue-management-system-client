@@ -196,7 +196,17 @@ class ServicesLogicState extends BaseLogicState {
 
   final List<ServiceWrapper> services;
 
-  final KioskState? kioskState;
+  KioskState? get kioskState  {
+    for (KioskMode mode in KioskMode.values) {
+      if (mode.name == config.kioskMode) {
+        return KioskState(
+            kioskMode: mode,
+            multipleSelect: config.multipleSelect ?? false
+        );
+      }
+    }
+    return null;
+  }
 
   List<ServiceWrapper> get selectedServices {
     return List.from(services)..removeWhere((serviceWrapper) => !serviceWrapper.selected);
@@ -211,8 +221,7 @@ class ServicesLogicState extends BaseLogicState {
     required this.ownerEmail,
     required this.locationName,
     required this.hasRights,
-    required this.services,
-    required this.kioskState
+    required this.services
   });
 
   @override
@@ -224,8 +233,7 @@ class ServicesLogicState extends BaseLogicState {
     String? ownerEmail,
     String? locationName,
     bool? hasRights,
-    List<ServiceWrapper>? services,
-    KioskState? kioskState
+    List<ServiceWrapper>? services
   }) => ServicesLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -235,19 +243,16 @@ class ServicesLogicState extends BaseLogicState {
       ownerEmail: ownerEmail ?? this.ownerEmail,
       locationName: locationName ?? this.locationName,
       hasRights: hasRights ?? this.hasRights,
-      services: services ?? this.services,
-      kioskState: kioskState ?? this.kioskState
+      services: services ?? this.services
   );
 }
 
 @injectable
 class ServicesCubit extends BaseCubit<ServicesLogicState> {
   final LocationInteractor _locationInteractor;
-  final KioskInteractor _terminalInteractor;
 
   ServicesCubit(
       this._locationInteractor,
-      this._terminalInteractor,
       @factoryParam ServicesConfig config
   ) : super(
       ServicesLogicState(
@@ -255,14 +260,12 @@ class ServicesCubit extends BaseCubit<ServicesLogicState> {
           ownerEmail: null,
           locationName: '',
           hasRights: false,
-          services: [],
-          kioskState: null
+          services: []
       )
   );
 
   @override
   Future<void> onStart() async {
-    emit(state.copy(kioskState: await _terminalInteractor.getKioskState()));
     await _locationInteractor.getLocation(state.config.locationId)
       ..onSuccess((result) async {
         LocationModel location = result.data;
