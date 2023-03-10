@@ -14,6 +14,7 @@ import '../../models/location/create_services_sequence_request.dart';
 import '../../models/location/specialist_model.dart';
 import '../../models/location/service_model.dart';
 import '../../models/location/services_sequence_model.dart';
+import '../../models/locationnew/location_state.dart';
 
 @Singleton(as: LocationInteractor)
 class LocationInteractorImpl extends LocationInteractor {
@@ -44,6 +45,11 @@ class LocationInteractorImpl extends LocationInteractor {
   @override
   Future<Result<LocationModel>> getLocation(int locationId) {
     return _repository.getLocation(locationId);
+  }
+
+  @override
+  Future<Result<LocationState>> getLocationState(int locationId) {
+    return _repository.getLocationState(locationId);
   }
 
   @override

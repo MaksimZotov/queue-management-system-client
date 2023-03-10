@@ -212,6 +212,13 @@ class ServerApi {
       )
   );
 
+  Future<Result<LocationState>> getLocationState(int locationId) => _execRequest(
+      fromJson: LocationState.fromJson,
+      request: _dioApi.get(
+          '$url/locations/$locationId/state'
+      )
+  );
+
   Future<Result<ContainerForList<ServiceModel>>> getServicesInLocation(int locationId) => _execRequestForList(
       fromJson: ServiceModel.fromJson,
       request: _dioApi.get(

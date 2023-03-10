@@ -15,6 +15,7 @@ import '../../domain/models/client/add_client_request.dart';
 import '../../domain/models/location/specialist_model.dart';
 import '../../domain/models/location/service_model.dart';
 import '../../domain/models/location/services_sequence_model.dart';
+import '../../domain/models/locationnew/location_state.dart';
 import '../../domain/models/queue/create_queue_request.dart';
 import '../../domain/models/queue/queue_model.dart';
 import '../../domain/models/queue/queue_state_model.dart';
@@ -40,6 +41,7 @@ abstract class Repository {
   Future<Result<LocationModel>> createLocation(CreateLocationRequest createLocationRequest);
   Future<Result> deleteLocation(int locationId);
   Future<Result<LocationModel>> getLocation(int locationId);
+  Future<Result<LocationState>> getLocationState(int locationId);
   Future<Result<ContainerForList<ServiceModel>>> getServicesInLocation(int locationId);
   Future<Result<ServiceModel>> createServiceInLocation(int locationId, CreateServiceRequest createServiceRequest);
   Future<Result> deleteServiceInLocation(int locationId, int serviceId);

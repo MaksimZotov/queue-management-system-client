@@ -12,6 +12,7 @@ import 'package:queue_management_system_client/ui/widgets/client_item_widget.dar
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/client_interactor.dart';
+import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/socket_interactor.dart';
 import '../../../domain/models/locationnew/client.dart';
 import '../../router/routes_config.dart';
@@ -124,11 +125,13 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
   final QueueInteractor _queueInteractor;
   final ClientInteractor _clientInteractor;
   final SocketInteractor _socketInteractor;
+  final LocationInteractor _locationInteractor;
 
   QueueCubit(
     this._queueInteractor,
     this._clientInteractor,
     this._socketInteractor,
+    this._locationInteractor,
     @factoryParam QueueConfig config
   ) : super(
       QueueLogicState(
@@ -150,6 +153,19 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
         state.config.queueId
     )..onSuccess((result) {
       emit(state.copy(queueStateModel: result.data));
+    })..onError((result) {
+      showError(result);
+    });
+
+    await _locationInteractor.getLocationState(
+        state.config.locationId
+    )..onSuccess((result) {
+      emit(
+          state.copy(
+              locationState: result.data,
+              availableClients: result.data.clients
+          )
+      );
     })..onError((result) {
       showError(result);
     });

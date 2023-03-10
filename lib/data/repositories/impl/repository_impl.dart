@@ -25,6 +25,7 @@ import '../../../domain/models/account/confirm_model.dart';
 import '../../../domain/models/account/login_model.dart';
 import '../../../domain/models/account/signup_model.dart';
 import '../../../domain/models/account/tokens_model.dart';
+import '../../../domain/models/locationnew/location_state.dart';
 import '../../../domain/models/queue/create_queue_request.dart';
 import '../../../domain/models/queue/queue_state_model.dart';
 import '../../../domain/models/rights/add_rights_request.dart';
@@ -120,6 +121,11 @@ class RepositoryImpl extends Repository {
   @override
   Future<Result<LocationModel>> getLocation(int locationId) {
     return _serverApi.getLocation(locationId);
+  }
+
+  @override
+  Future<Result<LocationState>> getLocationState(int locationId) {
+    return _serverApi.getLocationState(locationId);
   }
 
   @override

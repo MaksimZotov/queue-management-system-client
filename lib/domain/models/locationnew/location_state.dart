@@ -6,12 +6,11 @@ part 'location_state.g.dart';
 
 @JsonSerializable()
 class LocationState {
-  @JsonKey(name: 'location_id')
-  final int locationId;
+  final int id;
   List<Client> clients;
 
   LocationState(
-    this.locationId,
+    this.id,
     this.clients
   );
 
