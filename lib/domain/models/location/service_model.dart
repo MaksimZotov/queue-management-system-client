@@ -7,17 +7,11 @@ class ServiceModel {
   final int id;
   final String name;
   final String? description;
-  @JsonKey(name: 'supposed_duration')
-  final int supposedDuration;
-  @JsonKey(name: 'max_duration')
-  final int maxDuration;
 
   ServiceModel(
       this.id,
       this.name,
-      this.description,
-      this.supposedDuration,
-      this.maxDuration
+      this.description
   );
 
   static ServiceModel fromJson(Map<String, dynamic> json) => _$ServiceModelFromJson(json);

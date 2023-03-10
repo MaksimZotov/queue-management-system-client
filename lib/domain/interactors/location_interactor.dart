@@ -1,7 +1,6 @@
 import '../models/base/container_for_list.dart';
 import '../models/base/result.dart';
 import '../models/client/add_client_request.dart';
-import '../models/location/board_model.dart';
 import '../models/location/create_location_request.dart';
 import '../models/location/create_specialist_request.dart';
 import '../models/location/create_service_request.dart';
@@ -18,7 +17,6 @@ abstract class LocationInteractor {
   Future<Result<LocationModel>> createLocation(CreateLocationRequest createLocationRequest);
   Future<Result> deleteLocation(int locationId);
   Future<Result<LocationModel>> getLocation(int locationId);
-  Future<Result<BoardModel>> getLocationBoard(int locationId);
   Future<Result<ContainerForList<ServiceModel>>> getServicesInLocation(int locationId);
   Future<Result<ServiceModel>> createServiceInLocation(int locationId, CreateServiceRequest createServiceRequest);
   Future<Result> deleteServiceInLocation(int locationId, int serviceId);

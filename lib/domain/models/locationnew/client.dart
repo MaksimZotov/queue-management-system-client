@@ -7,6 +7,7 @@ part 'client.g.dart';
 
 @JsonSerializable()
 class Client {
+  final int id;
   final int code;
   @JsonKey(name: 'wait_timestamp')
   final DateTime waitTimestamp;
@@ -16,6 +17,7 @@ class Client {
   final List<Service> servicesInQueue;
 
   Client(
+    this.id,
     this.code,
     this.waitTimestamp,
     this.services,

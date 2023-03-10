@@ -5,6 +5,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
+import 'package:queue_management_system_client/domain/models/locationnew/location_state.dart';
 import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_state_model.dart';
 import 'package:queue_management_system_client/ui/widgets/client_item_widget.dart';
@@ -12,6 +13,7 @@ import 'package:queue_management_system_client/ui/widgets/client_item_widget.dar
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/client_interactor.dart';
 import '../../../domain/interactors/socket_interactor.dart';
+import '../../../domain/models/locationnew/client.dart';
 import '../../router/routes_config.dart';
 import '../base.dart';
 
@@ -57,13 +59,13 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
     body: ListView.builder(
       itemBuilder: (context, index) {
         return ClientItemWidget(
-          client: state.queueStateModel.clients[index],
+          client: state.availableClients[index],
           onNotify: getCubitInstance(context).notify,
           onServe: getCubitInstance(context).serve,
           onDelete: getCubitInstance(context).delete,
         );
       },
-      itemCount: state.queueStateModel.clients.length,
+      itemCount: state.availableClients.length,
     )
   );
 
@@ -75,6 +77,9 @@ class QueueLogicState extends BaseLogicState {
 
   final QueueConfig config;
   final QueueStateModel queueStateModel;
+  final LocationState? locationState;
+  final Client? servingClient;
+  final List<Client> availableClients;
   
   QueueLogicState({
     super.nextConfig,
@@ -83,6 +88,9 @@ class QueueLogicState extends BaseLogicState {
     super.loading,
     required this.config,
     required this.queueStateModel,
+    required this.locationState,
+    required this.servingClient,
+    required this.availableClients
   });
 
   @override
@@ -92,20 +100,26 @@ class QueueLogicState extends BaseLogicState {
     String? snackBar,
     bool? loading,
     QueueStateModel? queueStateModel,
+    LocationState? locationState,
+    Client? servingClient,
+    List<Client>? availableClients
   }) => QueueLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
       loading: loading ?? this.loading,
       config: config,
-      queueStateModel: queueStateModel ?? this.queueStateModel
+      queueStateModel: queueStateModel ?? this.queueStateModel,
+      locationState: locationState,
+      servingClient: servingClient,
+      availableClients: availableClients ?? this.availableClients
   );
 }
 
 @injectable
 class QueueCubit extends BaseCubit<QueueLogicState> {
 
-  static const String _queueTopic = '/topic/queues/';
+  static const String _locationTopic = '/topic/locations/';
 
   final QueueInteractor _queueInteractor;
   final ClientInteractor _clientInteractor;
@@ -120,10 +134,13 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
       QueueLogicState(
           config: config,
           queueStateModel: QueueStateModel(
-            id: config.queueId,
-            name: '',
-            clients: []
+              id: config.queueId,
+              name: '',
+              services: []
           ),
+          locationState: null,
+          servingClient: null,
+          availableClients: []
       )
   );
 
@@ -137,31 +154,31 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
       showError(result);
     });
 
-    _socketInteractor.connectToSocket<QueueStateModel>(
-      _queueTopic + state.config.queueId.toString(),
+    _socketInteractor.connectToSocket<LocationState>(
+      _locationTopic + state.config.locationId.toString(),
       () => { /* Do nothing */ },
-      (queue) => {
-        emit(state.copy(queueStateModel: queue))
+      (locationState) => {
+        emit(state.copy(locationState: locationState))
       },
       (error) => { /* Do nothing */ }
     );
   }
 
-  Future<void> notify(ClientInQueueModel client) async {
+  Future<void> notify(Client client) async {
     await _queueInteractor.notifyClientInQueue(state.config.queueId, client.id)
       ..onError((result) {
         showError(result);
       });
   }
 
-  Future<void> serve(ClientInQueueModel client) async {
+  Future<void> serve(Client client) async {
     await _queueInteractor.serveClientInQueue(state.config.queueId, client.id)
       ..onError((result) {
         showError(result);
     });
   }
 
-  Future<void> delete(ClientInQueueModel client) async {
+  Future<void> delete(Client client) async {
     await _clientInteractor.deleteClientInLocation(state.config.locationId, client.id)
       ..onError((result) {
         showError(result);
@@ -183,7 +200,7 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
   @override
   Future<void> close() async {
     _socketInteractor.disconnectFromSocket(
-        _queueTopic + state.config.queueId.toString()
+        _locationTopic + state.config.locationId.toString()
     );
     return super.close();
   }

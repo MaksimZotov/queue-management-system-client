@@ -5,13 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
+import 'package:queue_management_system_client/ui/screens/location/location_screen.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/socket_interactor.dart';
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/location/board_model.dart';
-import '../../../domain/models/location/board_position.dart';
-import '../../../domain/models/location/board_queue.dart';
 import '../../router/routes_config.dart';
 
 class BoardWidget extends BaseWidget<BoardConfig> {
@@ -34,6 +32,8 @@ class _BoardState extends BaseState<BoardWidget, BoardLogicState, BoardCubit> {
       BoardLogicState state,
       BoardWidget widget
   ) {
+    return Container();
+    /*
     List<BoardQueue> queues = state.board.queues;
     if (queues.isEmpty) {
       return Row(children: const []);
@@ -150,6 +150,8 @@ class _BoardState extends BaseState<BoardWidget, BoardLogicState, BoardCubit> {
         )
       ).values.toList()
     );
+
+     */
   }
 
   @override
@@ -159,7 +161,7 @@ class _BoardState extends BaseState<BoardWidget, BoardLogicState, BoardCubit> {
 class BoardLogicState extends BaseLogicState {
 
   final BoardConfig config;
-  final BoardModel board;
+  final LocationState? locationState;
   final int page;
 
   BoardLogicState({
@@ -168,7 +170,7 @@ class BoardLogicState extends BaseLogicState {
     super.snackBar,
     super.loading,
     required this.config,
-    required this.board,
+    required this.locationState,
     required this.page
   });
 
@@ -178,7 +180,7 @@ class BoardLogicState extends BaseLogicState {
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    BoardModel? board,
+    LocationState? locationState,
     int? page
   }) => BoardLogicState(
       nextConfig: nextConfig,
@@ -186,7 +188,7 @@ class BoardLogicState extends BaseLogicState {
       snackBar: snackBar,
       loading: loading ?? this.loading,
       config: config,
-      board: board ?? this.board,
+      locationState: locationState,
       page: page ?? this.page
   );
 }
@@ -194,7 +196,7 @@ class BoardLogicState extends BaseLogicState {
 @injectable
 class BoardCubit extends BaseCubit<BoardLogicState> {
 
-  static const String _locationTopic = '/topic/boards/';
+  static const String _locationTopic = '/topic/locations/';
 
   final LocationInteractor _locationInteractor;
   final SocketInteractor _socketInteractor;
@@ -208,15 +210,14 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
   ) : super(
       BoardLogicState(
           config: config,
-          board: BoardModel(
-            queues: []
-          ),
+          locationState: null,
           page: 0
       )
   );
 
   @override
   Future<void> onStart() async {
+    /*
     showLoad();
     await _locationInteractor.getLocationBoard(
         state.config.locationId
@@ -227,16 +228,18 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
       showError(result);
     });
 
-    _socketInteractor.connectToSocket<BoardModel>(
+    _socketInteractor.connectToSocket<LocationState>(
       _locationTopic + state.config.locationId.toString(),
       () => { /* Do nothing */ },
-      (board) => {
-        emit(state.copy(board: board))
+      (locationState) => {
+        emit(state.copy(locationState: locationState))
       },
       (error) => { /* Do nothing */ }
     );
 
     _startSwitchPages();
+
+     */
   }
 
   @override
@@ -249,6 +252,7 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
   }
 
   void _startSwitchPages() async {
+    /*
     _timer = Timer.periodic(Duration(seconds: state.config.switchFrequency), (timer) {
       int nextPage = state.page + 1;
       if (nextPage * state.config.columnsAmount >= state.board.queues.length) {
@@ -257,5 +261,7 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
         emit(state.copy(page: state.page + 1));
       }
     });
+
+     */
   }
 }

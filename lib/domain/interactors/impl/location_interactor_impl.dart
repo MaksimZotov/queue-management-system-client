@@ -7,7 +7,6 @@ import 'package:queue_management_system_client/domain/models/location/location_m
 import '../../../data/repositories/repository.dart';
 import '../../models/base/container_for_list.dart';
 import '../../models/client/add_client_request.dart';
-import '../../models/location/board_model.dart';
 import '../../models/location/create_location_request.dart';
 import '../../models/location/create_specialist_request.dart';
 import '../../models/location/create_service_request.dart';
@@ -45,11 +44,6 @@ class LocationInteractorImpl extends LocationInteractor {
   @override
   Future<Result<LocationModel>> getLocation(int locationId) {
     return _repository.getLocation(locationId);
-  }
-
-  @override
-  Future<Result<BoardModel>> getLocationBoard(int locationId) {
-    return _repository.getLocationBoard(locationId);
   }
 
   @override

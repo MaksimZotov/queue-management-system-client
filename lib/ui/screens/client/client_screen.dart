@@ -56,12 +56,7 @@ class _ClientState extends BaseState<
                       elevation: state.clientState.inQueue ? 5 : 0,
                       color: state.clientState.inQueue ? Colors.white : Colors.transparent,
                       child: Column(
-                        children: <Widget>[
-                          ClientInfoFieldWidget(
-                              fieldName: getLocalizations(context).queueLengthWithColon,
-                              fieldValue: state.clientState.queueLength.toString()
-                          )
-                        ] + (state.clientState.inQueue ? [
+                        children: <Widget>[] + (state.clientState.inQueue ? [
                           ClientInfoFieldWidget(
                               fieldName: getLocalizations(context).statusWithColon,
                               fieldValue: state.clientState.status == ClientInQueueStatus.confirmed
@@ -72,22 +67,10 @@ class _ClientState extends BaseState<
                               fieldName: getLocalizations(context).emailWithColon,
                               fieldValue: state.clientState.email!
                           ),
-                          ClientInfoFieldWidget(
-                              fieldName: getLocalizations(context).firstNameWithColon,
-                              fieldValue: state.clientState.firstName!
-                          ),
-                          ClientInfoFieldWidget(
-                              fieldName: getLocalizations(context).lastNameWithColon,
-                              fieldValue: state.clientState.lastName!
-                          ),
-                          ClientInfoFieldWidget(
-                              fieldName: getLocalizations(context).beforeMeWithColon,
-                              fieldValue: state.clientState.beforeMe.toString()
-                          )
                         ] : []) + (state.clientState.status == ClientInQueueStatus.confirmed ? [
                           ClientInfoFieldWidget(
-                              fieldName: getLocalizations(context).code,
-                              fieldValue: state.clientState.accessKey!
+                              fieldName: getLocalizations(context).codeWithColon,
+                              fieldValue: state.clientState.code.toString()
                           )
                         ] : []),
                       )
@@ -172,7 +155,7 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
           clientState: QueueStateForClientModel(
             inQueue: false,
             queueName: '',
-            queueLength: 0
+            code: 0
           ),
           email: '',
           showConfirmDialog: false

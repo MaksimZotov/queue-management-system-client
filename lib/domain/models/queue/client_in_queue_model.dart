@@ -7,27 +7,14 @@ part 'client_in_queue_model.g.dart';
 class ClientInQueueModel {
   final int id;
   final String? email;
-  @JsonKey(name: 'first_name')
-  final String firstName;
-  @JsonKey(name: 'last_name')
-  final String lastName;
-  @JsonKey(name: 'order_number')
-  final int orderNumber;
-  @JsonKey(name: 'public_code')
-  final int publicCode;
-  @JsonKey(name: 'access_key')
-  final String accessKey;
+  final int code;
   final ClientInQueueStatus status;
   final List<String> services;
 
   ClientInQueueModel({
     required this.id,
     required this.email,
-    required this.firstName,
-    required this.lastName,
-    required this.orderNumber,
-    required this.publicCode,
-    required this.accessKey,
+    required this.code,
     required this.status,
     required this.services
   });

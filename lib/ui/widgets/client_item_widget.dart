@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:queue_management_system_client/domain/enums/client_in_queue_status.dart';
+import 'package:queue_management_system_client/domain/models/locationnew/service.dart';
 import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 
+import '../../domain/models/locationnew/client.dart';
+
 class ClientItemWidget extends StatefulWidget {
-  final ValueChanged<ClientInQueueModel> onNotify;
-  final ValueChanged<ClientInQueueModel> onServe;
-  final ValueChanged<ClientInQueueModel> onDelete;
-  final ClientInQueueModel client;
+  final ValueChanged<Client> onNotify;
+  final ValueChanged<Client> onServe;
+  final ValueChanged<Client> onDelete;
+  final Client client;
 
   const ClientItemWidget({
     Key? key,
@@ -25,7 +28,7 @@ class _ClientItemState extends State<ClientItemWidget> {
   @override
   Widget build(BuildContext context) {
     List<Padding> services = [];
-    for (String service in widget.client.services) {
+    for (Service service in widget.client.services) {
       services.add(
           Padding(
               padding: const EdgeInsetsDirectional.fromSTEB(64, 0, 0, 0),
@@ -33,26 +36,19 @@ class _ClientItemState extends State<ClientItemWidget> {
                 color: Colors.teal,
                 child: Padding(
                     padding: const EdgeInsets.all(4),
-                    child: Text(service, style: const TextStyle(color: Colors.white))
+                    child: Text(service.name, style: const TextStyle(color: Colors.white))
                 )
             )
           )
       );
     }
     return Card(
-      color: widget.client.status == ClientInQueueStatus.confirmed
-          ? Colors.white
-          : Colors.white54,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           ListTile(
-              title: Text('${widget.client.firstName} ${widget.client.lastName}'),
-              subtitle: Text(
-                  ((widget.client.email == null)
-                      ? ''
-                      : ('${widget.client.email} ') + '(${widget.client.accessKey})')
-              ),
+              title: Text(widget.client.code.toString()),
+              subtitle: Text(widget.client.waitTimestamp.toString()),
               leading: IconButton(
                 tooltip: AppLocalizations.of(context)!.finishServing,
                 icon: const Icon(Icons.done_outline_rounded),

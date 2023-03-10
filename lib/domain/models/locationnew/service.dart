@@ -6,10 +6,13 @@ part 'service.g.dart';
 class Service {
   final int id;
   final String name;
+  @JsonKey(name: 'order_number')
+  final int orderNumber;
 
   Service(
     this.id,
-    this.name
+    this.name,
+    this.orderNumber
   );
 
   static Service fromJson(Map<String, dynamic> json) => _$ServiceFromJson(json);
