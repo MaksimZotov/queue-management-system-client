@@ -9,7 +9,7 @@ class QueueStateForClientModel {
   final bool inQueue;
 
   @JsonKey(name: 'queue_name')
-  final String queueName;
+  final String? queueName;
 
   final String? email;
   final int code;

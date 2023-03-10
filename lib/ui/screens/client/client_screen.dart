@@ -37,7 +37,7 @@ class _ClientState extends BaseState<
       ClientWidget widget
   ) => Scaffold(
     appBar: AppBar(
-      title: Text(state.clientState.queueName),
+      title: Text(state.clientState.queueName ?? ''),
     ),
     body: state.loading ? const Center(
       child: CircularProgressIndicator(),
