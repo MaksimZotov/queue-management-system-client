@@ -56,6 +56,11 @@ class QueueInteractorImpl extends QueueInteractor {
   }
 
   @override
+  Future<Result> callClientInQueue(int queueId, int clientId) {
+    return _repository.callClientInQueue(queueId, clientId);
+  }
+
+  @override
   Future<Result<ContainerForList<ServiceModel>>> getServicesInQueue(int queueId) {
     return _repository.getServicesInQueue(queueId);
   }

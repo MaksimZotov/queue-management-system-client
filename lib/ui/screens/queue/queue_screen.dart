@@ -11,6 +11,7 @@ import 'package:queue_management_system_client/domain/models/queue/queue_state_m
 import 'package:queue_management_system_client/ui/widgets/client_item_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../dimens.dart';
 import '../../../domain/interactors/client_interactor.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/socket_interactor.dart';
@@ -57,16 +58,37 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
             ]
             : null
     ),
-    body: ListView.builder(
-      itemBuilder: (context, index) {
-        return ClientItemWidget(
-          client: state.availableClients[index],
-          onNotify: getCubitInstance(context).notify,
-          onServe: getCubitInstance(context).serve,
-          onDelete: getCubitInstance(context).delete,
-        );
-      },
-      itemCount: state.availableClients.length,
+    body: Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisSize: MainAxisSize.max,
+      children: (state.servingClient != null
+          ? <Widget>[
+            ClientItemWidget(
+              client: state.servingClient!,
+              onNotify: getCubitInstance(context).notify,
+              onServe: getCubitInstance(context).serve,
+              onCall: null,
+              onDelete: getCubitInstance(context).delete,
+            ),
+            const SizedBox(height: Dimens.contentMargin),
+            Container(height: 2, color: Colors.grey),
+            const SizedBox(height: Dimens.contentMargin)
+          ]
+          : <Widget>[]
+      ) + [
+        Expanded(
+            child: ListView.builder(
+              itemBuilder: (context, index) => ClientItemWidget(
+                client: state.availableClients[index],
+                onNotify: getCubitInstance(context).notify,
+                onServe: null,
+                onCall: getCubitInstance(context).call,
+                onDelete: getCubitInstance(context).delete,
+              ),
+              itemCount: state.availableClients.length,
+            )
+        )
+      ],
     )
   );
 
@@ -160,12 +182,7 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
     await _locationInteractor.getLocationState(
         state.config.locationId
     )..onSuccess((result) {
-      emit(
-          state.copy(
-              locationState: result.data,
-              availableClients: result.data.clients
-          )
-      );
+      _handleNewLocationState(result.data);
     })..onError((result) {
       showError(result);
     });
@@ -173,9 +190,7 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
     _socketInteractor.connectToSocket<LocationState>(
       _locationTopic + state.config.locationId.toString(),
       () => { /* Do nothing */ },
-      (locationState) => {
-        emit(state.copy(locationState: locationState))
-      },
+      _handleNewLocationState,
       (error) => { /* Do nothing */ }
     );
   }
@@ -192,6 +207,13 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
       ..onError((result) {
         showError(result);
     });
+  }
+
+  Future<void> call(Client client) async {
+    await _queueInteractor.callClientInQueue(state.config.queueId, client.id)
+      ..onError((result) {
+        showError(result);
+      });
   }
 
   Future<void> delete(Client client) async {
@@ -219,5 +241,23 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
         _locationTopic + state.config.locationId.toString()
     );
     return super.close();
+  }
+
+  void _handleNewLocationState(LocationState locationState) {
+    Client? servingClient;
+    for (Client client in locationState.clients) {
+      if (client.queue?.id == state.queueStateModel.id) {
+        servingClient = client;
+        break;
+      }
+    }
+    emit(
+        state.copy(
+            locationState: locationState,
+            servingClient: servingClient,
+            availableClients: locationState.clients
+              ..removeWhere((client) => client.id == servingClient?.id)
+        )
+    );
   }
 }

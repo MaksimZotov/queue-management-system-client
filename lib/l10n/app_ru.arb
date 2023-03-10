@@ -114,5 +114,6 @@
 "queuePausing": "Постановка очереди на паузу",
 "turnOnQueue": "Включить очередь",
 "turnOffQueue": "Выключить очередь",
-"downloadQrCode": "Скачать QR-код"
+"downloadQrCode": "Скачать QR-код",
+"callClient": "Вызвать клиента"
 }

@@ -359,6 +359,15 @@ class ServerApi {
       )
   );
 
+  Future<Result> callClientInQueue(int queueId, int clientId) => _execRequest(
+      request: _dioApi.post(
+          '$url/queues/$queueId/call',
+          queryParameters: {
+            'client_id': clientId
+          }
+      )
+  );
+
   Future<Result> notifyClientInQueue(int queueId, int clientId) => _execRequest(
       request: _dioApi.post(
           '$url/queues/$queueId/notify',

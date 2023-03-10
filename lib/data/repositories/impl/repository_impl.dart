@@ -235,6 +235,11 @@ class RepositoryImpl extends Repository {
   }
 
   @override
+  Future<Result> callClientInQueue(int queueId, int clientId) {
+    return _serverApi.callClientInQueue(queueId, clientId);
+  }
+
+  @override
   Future<Result<ContainerForList<ServiceModel>>> getServicesInQueue(int queueId) {
     return _serverApi.getServicesInQueue(queueId);
   }

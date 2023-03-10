@@ -8,7 +8,8 @@ import '../../domain/models/locationnew/client.dart';
 
 class ClientItemWidget extends StatefulWidget {
   final ValueChanged<Client> onNotify;
-  final ValueChanged<Client> onServe;
+  final ValueChanged<Client>? onServe;
+  final ValueChanged<Client>? onCall;
   final ValueChanged<Client> onDelete;
   final Client client;
 
@@ -16,6 +17,7 @@ class ClientItemWidget extends StatefulWidget {
     Key? key,
     required this.onNotify,
     required this.onServe,
+    required this.onCall,
     required this.onDelete,
     required this.client,
   }) : super(key: key);
@@ -25,6 +27,7 @@ class ClientItemWidget extends StatefulWidget {
 }
 
 class _ClientItemState extends State<ClientItemWidget> {
+
   @override
   Widget build(BuildContext context) {
     List<Padding> services = [];
@@ -49,11 +52,7 @@ class _ClientItemState extends State<ClientItemWidget> {
           ListTile(
               title: Text(widget.client.code.toString()),
               subtitle: Text(widget.client.waitTimestamp.toString()),
-              leading: IconButton(
-                tooltip: AppLocalizations.of(context)!.finishServing,
-                icon: const Icon(Icons.done_outline_rounded),
-                onPressed: () => widget.onServe(widget.client),
-              ),
+              leading: _getLeading(),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -73,5 +72,23 @@ class _ClientItemState extends State<ClientItemWidget> {
         ] + services,
       )
     );
+  }
+
+  Widget? _getLeading() {
+    if (widget.onServe != null) {
+      return IconButton(
+        tooltip: AppLocalizations.of(context)!.finishServing,
+        icon: const Icon(Icons.done),
+        onPressed: () => widget.onServe!.call(widget.client),
+      );
+    }
+    if (widget.onCall != null) {
+      return IconButton(
+        tooltip: AppLocalizations.of(context)!.callClient,
+        icon: const Icon(Icons.call_made),
+        onPressed: () => widget.onCall!.call(widget.client),
+      );
+    }
+    return null;
   }
 }
