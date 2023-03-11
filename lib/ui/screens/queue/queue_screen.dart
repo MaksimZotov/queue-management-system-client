@@ -69,6 +69,7 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
               client: state.servingClient!,
               onNotify: getCubitInstance(context).notify,
               onServe: getCubitInstance(context).serve,
+              onReturn: getCubitInstance(context).returnClient,
               onCall: null,
               onDelete: getCubitInstance(context).delete,
             ),
@@ -84,6 +85,7 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
                 client: state.availableClients[index],
                 onNotify: getCubitInstance(context).notify,
                 onServe: null,
+                onReturn: null,
                 onCall: getCubitInstance(context).call,
                 onDelete: getCubitInstance(context).delete,
               ),
@@ -220,6 +222,13 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
       ..onError((result) {
         showError(result);
     });
+  }
+
+  Future<void> returnClient(Client client) async {
+    await _queueInteractor.returnClientToQueue(state.config.queueId, client.id)
+      ..onError((result) {
+        showError(result);
+      });
   }
 
   Future<void> call(Client client) async {

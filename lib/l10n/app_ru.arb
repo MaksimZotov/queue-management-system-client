@@ -118,6 +118,7 @@
 "turnOffQueue": "Выключить очередь",
 "downloadQrCode": "Скачать QR-код",
 "callClient": "Вызвать клиента",
+"returnClientToQueue": "Вернуть клиента в очередь",
 
 "codeWithColonPattern": "Код: {code}",
 "@codeWithColonPattern": {

@@ -10,6 +10,7 @@ import '../../domain/models/locationnew/client.dart';
 class ClientItemWidget extends StatefulWidget {
   final ValueChanged<Client> onNotify;
   final ValueChanged<Client>? onServe;
+  final ValueChanged<Client>? onReturn;
   final ValueChanged<Client>? onCall;
   final ValueChanged<Client> onDelete;
   final Client client;
@@ -18,6 +19,7 @@ class ClientItemWidget extends StatefulWidget {
     Key? key,
     required this.onNotify,
     required this.onServe,
+    required this.onReturn,
     required this.onCall,
     required this.onDelete,
     required this.client,
@@ -34,72 +36,100 @@ class _ClientItemState extends State<ClientItemWidget> {
     List<Widget> services = [];
     for (Service service in widget.client.services) {
       services.add(
-          Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(64, 0, 0, 0),
-              child: Card(
-                color: Colors.teal,
-                child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: Text(service.name, style: const TextStyle(color: Colors.white))
-                )
-            )
+          Card(
+              color: Colors.teal,
+              child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Text(service.name, style: const TextStyle(color: Colors.white))
+              )
           )
       );
     }
     services.add(const SizedBox(height: Dimens.contentMargin));
 
     return Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          ListTile(
-              title: Text(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
                   AppLocalizations.of(context)!.codeWithColonPattern(
                       widget.client.code
                   )
               ),
-              subtitle: Text(
+              Text(
                   AppLocalizations.of(context)!.waitTimeInMinutesPattern(
-                    widget.client.waitTimeInMinutes
+                      widget.client.waitTimeInMinutes
                   )
               ),
-              leading: _getLeading(),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    tooltip: AppLocalizations.of(context)!.notify,
-                    icon: const Icon(Icons.notifications),
-                    onPressed: () => widget.onNotify(widget.client),
-                  ),
-                  IconButton(
-                    tooltip: AppLocalizations.of(context)!.deleteClient,
-                    icon: const Icon(Icons.close),
-                    onPressed: () => widget.onDelete(widget.client),
-                  ),
-                ],
-              )
-          ),
-        ] + services,
+            ] + services,
+          )
+        ] + [_getButtons()],
       )
     );
   }
 
-  Widget? _getLeading() {
-    if (widget.onServe != null) {
-      return IconButton(
-        tooltip: AppLocalizations.of(context)!.finishServing,
-        icon: const Icon(Icons.done),
-        onPressed: () => widget.onServe!.call(widget.client),
+  Widget _getButtons() {
+    if (widget.onServe != null && widget.onReturn != null) {
+      return Column(
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                tooltip: AppLocalizations.of(context)!.deleteClient,
+                icon: const Icon(Icons.close),
+                onPressed: () => widget.onDelete(widget.client),
+              ),
+              IconButton(
+                tooltip: AppLocalizations.of(context)!.notify,
+                icon: const Icon(Icons.notifications),
+                onPressed: () => widget.onNotify(widget.client)
+              )
+            ],
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                tooltip: AppLocalizations.of(context)!.returnClientToQueue,
+                icon: const Icon(Icons.call_received),
+                onPressed: () => widget.onReturn!.call(widget.client),
+              ),
+              IconButton(
+                tooltip: AppLocalizations.of(context)!.finishServing,
+                icon: const Icon(Icons.done),
+                onPressed: () => widget.onServe!.call(widget.client),
+              )
+            ],
+          )
+        ],
       );
     }
     if (widget.onCall != null) {
-      return IconButton(
-        tooltip: AppLocalizations.of(context)!.callClient,
-        icon: const Icon(Icons.call_made),
-        onPressed: () => widget.onCall!.call(widget.client),
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            tooltip: AppLocalizations.of(context)!.deleteClient,
+            icon: const Icon(Icons.close),
+            onPressed: () => widget.onDelete(widget.client),
+          ),
+          IconButton(
+            tooltip: AppLocalizations.of(context)!.notify,
+            icon: const Icon(Icons.notifications),
+            onPressed: () => widget.onNotify(widget.client),
+          ),
+          IconButton(
+            tooltip: AppLocalizations.of(context)!.callClient,
+            icon: const Icon(Icons.call_made),
+            onPressed: () => widget.onCall!.call(widget.client),
+          )
+        ],
       );
     }
-    return null;
+    throw Exception();
   }
 }
