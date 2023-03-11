@@ -72,9 +72,9 @@ class _SwitchToBoardState extends BaseDialogState<
     ButtonWidget(
         text: getLocalizations(context).switchVerb,
         onClick: () => getCubitInstance(context).switchToBoard(
-            getLocalizations(context).maxColumnsAmountMustBeNonNegativeNumber,
-            getLocalizations(context).maxRowsAmountMustBeNonNegativeNumber,
-            getLocalizations(context).switchFrequencyMustBeNonNegativeNumber
+            getLocalizations(context).maxColumnsAmountMustBePositiveNumber,
+            getLocalizations(context).maxRowsAmountMustBePositiveNumber,
+            getLocalizations(context).switchFrequencyMustBePositiveNumber
         )
     )
   ];
@@ -160,17 +160,17 @@ class SwitchToBoardCubit extends BaseDialogCubit<SwitchToBoardLogicState> {
       String parseSwitchFrequencyErrorMessage
   ) {
     int? columnsAmount = int.tryParse(state.columnsAmount);
-    if (columnsAmount == null || columnsAmount < 0) {
+    if (columnsAmount == null || columnsAmount <= 0) {
       showSnackBar(parseColumnsAmountErrorMessage);
       return;
     }
     int? rowsAmount = int.tryParse(state.rowsAmount);
-    if (rowsAmount == null || rowsAmount < 0) {
+    if (rowsAmount == null || rowsAmount <= 0) {
       showSnackBar(parseRowsAmountErrorMessage);
       return;
     }
     int? switchFrequency = int.tryParse(state.switchFrequency);
-    if (switchFrequency == null || switchFrequency < 0) {
+    if (switchFrequency == null || switchFrequency <= 0) {
       showSnackBar(parseSwitchFrequencyErrorMessage);
       return;
     }
