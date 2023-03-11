@@ -523,6 +523,7 @@ class ServerApi {
     stompClients[destination]?.subscribe(
         destination: destination,
         callback: (StompFrame frame) {
+          print(frame.body);
           if (T == LocationState) {
             onQueueChanged.call(LocationState.fromJson(json.decode(frame.body!)) as T);
           }

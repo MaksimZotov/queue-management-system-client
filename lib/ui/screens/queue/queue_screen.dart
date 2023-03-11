@@ -111,7 +111,10 @@ class QueueLogicState extends BaseLogicState {
   Client? get servingClient {
     for (Client client in locationState.clients) {
       if (client.queue?.id == queueStateModel.id) {
-        return _mapClient(client);
+        Client mapped =_mapClient(client);
+        if (mapped.services.isNotEmpty) {
+          return mapped;
+        }
       }
     }
     return null;
@@ -121,7 +124,7 @@ class QueueLogicState extends BaseLogicState {
     List<Client> filtered = List.from(locationState.clients)
       ..removeWhere((client) => client.id == servingClient?.id || client.queue != null);
 
-    return filtered.map(_mapClient).toList();
+    return filtered.map(_mapClient).toList()..removeWhere((client) => client.services.isEmpty);
   }
   
   QueueLogicState({
