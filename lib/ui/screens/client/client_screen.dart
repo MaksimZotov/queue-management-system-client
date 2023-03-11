@@ -66,11 +66,11 @@ class _ClientState extends BaseState<
                           ),
                           ClientInfoFieldWidget(
                               fieldName: getLocalizations(context).emailWithColon,
-                              fieldValue: state.clientState.email.toString()
+                              fieldValue: state.clientState.email ?? '-'
                           ),
                           ClientInfoFieldWidget(
                               fieldName: getLocalizations(context).codeWithColon,
-                              fieldValue: state.clientState.code.toString()
+                              fieldValue: state.clientState.code?.toString() ?? '-'
                           )
                         ],
                       )
@@ -171,8 +171,7 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
           config: config,
           clientState: QueueStateForClientModel(
             clientId: -1,
-            locationId: -1,
-            code: 0
+            locationId: -1
           ),
           email: '',
           showConfirmDialog: false,

@@ -10,13 +10,13 @@ class QueueStateForClientModel {
   @JsonKey(name: 'location_id')
   final int locationId;
   final String? email;
-  final int code;
+  final int? code;
 
   QueueStateForClientModel({
     required this.clientId,
     required this.locationId,
     this.email,
-    required this.code
+    this.code
   });
 
   static QueueStateForClientModel fromJson(Map<String, dynamic> json) => _$QueueStateForClientModelFromJson(json);
