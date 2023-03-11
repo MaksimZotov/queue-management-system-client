@@ -11,14 +11,12 @@ class QueueStateForClientModel {
   final int locationId;
   final String? email;
   final int code;
-  final ClientInQueueStatus status;
 
   QueueStateForClientModel({
     required this.clientId,
     required this.locationId,
     this.email,
-    required this.code,
-    required this.status
+    required this.code
   });
 
   static QueueStateForClientModel fromJson(Map<String, dynamic> json) => _$QueueStateForClientModelFromJson(json);

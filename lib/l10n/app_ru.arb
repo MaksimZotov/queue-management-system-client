@@ -62,6 +62,7 @@
 "servicesSequences": "Наборы услуг",
 "specialists": "Специалисты",
 "queues": "Очереди",
+"queueWithColon": "Очередь:",
 "deleteServiceQuestion": "Удалить услугу?",
 "select": "Выбрать",
 "allTypes": "Все виды",

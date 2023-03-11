@@ -42,9 +42,6 @@ class _ClientState extends BaseState<
       ClientLogicState state,
       ClientWidget widget
   ) => Scaffold(
-    appBar: AppBar(
-      title: Text(state.queueName ?? ''),
-    ),
     body: state.loading ? const Center(
       child: CircularProgressIndicator(),
     ) : Center(
@@ -59,41 +56,29 @@ class _ClientState extends BaseState<
             child: Column(
                 children: <Widget>[
                   Card(
-                      elevation: state.inQueue ? 5 : 0,
-                      color: state.inQueue ? Colors.white : Colors.transparent,
+                      elevation: 5,
+                      color: Colors.white,
                       child: Column(
-                        children: <Widget>[] + (state.inQueue ? [
+                        children: [
                           ClientInfoFieldWidget(
-                              fieldName: getLocalizations(context).statusWithColon,
-                              fieldValue: state.clientState.status == ClientInQueueStatus.confirmed
-                                  ? getLocalizations(context).confirmed
-                                  : getLocalizations(context).reserved
+                              fieldName: getLocalizations(context).queueWithColon,
+                              fieldValue: state.queueName ?? '-'
                           ),
                           ClientInfoFieldWidget(
                               fieldName: getLocalizations(context).emailWithColon,
-                              fieldValue: state.clientState.email!
+                              fieldValue: state.clientState.email.toString()
                           ),
-                        ] : []) + (state.clientState.status == ClientInQueueStatus.confirmed ? [
                           ClientInfoFieldWidget(
                               fieldName: getLocalizations(context).codeWithColon,
                               fieldValue: state.clientState.code.toString()
                           )
-                        ] : []),
+                        ],
                       )
                   ),
                   const SizedBox(height: 10),
-                  Column(
-                      children: (state.clientState.status == ClientInQueueStatus.confirmed ? <Widget>[
-                        ButtonWidget(
-                            text: getLocalizations(context).leave,
-                            onClick: getCubitInstance(context).leave
-                        )
-                      ] : <Widget>[]) + <Widget>[
-                        ButtonWidget(
-                            text: getLocalizations(context).update,
-                            onClick: getCubitInstance(context).onStart
-                        ),
-                      ]
+                  ButtonWidget(
+                      text: getLocalizations(context).leave,
+                      onClick: getCubitInstance(context).leave
                   ),
                 ]
             ),
@@ -187,8 +172,7 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
           clientState: QueueStateForClientModel(
             clientId: -1,
             locationId: -1,
-            code: 0,
-            status: ClientInQueueStatus.reserved
+            code: 0
           ),
           email: '',
           showConfirmDialog: false,
