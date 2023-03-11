@@ -1,14 +1,20 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/enums/client_in_queue_status.dart';
 import 'package:queue_management_system_client/domain/interactors/client_interactor.dart';
+import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/domain/models/client/queue_state_for_client_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
 import 'package:queue_management_system_client/ui/widgets/client_info_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../domain/interactors/socket_interactor.dart';
 import '../../../domain/models/base/result.dart';
+import '../../../domain/models/locationnew/client.dart';
+import '../../../domain/models/locationnew/location_state.dart';
 import '../../widgets/button_widget.dart';
 import '../base.dart';
 
@@ -37,7 +43,7 @@ class _ClientState extends BaseState<
       ClientWidget widget
   ) => Scaffold(
     appBar: AppBar(
-      title: Text(state.clientState.queueName ?? ''),
+      title: Text(state.queueName ?? ''),
     ),
     body: state.loading ? const Center(
       child: CircularProgressIndicator(),
@@ -53,10 +59,10 @@ class _ClientState extends BaseState<
             child: Column(
                 children: <Widget>[
                   Card(
-                      elevation: state.clientState.inQueue ? 5 : 0,
-                      color: state.clientState.inQueue ? Colors.white : Colors.transparent,
+                      elevation: state.inQueue ? 5 : 0,
+                      color: state.inQueue ? Colors.white : Colors.transparent,
                       child: Column(
-                        children: <Widget>[] + (state.clientState.inQueue ? [
+                        children: <Widget>[] + (state.inQueue ? [
                           ClientInfoFieldWidget(
                               fieldName: getLocalizations(context).statusWithColon,
                               fieldValue: state.clientState.status == ClientInQueueStatus.confirmed
@@ -107,6 +113,19 @@ class ClientLogicState extends BaseLogicState {
   final QueueStateForClientModel clientState;
   final String email;
   final bool showConfirmDialog;
+  final LocationState locationState;
+
+  String? get queueName {
+    for (Client client in locationState.clients) {
+      if (client.id == clientState.clientId && client.queue?.name != null) {
+        return client.queue?.name;
+      }
+    }
+    return null;
+  }
+
+  bool get inQueue =>
+      queueName != null;
 
   ClientLogicState({
     super.nextConfig,
@@ -116,7 +135,8 @@ class ClientLogicState extends BaseLogicState {
     required this.config,
     required this.clientState,
     required this.email,
-    required this.showConfirmDialog
+    required this.showConfirmDialog,
+    required this.locationState
   });
 
   @override
@@ -129,6 +149,7 @@ class ClientLogicState extends BaseLogicState {
     QueueStateForClientModel? clientState,
     String? email,
     bool? showConfirmDialog,
+    LocationState? locationState
   }) => ClientLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -137,28 +158,41 @@ class ClientLogicState extends BaseLogicState {
       config: config,
       clientState: clientState ?? this.clientState,
       email: email ?? this.email,
-      showConfirmDialog: showConfirmDialog ?? this.showConfirmDialog
+      showConfirmDialog: showConfirmDialog ?? this.showConfirmDialog,
+      locationState: locationState ?? this.locationState
   );
 }
 
 @injectable
 class ClientCubit extends BaseCubit<ClientLogicState> {
 
+  static const String _locationTopic = '/topic/locations/';
+
+  static const int _updatePeriod = 10;
+
   final ClientInteractor _clientInteractor;
+  final SocketInteractor _socketInteractor;
+  final LocationInteractor _locationInteractor;
+
+  Timer? _timer;
 
   ClientCubit(
     this._clientInteractor,
+    this._socketInteractor,
+    this._locationInteractor,
     @factoryParam ClientConfig config
   ) : super(
       ClientLogicState(
           config: config,
           clientState: QueueStateForClientModel(
-            inQueue: false,
-            queueName: '',
-            code: 0
+            clientId: -1,
+            locationId: -1,
+            code: 0,
+            status: ClientInQueueStatus.reserved
           ),
           email: '',
-          showConfirmDialog: false
+          showConfirmDialog: false,
+          locationState: LocationState(null, [])
       )
   );
 
@@ -171,6 +205,7 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
     )
       ..onSuccess((result) {
         emit(state.copy(clientState: result.data, email: result.data.email));
+        _connectToSocket();
         hideLoad();
       })
       ..onError((result) async {
@@ -180,12 +215,22 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
         )
           ..onSuccess((result) {
             emit(state.copy(clientState: result.data, email: result.data.email));
+            _connectToSocket();
             hideLoad();
           })
           ..onError((result) {
             showError(result);
           });
       });
+  }
+
+  @override
+  Future<void> close() async {
+    _socketInteractor.disconnectFromSocket(
+        _locationTopic + state.clientState.locationId.toString()
+    );
+    _timer?.cancel();
+    return super.close();
   }
 
   Future<void> leave() async {
@@ -198,5 +243,32 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
       ..onError((result) {
         showError(result);
       });
+  }
+
+  Future<void> _connectToSocket() async {
+    await _locationInteractor.getLocationState(
+        state.clientState.locationId
+    )..onSuccess((result) {
+      _handleNewLocationState(result.data);
+    })..onError((result) {
+      showError(result);
+    });
+    _socketInteractor.connectToSocket<LocationState>(
+        _locationTopic + state.clientState.locationId.toString(),
+        () => { /* Do nothing */ },
+        _handleNewLocationState,
+        (error) => { /* Do nothing */ }
+    );
+    _startUpdating();
+  }
+
+  void _handleNewLocationState(LocationState locationState) {
+    emit(state.copy(locationState: locationState));
+  }
+
+  void _startUpdating() async {
+    _timer = Timer.periodic(const Duration(seconds: _updatePeriod), (timer) {
+      emit(state.copy());
+    });
   }
 }

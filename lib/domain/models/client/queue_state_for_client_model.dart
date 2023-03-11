@@ -5,22 +5,20 @@ part 'queue_state_for_client_model.g.dart';
 
 @JsonSerializable()
 class QueueStateForClientModel {
-  @JsonKey(name: 'in_queue')
-  final bool inQueue;
-
-  @JsonKey(name: 'queue_name')
-  final String? queueName;
-
+  @JsonKey(name: 'client_id')
+  final int clientId;
+  @JsonKey(name: 'location_id')
+  final int locationId;
   final String? email;
   final int code;
-  final ClientInQueueStatus? status;
+  final ClientInQueueStatus status;
 
   QueueStateForClientModel({
-    required this.inQueue,
-    required this.queueName,
+    required this.clientId,
+    required this.locationId,
     this.email,
     required this.code,
-    this.status
+    required this.status
   });
 
   static QueueStateForClientModel fromJson(Map<String, dynamic> json) => _$QueueStateForClientModelFromJson(json);
