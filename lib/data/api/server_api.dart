@@ -23,6 +23,7 @@ import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
 
 import '../../domain/models/base/result.dart';
+import '../../domain/models/client/serve_client_request.dart';
 import '../../domain/models/location/service_model.dart';
 import '../../domain/models/client/add_client_request.dart';
 import '../../domain/models/locationnew/location_state.dart';
@@ -350,12 +351,10 @@ class ServerApi {
       )
   );
 
-  Future<Result> serveClientInQueue(int queueId, int clientId) => _execRequest(
+  Future<Result> serveClientInQueue(ServeClientRequest serveClientRequest) => _execRequest(
       request: _dioApi.post(
-          '$url/queues/$queueId/serve',
-          queryParameters: {
-            'client_id': clientId
-          }
+          '$url/queues/serve',
+          data: serveClientRequest.toJson()
       )
   );
 

@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 import '../../../data/repositories/repository.dart';
 import '../../models/base/container_for_list.dart';
 import '../../models/base/result.dart';
+import '../../models/client/serve_client_request.dart';
 import '../../models/location/service_model.dart';
 import '../../models/queue/create_queue_request.dart';
 import '../../models/queue/queue_model.dart';
@@ -51,8 +52,8 @@ class QueueInteractorImpl extends QueueInteractor {
   }
 
   @override
-  Future<Result> serveClientInQueue(int queueId, int clientId) {
-    return _repository.serveClientInQueue(queueId, clientId);
+  Future<Result> serveClientInQueue(ServeClientRequest serveClientRequest) {
+    return _repository.serveClientInQueue(serveClientRequest);
   }
 
   @override

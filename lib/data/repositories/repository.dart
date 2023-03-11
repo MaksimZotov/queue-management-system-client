@@ -5,6 +5,7 @@ import 'package:queue_management_system_client/domain/models/location/create_spe
 
 import '../../domain/models/base/result.dart';
 import '../../domain/models/client/queue_state_for_client_model.dart';
+import '../../domain/models/client/serve_client_request.dart';
 import '../../domain/models/kiosk/kiosk_state.dart';
 import '../../domain/models/location/create_location_request.dart';
 import '../../domain/models/location/create_service_request.dart';
@@ -63,7 +64,7 @@ abstract class Repository {
   Future<Result<QueueStateModel>> getQueueState(int queueId);
   Future<Result> disableQueue(int queueId);
   Future<Result> enableQueue(int queueId);
-  Future<Result> serveClientInQueue(int queueId, int clientId);
+  Future<Result> serveClientInQueue(ServeClientRequest serveClientRequest);
   Future<Result> callClientInQueue(int queueId, int clientId);
   Future<Result> returnClientToQueue(int queueId, int clientId);
   Future<Result> notifyClientInQueue(int queueId, int clientId);

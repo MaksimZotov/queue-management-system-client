@@ -7,6 +7,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
+import 'package:queue_management_system_client/domain/models/client/serve_client_request.dart';
 import 'package:queue_management_system_client/domain/models/locationnew/location_state.dart';
 import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_state_model.dart';
@@ -110,7 +111,7 @@ class QueueLogicState extends BaseLogicState {
   Client? get servingClient {
     for (Client client in locationState.clients) {
       if (client.queue?.id == queueStateModel.id) {
-        return client;
+        return _mapClient(client);
       }
     }
     return null;
@@ -165,8 +166,7 @@ class QueueLogicState extends BaseLogicState {
         waitTimestamp: client.waitTimestamp,
         services: List.from(client.services)
           ..removeWhere((service) => !queueStateModel.services.contains(service.id) || service.orderNumber != min),
-        queue: client.queue,
-        servicesInQueue: client.servicesInQueue
+        queue: client.queue
     );
   }
 }
@@ -239,7 +239,13 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
   }
 
   Future<void> serve(Client client) async {
-    await _queueInteractor.serveClientInQueue(state.config.queueId, client.id)
+    await _queueInteractor.serveClientInQueue(
+      ServeClientRequest(
+          clientId: client.id,
+          queueId: state.config.queueId,
+          services: state.servingClient?.services.map((e) => e.id).toList() ?? []
+      )
+    )
       ..onError((result) {
         showError(result);
     });

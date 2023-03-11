@@ -13,8 +13,6 @@ class Client {
   final DateTime waitTimestamp;
   final List<Service> services;
   final Queue? queue;
-  @JsonKey(name: 'services_in_queue')
-  final List<Service> servicesInQueue;
 
   int get waitTimeInMinutes {
     int start = waitTimestamp.millisecondsSinceEpoch;
@@ -27,8 +25,7 @@ class Client {
     required this.code,
     required this.waitTimestamp,
     required this.services,
-    required this.queue,
-    required this.servicesInQueue
+    required this.queue
   });
 
   static Client fromJson(Map<String, dynamic> json) => _$ClientFromJson(json);

@@ -18,6 +18,7 @@ import 'package:queue_management_system_client/domain/models/queue/queue_model.d
 import 'package:queue_management_system_client/domain/models/rights/rights_model.dart';
 
 import '../../../domain/models/base/result.dart';
+import '../../../domain/models/client/serve_client_request.dart';
 import '../../../domain/models/kiosk/kiosk_state.dart';
 import '../../../domain/models/location/create_location_request.dart';
 import '../../../domain/models/location/service_model.dart';
@@ -230,8 +231,8 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result> serveClientInQueue(int queueId, int clientId) {
-    return _serverApi.serveClientInQueue(queueId, clientId);
+  Future<Result> serveClientInQueue(ServeClientRequest serveClientRequest) {
+    return _serverApi.serveClientInQueue(serveClientRequest);
   }
 
   @override
