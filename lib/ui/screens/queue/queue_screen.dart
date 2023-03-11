@@ -18,6 +18,7 @@ import '../../../domain/interactors/client_interactor.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/socket_interactor.dart';
 import '../../../domain/models/locationnew/client.dart';
+import '../../../domain/models/locationnew/service.dart';
 import '../../router/routes_config.dart';
 import '../base.dart';
 
@@ -116,8 +117,10 @@ class QueueLogicState extends BaseLogicState {
   }
 
   List<Client> get availableClients {
-    return List.from(locationState.clients)
-      ..removeWhere((client) => client.id == servingClient?.id);
+    List<Client> filtered = List.from(locationState.clients)
+      ..removeWhere((client) => client.id == servingClient?.id || client.queue != null);
+
+    return filtered.map(_mapClient).toList();
   }
   
   QueueLogicState({
@@ -148,6 +151,24 @@ class QueueLogicState extends BaseLogicState {
       queueStateModel: queueStateModel ?? this.queueStateModel,
       locationState: locationState ?? this.locationState
   );
+
+  Client _mapClient(Client client) {
+    int min = 0x7fffffff;
+    for (Service service in client.services) {
+      if (service.orderNumber < min) {
+        min = service.orderNumber;
+      }
+    }
+    return Client(
+        id: client.id,
+        code: client.code,
+        waitTimestamp: client.waitTimestamp,
+        services: List.from(client.services)
+          ..removeWhere((service) => !queueStateModel.services.contains(service.id) || service.orderNumber != min),
+        queue: client.queue,
+        servicesInQueue: client.servicesInQueue
+    );
+  }
 }
 
 @injectable
@@ -252,7 +273,15 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
     } else {
       result = await _queueInteractor.enableQueue(state.config.queueId);
     }
-    result.onError((result) {
+    result..onSuccess((value) async {
+      await _queueInteractor.getQueueState(
+          state.config.queueId
+      )..onSuccess((result) {
+        emit(state.copy(queueStateModel: result.data));
+      })..onError((result) {
+        showError(result);
+      });
+    })..onError((result) {
       showError(result);
     });
   }

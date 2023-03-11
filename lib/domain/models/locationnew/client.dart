@@ -22,14 +22,14 @@ class Client {
     return ((end - start) / 60000).round();
   }
 
-  Client(
-    this.id,
-    this.code,
-    this.waitTimestamp,
-    this.services,
-    this.queue,
-    this.servicesInQueue
-  );
+  Client({
+    required this.id,
+    required this.code,
+    required this.waitTimestamp,
+    required this.services,
+    required this.queue,
+    required this.servicesInQueue
+  });
 
   static Client fromJson(Map<String, dynamic> json) => _$ClientFromJson(json);
   Map<String, dynamic> toJson() => _$ClientToJson(this);
