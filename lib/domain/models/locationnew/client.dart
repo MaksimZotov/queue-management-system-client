@@ -16,6 +16,12 @@ class Client {
   @JsonKey(name: 'services_in_queue')
   final List<Service> servicesInQueue;
 
+  int get waitTimeInMinutes {
+    int start = waitTimestamp.millisecondsSinceEpoch;
+    int end = DateTime.now().millisecondsSinceEpoch;
+    return ((end - start) / 60000).round();
+  }
+
   Client(
     this.id,
     this.code,

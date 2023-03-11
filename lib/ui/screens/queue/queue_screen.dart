@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
@@ -100,9 +102,21 @@ class QueueLogicState extends BaseLogicState {
 
   final QueueConfig config;
   final QueueStateModel queueStateModel;
-  final LocationState? locationState;
-  final Client? servingClient;
-  final List<Client> availableClients;
+  final LocationState locationState;
+
+  Client? get servingClient {
+    for (Client client in locationState.clients) {
+      if (client.queue?.id == queueStateModel.id) {
+        return client;
+      }
+    }
+    return null;
+  }
+
+  List<Client> get availableClients {
+    return List.from(locationState.clients)
+      ..removeWhere((client) => client.id == servingClient?.id);
+  }
   
   QueueLogicState({
     super.nextConfig,
@@ -111,9 +125,7 @@ class QueueLogicState extends BaseLogicState {
     super.loading,
     required this.config,
     required this.queueStateModel,
-    required this.locationState,
-    required this.servingClient,
-    required this.availableClients
+    required this.locationState
   });
 
   @override
@@ -124,8 +136,7 @@ class QueueLogicState extends BaseLogicState {
     bool? loading,
     QueueStateModel? queueStateModel,
     LocationState? locationState,
-    Client? servingClient,
-    List<Client>? availableClients
+    List<Client>? clients
   }) => QueueLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -133,9 +144,7 @@ class QueueLogicState extends BaseLogicState {
       loading: loading ?? this.loading,
       config: config,
       queueStateModel: queueStateModel ?? this.queueStateModel,
-      locationState: locationState,
-      servingClient: servingClient,
-      availableClients: availableClients ?? this.availableClients
+      locationState: locationState ?? this.locationState
   );
 }
 
@@ -144,10 +153,14 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
 
   static const String _locationTopic = '/topic/locations/';
 
+  static const int _updatePeriod = 10;
+
   final QueueInteractor _queueInteractor;
   final ClientInteractor _clientInteractor;
   final SocketInteractor _socketInteractor;
   final LocationInteractor _locationInteractor;
+
+  Timer? _timer;
 
   QueueCubit(
     this._queueInteractor,
@@ -163,9 +176,7 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
               name: '',
               services: []
           ),
-          locationState: null,
-          servingClient: null,
-          availableClients: []
+          locationState: LocationState(null, [])
       )
   );
 
@@ -193,6 +204,8 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
       _handleNewLocationState,
       (error) => { /* Do nothing */ }
     );
+
+    _startUpdating();
   }
 
   Future<void> notify(Client client) async {
@@ -240,24 +253,22 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
     _socketInteractor.disconnectFromSocket(
         _locationTopic + state.config.locationId.toString()
     );
+    _timer?.cancel();
     return super.close();
   }
 
   void _handleNewLocationState(LocationState locationState) {
-    Client? servingClient;
-    for (Client client in locationState.clients) {
-      if (client.queue?.id == state.queueStateModel.id) {
-        servingClient = client;
-        break;
-      }
-    }
     emit(
         state.copy(
             locationState: locationState,
-            servingClient: servingClient,
-            availableClients: locationState.clients
-              ..removeWhere((client) => client.id == servingClient?.id)
+            clients: locationState.clients
         )
     );
+  }
+
+  void _startUpdating() async {
+    _timer = Timer.periodic(const Duration(seconds: _updatePeriod), (timer) {
+      emit(state.copy());
+    });
   }
 }

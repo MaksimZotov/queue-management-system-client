@@ -117,5 +117,23 @@
 "turnOnQueue": "Включить очередь",
 "turnOffQueue": "Выключить очередь",
 "downloadQrCode": "Скачать QR-код",
-"callClient": "Вызвать клиента"
+"callClient": "Вызвать клиента",
+
+"codeWithColonPattern": "Код: {code}",
+"@codeWithColonPattern": {
+  "placeholders": {
+    "code": {
+      "type": "int"
+    }
+  }
+},
+
+"waitTimeInMinutesPattern": "Время ожидания: {waitTime} мин.",
+"@waitTimeInMinutesPattern": {
+  "placeholders": {
+    "waitTime": {
+      "type": "int"
+    }
+  }
+}
 }

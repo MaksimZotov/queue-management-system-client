@@ -6,7 +6,7 @@ part 'location_state.g.dart';
 
 @JsonSerializable()
 class LocationState {
-  final int id;
+  final int? id;
   List<Client> clients;
 
   LocationState(

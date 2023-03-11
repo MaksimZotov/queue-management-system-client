@@ -4,6 +4,7 @@ import 'package:queue_management_system_client/domain/enums/client_in_queue_stat
 import 'package:queue_management_system_client/domain/models/locationnew/service.dart';
 import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 
+import '../../dimens.dart';
 import '../../domain/models/locationnew/client.dart';
 
 class ClientItemWidget extends StatefulWidget {
@@ -30,7 +31,7 @@ class _ClientItemState extends State<ClientItemWidget> {
 
   @override
   Widget build(BuildContext context) {
-    List<Padding> services = [];
+    List<Widget> services = [];
     for (Service service in widget.client.services) {
       services.add(
           Padding(
@@ -45,19 +46,29 @@ class _ClientItemState extends State<ClientItemWidget> {
           )
       );
     }
+    services.add(const SizedBox(height: Dimens.contentMargin));
+
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           ListTile(
-              title: Text(widget.client.code.toString()),
-              subtitle: Text(widget.client.waitTimestamp.toString()),
+              title: Text(
+                  AppLocalizations.of(context)!.codeWithColonPattern(
+                      widget.client.code
+                  )
+              ),
+              subtitle: Text(
+                  AppLocalizations.of(context)!.waitTimeInMinutesPattern(
+                    widget.client.waitTimeInMinutes
+                  )
+              ),
               leading: _getLeading(),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    tooltip: AppLocalizations.of(context)!.callClient,
+                    tooltip: AppLocalizations.of(context)!.notify,
                     icon: const Icon(Icons.notifications),
                     onPressed: () => widget.onNotify(widget.client),
                   ),
