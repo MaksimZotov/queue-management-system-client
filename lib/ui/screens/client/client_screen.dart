@@ -41,10 +41,32 @@ class _ClientState extends BaseState<
       BuildContext context,
       ClientLogicState state,
       ClientWidget widget
-  ) => Scaffold(
-    body: state.loading ? const Center(
-      child: CircularProgressIndicator(),
-    ) : Center(
+  ) => Scaffold(body: _getBody(context, state, widget));
+
+  @override
+  ClientCubit getCubit() => statesAssembler.getClientCubit(widget.config);
+
+  Widget _getBody(
+      BuildContext context,
+      ClientLogicState state,
+      ClientWidget widget
+  ) {
+    if (state.loading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+    String? errorText = state.error?.description ?? getErrorText(context, state.error);
+    if (errorText != null) {
+      return Center(
+          child: Text(
+              errorText,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 56)
+          )
+      );
+    }
+    return Center(
       child: SizedBox(
         width: double.infinity,
         child: SingleChildScrollView(
@@ -85,11 +107,17 @@ class _ClientState extends BaseState<
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 
   @override
-  ClientCubit getCubit() => statesAssembler.getClientCubit(widget.config);
+  void handleEvent(
+      BuildContext context,
+      ClientLogicState state,
+      ClientWidget widget
+  ) {
+    // Do nothing
+  }
 }
 
 class ClientLogicState extends BaseLogicState {
@@ -134,7 +162,7 @@ class ClientLogicState extends BaseLogicState {
     QueueStateForClientModel? clientState,
     String? email,
     bool? showConfirmDialog,
-    LocationState? locationState
+    LocationState? locationState,
   }) => ClientLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -198,8 +226,8 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
         )
           ..onSuccess((result) {
             emit(state.copy(clientState: result.data, email: result.data.email));
-            _connectToSocket();
             hideLoad();
+            _connectToSocket();
           })
           ..onError((result) {
             showError(result);
@@ -216,12 +244,16 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
     return super.close();
   }
 
+  @override
+  void showError(ErrorResult result) {
+    emit(state.copy(loading: false, error: result));
+  }
+
   Future<void> leave() async {
     showLoad();
     await _clientInteractor.leaveQueue(state.config.clientId, state.config.accessKey)
       ..onSuccess((result) {
         emit(state.copy(clientState: result.data));
-        hideLoad();
       })
       ..onError((result) {
         showError(result);
@@ -251,7 +283,7 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
 
   void _startUpdating() async {
     _timer = Timer.periodic(const Duration(seconds: _updatePeriod), (timer) {
-      emit(state.copy());
+      emit(state.copy(error: state.error));
     });
   }
 }

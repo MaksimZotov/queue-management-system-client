@@ -29,8 +29,13 @@ class ErrorConfig extends BaseConfig {
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
     return const RouterPage(
       key: ValueKey('Error Page'),
-      child: Center(
-        child: Text('404'),
+      child: Material(
+        child: Center(
+          child: Text(
+              '404',
+              style: TextStyle(fontSize: 56)
+          )
+        )
       )
     );
   }

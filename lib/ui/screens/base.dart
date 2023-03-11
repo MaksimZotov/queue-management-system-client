@@ -73,29 +73,24 @@ abstract class BaseState<
   }
 
   void checkError(BuildContext context, ErrorResult? error) {
-    if (error != null) {
-      String? message;
-      switch (error.type) {
-        case ErrorType.standard:
-          message = error.description;
-          break;
-        case ErrorType.unknown:
-          message = getLocalizations(context).unknownError;
-          break;
-        case ErrorType.server:
-          message = getLocalizations(context).serverError;
-          break;
-        case ErrorType.timeout:
-          message = getLocalizations(context).timeoutError;
-          break;
-        case ErrorType.connection:
-          message = getLocalizations(context).connectionError;
-          break;
-      }
-      if (message == null) {
-        return;
-      }
-      checkSnackBar(context, message);
+    String? message = getErrorText(context, error);
+    checkSnackBar(context, message);
+  }
+
+  String? getErrorText(BuildContext context, ErrorResult? error) {
+    switch (error?.type) {
+      case ErrorType.standard:
+        return error?.description;
+      case ErrorType.unknown:
+        return getLocalizations(context).unknownError;
+      case ErrorType.server:
+        return getLocalizations(context).serverError;
+      case ErrorType.timeout:
+        return getLocalizations(context).timeoutError;
+      case ErrorType.connection:
+        return getLocalizations(context).connectionError;
+      case null:
+        return null;
     }
   }
 
@@ -165,29 +160,24 @@ abstract class BaseDialogState<
   }
 
   void checkError(BuildContext context, ErrorResult? error) {
-    if (error != null) {
-      String? message;
-      switch (error.type) {
-        case ErrorType.standard:
-          message = error.description;
-          break;
-        case ErrorType.unknown:
-          message = getLocalizations(context).unknownError;
-          break;
-        case ErrorType.server:
-          message = getLocalizations(context).serverError;
-          break;
-        case ErrorType.timeout:
-          message = getLocalizations(context).timeoutError;
-          break;
-        case ErrorType.connection:
-          message = getLocalizations(context).connectionError;
-          break;
-      }
-      if (message == null) {
-        return;
-      }
-      checkSnackBar(context, message);
+    String? message = getErrorText(context, error);
+    checkSnackBar(context, message);
+  }
+
+  String? getErrorText(BuildContext context, ErrorResult? error) {
+    switch (error?.type) {
+      case ErrorType.standard:
+        return error?.description;
+      case ErrorType.unknown:
+        return getLocalizations(context).unknownError;
+      case ErrorType.server:
+        return getLocalizations(context).serverError;
+      case ErrorType.timeout:
+        return getLocalizations(context).timeoutError;
+      case ErrorType.connection:
+        return getLocalizations(context).connectionError;
+      case null:
+        return null;
     }
   }
 

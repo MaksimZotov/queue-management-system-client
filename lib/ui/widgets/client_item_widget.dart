@@ -78,30 +78,42 @@ class _ClientItemState extends State<ClientItemWidget> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              IconButton(
-                tooltip: AppLocalizations.of(context)!.deleteClient,
-                icon: const Icon(Icons.close),
-                onPressed: () => widget.onDelete(widget.client),
+              Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: IconButton(
+                    tooltip: AppLocalizations.of(context)!.deleteClient,
+                    icon: const Icon(Icons.close, color: Colors.grey),
+                    onPressed: () => widget.onDelete(widget.client),
+                  )
               ),
-              IconButton(
-                tooltip: AppLocalizations.of(context)!.notify,
-                icon: const Icon(Icons.notifications),
-                onPressed: () => widget.onNotify(widget.client)
+              Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: IconButton(
+                      tooltip: AppLocalizations.of(context)!.notify,
+                      icon: const Icon(Icons.notifications, color: Colors.grey),
+                      onPressed: () => widget.onNotify(widget.client)
+                  )
               )
             ],
           ),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              IconButton(
-                tooltip: AppLocalizations.of(context)!.returnClientToQueue,
-                icon: const Icon(Icons.call_received),
-                onPressed: () => widget.onReturn!.call(widget.client),
+              Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: IconButton(
+                    tooltip: AppLocalizations.of(context)!.returnClientToQueue,
+                    icon: const Icon(Icons.call_received, color: Colors.grey),
+                    onPressed: () => widget.onReturn!.call(widget.client),
+                  )
               ),
-              IconButton(
-                tooltip: AppLocalizations.of(context)!.finishServing,
-                icon: const Icon(Icons.done),
-                onPressed: () => widget.onServe!.call(widget.client),
+              Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: IconButton(
+                    tooltip: AppLocalizations.of(context)!.finishServing,
+                    icon: const Icon(Icons.done, color: Colors.grey),
+                    onPressed: () => widget.onServe!.call(widget.client),
+                  )
               )
             ],
           )
@@ -112,20 +124,29 @@ class _ClientItemState extends State<ClientItemWidget> {
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          IconButton(
-            tooltip: AppLocalizations.of(context)!.deleteClient,
-            icon: const Icon(Icons.close),
-            onPressed: () => widget.onDelete(widget.client),
+          Padding(
+              padding: const EdgeInsets.all(8),
+              child: IconButton(
+                tooltip: AppLocalizations.of(context)!.deleteClient,
+                icon: const Icon(Icons.close, color: Colors.grey),
+                onPressed: () => widget.onDelete(widget.client),
+              )
           ),
-          IconButton(
-            tooltip: AppLocalizations.of(context)!.notify,
-            icon: const Icon(Icons.notifications),
-            onPressed: () => widget.onNotify(widget.client),
+          Padding(
+              padding: const EdgeInsets.all(8),
+              child: IconButton(
+                tooltip: AppLocalizations.of(context)!.notify,
+                icon: const Icon(Icons.notifications, color: Colors.grey),
+                onPressed: () => widget.onNotify(widget.client),
+              )
           ),
-          IconButton(
-            tooltip: AppLocalizations.of(context)!.callClient,
-            icon: const Icon(Icons.call_made),
-            onPressed: () => widget.onCall!.call(widget.client),
+          Padding(
+              padding: const EdgeInsets.all(8),
+              child: IconButton(
+                tooltip: AppLocalizations.of(context)!.callClient,
+                icon: const Icon(Icons.call_made, color: Colors.grey),
+                onPressed: () => widget.onCall!.call(widget.client),
+              )
           )
         ],
       );
