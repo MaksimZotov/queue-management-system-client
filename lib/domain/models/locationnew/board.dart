@@ -18,8 +18,6 @@ class Board {
     List<Client> clients = locationState.clients
       ..sort((a, b) => a.waitTimestamp.second.compareTo(b.waitTimestamp.second));
 
-    clients = clients.reversed.toList();
-
     List<List<Client>> clientsColumns = [];
     List<Client> currentRows = [];
 
