@@ -246,6 +246,10 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
 
   @override
   void showError(ErrorResult result) {
+    _socketInteractor.disconnectFromSocket(
+        _locationTopic + state.clientState.locationId.toString()
+    );
+    _timer?.cancel();
     emit(state.copy(loading: false, error: result));
   }
 
