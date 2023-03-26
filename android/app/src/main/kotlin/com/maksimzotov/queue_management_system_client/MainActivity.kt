@@ -11,7 +11,7 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity: FlutterActivity() {
-    private val kioskModeChannel = "kioskModeLocked"
+    private val lockTaskChannel = "lockTaskChannel"
     private lateinit var mAdminComponentName: ComponentName
     private lateinit var mDevicePolicyManager: DevicePolicyManager
 
@@ -20,15 +20,15 @@ class MainActivity: FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
-            kioskModeChannel
+            lockTaskChannel
         ).setMethodCallHandler { call, result ->
-            if (call.method == "startKioskMode") {
+            if (call.method == "enableLockTask") {
                 try {
                     manageKioskMode(true)
                 } catch (e: Exception) {
                     print(e)
                 }
-            } else if (call.method == "stopKioskMode") {
+            } else if (call.method == "disableLockTask") {
                 try {
                     manageKioskMode(false)
                 } catch (e: Exception) {}

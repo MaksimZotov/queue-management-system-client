@@ -1,9 +1,10 @@
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/domain/enums/kiosk_mode.dart';
+import 'package:queue_management_system_client/domain/interactors/kiosk_interactor.dart';
+import 'package:queue_management_system_client/domain/models/kiosk/printer_data.dart';
 import 'package:queue_management_system_client/ui/extensions/kiosk/kiosk_mode_extensions.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
@@ -15,6 +16,7 @@ import '../../../dimens.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/kiosk/kiosk_state.dart';
 import '../../router/routes_config.dart';
+import '../../widgets/text_field_widget.dart';
 
 class SwitchToKioskConfig extends BaseDialogConfig {
   final int accountId;
@@ -111,6 +113,18 @@ class _SwitchToKioskState extends BaseDialogState<
           ),
         ],
       ),
+      const SizedBox(height: Dimens.contentMargin),
+      TextFieldWidget(
+          label: getLocalizations(context).ipAddress,
+          text: state.ipAddress,
+          onTextChanged: getCubitInstance(context).setIpAddress
+      ),
+      const SizedBox(height: Dimens.contentMargin),
+      TextFieldWidget(
+          label: getLocalizations(context).port,
+          text: state.port,
+          onTextChanged: getCubitInstance(context).setPort
+      ),
       const SizedBox(height: Dimens.contentMargin * 2),
       ButtonWidget(
           text: getLocalizations(context).switchButton,
@@ -123,9 +137,9 @@ class _SwitchToKioskState extends BaseDialogState<
     ];
   }
 
-    @override
-    SwitchToKioskCubit getCubit() =>
-        statesAssembler.getSwitchToKioskCubit(widget.config);
+  @override
+  SwitchToKioskCubit getCubit() =>
+      statesAssembler.getSwitchToKioskCubit(widget.config);
 }
 
 class SwitchToKioskLogicState extends BaseDialogLogicState<
@@ -133,13 +147,12 @@ class SwitchToKioskLogicState extends BaseDialogLogicState<
     SwitchToKioskResult
 > {
 
-  final String name;
-  final String description;
-
   final KioskMode selectedMode;
   final bool multipleSelect;
   final bool multipleSelectDisabled;
   final bool? prevMultipleSelect;
+  final String ipAddress;
+  final String port;
 
   SwitchToKioskLogicState({
     super.nextConfig,
@@ -148,11 +161,11 @@ class SwitchToKioskLogicState extends BaseDialogLogicState<
     super.loading,
     required super.config,
     super.result,
-    required this.name,
-    required this.description,
     required this.selectedMode,
     required this.multipleSelect,
     required this.multipleSelectDisabled,
+    required this.ipAddress,
+    required this.port,
     this.prevMultipleSelect
   });
 
@@ -163,12 +176,12 @@ class SwitchToKioskLogicState extends BaseDialogLogicState<
     String? snackBar,
     bool? loading,
     SwitchToKioskResult? result,
-    String? name,
-    String? description,
     KioskMode? selectedMode,
     bool? multipleSelect,
     bool? multipleSelectDisabled,
-    bool? prevMultipleSelect
+    bool? prevMultipleSelect,
+    String? ipAddress,
+    String? port
   }) => SwitchToKioskLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -176,37 +189,53 @@ class SwitchToKioskLogicState extends BaseDialogLogicState<
       loading: loading ?? this.loading,
       config: config,
       result: result,
-      name: name ?? this.name,
-      description: description ?? this.description,
       selectedMode: selectedMode ?? this.selectedMode,
       multipleSelect: multipleSelect ?? this.multipleSelect,
       multipleSelectDisabled: multipleSelectDisabled ?? this.multipleSelectDisabled,
-      prevMultipleSelect: prevMultipleSelect ?? this.prevMultipleSelect
+      prevMultipleSelect: prevMultipleSelect ?? this.prevMultipleSelect,
+      ipAddress: ipAddress ?? this.ipAddress,
+      port: port ?? this.port,
   );
 }
 
 @injectable
 class SwitchToKioskCubit extends BaseDialogCubit<SwitchToKioskLogicState> {
 
+  final KioskInteractor _kioskInteractor;
+
   SwitchToKioskCubit(
+      this._kioskInteractor,
       @factoryParam SwitchToKioskConfig config
   ) : super(
       SwitchToKioskLogicState(
           config: config,
-          name: '',
-          description: '',
           selectedMode: KioskMode.all,
           multipleSelect: true,
-          multipleSelectDisabled: false
+          multipleSelectDisabled: false,
+          ipAddress: "",
+          port: ""
       )
   );
 
-  void setName(String text) {
-    emit(state.copy(name: text));
+  @override
+  Future<void> onStart() async {
+    showLoad();
+    PrinterData printerData = await _kioskInteractor.getPrinterData();
+    emit(
+        state.copy(
+          ipAddress: printerData.ip,
+          port: printerData.port?.toString()
+        )
+    );
+    hideLoad();
   }
 
-  void setDescription(String text) {
-    emit(state.copy(description: text));
+  void setIpAddress(String text) {
+    emit(state.copy(ipAddress: text));
+  }
+
+  void setPort(String text) {
+    emit(state.copy(port: text));
   }
 
   void selectMode(KioskMode? mode) {
@@ -230,6 +259,12 @@ class SwitchToKioskCubit extends BaseDialogCubit<SwitchToKioskLogicState> {
   }
 
   Future<void> switchToKiosk() async {
+    await _kioskInteractor.enableKioskMode(
+      PrinterData(
+          ip: state.ipAddress,
+          port: state.port
+      )
+    );
     popResult(
         SwitchToKioskResult(
             kioskState: KioskState(

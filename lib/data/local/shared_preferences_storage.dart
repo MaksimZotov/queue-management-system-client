@@ -1,42 +1,29 @@
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/enums/kiosk_mode.dart';
+import 'package:queue_management_system_client/domain/models/kiosk/printer_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../domain/models/kiosk/kiosk_state.dart';
 
 @lazySingleton
 class SharedPreferencesStorage {
-  static const _kioskStateModeIndex = 'KIOSK_STATE_MODE_INDEX';
-  static const _kioskStateMultipleSelect = 'KIOSK_STATE_MULTIPLE_SELECT';
+  static const _printerDataIp = 'PRINTER_DATA_IP';
+  static const _printerDataPort = 'PRINTER_DATA_PORT';
 
-  Future<void> setKioskState({
-    required KioskState kioskState
-  }) async {
+  Future<void> setPrinterData(PrinterData printerData) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setInt(_kioskStateModeIndex, kioskState.kioskMode.index);
-    prefs.setBool(_kioskStateMultipleSelect, kioskState.multipleSelect);
+    prefs.setString(_printerDataIp, printerData.ip);
+    prefs.setString(_printerDataPort, printerData.port);
   }
 
-  Future<KioskState?> getKioskState() async {
+  Future<PrinterData> getPrinterData() async {
     final prefs = await SharedPreferences.getInstance();
-    int? modeIndex = prefs.getInt(_kioskStateModeIndex);
-    if (modeIndex == null) {
-      return null;
+    String? ip = prefs.getString(_printerDataIp);
+    if (ip == null) {
+      return PrinterData(ip: "", port: "");
     }
-    bool? multipleSelect = prefs.getBool(_kioskStateMultipleSelect);
-    if (multipleSelect == null) {
-      return null;
+    String? port = prefs.getString(_printerDataPort);
+    if (port == null) {
+      return PrinterData(ip: ip, port: "");
     }
-    KioskMode terminalMode = KioskMode.values[modeIndex];
-    return KioskState(
-        kioskMode: terminalMode,
-        multipleSelect: multipleSelect
-    );
-  }
-
-  Future<void> clearKioskState() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_kioskStateModeIndex);
-    await prefs.remove(_kioskStateMultipleSelect);
+    return PrinterData(ip: ip, port: port);
   }
 }

@@ -6,7 +6,7 @@ import 'package:queue_management_system_client/domain/models/location/create_spe
 import '../../domain/models/base/result.dart';
 import '../../domain/models/client/queue_state_for_client_model.dart';
 import '../../domain/models/client/serve_client_request.dart';
-import '../../domain/models/kiosk/kiosk_state.dart';
+import '../../domain/models/kiosk/printer_data.dart';
 import '../../domain/models/location/create_location_request.dart';
 import '../../domain/models/location/create_service_request.dart';
 import '../../domain/models/location/create_services_sequence_request.dart';
@@ -85,11 +85,10 @@ abstract class Repository {
   Future<Result> deleteRights(int locationId, String email);
   // <======================== Rights ========================>
 
-  // <======================== Terminal ========================>
-  Future<void> setKioskState(KioskState kioskState);
-  Future<KioskState?> getKioskState();
-  Future<void> clearKioskState();
-  // <======================== Terminal ========================>
+  // <======================== Kiosk ========================>
+  Future<void> enableKioskMode(PrinterData printerDate);
+  Future<PrinterData> getPrinterData();
+  // <======================== Kiosk ========================>
 
   // <======================== Socket ========================>
   void connectToSocket<T>(String destination, VoidCallback onConnected, ValueChanged<T> onQueueChanged, ValueChanged onError);

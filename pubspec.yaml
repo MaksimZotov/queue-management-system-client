@@ -58,6 +58,7 @@ dependencies:
   json_annotation: ^4.8.0
   another_flushbar: ^1.12.29
   dropdown_button2: ^1.9.2
+  esc_pos_printer: ^4.1.0
 
 dev_dependencies:
   build_runner: ^2.3.3

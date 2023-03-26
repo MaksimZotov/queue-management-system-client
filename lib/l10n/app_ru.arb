@@ -120,6 +120,8 @@
 "downloadQrCode": "Скачать QR-код",
 "callClient": "Вызвать клиента",
 "returnClientToQueue": "Вернуть клиента в очередь",
+"ipAddress": "IP адрес",
+"port": "Порт",
 
 "codeWithColonPattern": "Код: {code}",
 "@codeWithColonPattern": {

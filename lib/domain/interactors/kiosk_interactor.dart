@@ -1,7 +1,6 @@
-import '../models/kiosk/kiosk_state.dart';
+import '../models/kiosk/printer_data.dart';
 
 abstract class KioskInteractor {
-  Future<void> setKioskState(KioskState kioskState);
-  Future<KioskState?> getKioskState();
-  Future<void> clearKioskState();
+  Future<PrinterData> getPrinterData();
+  Future<void> enableKioskMode(PrinterData printerDate);
 }

@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
+import 'package:queue_management_system_client/domain/models/kiosk/printer_data.dart';
 
 import '../../../data/repositories/repository.dart';
-import '../../models/kiosk/kiosk_state.dart';
 import '../kiosk_interactor.dart';
 
 @Singleton(as: KioskInteractor)
@@ -11,17 +11,12 @@ class KioskInteractorImpl extends KioskInteractor {
   KioskInteractorImpl(this._repository);
 
   @override
-  Future<void> setKioskState(KioskState kioskState) {
-    return _repository.setKioskState(kioskState);
+  Future<PrinterData> getPrinterData() {
+    return _repository.getPrinterData();
   }
 
   @override
-  Future<KioskState?> getKioskState() {
-    return _repository.getKioskState();
-  }
-
-  @override
-  Future<void> clearKioskState() {
-    return _repository.clearKioskState();
+  Future<void> enableKioskMode(PrinterData printerDate) {
+    return _repository.enableKioskMode(printerDate);
   }
 }
