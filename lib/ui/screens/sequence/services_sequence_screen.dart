@@ -599,7 +599,8 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
           QueueConfig(
               accountId: state.config.accountId,
               locationId: state.config.locationId,
-              queueId: state.config.queueId!
+              queueId: state.config.queueId!,
+              updateQueue: !state.config.updateQueue
           )
       );
       return;
@@ -640,7 +641,8 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
             QueueConfig(
               accountId: state.config.accountId,
               locationId: state.config.locationId,
-              queueId: state.config.queueId!
+              queueId: state.config.queueId!,
+              updateQueue: state.config.updateQueue
             )
         );
       })

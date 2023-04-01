@@ -148,6 +148,8 @@ class ServicesSequencesConfig extends BaseConfig {
   int? clientId;
   int? queueId;
 
+  bool updateQueue;
+
   ServicesSequencesConfig({
     required this.accountId,
     required this.locationId,
@@ -155,13 +157,15 @@ class ServicesSequencesConfig extends BaseConfig {
     required this.multipleSelect,
 
     required this.clientId,
-    required this.queueId
+    required this.queueId,
+
+    this.updateQueue = false
   });
 
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
     return RouterPage(
-        key: ValueKey('Services Sequences Page $accountId $locationId $kioskMode $multipleSelect $clientId $queueId'),
+        key: ValueKey('Services Sequences Page $accountId $locationId $kioskMode $multipleSelect $clientId $queueId $updateQueue'),
         child: ServicesSequencesWidget(
           config: this,
           emitConfig: emitConfig,
@@ -294,16 +298,20 @@ class QueueConfig extends BaseConfig {
   int locationId;
   int queueId;
 
+  bool updateQueue;
+
   QueueConfig({
     required this.accountId,
     required this.locationId,
-    required this.queueId
+    required this.queueId,
+
+    this.updateQueue = false
   });
 
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
     return RouterPage(
-        key: ValueKey('Queue Page $queueId'),
+        key: ValueKey('Queue Page $accountId $locationId $queueId $updateQueue'),
         child: QueueWidget(
           config: this,
           emitConfig: emitConfig,
