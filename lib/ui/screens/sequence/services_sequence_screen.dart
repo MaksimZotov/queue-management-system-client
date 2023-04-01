@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/domain/enums/kiosk_mode.dart';
+import 'package:queue_management_system_client/domain/models/client/change_client_request.dart';
 import 'package:queue_management_system_client/domain/models/location/specialist_model.dart';
 import 'package:queue_management_system_client/ui/models/service/service_wrapper.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
@@ -224,6 +225,56 @@ class _ServicesSequencesState extends BaseState<
             const SizedBox(height: Dimens.contentMargin)
           ],
         );
+      case ServicesSequencesStateEnum.selectedServicesViewingClientChanging:
+        return Column(
+          children: [
+            Expanded(
+              flex: 1,
+              child: ReorderableListView(
+                  onReorder: (oldIndex, newIndex) => setState(() {
+                    getCubitInstance(context).onReorderSelectedServices(oldIndex, newIndex);
+                  }),
+                  children: state.selectedServices.map((serviceWrapper) => Row(
+                    key: Key(serviceWrapper.service.id.toString()),
+                    children: [
+                      Card(
+                        color: Colors.blueGrey[300],
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            '${serviceWrapper.orderNumber}:',
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                          flex: 1,
+                          child: ServiceItemWidget(
+                              serviceWrapper: serviceWrapper,
+                              onTap: getCubitInstance(context).onClickServiceWhenSelectedServicesViewing
+                          )
+                      )
+                    ],
+                  )).toList()
+              ),
+            ),
+            Container(height: 2, color: Colors.grey),
+            const SizedBox(height: Dimens.contentMargin),
+            ButtonWidget(
+              text: getLocalizations(context).assign,
+              onClick: getCubitInstance(context).changeClient,
+            ),
+            ButtonWidget(
+              text: getLocalizations(context).cancel,
+              onClick: Navigator.of(context).pop
+            ),
+            const SizedBox(height: Dimens.contentMargin)
+          ],
+        );
     }
   }
 
@@ -234,7 +285,8 @@ class _ServicesSequencesState extends BaseState<
 enum ServicesSequencesStateEnum {
   servicesSequencesViewing,
   servicesSelecting,
-  selectedServicesViewing
+  selectedServicesViewing,
+  selectedServicesViewingClientChanging
 }
 
 class ServicesSequencesLogicState extends BaseLogicState {
@@ -337,6 +389,13 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
 
   @override
   Future<void> onStart() async {
+    if (state.config.queueId != null && state.config.clientId != null) {
+      emit(
+          state.copy(
+              servicesSequencesStateEnum: ServicesSequencesStateEnum.servicesSelecting
+          )
+      );
+    }
     await _locationInteractor.getLocation(state.config.locationId)
       ..onSuccess((result) async {
         LocationModel location = result.data;
@@ -510,6 +569,13 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
   }
 
   void switchToSelectedServicesViewing() {
+    ServicesSequencesStateEnum nextState;
+    if (state.config.clientId != null && state.config.queueId != null) {
+      nextState = ServicesSequencesStateEnum.selectedServicesViewingClientChanging;
+    } else {
+      nextState = ServicesSequencesStateEnum.selectedServicesViewing;
+    }
+
     int i = 0;
 
     List<ServiceWrapper> selectedServices = List.from(state.services)
@@ -521,13 +587,24 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
 
     emit(
         state.copy(
-            servicesSequencesStateEnum: ServicesSequencesStateEnum.selectedServicesViewing,
+            servicesSequencesStateEnum: nextState,
             selectedServices: selectedServices
         )
     );
   }
 
   void switchToServicesSequencesViewing() {
+    if (state.config.clientId != null && state.config.queueId != null) {
+      navigate(
+          QueueConfig(
+              accountId: state.config.accountId,
+              locationId: state.config.locationId,
+              queueId: state.config.queueId!
+          )
+      );
+      return;
+    }
+
     emit(
         state.copy(
           servicesSequencesStateEnum: ServicesSequencesStateEnum.servicesSequencesViewing,
@@ -541,6 +618,35 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
   void confirmSelectedServices() {
     emit(state.copy(showCreateServicesSequenceDialog: true));
     emit(state.copy(showCreateServicesSequenceDialog: false));
+  }
+
+  Future<void> changeClient() async {
+    int? clientId = state.config.clientId;
+    if (clientId == null) {
+      return;
+    }
+    await _locationInteractor.changeClientInLocation(
+        state.config.locationId,
+        ChangeClientRequest(
+            clientId: clientId,
+            serviceIdsToOrderNumbers: {
+              for (var serviceWrapper in state.selectedServices)
+                (serviceWrapper).service.id : (serviceWrapper).orderNumber
+            }
+        )
+    )
+      ..onSuccess((result) {
+        navigate(
+            QueueConfig(
+              accountId: state.config.accountId,
+              locationId: state.config.locationId,
+              queueId: state.config.queueId!
+            )
+        );
+      })
+      ..onError((result) {
+        showError(result);
+      });
   }
 
   Future<void> _load() async {

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
 import 'package:queue_management_system_client/domain/models/account/confirm_model.dart';
+import 'package:queue_management_system_client/domain/models/client/change_client_request.dart';
 import 'package:queue_management_system_client/domain/models/location/create_specialist_request.dart';
 
 import '../../domain/models/base/result.dart';
@@ -55,6 +56,7 @@ abstract class Repository {
   Future<Result> disableLocation(int locationId);
   Future<Result> enableLocation(int locationId);
   Future<Result> addClientInLocation(int locationId, AddClientRequest addClientRequest);
+  Future<Result> changeClientInLocation(int locationId, ChangeClientRequest changeClientRequest);
   // <======================== Location ========================>
 
   // <======================== Queue ========================>

@@ -106,7 +106,9 @@ class LocationState extends BaseState<
                           accountId: widget.config.accountId,
                           locationId: widget.config.locationId,
                           kioskMode: widget.config.kioskMode,
-                          multipleSelect: widget.config.multipleSelect
+                          multipleSelect: widget.config.multipleSelect,
+                          clientId: null,
+                          queueId: null
                       )
                   )
                 ),
@@ -284,7 +286,9 @@ class LocationCubit extends BaseCubit<LocationLogicState> {
                 accountId: state.config.accountId,
                 locationId: state.config.locationId,
                 kioskMode: result.kioskState.kioskMode.name,
-                multipleSelect: result.kioskState.multipleSelect
+                multipleSelect: result.kioskState.multipleSelect,
+                clientId: null,
+                queueId: null
             )
         );
         break;

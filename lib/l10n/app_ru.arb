@@ -122,6 +122,8 @@
 "returnClientToQueue": "Вернуть клиента в очередь",
 "ipAddress": "IP адрес",
 "port": "Порт",
+"assign": "Назначить",
+"redirectClient": "Перенаправить клиента",
 
 "codeWithColonPattern": "Код: {code}",
 "@codeWithColonPattern": {

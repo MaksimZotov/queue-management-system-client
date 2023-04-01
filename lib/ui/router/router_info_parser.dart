@@ -83,7 +83,9 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
                           accountId: int.parse(segments[1]),
                           locationId: int.parse(segments[3]),
                           kioskMode: uri.queryParameters['mode'],
-                          multipleSelect: uri.queryParameters['multiple'].toBool()
+                          multipleSelect: uri.queryParameters['multiple'].toBool(),
+                          clientId: int.tryParse(uri.queryParameters["client_id"] ?? ""),
+                          queueId: int.tryParse(uri.queryParameters["queue_id"] ?? "")
                       );
                     // "/accounts/{account_id}/locations/{location_id}/specialists"
                     case 'specialists':
@@ -191,8 +193,15 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
 
       String? kioskMode = configuration.kioskMode;
       String urlEnd = '';
+
       if (kioskMode != null) {
         urlEnd = '?mode=$kioskMode&multiple=${configuration.multipleSelect}';
+      }
+
+      int? clientId = configuration.clientId;
+      if (clientId != null) {
+        int queueId = configuration.queueId!;
+        urlEnd = '$urlEnd&client_id=$clientId&queue_id=$queueId';
       }
 
       return RouteInformation(

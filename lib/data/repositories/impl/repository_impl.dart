@@ -6,6 +6,7 @@ import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/data/repositories/repository.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
 import 'package:queue_management_system_client/domain/models/client/add_client_request.dart';
+import 'package:queue_management_system_client/domain/models/client/change_client_request.dart';
 import 'package:queue_management_system_client/domain/models/client/queue_state_for_client_model.dart';
 import 'package:queue_management_system_client/domain/models/location/create_specialist_request.dart';
 import 'package:queue_management_system_client/domain/models/location/create_service_request.dart';
@@ -201,6 +202,11 @@ class RepositoryImpl extends Repository {
       );
     });
     return result;
+  }
+
+  @override
+  Future<Result> changeClientInLocation(int locationId, ChangeClientRequest changeClientRequest) {
+    return _serverApi.changeClientInLocation(locationId, changeClientRequest);
   }
   // <======================== Location ========================>
 

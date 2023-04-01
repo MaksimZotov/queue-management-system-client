@@ -11,6 +11,7 @@ import 'package:queue_management_system_client/domain/models/client/serve_client
 import 'package:queue_management_system_client/domain/models/locationnew/location_state.dart';
 import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_state_model.dart';
+import 'package:queue_management_system_client/ui/screens/account/initial_screen.dart';
 import 'package:queue_management_system_client/ui/widgets/client_item_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
@@ -69,6 +70,7 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
           ? <Widget>[
             ClientItemWidget(
               client: state.servingClient!,
+              onChange: null,
               onNotify: getCubitInstance(context).notify,
               onServe: getCubitInstance(context).serve,
               onReturn: getCubitInstance(context).returnClient,
@@ -85,6 +87,16 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
             child: ListView.builder(
               itemBuilder: (context, index) => ClientItemWidget(
                 client: state.availableClients[index],
+                onChange: (client) => widget.emitConfig(
+                  ServicesSequencesConfig(
+                      accountId: widget.config.accountId,
+                      locationId: widget.config.locationId,
+                      kioskMode: null,
+                      multipleSelect: null,
+                      clientId: client.id,
+                      queueId: widget.config.queueId
+                  )
+                ),
                 onNotify: getCubitInstance(context).notify,
                 onServe: null,
                 onReturn: null,

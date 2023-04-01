@@ -1,3 +1,5 @@
+import 'package:queue_management_system_client/domain/models/client/change_client_request.dart';
+
 import '../models/base/container_for_list.dart';
 import '../models/base/result.dart';
 import '../models/client/add_client_request.dart';
@@ -31,4 +33,5 @@ abstract class LocationInteractor {
   Future<Result> enableLocation(int locationId);
   Future<Result> disableLocation(int locationId);
   Future<Result> addClientInLocation(int locationId, AddClientRequest addClientRequest);
+  Future<Result> changeClientInLocation(int locationId, ChangeClientRequest changeClientRequest);
 }

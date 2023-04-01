@@ -8,21 +8,23 @@ import '../../dimens.dart';
 import '../../domain/models/locationnew/client.dart';
 
 class ClientItemWidget extends StatefulWidget {
+  final Client client;
+  final ValueChanged<Client>? onChange;
   final ValueChanged<Client> onNotify;
   final ValueChanged<Client>? onServe;
   final ValueChanged<Client>? onReturn;
   final ValueChanged<Client>? onCall;
   final ValueChanged<Client> onDelete;
-  final Client client;
 
   const ClientItemWidget({
     Key? key,
+    required this.client,
+    required this.onChange,
     required this.onNotify,
     required this.onServe,
     required this.onReturn,
     required this.onCall,
-    required this.onDelete,
-    required this.client,
+    required this.onDelete
   }) : super(key: key);
 
   @override
@@ -143,7 +145,7 @@ class _ClientItemState extends State<ClientItemWidget> {
         ],
       );
     }
-    if (widget.onCall != null) {
+    if (widget.onCall != null && widget.onChange != null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -171,6 +173,14 @@ class _ClientItemState extends State<ClientItemWidget> {
                 tooltip: AppLocalizations.of(context)!.callClient,
                 icon: const Icon(Icons.call_made, size: 35, color: Colors.grey),
                 onPressed: () => widget.onCall!.call(widget.client),
+              )
+          ),
+          Padding(
+              padding: const EdgeInsets.all(16),
+              child: IconButton(
+                tooltip: AppLocalizations.of(context)!.redirectClient,
+                icon: const Icon(Icons.track_changes, size: 35, color: Colors.grey),
+                onPressed: () => widget.onChange!.call(widget.client),
               )
           )
         ],

@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
+import 'package:queue_management_system_client/domain/models/client/change_client_request.dart';
 import 'package:queue_management_system_client/domain/models/location/check_is_owner_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 
@@ -110,5 +111,10 @@ class LocationInteractorImpl extends LocationInteractor {
   @override
   Future<Result> addClientInLocation(int locationId, AddClientRequest addClientRequest) {
     return _repository.addClientInLocation(locationId, addClientRequest);
+  }
+
+  @override
+  Future<Result> changeClientInLocation(int locationId, ChangeClientRequest changeClientRequest) {
+    return _repository.changeClientInLocation(locationId, changeClientRequest);
   }
 }
