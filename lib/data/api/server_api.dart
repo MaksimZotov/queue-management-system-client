@@ -6,7 +6,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
-import 'package:queue_management_system_client/domain/models/location/board_model.dart';
 import 'package:queue_management_system_client/domain/models/client/queue_state_for_client_model.dart';
 import 'package:queue_management_system_client/domain/models/location/create_location_request.dart';
 import 'package:queue_management_system_client/domain/models/location/create_specialist_request.dart';
@@ -24,8 +23,11 @@ import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
 
 import '../../domain/models/base/result.dart';
+import '../../domain/models/client/change_client_request.dart';
+import '../../domain/models/client/serve_client_request.dart';
 import '../../domain/models/location/service_model.dart';
 import '../../domain/models/client/add_client_request.dart';
+import '../../domain/models/locationnew/location_state.dart';
 import '../../domain/models/queue/create_queue_request.dart';
 import '../../domain/models/queue/queue_model.dart';
 import '../../domain/models/account/login_model.dart';
@@ -212,10 +214,10 @@ class ServerApi {
       )
   );
 
-  Future<Result<BoardModel>> getLocationBoard(int locationId) => _execRequest(
-      fromJson: BoardModel.fromJson,
+  Future<Result<LocationState>> getLocationState(int locationId) => _execRequest(
+      fromJson: LocationState.fromJson,
       request: _dioApi.get(
-          '$url/locations/$locationId/board'
+          '$url/locations/$locationId/state'
       )
   );
 
@@ -300,6 +302,13 @@ class ServerApi {
           data: addClientRequest.toJson()
       )
   );
+
+  Future<Result> changeClientInLocation(int locationId, ChangeClientRequest changeClientRequest) => _execRequest(
+      request: _dioApi.post(
+          '$url/locations/$locationId/clients/change',
+          data: changeClientRequest.toJson()
+      )
+  );
   // <======================== Location ========================>
 
 
@@ -350,9 +359,25 @@ class ServerApi {
       )
   );
 
-  Future<Result> serveClientInQueue(int queueId, int clientId) => _execRequest(
+  Future<Result> serveClientInQueue(ServeClientRequest serveClientRequest) => _execRequest(
       request: _dioApi.post(
-          '$url/queues/$queueId/serve',
+          '$url/queues/serve',
+          data: serveClientRequest.toJson()
+      )
+  );
+
+  Future<Result> callClientInQueue(int queueId, int clientId) => _execRequest(
+      request: _dioApi.post(
+          '$url/queues/$queueId/call',
+          queryParameters: {
+            'client_id': clientId
+          }
+      )
+  );
+
+  Future<Result> returnClientToQueue(int queueId, int clientId) => _execRequest(
+      request: _dioApi.post(
+          '$url/queues/$queueId/return',
           queryParameters: {
             'client_id': clientId
           }
@@ -506,10 +531,9 @@ class ServerApi {
     stompClients[destination]?.subscribe(
         destination: destination,
         callback: (StompFrame frame) {
-          if (T == QueueStateModel) {
-            onQueueChanged.call(QueueStateModel.fromJson(json.decode(frame.body!)) as T);
-          } else if (T == BoardModel) {
-            onQueueChanged.call(BoardModel.fromJson(json.decode(frame.body!)) as T);
+          print(frame.body);
+          if (T == LocationState) {
+            onQueueChanged.call(LocationState.fromJson(json.decode(frame.body!)) as T);
           }
         }
     );

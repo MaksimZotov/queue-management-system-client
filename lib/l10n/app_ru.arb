@@ -62,6 +62,7 @@
 "servicesSequences": "Наборы услуг",
 "specialists": "Специалисты",
 "queues": "Очереди",
+"queueWithColon": "Очередь:",
 "deleteServiceQuestion": "Удалить услугу?",
 "select": "Выбрать",
 "allTypes": "Все виды",
@@ -90,7 +91,7 @@
 "rights": "Права",
 "multipleSelect": "Множественный выбор",
 "finishServing": "Завершить обслуживание",
-"callClient": "Вызвать клиента",
+"notify": "Отправить уведомление",
 "maxDurationMustBeNonNegativeNumber": "Максимальная длительность должен быть неотрицательным числом",
 "supposedDurationMustBeNonNegativeNumber": "Предполагаемая длительность должна быть неотрицательным числом",
 "logoutFromAccountQuestion": "Выйти из аккаунта?",
@@ -103,9 +104,11 @@
 "specialist": "Специалист",
 "locationDoesNotContainSpecialists": "В локации нет специалистов",
 "columnsAmount": "Количество столбцов",
+"rowsAmount": "Количество строк",
 "switchFrequency": "Частота переключения",
-"maxColumnsAmountMustBeNonNegativeNumber": "Количество столбцов должно быть неотрицательным числом",
-"switchFrequencyMustBeNonNegativeNumber": "Частота переключения должна быть неотрицательным числом",
+"maxColumnsAmountMustBePositiveNumber": "Количество столбцов должно быть положительным числом",
+"maxRowsAmountMustBePositiveNumber": "Количество строк должно быть положительным числом",
+"switchFrequencyMustBePositiveNumber": "Частота переключения должна быть положительным числом",
 "deleteClient": "Удалить клиента",
 "turnOn": "Включить",
 "turnOff": "Выключить",
@@ -114,5 +117,29 @@
 "queuePausing": "Постановка очереди на паузу",
 "turnOnQueue": "Включить очередь",
 "turnOffQueue": "Выключить очередь",
-"downloadQrCode": "Скачать QR-код"
+"downloadQrCode": "Скачать QR-код",
+"callClient": "Вызвать клиента",
+"returnClientToQueue": "Вернуть клиента в очередь",
+"ipAddress": "IP адрес",
+"port": "Порт",
+"assign": "Назначить",
+"redirectClient": "Перенаправить клиента",
+
+"codeWithColonPattern": "Код: {code}",
+"@codeWithColonPattern": {
+  "placeholders": {
+    "code": {
+      "type": "int"
+    }
+  }
+},
+
+"waitTimeInMinutesPattern": "Время ожидания: {waitTime} мин.",
+"@waitTimeInMinutesPattern": {
+  "placeholders": {
+    "waitTime": {
+      "type": "int"
+    }
+  }
+}
 }

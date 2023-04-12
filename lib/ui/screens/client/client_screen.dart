@@ -1,14 +1,20 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/enums/client_in_queue_status.dart';
 import 'package:queue_management_system_client/domain/interactors/client_interactor.dart';
+import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/domain/models/client/queue_state_for_client_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
 import 'package:queue_management_system_client/ui/widgets/client_info_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../domain/interactors/socket_interactor.dart';
 import '../../../domain/models/base/result.dart';
+import '../../../domain/models/locationnew/client.dart';
+import '../../../domain/models/locationnew/location_state.dart';
 import '../../widgets/button_widget.dart';
 import '../base.dart';
 
@@ -35,13 +41,32 @@ class _ClientState extends BaseState<
       BuildContext context,
       ClientLogicState state,
       ClientWidget widget
-  ) => Scaffold(
-    appBar: AppBar(
-      title: Text(state.clientState.queueName),
-    ),
-    body: state.loading ? const Center(
-      child: CircularProgressIndicator(),
-    ) : Center(
+  ) => Scaffold(body: _getBody(context, state, widget));
+
+  @override
+  ClientCubit getCubit() => statesAssembler.getClientCubit(widget.config);
+
+  Widget _getBody(
+      BuildContext context,
+      ClientLogicState state,
+      ClientWidget widget
+  ) {
+    if (state.loading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+    String? errorText = state.error?.description ?? getErrorText(context, state.error);
+    if (errorText != null) {
+      return Center(
+          child: Text(
+              errorText,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 56)
+          )
+      );
+    }
+    return Center(
       child: SizedBox(
         width: double.infinity,
         child: SingleChildScrollView(
@@ -53,69 +78,46 @@ class _ClientState extends BaseState<
             child: Column(
                 children: <Widget>[
                   Card(
-                      elevation: state.clientState.inQueue ? 5 : 0,
-                      color: state.clientState.inQueue ? Colors.white : Colors.transparent,
+                      elevation: 5,
+                      color: Colors.white,
                       child: Column(
-                        children: <Widget>[
+                        children: [
                           ClientInfoFieldWidget(
-                              fieldName: getLocalizations(context).queueLengthWithColon,
-                              fieldValue: state.clientState.queueLength.toString()
-                          )
-                        ] + (state.clientState.inQueue ? [
-                          ClientInfoFieldWidget(
-                              fieldName: getLocalizations(context).statusWithColon,
-                              fieldValue: state.clientState.status == ClientInQueueStatus.confirmed
-                                  ? getLocalizations(context).confirmed
-                                  : getLocalizations(context).reserved
+                              fieldName: getLocalizations(context).queueWithColon,
+                              fieldValue: state.queueName ?? '-'
                           ),
                           ClientInfoFieldWidget(
                               fieldName: getLocalizations(context).emailWithColon,
-                              fieldValue: state.clientState.email!
+                              fieldValue: state.clientState.email ?? '-'
                           ),
                           ClientInfoFieldWidget(
-                              fieldName: getLocalizations(context).firstNameWithColon,
-                              fieldValue: state.clientState.firstName!
-                          ),
-                          ClientInfoFieldWidget(
-                              fieldName: getLocalizations(context).lastNameWithColon,
-                              fieldValue: state.clientState.lastName!
-                          ),
-                          ClientInfoFieldWidget(
-                              fieldName: getLocalizations(context).beforeMeWithColon,
-                              fieldValue: state.clientState.beforeMe.toString()
+                              fieldName: getLocalizations(context).codeWithColon,
+                              fieldValue: state.clientState.code?.toString() ?? '-'
                           )
-                        ] : []) + (state.clientState.status == ClientInQueueStatus.confirmed ? [
-                          ClientInfoFieldWidget(
-                              fieldName: getLocalizations(context).code,
-                              fieldValue: state.clientState.accessKey!
-                          )
-                        ] : []),
+                        ],
                       )
                   ),
                   const SizedBox(height: 10),
-                  Column(
-                      children: (state.clientState.status == ClientInQueueStatus.confirmed ? <Widget>[
-                        ButtonWidget(
-                            text: getLocalizations(context).leave,
-                            onClick: getCubitInstance(context).leave
-                        )
-                      ] : <Widget>[]) + <Widget>[
-                        ButtonWidget(
-                            text: getLocalizations(context).update,
-                            onClick: getCubitInstance(context).onStart
-                        ),
-                      ]
+                  ButtonWidget(
+                      text: getLocalizations(context).leave,
+                      onClick: getCubitInstance(context).leave
                   ),
                 ]
             ),
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 
   @override
-  ClientCubit getCubit() => statesAssembler.getClientCubit(widget.config);
+  void handleEvent(
+      BuildContext context,
+      ClientLogicState state,
+      ClientWidget widget
+  ) {
+    // Do nothing
+  }
 }
 
 class ClientLogicState extends BaseLogicState {
@@ -124,6 +126,19 @@ class ClientLogicState extends BaseLogicState {
   final QueueStateForClientModel clientState;
   final String email;
   final bool showConfirmDialog;
+  final LocationState locationState;
+
+  String? get queueName {
+    for (Client client in locationState.clients) {
+      if (client.id == clientState.clientId && client.queue?.name != null) {
+        return client.queue?.name;
+      }
+    }
+    return null;
+  }
+
+  bool get inQueue =>
+      queueName != null;
 
   ClientLogicState({
     super.nextConfig,
@@ -133,7 +148,8 @@ class ClientLogicState extends BaseLogicState {
     required this.config,
     required this.clientState,
     required this.email,
-    required this.showConfirmDialog
+    required this.showConfirmDialog,
+    required this.locationState
   });
 
   @override
@@ -146,6 +162,7 @@ class ClientLogicState extends BaseLogicState {
     QueueStateForClientModel? clientState,
     String? email,
     bool? showConfirmDialog,
+    LocationState? locationState,
   }) => ClientLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -154,28 +171,39 @@ class ClientLogicState extends BaseLogicState {
       config: config,
       clientState: clientState ?? this.clientState,
       email: email ?? this.email,
-      showConfirmDialog: showConfirmDialog ?? this.showConfirmDialog
+      showConfirmDialog: showConfirmDialog ?? this.showConfirmDialog,
+      locationState: locationState ?? this.locationState
   );
 }
 
 @injectable
 class ClientCubit extends BaseCubit<ClientLogicState> {
 
+  static const String _locationTopic = '/topic/locations/';
+
+  static const int _updatePeriod = 10;
+
   final ClientInteractor _clientInteractor;
+  final SocketInteractor _socketInteractor;
+  final LocationInteractor _locationInteractor;
+
+  Timer? _timer;
 
   ClientCubit(
     this._clientInteractor,
+    this._socketInteractor,
+    this._locationInteractor,
     @factoryParam ClientConfig config
   ) : super(
       ClientLogicState(
           config: config,
           clientState: QueueStateForClientModel(
-            inQueue: false,
-            queueName: '',
-            queueLength: 0
+            clientId: -1,
+            locationId: -1
           ),
           email: '',
-          showConfirmDialog: false
+          showConfirmDialog: false,
+          locationState: LocationState(null, [])
       )
   );
 
@@ -188,6 +216,7 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
     )
       ..onSuccess((result) {
         emit(state.copy(clientState: result.data, email: result.data.email));
+        _connectToSocket();
         hideLoad();
       })
       ..onError((result) async {
@@ -198,6 +227,7 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
           ..onSuccess((result) {
             emit(state.copy(clientState: result.data, email: result.data.email));
             hideLoad();
+            _connectToSocket();
           })
           ..onError((result) {
             showError(result);
@@ -205,15 +235,59 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
       });
   }
 
+  @override
+  Future<void> close() async {
+    _socketInteractor.disconnectFromSocket(
+        _locationTopic + state.clientState.locationId.toString()
+    );
+    _timer?.cancel();
+    return super.close();
+  }
+
+  @override
+  void showError(ErrorResult result) {
+    _socketInteractor.disconnectFromSocket(
+        _locationTopic + state.clientState.locationId.toString()
+    );
+    _timer?.cancel();
+    emit(state.copy(loading: false, error: result));
+  }
+
   Future<void> leave() async {
     showLoad();
     await _clientInteractor.leaveQueue(state.config.clientId, state.config.accessKey)
       ..onSuccess((result) {
         emit(state.copy(clientState: result.data));
-        hideLoad();
       })
       ..onError((result) {
         showError(result);
       });
+  }
+
+  Future<void> _connectToSocket() async {
+    await _locationInteractor.getLocationState(
+        state.clientState.locationId
+    )..onSuccess((result) {
+      _handleNewLocationState(result.data);
+    })..onError((result) {
+      showError(result);
+    });
+    _socketInteractor.connectToSocket<LocationState>(
+        _locationTopic + state.clientState.locationId.toString(),
+        () => { /* Do nothing */ },
+        _handleNewLocationState,
+        (error) => { /* Do nothing */ }
+    );
+    _startUpdating();
+  }
+
+  void _handleNewLocationState(LocationState locationState) {
+    emit(state.copy(locationState: locationState));
+  }
+
+  void _startUpdating() async {
+    _timer = Timer.periodic(const Duration(seconds: _updatePeriod), (timer) {
+      emit(state.copy(error: state.error));
+    });
   }
 }

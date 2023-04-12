@@ -4,7 +4,6 @@ import 'package:queue_management_system_client/ui/screens/client/add_client_dial
 import 'package:queue_management_system_client/ui/screens/client/client_screen.dart';
 import 'package:queue_management_system_client/ui/screens/location/create_location_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/delete_location_dialog.dart';
-import 'package:queue_management_system_client/ui/screens/location/enable_location_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/logout_from_account_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/navigation_to_another_owner.dart';
 import 'package:queue_management_system_client/ui/screens/location/switch_to_kiosk_dialog.dart';
@@ -49,7 +48,6 @@ class StatesAssembler {
   NavigationToAnotherOwnerCubit getNavigationToAnotherOwnerCubit(NavigationToAnotherOwnerConfig config) => getIt.get(param1: config);
   SwitchToBoardCubit getSwitchToBoardCubit(SwitchToBoardConfig config) => getIt.get(param1: config);
   LogoutFromAccountCubit getLogoutFromAccountCubit(LogoutFromAccountConfig config) => getIt.get(param1: config);
-  EnableLocationCubit getEnableLocationCubit(EnableLocationConfig config) => getIt.get(param1: config);
 
   QueuesCubit getQueuesCubit(QueuesConfig config) => getIt.get(param1: config);
   CreateQueueCubit getCreateQueueCubit(CreateQueueConfig config) => getIt.get(param1: config);

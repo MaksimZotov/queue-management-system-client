@@ -267,7 +267,17 @@ class SpecialistsLogicState extends BaseLogicState {
 
   final bool showCreateSpecialistDialog;
 
-  final KioskState? kioskState;
+  KioskState? get kioskState  {
+    for (KioskMode mode in KioskMode.values) {
+      if (mode.name == config.kioskMode) {
+        return KioskState(
+            kioskMode: mode,
+            multipleSelect: config.multipleSelect ?? false
+        );
+      }
+    }
+    return null;
+  }
 
   List<ServiceWrapper> get selectedServices {
     return List.from(services)..removeWhere((serviceWrapper) => !serviceWrapper.selected);
@@ -285,8 +295,7 @@ class SpecialistsLogicState extends BaseLogicState {
     required this.hasRights,
     required this.specialists,
     required this.services,
-    required this.showCreateSpecialistDialog,
-    required this.kioskState
+    required this.showCreateSpecialistDialog
   });
 
   @override
@@ -302,7 +311,6 @@ class SpecialistsLogicState extends BaseLogicState {
     List<SpecialistModel>? specialists,
     List<ServiceWrapper>? services,
     bool? showCreateSpecialistDialog,
-    KioskState? kioskState
   }) => SpecialistsLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -315,20 +323,17 @@ class SpecialistsLogicState extends BaseLogicState {
       hasRights: hasRights ?? this.hasRights,
       specialists: specialists ?? this.specialists,
       services: services ?? this.services,
-      showCreateSpecialistDialog: showCreateSpecialistDialog ?? this.showCreateSpecialistDialog,
-      kioskState: kioskState ?? this.kioskState
+      showCreateSpecialistDialog: showCreateSpecialistDialog ?? this.showCreateSpecialistDialog
   );
 }
 
 @injectable
 class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
   final LocationInteractor _locationInteractor;
-  final KioskInteractor _terminalInteractor;
   final QueueInteractor _queueInteractor;
 
   SpecialistsCubit(
       this._locationInteractor,
-      this._terminalInteractor,
       this._queueInteractor,
       @factoryParam SpecialistsConfig config
   ) : super(
@@ -340,14 +345,12 @@ class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
           hasRights: false,
           specialists: [],
           services: [],
-          showCreateSpecialistDialog: false,
-          kioskState: null
+          showCreateSpecialistDialog: false
       )
   );
 
   @override
   Future<void> onStart() async {
-    emit(state.copy(kioskState: await _terminalInteractor.getKioskState()));
     await _locationInteractor.getLocation(state.config.locationId)
       ..onSuccess((result) async {
         LocationModel location = result.data;

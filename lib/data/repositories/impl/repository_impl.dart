@@ -6,8 +6,8 @@ import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/data/repositories/repository.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
 import 'package:queue_management_system_client/domain/models/client/add_client_request.dart';
+import 'package:queue_management_system_client/domain/models/client/change_client_request.dart';
 import 'package:queue_management_system_client/domain/models/client/queue_state_for_client_model.dart';
-import 'package:queue_management_system_client/domain/models/location/board_model.dart';
 import 'package:queue_management_system_client/domain/models/location/create_specialist_request.dart';
 import 'package:queue_management_system_client/domain/models/location/create_service_request.dart';
 import 'package:queue_management_system_client/domain/models/location/create_services_sequence_request.dart';
@@ -19,18 +19,22 @@ import 'package:queue_management_system_client/domain/models/queue/queue_model.d
 import 'package:queue_management_system_client/domain/models/rights/rights_model.dart';
 
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/kiosk/kiosk_state.dart';
+import '../../../domain/models/client/serve_client_request.dart';
+import '../../../domain/models/kiosk/printer_data.dart';
 import '../../../domain/models/location/create_location_request.dart';
 import '../../../domain/models/location/service_model.dart';
 import '../../../domain/models/account/confirm_model.dart';
 import '../../../domain/models/account/login_model.dart';
 import '../../../domain/models/account/signup_model.dart';
 import '../../../domain/models/account/tokens_model.dart';
+import '../../../domain/models/locationnew/location_state.dart';
 import '../../../domain/models/queue/create_queue_request.dart';
 import '../../../domain/models/queue/queue_state_model.dart';
 import '../../../domain/models/rights/add_rights_request.dart';
 import '../../local/secure_storage.dart';
 import '../../local/shared_preferences_storage.dart';
+import '../../native/android/android_native_interactor.dart';
+import '../../printer/printer_interactor.dart';
 
 @Singleton(as: Repository)
 class RepositoryImpl extends Repository {
@@ -38,11 +42,15 @@ class RepositoryImpl extends Repository {
   final ServerApi _serverApi;
   final SharedPreferencesStorage _sharedPreferencesStorage;
   final SecureStorage _secureStorage;
+  final AndroidNativeInteractor _androidNativeInteractor;
+  final PrinterInteractor _printerInteractor;
 
   RepositoryImpl(
       this._serverApi,
       this._sharedPreferencesStorage,
-      this._secureStorage
+      this._secureStorage,
+      this._androidNativeInteractor,
+      this._printerInteractor
   );
 
 
@@ -124,8 +132,8 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result<BoardModel>> getLocationBoard(int locationId) {
-    return _serverApi.getLocationBoard(locationId);
+  Future<Result<LocationState>> getLocationState(int locationId) {
+    return _serverApi.getLocationState(locationId);
   }
 
   @override
@@ -184,8 +192,21 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result> addClientInLocation(int locationId, AddClientRequest addClientRequest) {
-    return _serverApi.addClientInLocation(locationId, addClientRequest);
+  Future<Result> addClientInLocation(int locationId, AddClientRequest addClientRequest) async {
+    Result result = await _serverApi.addClientInLocation(locationId, addClientRequest);
+    result.onSuccess((result) async {
+      PrinterData printerData = await _sharedPreferencesStorage.getPrinterData();
+      _printerInteractor.print(
+        printerData.ip,
+        printerData.port
+      );
+    });
+    return result;
+  }
+
+  @override
+  Future<Result> changeClientInLocation(int locationId, ChangeClientRequest changeClientRequest) {
+    return _serverApi.changeClientInLocation(locationId, changeClientRequest);
   }
   // <======================== Location ========================>
 
@@ -230,8 +251,18 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result> serveClientInQueue(int queueId, int clientId) {
-    return _serverApi.serveClientInQueue(queueId, clientId);
+  Future<Result> serveClientInQueue(ServeClientRequest serveClientRequest) {
+    return _serverApi.serveClientInQueue(serveClientRequest);
+  }
+
+  @override
+  Future<Result> callClientInQueue(int queueId, int clientId) {
+    return _serverApi.callClientInQueue(queueId, clientId);
+  }
+
+  @override
+  Future<Result> returnClientToQueue(int queueId, int clientId) {
+    return _serverApi.returnClientToQueue(queueId, clientId);
   }
 
   @override
@@ -295,22 +326,18 @@ class RepositoryImpl extends Repository {
 
 
 
-
+  // <======================== Kiosk ========================>
   @override
-  Future<void> setKioskState(KioskState kioskState) {
-    return _sharedPreferencesStorage.setKioskState(kioskState: kioskState);
+  Future<PrinterData> getPrinterData() {
+    return _sharedPreferencesStorage.getPrinterData();
   }
 
   @override
-  Future<KioskState?> getKioskState() {
-    return _sharedPreferencesStorage.getKioskState();
+  Future<void> enableKioskMode(PrinterData printerDate) async {
+    await _androidNativeInteractor.enableLockTask();
+    return _sharedPreferencesStorage.setPrinterData(printerDate);
   }
-
-  @override
-  Future<void> clearKioskState() {
-    return _sharedPreferencesStorage.clearKioskState();
-  }
-
+  // <======================== Kiosk ========================>
 
 
 

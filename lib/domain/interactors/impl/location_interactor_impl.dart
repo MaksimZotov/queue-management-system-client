@@ -1,13 +1,13 @@
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
+import 'package:queue_management_system_client/domain/models/client/change_client_request.dart';
 import 'package:queue_management_system_client/domain/models/location/check_is_owner_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 
 import '../../../data/repositories/repository.dart';
 import '../../models/base/container_for_list.dart';
 import '../../models/client/add_client_request.dart';
-import '../../models/location/board_model.dart';
 import '../../models/location/create_location_request.dart';
 import '../../models/location/create_specialist_request.dart';
 import '../../models/location/create_service_request.dart';
@@ -15,6 +15,7 @@ import '../../models/location/create_services_sequence_request.dart';
 import '../../models/location/specialist_model.dart';
 import '../../models/location/service_model.dart';
 import '../../models/location/services_sequence_model.dart';
+import '../../models/locationnew/location_state.dart';
 
 @Singleton(as: LocationInteractor)
 class LocationInteractorImpl extends LocationInteractor {
@@ -48,8 +49,8 @@ class LocationInteractorImpl extends LocationInteractor {
   }
 
   @override
-  Future<Result<BoardModel>> getLocationBoard(int locationId) {
-    return _repository.getLocationBoard(locationId);
+  Future<Result<LocationState>> getLocationState(int locationId) {
+    return _repository.getLocationState(locationId);
   }
 
   @override
@@ -110,5 +111,10 @@ class LocationInteractorImpl extends LocationInteractor {
   @override
   Future<Result> addClientInLocation(int locationId, AddClientRequest addClientRequest) {
     return _repository.addClientInLocation(locationId, addClientRequest);
+  }
+
+  @override
+  Future<Result> changeClientInLocation(int locationId, ChangeClientRequest changeClientRequest) {
+    return _repository.changeClientInLocation(locationId, changeClientRequest);
   }
 }

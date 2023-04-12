@@ -6,7 +6,6 @@ import 'package:queue_management_system_client/domain/enums/kiosk_mode.dart';
 import 'package:queue_management_system_client/domain/enums/rights_status.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
-import 'package:queue_management_system_client/ui/screens/location/enable_location_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/switch_to_board_dialog.dart';
 import 'package:queue_management_system_client/ui/screens/location/switch_to_kiosk_dialog.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
@@ -63,11 +62,6 @@ class LocationState extends BaseState<
                       tooltip: getLocalizations(context).switchToKioskMode,
                       icon: const Icon(Icons.co_present_sharp),
                       onPressed: () => _showSwitchToKioskDialog(context, state)
-                  ),
-                  IconButton(
-                      tooltip: getLocalizations(context).turnOnTurnOffLocation,
-                      icon: const Icon(Icons.bedtime),
-                      onPressed: () => _showEnableLocationDialog(context, state)
                   )
                 ] + (
                     (state.locationModel?.isOwner == true || state.locationModel?.rightsStatus == RightsStatus.administrator)
@@ -99,7 +93,9 @@ class LocationState extends BaseState<
                   onClick: () => widget.emitConfig(
                       ServicesConfig(
                           accountId: widget.config.accountId,
-                          locationId: widget.config.locationId
+                          locationId: widget.config.locationId,
+                          kioskMode: widget.config.kioskMode,
+                          multipleSelect: widget.config.multipleSelect
                       )
                   )
                 ),
@@ -108,7 +104,11 @@ class LocationState extends BaseState<
                   onClick: () => widget.emitConfig(
                       ServicesSequencesConfig(
                           accountId: widget.config.accountId,
-                          locationId: widget.config.locationId
+                          locationId: widget.config.locationId,
+                          kioskMode: widget.config.kioskMode,
+                          multipleSelect: widget.config.multipleSelect,
+                          clientId: null,
+                          queueId: null
                       )
                   )
                 ),
@@ -117,7 +117,9 @@ class LocationState extends BaseState<
                   onClick: () => widget.emitConfig(
                       SpecialistsConfig(
                           accountId: widget.config.accountId,
-                          locationId: widget.config.locationId
+                          locationId: widget.config.locationId,
+                          kioskMode: widget.config.kioskMode,
+                          multipleSelect: widget.config.multipleSelect
                       )
                   )
                 ),
@@ -132,12 +134,7 @@ class LocationState extends BaseState<
                                       locationId: widget.config.locationId
                                   )
                               )
-                          ),
-                          const SizedBox(height: Dimens.contentMargin),
-                          ButtonWidget(
-                              text: getLocalizations(context).downloadQrCode,
-                              onClick: getCubitInstance(context).downloadQrCode
-                          ),
+                          )
                         ]
                       : []
                   )
@@ -165,6 +162,7 @@ class LocationState extends BaseState<
               accountId: state.config.accountId,
               locationId: state.config.locationId,
               columnsAmount: result.columnsAmount,
+              rowsAmount: result.rowsAmount,
               switchFrequency: result.switchFrequency
           )
       );
@@ -178,6 +176,7 @@ class LocationState extends BaseState<
       context: context,
       builder: (context) => SwitchToKioskWidget(
           config: SwitchToKioskConfig(
+              accountId: state.config.accountId,
               locationId: state.config.locationId
           )
       )
@@ -186,18 +185,6 @@ class LocationState extends BaseState<
       getCubitInstance(context).handleSwitchToTerminalModeResult(result);
     }
   });
-
-  void _showEnableLocationDialog(
-      BuildContext context,
-      LocationLogicState state
-  ) => showDialog(
-      context: context,
-      builder: (context) => EnableLocationWidget(
-          config: EnableLocationConfig(
-              locationId: state.config.locationId
-          )
-      )
-  );
 }
 
 class LocationLogicState extends BaseLogicState {
@@ -206,7 +193,17 @@ class LocationLogicState extends BaseLogicState {
   
   final LocationModel? locationModel;
 
-  final KioskState? kioskState;
+  KioskState? get kioskState  {
+    for (KioskMode mode in KioskMode.values) {
+      if (mode.name == config.kioskMode) {
+        return KioskState(
+            kioskMode: mode,
+            multipleSelect: config.multipleSelect ?? false
+        );
+      }
+    }
+    return null;
+  }
 
   LocationLogicState({
     super.nextConfig,
@@ -215,7 +212,6 @@ class LocationLogicState extends BaseLogicState {
     super.loading = true,
     required this.config,
     required this.locationModel,
-    required this.kioskState
   });
 
   @override
@@ -224,40 +220,34 @@ class LocationLogicState extends BaseLogicState {
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    LocationModel? locationModel,
-    KioskState? kioskState
+    LocationModel? locationModel
   }) => LocationLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
       loading: loading ?? this.loading,
       config: config,
-      locationModel: locationModel ?? this.locationModel,
-      kioskState: kioskState ?? this.kioskState
+      locationModel: locationModel ?? this.locationModel
   );
 }
 
 @injectable
 class LocationCubit extends BaseCubit<LocationLogicState> {
   final LocationInteractor _locationInteractor;
-  final KioskInteractor _kioskInteractor;
 
   LocationCubit(
       this._locationInteractor,
-      this._kioskInteractor,
       @factoryParam LocationConfig config
   ) : super(
       LocationLogicState(
           config: config,
-          locationModel: null,
-          kioskState: null
+          locationModel: null
       )
   );
 
   @override
   Future<void> onStart() async {
     showLoad();
-    await _kioskInteractor.clearKioskState();
     await _locationInteractor.getLocation(state.config.locationId)
       ..onSuccess((result) {
         emit(state.copy(locationModel: result.data));
@@ -269,24 +259,36 @@ class LocationCubit extends BaseCubit<LocationLogicState> {
   }
 
   Future<void> handleSwitchToTerminalModeResult(SwitchToKioskResult result) async {
-    await _kioskInteractor.setKioskState(result.kioskState);
     switch (result.kioskState.kioskMode) {
       case KioskMode.all:
-        emit(state.copy(kioskState: result.kioskState));
+        navigate(
+            LocationConfig(
+                accountId: state.config.accountId,
+                locationId: state.config.locationId,
+                kioskMode: result.kioskState.kioskMode.name,
+                multipleSelect: result.kioskState.multipleSelect
+            )
+        );
         break;
       case KioskMode.services:
         navigate(
             ServicesConfig(
                 accountId: state.config.accountId,
-                locationId: state.config.locationId
+                locationId: state.config.locationId,
+                kioskMode: result.kioskState.kioskMode.name,
+                multipleSelect: result.kioskState.multipleSelect
             )
         );
         break;
-      case KioskMode.servicesSequences:
+      case KioskMode.sequences:
         navigate(
             ServicesSequencesConfig(
                 accountId: state.config.accountId,
-                locationId: state.config.locationId
+                locationId: state.config.locationId,
+                kioskMode: result.kioskState.kioskMode.name,
+                multipleSelect: result.kioskState.multipleSelect,
+                clientId: null,
+                queueId: null
             )
         );
         break;
@@ -294,32 +296,11 @@ class LocationCubit extends BaseCubit<LocationLogicState> {
         navigate(
             SpecialistsConfig(
                 accountId: state.config.accountId,
-                locationId: state.config.locationId
+                locationId: state.config.locationId,
+                kioskMode: result.kioskState.kioskMode.name,
+                multipleSelect: result.kioskState.multipleSelect
             )
         );
-    }
-  }
-
-  Future<void> downloadQrCode() async {
-    int accountId = state.config.accountId;
-    int locationId = state.config.locationId;
-    String url = '${ServerApi.clientUrl}/accounts/$accountId/locations/$locationId';
-
-    final image = await QrPainter(
-      data: url,
-      version: QrVersions.auto,
-      errorCorrectionLevel: QrErrorCorrectLevel.Q,
-      color: Colors.black,
-      emptyColor: Colors.white,
-    ).toImageData(1024);
-
-    if (image != null) {
-      await FileSaver.instance.saveFile(
-          url,
-          image.buffer.asUint8List(),
-          'png',
-          mimeType: MimeType.PNG
-      );
     }
   }
 }

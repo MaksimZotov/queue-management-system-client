@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:queue_management_system_client/domain/enums/client_in_queue_status.dart';
+import 'package:queue_management_system_client/domain/models/locationnew/service.dart';
 import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 
+import '../../dimens.dart';
+import '../../domain/models/locationnew/client.dart';
+
 class ClientItemWidget extends StatefulWidget {
-  final ValueChanged<ClientInQueueModel> onNotify;
-  final ValueChanged<ClientInQueueModel> onServe;
-  final ValueChanged<ClientInQueueModel> onDelete;
-  final ClientInQueueModel client;
+  final Client client;
+  final ValueChanged<Client>? onChange;
+  final ValueChanged<Client> onNotify;
+  final ValueChanged<Client>? onServe;
+  final ValueChanged<Client>? onReturn;
+  final ValueChanged<Client>? onCall;
+  final ValueChanged<Client> onDelete;
 
   const ClientItemWidget({
     Key? key,
+    required this.client,
+    required this.onChange,
     required this.onNotify,
     required this.onServe,
-    required this.onDelete,
-    required this.client,
+    required this.onReturn,
+    required this.onCall,
+    required this.onDelete
   }) : super(key: key);
 
   @override
@@ -22,60 +32,160 @@ class ClientItemWidget extends StatefulWidget {
 }
 
 class _ClientItemState extends State<ClientItemWidget> {
+
   @override
   Widget build(BuildContext context) {
-    List<Padding> services = [];
-    for (String service in widget.client.services) {
+    List<Widget> services = [];
+    for (Service service in widget.client.services) {
       services.add(
-          Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(64, 0, 0, 0),
-              child: Card(
-                color: Colors.teal,
-                child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: Text(service, style: const TextStyle(color: Colors.white))
-                )
-            )
+          Card(
+              elevation: 2,
+              color: Colors.white,
+              child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Text(service.name, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16))
+              )
           )
       );
     }
+
     return Card(
-      color: widget.client.status == ClientInQueueStatus.confirmed
-          ? Colors.white
-          : Colors.white54,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          ListTile(
-              title: Text('${widget.client.firstName} ${widget.client.lastName}'),
-              subtitle: Text(
-                  ((widget.client.email == null)
-                      ? ''
-                      : ('${widget.client.email} ') + '(${widget.client.accessKey})')
-              ),
-              leading: IconButton(
-                tooltip: AppLocalizations.of(context)!.finishServing,
-                icon: const Icon(Icons.done_outline_rounded),
-                onPressed: () => widget.onServe(widget.client),
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    tooltip: AppLocalizations.of(context)!.callClient,
-                    icon: const Icon(Icons.notifications),
-                    onPressed: () => widget.onNotify(widget.client),
-                  ),
-                  IconButton(
-                    tooltip: AppLocalizations.of(context)!.deleteClient,
-                    icon: const Icon(Icons.close),
-                    onPressed: () => widget.onDelete(widget.client),
-                  ),
-                ],
-              )
-          ),
-        ] + services,
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                    'Информация о клиенте:',
+                    style: const TextStyle(color: Colors.black, fontSize: 18)
+                ),
+                const SizedBox(height: 5),
+                Card(
+                    elevation: 2,
+                    color: Colors.white,
+                    child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Text(
+                            AppLocalizations.of(context)!.codeWithColonPattern(
+                                widget.client.code
+                            ),
+                            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)
+                        )
+                    )
+                ),
+                Card(
+                    elevation: 2,
+                    color: Colors.white,
+                    child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Text(
+                            AppLocalizations.of(context)!.waitTimeInMinutesPattern(
+                                widget.client.waitTimeInMinutes
+                            ),
+                            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)
+                        )
+                    )
+                ),
+                const SizedBox(height: 10),
+                Text(
+                    'Услуги:',
+                    style: const TextStyle(color: Colors.black, fontSize: 18)
+                ),
+                const SizedBox(height: 5)
+              ] + services,
+            )
+          ] + [_getButtons()],
+        )
       )
     );
+  }
+
+  Widget _getButtons() {
+    if (widget.onServe != null && widget.onReturn != null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+              padding: const EdgeInsets.all(16),
+              child: IconButton(
+                tooltip: AppLocalizations.of(context)!.deleteClient,
+                icon: const Icon(Icons.close, size: 35, color: Colors.grey),
+                onPressed: () => widget.onDelete(widget.client),
+              )
+          ),
+          Padding(
+              padding: const EdgeInsets.all(16),
+              child: IconButton(
+                tooltip: AppLocalizations.of(context)!.notify,
+                icon: const Icon(Icons.notifications, size: 35, color: Colors.grey),
+                onPressed: () => widget.onNotify(widget.client),
+              )
+          ),
+          Padding(
+              padding: const EdgeInsets.all(16),
+              child: IconButton(
+                tooltip: AppLocalizations.of(context)!.returnClientToQueue,
+                icon: const Icon(Icons.call_received, size: 35, color: Colors.grey),
+                onPressed: () => widget.onReturn!.call(widget.client),
+              )
+          ),
+          Padding(
+              padding: const EdgeInsets.all(16),
+              child: IconButton(
+                tooltip: AppLocalizations.of(context)!.finishServing,
+                icon: const Icon(Icons.done, size: 35, color: Colors.grey),
+                onPressed: () => widget.onServe!.call(widget.client),
+              )
+          )
+        ],
+      );
+    }
+    if (widget.onCall != null && widget.onChange != null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+              padding: const EdgeInsets.all(16),
+              child: IconButton(
+                tooltip: AppLocalizations.of(context)!.deleteClient,
+                icon: const Icon(Icons.close, size: 35, color: Colors.grey),
+                onPressed: () => widget.onDelete(widget.client),
+              )
+          ),
+          Padding(
+              padding: const EdgeInsets.all(16),
+              child: IconButton(
+                tooltip: AppLocalizations.of(context)!.notify,
+                icon: const Icon(Icons.notifications, size: 35, color: Colors.grey),
+                onPressed: () => widget.onNotify(widget.client),
+              )
+          ),
+          Padding(
+              padding: const EdgeInsets.all(16),
+              child: IconButton(
+                tooltip: AppLocalizations.of(context)!.callClient,
+                icon: const Icon(Icons.call_made, size: 35, color: Colors.grey),
+                onPressed: () => widget.onCall!.call(widget.client),
+              )
+          ),
+          Padding(
+              padding: const EdgeInsets.all(16),
+              child: IconButton(
+                tooltip: AppLocalizations.of(context)!.redirectClient,
+                icon: const Icon(Icons.track_changes, size: 35, color: Colors.grey),
+                onPressed: () => widget.onChange!.call(widget.client),
+              )
+          )
+        ],
+      );
+    }
+    throw Exception();
   }
 }

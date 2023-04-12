@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
+import 'package:queue_management_system_client/domain/models/locationnew/client.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/socket_interactor.dart';
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/location/board_model.dart';
-import '../../../domain/models/location/board_position.dart';
-import '../../../domain/models/location/board_queue.dart';
+import '../../../domain/models/locationnew/board.dart';
+import '../../../domain/models/locationnew/location_state.dart';
 import '../../router/routes_config.dart';
 
 class BoardWidget extends BaseWidget<BoardConfig> {
@@ -34,31 +34,29 @@ class _BoardState extends BaseState<BoardWidget, BoardLogicState, BoardCubit> {
       BoardLogicState state,
       BoardWidget widget
   ) {
-    List<BoardQueue> queues = state.board.queues;
-    if (queues.isEmpty) {
+    List<List<Client>> clientsColumns = state.board.clientsColumns;
+    if (clientsColumns.isEmpty) {
       return Row(children: const []);
     }
     int startIndex = state.page * state.config.columnsAmount;
     int lastIndex = startIndex + state.config.columnsAmount - 1;
-    List<BoardQueue> sublist = queues.sublist(
+    List<List<Client>> sublistColumns = clientsColumns.sublist(
         startIndex,
-        queues.length < lastIndex + 1
+        clientsColumns.length < lastIndex + 1
             ? null
             : lastIndex + 1
     );
 
     return Row(
-      children: sublist.asMap().map((i, queue) =>
+      children: sublistColumns.asMap().map((i, rows) =>
         MapEntry(
           i,
           Expanded(
             child: Container(
               color: i.isEven ? Colors.teal[100] : Colors.teal[200],
               child: Column(
-                children: [
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
+                children: rows.map((client) =>
+                  Expanded(
                     child: Card(
                       color: Colors.blueGrey,
                       shape: const RoundedRectangleBorder(
@@ -67,83 +65,65 @@ class _BoardState extends BaseState<BoardWidget, BoardLogicState, BoardCubit> {
                         )
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Text(
-                            queue.title,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18
-                            ),
-                          ),
-                        )
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Expanded(
-                    child: ListView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, nestedIndex) {
-                        BoardPosition boardPosition = state
-                          .board
-                          .queues[i]
-                          .positions[nestedIndex];
-                        return Card(
-                          color: Colors.blueGrey,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(8.0)
-                            )
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: Row(
-                              children: [
-                                Card(
-                                  color: Colors.blueGrey[300],
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      '${boardPosition.number}:',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18
-                                      ),
-                                    ),
-                                  ),
+                        padding: const EdgeInsets.all(4.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Card(
+                                color: Colors.blueGrey[300],
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        '${client.code}:',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 40
+                                        ),
+                                      )
+                                    )
+                                  )
                                 ),
-                                Expanded(
-                                  flex: 1,
-                                  child: Card(
-                                    color: Colors.blueGrey[300],
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Align(
-                                        alignment: Alignment.center,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Card(
+                                color: Colors.blueGrey[300],
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
                                         child: Text(
-                                          boardPosition.publicCode.toString(),
+                                          client.queue?.name ?? '-',
                                           style: const TextStyle(
                                             color: Colors.white,
-                                            fontSize: 18
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 40
                                           ),
                                         )
                                       )
                                     )
-                                  )
                                 )
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                      itemCount: queue.positions.length,
+                              )
+                            )
+                          ],
+                        ),
+                      ),
                     )
                   )
-                ],
+                ).toList() + [
+                  Expanded(
+                    flex: state.config.rowsAmount - rows.length,
+                    child: Container()
+                  )
+                ]
               ),
             ),
           ),
@@ -159,7 +139,7 @@ class _BoardState extends BaseState<BoardWidget, BoardLogicState, BoardCubit> {
 class BoardLogicState extends BaseLogicState {
 
   final BoardConfig config;
-  final BoardModel board;
+  final Board board;
   final int page;
 
   BoardLogicState({
@@ -178,7 +158,7 @@ class BoardLogicState extends BaseLogicState {
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    BoardModel? board,
+    Board? board,
     int? page
   }) => BoardLogicState(
       nextConfig: nextConfig,
@@ -194,7 +174,7 @@ class BoardLogicState extends BaseLogicState {
 @injectable
 class BoardCubit extends BaseCubit<BoardLogicState> {
 
-  static const String _locationTopic = '/topic/boards/';
+  static const String _locationTopic = '/topic/locations/';
 
   final LocationInteractor _locationInteractor;
   final SocketInteractor _socketInteractor;
@@ -208,9 +188,7 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
   ) : super(
       BoardLogicState(
           config: config,
-          board: BoardModel(
-            queues: []
-          ),
+          board: Board([]),
           page: 0
       )
   );
@@ -218,25 +196,25 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
   @override
   Future<void> onStart() async {
     showLoad();
-    await _locationInteractor.getLocationBoard(
+    await _locationInteractor.getLocationState(
         state.config.locationId
     )..onSuccess((result) {
-      emit(state.copy(board: result.data));
+      emit(state.copy(board: Board.fromLocationState(result.data, state.config.rowsAmount)));
       hideLoad();
     })..onError((result) {
       showError(result);
     });
 
-    _socketInteractor.connectToSocket<BoardModel>(
+    _socketInteractor.connectToSocket<LocationState>(
       _locationTopic + state.config.locationId.toString(),
       () => { /* Do nothing */ },
-      (board) => {
-        emit(state.copy(board: board))
+      (locationState) => {
+        emit(state.copy(board: Board.fromLocationState(locationState, state.config.rowsAmount)))
       },
       (error) => { /* Do nothing */ }
     );
 
-    _startSwitchPages();
+    _startSwitchingPages();
   }
 
   @override
@@ -248,10 +226,10 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
     return super.close();
   }
 
-  void _startSwitchPages() async {
+  void _startSwitchingPages() async {
     _timer = Timer.periodic(Duration(seconds: state.config.switchFrequency), (timer) {
       int nextPage = state.page + 1;
-      if (nextPage * state.config.columnsAmount >= state.board.queues.length) {
+      if (nextPage * state.config.columnsAmount >= state.board.clientsColumns.length) {
         emit(state.copy(page: 0));
       } else {
         emit(state.copy(page: state.page + 1));
