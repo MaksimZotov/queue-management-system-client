@@ -99,16 +99,6 @@ class LocationInteractorImpl extends LocationInteractor {
   }
 
   @override
-  Future<Result> enableLocation(int locationId) {
-    return _repository.enableLocation(locationId);
-  }
-
-  @override
-  Future<Result> disableLocation(int locationId) {
-    return _repository.disableLocation(locationId);
-  }
-
-  @override
   Future<Result> addClientInLocation(int locationId, AddClientRequest addClientRequest) {
     return _repository.addClientInLocation(locationId, addClientRequest);
   }

@@ -30,8 +30,6 @@ abstract class LocationInteractor {
   Future<Result<ContainerForList<SpecialistModel>>> getSpecialistsInLocation(int locationId);
   Future<Result<SpecialistModel>> createSpecialistInLocation(int locationId, CreateSpecialistRequest createSpecialistRequest);
   Future<Result> deleteSpecialistInLocation(int locationId, int specialistId);
-  Future<Result> enableLocation(int locationId);
-  Future<Result> disableLocation(int locationId);
   Future<Result> addClientInLocation(int locationId, AddClientRequest addClientRequest);
   Future<Result> changeClientInLocation(int locationId, ChangeClientRequest changeClientRequest);
 }

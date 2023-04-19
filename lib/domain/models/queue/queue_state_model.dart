@@ -12,7 +12,6 @@ class QueueStateModel {
   final bool? hasRights;
   @JsonKey(name: 'owner_email')
   final String? ownerEmail;
-  final bool? enabled;
   final List<int> services;
 
   QueueStateModel({
@@ -21,7 +20,6 @@ class QueueStateModel {
     this.description,
     this.hasRights,
     this.ownerEmail,
-    this.enabled,
     required this.services
   });
 

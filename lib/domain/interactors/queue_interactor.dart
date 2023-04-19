@@ -11,8 +11,6 @@ abstract class QueueInteractor {
   Future<Result<QueueModel>> createQueue(int locationId, CreateQueueRequest createQueueRequest);
   Future<Result> deleteQueue(int queueId);
   Future<Result<QueueStateModel>> getQueueState(int queueId);
-  Future<Result> enableQueue(int queueId);
-  Future<Result> disableQueue(int queueId);
   Future<Result> serveClientInQueue(ServeClientRequest serveClientRequest);
   Future<Result> callClientInQueue(int queueId, int clientId);
   Future<Result> returnClientToQueue(int queueId, int clientId);

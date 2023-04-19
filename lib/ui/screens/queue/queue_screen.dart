@@ -46,22 +46,7 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
       QueueWidget widget
   ) => Scaffold(
     appBar: AppBar(
-      title: Text(state.queueStateModel.name),
-        actions: state.queueStateModel.enabled != null
-            ? [
-              IconButton(
-                  tooltip: state.queueStateModel.enabled == true
-                      ? getLocalizations(context).turnOffQueue
-                      : getLocalizations(context).turnOnQueue,
-                  icon: Icon(
-                      state.queueStateModel.enabled == true
-                          ? Icons.bedtime_off
-                          : Icons.bedtime
-                  ),
-                  onPressed: getCubitInstance(context).changeQueueEnableState
-              )
-            ]
-            : null
+      title: Text(state.queueStateModel.name)
     ),
     body: Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -286,26 +271,6 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
       ..onError((result) {
         showError(result);
       });
-  }
-
-  Future<void> changeQueueEnableState() async {
-    Result result;
-    if (state.queueStateModel.enabled == true) {
-      result = await _queueInteractor.disableQueue(state.config.queueId);
-    } else {
-      result = await _queueInteractor.enableQueue(state.config.queueId);
-    }
-    result..onSuccess((value) async {
-      await _queueInteractor.getQueueState(
-          state.config.queueId
-      )..onSuccess((result) {
-        emit(state.copy(queueStateModel: result.data));
-      })..onError((result) {
-        showError(result);
-      });
-    })..onError((result) {
-      showError(result);
-    });
   }
 
   @override

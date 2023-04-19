@@ -177,18 +177,8 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result> deleteSpecialistInLocation(int locationId, int SpecialistId) {
-    return _serverApi.deleteSpecialistInLocation(locationId, SpecialistId);
-  }
-
-  @override
-  Future<Result> enableLocation(int locationId) {
-    return _serverApi.enableLocation(locationId);
-  }
-
-  @override
-  Future<Result> disableLocation(int locationId) {
-    return _serverApi.disableLocation(locationId);
+  Future<Result> deleteSpecialistInLocation(int locationId, int specialistId) {
+    return _serverApi.deleteSpecialistInLocation(locationId, specialistId);
   }
 
   @override
@@ -233,16 +223,6 @@ class RepositoryImpl extends Repository {
   @override
   Future<Result<QueueStateModel>> getQueueState(int queueId) {
     return _serverApi.getQueueState(queueId);
-  }
-
-  @override
-  Future<Result> enableQueue(int queueId) {
-    return _serverApi.enableQueue(queueId);
-  }
-
-  @override
-  Future<Result> disableQueue(int queueId) {
-    return _serverApi.disableQueue(queueId);
   }
 
   @override

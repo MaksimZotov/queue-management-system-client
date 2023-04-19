@@ -37,16 +37,6 @@ class QueueInteractorImpl extends QueueInteractor {
   }
 
   @override
-  Future<Result> enableQueue(int queueId) {
-    return _repository.enableQueue(queueId);
-  }
-
-  @override
-  Future<Result> disableQueue(int queueId) {
-    return _repository.disableQueue(queueId);
-  }
-
-  @override
   Future<Result> notifyClientInQueue(int queueId, int clientId) {
     return _repository.notifyClientInQueue(queueId, clientId);
   }

@@ -347,18 +347,6 @@ class ServerApi {
       )
   );
 
-  Future<Result> enableQueue(int queueId) => _execRequest(
-      request: _dioApi.post(
-          '$url/queues/$queueId/enable'
-      )
-  );
-
-  Future<Result> disableQueue(int queueId) => _execRequest(
-      request: _dioApi.post(
-          '$url/queues/$queueId/disable'
-      )
-  );
-
   Future<Result> serveClientInQueue(ServeClientRequest serveClientRequest) => _execRequest(
       request: _dioApi.post(
           '$url/queues/serve',
