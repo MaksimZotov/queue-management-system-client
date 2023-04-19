@@ -36,7 +36,7 @@ import '../main/main.dart';
 class StatesAssembler {
   const StatesAssembler._();
 
-  InitialCubit getInitialCubit() => getIt.get();
+  InitialCubit getInitialCubit(InitialConfig config) => getIt.get(param1: config);
   RegistrationCubit getRegistrationCubit() => getIt.get();
   ConfirmRegistrationCubit getConfirmRegistrationCubit(ConfirmRegistrationConfig config) => getIt.get(param1: config);
   AuthorizationCubit getAuthorizationCubit() => getIt.get();

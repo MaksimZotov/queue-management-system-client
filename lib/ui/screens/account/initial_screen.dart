@@ -9,20 +9,6 @@ import '../../../domain/interactors/account_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 
-import 'package:flutter/services.dart';
-
-class KioskMode {
-  static const platform = MethodChannel('kioskModeLocked');
-
-  static startKioskMode() async {
-    await platform.invokeMethod('startKioskMode');
-  }
-
-  static stopKioskMode() async {
-    await platform.invokeMethod('stopKioskMode');
-  }
-}
-
 class InitialWidget extends BaseWidget<InitialConfig> {
 
   const InitialWidget({
@@ -64,14 +50,12 @@ class InitialState extends BaseState<
                 ButtonWidget(
                   text: getLocalizations(context).authorization,
                   onClick: () {
-                    //KioskMode.startKioskMode();//
                     widget.emitConfig(AuthorizationConfig());
                   },
                 ),
                 ButtonWidget(
                   text: getLocalizations(context).registration,
                   onClick: () {
-                    //KioskMode.stopKioskMode();//
                     widget.emitConfig(RegistrationConfig());
                   },
                 ),
@@ -82,7 +66,7 @@ class InitialState extends BaseState<
   );
 
   @override
-  InitialCubit getCubit() => statesAssembler.getInitialCubit();
+  InitialCubit getCubit() => statesAssembler.getInitialCubit(widget.config);
 }
 
 enum InitialStateEnum {
@@ -91,11 +75,14 @@ enum InitialStateEnum {
 
 class InitialLogicState extends BaseLogicState {
 
+  final InitialConfig config;
+
   InitialLogicState({
     super.nextConfig,
     super.error,
     super.snackBar,
     super.loading = true,
+    required this.config,
   });
 
   @override
@@ -108,7 +95,8 @@ class InitialLogicState extends BaseLogicState {
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
-      loading: loading ?? this.loading
+      loading: loading ?? this.loading,
+      config: config
   );
 }
 
@@ -120,11 +108,16 @@ class InitialCubit extends BaseCubit<InitialLogicState> {
   InitialCubit(
      this._locationInteractor,
      this._accountInteractor,
-  ) : super(InitialLogicState());
+      @factoryParam InitialConfig config
+  ) : super(
+      InitialLogicState(
+        config: config
+      )
+  );
 
   @override
   Future<void> onStart() async {
-    if (await _accountInteractor.checkToken()) {
+    if (state.config.firstLaunch && await _accountInteractor.checkToken()) {
       int? accountId = await _accountInteractor.getCurrentAccountId();
       if (accountId != null) {
         await _locationInteractor.checkIsOwner(accountId)
