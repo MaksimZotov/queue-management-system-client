@@ -1,4 +1,4 @@
-import 'client_in_queue_model.dart';
+import '../client/client_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'queue_state_model.g.dart';

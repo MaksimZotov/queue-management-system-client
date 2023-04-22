@@ -24,6 +24,7 @@ import 'package:stomp_dart_client/stomp_frame.dart';
 
 import '../../domain/models/base/result.dart';
 import '../../domain/models/client/change_client_request.dart';
+import '../../domain/models/client/client_model.dart';
 import '../../domain/models/client/serve_client_request.dart';
 import '../../domain/models/location/service_model.dart';
 import '../../domain/models/client/add_client_request.dart';
@@ -296,7 +297,8 @@ class ServerApi {
       )
   );
 
-  Future<Result> addClientInLocation(int locationId, AddClientRequest addClientRequest) => _execRequest(
+  Future<Result<ClientModel>> addClientInLocation(int locationId, AddClientRequest addClientRequest) => _execRequest(
+      fromJson: ClientModel.fromJson,
       request: _dioApi.post(
           '$url/locations/$locationId/clients/add',
           data: addClientRequest.toJson()

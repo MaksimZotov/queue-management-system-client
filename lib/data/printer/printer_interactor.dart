@@ -1,35 +1,38 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:flutter/services.dart';
+import 'package:flutter_usb_printer/flutter_usb_printer.dart';
 import 'package:injectable/injectable.dart';
-import 'package:esc_pos_printer/esc_pos_printer.dart';
-import 'package:esc_pos_utils/esc_pos_utils.dart';
 
 @lazySingleton
 class PrinterInteractor {
 
-  Future<bool> print(String ipAddress, String port) async {
-    const PaperSize paper = PaperSize.mm80;
-    final CapabilityProfile profile = await CapabilityProfile.load();
-    final NetworkPrinter printer = NetworkPrinter(paper, profile);
+  final FlutterUsbPrinter flutterUsbPrinter = FlutterUsbPrinter();
 
-    int? portInt = int.tryParse(port);
-    if (portInt == null) {
-      return false;
-    }
-
-    final PosPrintResult res = await printer.connect(
-        ipAddress,
-        port: portInt
-    );
-
-    if (res == PosPrintResult.success) {
-      test(printer);
-      printer.disconnect();
-      return true;
-    }
-    return false;
+  Future<void> print(String text, int code) async {
+    try {
+      await flutterUsbPrinter.write(
+          Uint8List.fromList(utf8.encode("$text\n$code"))
+      );
+    } on PlatformException { /* Do nothing */ }
   }
 
-  void test(NetworkPrinter printer) {
-    printer.text('Regular: aA bB cC dD eE fF gG hH iI jJ kK lL mM nN oO pP qQ rR sS tT uU vV wW xX yY zZ');
-    printer.cut();
+  Future<bool> connectToPrinter() async {
+    try {
+      List<Map<String, dynamic>> results = await FlutterUsbPrinter.getUSBDeviceList();
+      if (results.length != 1) {
+        return false;
+      }
+      Map<String, dynamic> device = results[0];
+      int? vendorId = int.tryParse(device['vendorId']);
+      int? productId = int.tryParse(device['productId']);
+      if (vendorId == null || productId == null) {
+        return false;
+      }
+      return await flutterUsbPrinter.connect(vendorId, productId) ?? false;
+    } on PlatformException {
+      return false;
+    }
   }
 }

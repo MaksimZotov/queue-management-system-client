@@ -124,6 +124,21 @@
 "port": "Порт",
 "assign": "Назначить",
 "redirectClient": "Перенаправить клиента",
+"copyLink": "Скопировать ссылку",
+"locationLinkCopied": "Ссылка на локацию скопирована",
+"printer": "Принтер",
+"switchToKioskError": "Не удалось переключиться в режим киоска",
+"yourTicketNumberWithColon": "Номер вашего талона:",
+"close": "Закрыть",
+
+"yourTicketNumberWithColonPattern": "Номер вашего талона: {code}",
+"@yourTicketNumberWithColonPattern": {
+  "placeholders": {
+    "code": {
+      "type": "int"
+    }
+  }
+},
 
 "codeWithColonPattern": "Код: {code}",
 "@codeWithColonPattern": {

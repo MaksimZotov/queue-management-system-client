@@ -1,10 +1,11 @@
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/domain/enums/kiosk_mode.dart';
 import 'package:queue_management_system_client/domain/interactors/kiosk_interactor.dart';
-import 'package:queue_management_system_client/domain/models/kiosk/printer_data.dart';
 import 'package:queue_management_system_client/ui/extensions/kiosk/kiosk_mode_extensions.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
@@ -16,7 +17,6 @@ import '../../../dimens.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/kiosk/kiosk_state.dart';
 import '../../router/routes_config.dart';
-import '../../widgets/text_field_widget.dart';
 
 class SwitchToKioskConfig extends BaseDialogConfig {
   final int accountId;
@@ -52,7 +52,6 @@ class _SwitchToKioskState extends BaseDialogState<
     SwitchToKioskLogicState,
     SwitchToKioskCubit
 > {
-
 
   @override
   String getTitle(
@@ -112,28 +111,54 @@ class _SwitchToKioskState extends BaseDialogState<
             ),
           ),
         ],
-      ),
+      )
+    ] + (defaultTargetPlatform == TargetPlatform.android ? [
       const SizedBox(height: Dimens.contentMargin),
-      TextFieldWidget(
-          label: getLocalizations(context).ipAddress,
-          text: state.ipAddress,
-          onTextChanged: getCubitInstance(context).setIpAddress
+      Row(
+        children: [
+          Expanded(
+              flex: 1,
+              child: Text(
+                  getLocalizations(context).printer,
+                  style: const TextStyle(
+                      fontSize: 16
+                  )
+              )
+          ),
+          Transform.translate(
+            offset: const Offset(10, 0),
+            child: Switch(
+              activeColor: Colors.teal,
+              activeTrackColor: Colors.cyan,
+              inactiveThumbColor: Colors.blueGrey.shade600,
+              inactiveTrackColor: Colors.grey.shade400,
+              splashRadius: 0,
+              value: state.printerEnabled,
+              onChanged: getCubitInstance(context).setPrinterEnabled,
+            ),
+          ),
+        ],
       ),
-      const SizedBox(height: Dimens.contentMargin),
-      TextFieldWidget(
-          label: getLocalizations(context).port,
-          text: state.port,
-          onTextChanged: getCubitInstance(context).setPort
-      ),
-      const SizedBox(height: Dimens.contentMargin * 2),
+    ] : []) + [
+      const SizedBox(height: Dimens.contentMargin * 2)
+    ] + (defaultTargetPlatform == TargetPlatform.android ? [
       ButtonWidget(
           text: getLocalizations(context).switchButton,
-          onClick: getCubitInstance(context).switchToKiosk
+          onClick: () => getCubitInstance(context).switchToKiosk(
+              getLocalizations(context).switchToKioskError
+          )
+      )
+    ] : []) + [
+      ButtonWidget(
+          text: getLocalizations(context).copyLink,
+          onClick: () => getCubitInstance(context).copyLink(
+              getLocalizations(context).locationLinkCopied
+          )
       ),
       ButtonWidget(
           text: getLocalizations(context).downloadQrCode,
           onClick: getCubitInstance(context).downloadQrCode
-      ),
+      )
     ];
   }
 
@@ -151,8 +176,7 @@ class SwitchToKioskLogicState extends BaseDialogLogicState<
   final bool multipleSelect;
   final bool multipleSelectDisabled;
   final bool? prevMultipleSelect;
-  final String ipAddress;
-  final String port;
+  final bool printerEnabled;
 
   SwitchToKioskLogicState({
     super.nextConfig,
@@ -164,8 +188,7 @@ class SwitchToKioskLogicState extends BaseDialogLogicState<
     required this.selectedMode,
     required this.multipleSelect,
     required this.multipleSelectDisabled,
-    required this.ipAddress,
-    required this.port,
+    required this.printerEnabled,
     this.prevMultipleSelect
   });
 
@@ -180,8 +203,7 @@ class SwitchToKioskLogicState extends BaseDialogLogicState<
     bool? multipleSelect,
     bool? multipleSelectDisabled,
     bool? prevMultipleSelect,
-    String? ipAddress,
-    String? port
+    bool? printerEnabled
   }) => SwitchToKioskLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -193,8 +215,7 @@ class SwitchToKioskLogicState extends BaseDialogLogicState<
       multipleSelect: multipleSelect ?? this.multipleSelect,
       multipleSelectDisabled: multipleSelectDisabled ?? this.multipleSelectDisabled,
       prevMultipleSelect: prevMultipleSelect ?? this.prevMultipleSelect,
-      ipAddress: ipAddress ?? this.ipAddress,
-      port: port ?? this.port,
+      printerEnabled: printerEnabled ?? this.printerEnabled
   );
 }
 
@@ -212,30 +233,20 @@ class SwitchToKioskCubit extends BaseDialogCubit<SwitchToKioskLogicState> {
           selectedMode: KioskMode.all,
           multipleSelect: true,
           multipleSelectDisabled: false,
-          ipAddress: "",
-          port: ""
+          printerEnabled: false
       )
   );
 
   @override
   Future<void> onStart() async {
     showLoad();
-    PrinterData printerData = await _kioskInteractor.getPrinterData();
+    bool printerEnabled = await _kioskInteractor.getPrinterEnabled();
     emit(
         state.copy(
-          ipAddress: printerData.ip,
-          port: printerData.port?.toString()
+          printerEnabled: printerEnabled && defaultTargetPlatform == TargetPlatform.android
         )
     );
     hideLoad();
-  }
-
-  void setIpAddress(String text) {
-    emit(state.copy(ipAddress: text));
-  }
-
-  void setPort(String text) {
-    emit(state.copy(port: text));
   }
 
   void selectMode(KioskMode? mode) {
@@ -258,27 +269,41 @@ class SwitchToKioskCubit extends BaseDialogCubit<SwitchToKioskLogicState> {
     );
   }
 
-  Future<void> switchToKiosk() async {
-    await _kioskInteractor.enableKioskMode(
-      PrinterData(
-          ip: state.ipAddress,
-          port: state.port
-      )
-    );
-    popResult(
-        SwitchToKioskResult(
-            kioskState: KioskState(
-              kioskMode: state.selectedMode,
-              multipleSelect: state.multipleSelect
-            )
+  void setPrinterEnabled(bool enabled) {
+    emit(
+        state.copy(
+            printerEnabled: !enabled && defaultTargetPlatform == TargetPlatform.android
         )
     );
   }
 
+  Future<void> switchToKiosk(String errorMessage) async {
+    bool kioskModeEnabled = await _kioskInteractor.enableKioskMode(
+        state.printerEnabled
+    );
+    if (kioskModeEnabled) {
+      popResult(
+          SwitchToKioskResult(
+              kioskState: KioskState(
+                  kioskMode: state.selectedMode,
+                  multipleSelect: state.multipleSelect
+              )
+          )
+      );
+    } else {
+      emit(state.copy(snackBar: errorMessage));
+    }
+  }
+
+  Future<void> copyLink(String notificationText) async {
+    await Clipboard.setData(
+        ClipboardData(text: _getLocationUrl())
+    );
+    emit(state.copy(snackBar: notificationText));
+  }
+
   Future<void> downloadQrCode() async {
-    int accountId = state.config.accountId;
-    int locationId = state.config.locationId;
-    String url = '${ServerApi.clientUrl}/accounts/$accountId/locations/$locationId?mode=${state.selectedMode.name}&multiple=${state.multipleSelect}';
+    String url = _getLocationUrl();
 
     final image = await QrPainter(
       data: url,
@@ -296,5 +321,11 @@ class SwitchToKioskCubit extends BaseDialogCubit<SwitchToKioskLogicState> {
           mimeType: MimeType.PNG
       );
     }
+  }
+
+  String _getLocationUrl() {
+    int accountId = state.config.accountId;
+    int locationId = state.config.locationId;
+    return '${ServerApi.clientUrl}/accounts/$accountId/locations/$locationId?mode=${state.selectedMode.name}&multiple=${state.multipleSelect}';
   }
 }

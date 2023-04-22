@@ -6,7 +6,7 @@ class AndroidNativeInteractor {
   final MethodChannel _lockTaskChannel = const MethodChannel('lockTaskChannel');
 
   Future<void> enableLockTask() async {
-    //await _lockTaskChannel.invokeMethod('enableLockTask');
+    await _lockTaskChannel.invokeMethod('enableLockTask');
   }
 
   Future<void> disableLockTask() async {

@@ -5,9 +5,9 @@ import 'package:queue_management_system_client/domain/models/client/change_clien
 import 'package:queue_management_system_client/domain/models/location/create_specialist_request.dart';
 
 import '../../domain/models/base/result.dart';
+import '../../domain/models/client/client_model.dart';
 import '../../domain/models/client/queue_state_for_client_model.dart';
 import '../../domain/models/client/serve_client_request.dart';
-import '../../domain/models/kiosk/printer_data.dart';
 import '../../domain/models/location/create_location_request.dart';
 import '../../domain/models/location/create_service_request.dart';
 import '../../domain/models/location/create_services_sequence_request.dart';
@@ -53,7 +53,7 @@ abstract class Repository {
   Future<Result<ContainerForList<SpecialistModel>>> getSpecialistsInLocation(int locationId);
   Future<Result<SpecialistModel>> createSpecialistInLocation(int locationId, CreateSpecialistRequest createSpecialistRequest);
   Future<Result> deleteSpecialistInLocation(int locationId, int specialistId);
-  Future<Result> addClientInLocation(int locationId, AddClientRequest addClientRequest);
+  Future<Result<ClientModel>> addClientInLocation(int locationId, AddClientRequest addClientRequest, String ticketNumberText);
   Future<Result> changeClientInLocation(int locationId, ChangeClientRequest changeClientRequest);
   // <======================== Location ========================>
 
@@ -84,8 +84,8 @@ abstract class Repository {
   // <======================== Rights ========================>
 
   // <======================== Kiosk ========================>
-  Future<void> enableKioskMode(PrinterData printerDate);
-  Future<PrinterData> getPrinterData();
+  Future<bool> enableKioskMode(bool printerEnabled);
+  Future<bool> getPrinterEnabled();
   // <======================== Kiosk ========================>
 
   // <======================== Socket ========================>

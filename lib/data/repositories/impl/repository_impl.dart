@@ -1,12 +1,14 @@
 import 'dart:ui';
 
 import 'package:flutter/src/foundation/basic_types.dart';
+import 'package:flutter_usb_printer/flutter_usb_printer.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/data/repositories/repository.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
 import 'package:queue_management_system_client/domain/models/client/add_client_request.dart';
 import 'package:queue_management_system_client/domain/models/client/change_client_request.dart';
+import 'package:queue_management_system_client/domain/models/client/client_model.dart';
 import 'package:queue_management_system_client/domain/models/client/queue_state_for_client_model.dart';
 import 'package:queue_management_system_client/domain/models/location/create_specialist_request.dart';
 import 'package:queue_management_system_client/domain/models/location/create_service_request.dart';
@@ -20,7 +22,6 @@ import 'package:queue_management_system_client/domain/models/rights/rights_model
 
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/client/serve_client_request.dart';
-import '../../../domain/models/kiosk/printer_data.dart';
 import '../../../domain/models/location/create_location_request.dart';
 import '../../../domain/models/location/service_model.dart';
 import '../../../domain/models/account/confirm_model.dart';
@@ -182,14 +183,19 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result> addClientInLocation(int locationId, AddClientRequest addClientRequest) async {
-    Result result = await _serverApi.addClientInLocation(locationId, addClientRequest);
+  Future<Result<ClientModel>> addClientInLocation(int locationId, AddClientRequest addClientRequest, String ticketNumberText) async {
+    Result<ClientModel> result = await _serverApi.addClientInLocation(locationId, addClientRequest);
     result.onSuccess((result) async {
-      PrinterData printerData = await _sharedPreferencesStorage.getPrinterData();
-      _printerInteractor.print(
-        printerData.ip,
-        printerData.port
-      );
+      bool printerEnabled = await _sharedPreferencesStorage.getPrinterEnabled();
+      if (printerEnabled) {
+        int? code = result.data.code;
+        if (code != null) {
+          _printerInteractor.print(
+              ticketNumberText,
+              code
+          );
+        }
+      }
     });
     return result;
   }
@@ -308,14 +314,18 @@ class RepositoryImpl extends Repository {
 
   // <======================== Kiosk ========================>
   @override
-  Future<PrinterData> getPrinterData() {
-    return _sharedPreferencesStorage.getPrinterData();
+  Future<bool> getPrinterEnabled() {
+    return _sharedPreferencesStorage.getPrinterEnabled();
   }
 
   @override
-  Future<void> enableKioskMode(PrinterData printerDate) async {
+  Future<bool> enableKioskMode(bool printerEnabled) async {
     await _androidNativeInteractor.enableLockTask();
-    return _sharedPreferencesStorage.setPrinterData(printerDate);
+    await _sharedPreferencesStorage.setPrinterEnabled(printerEnabled);
+    if (printerEnabled) {
+      return _printerInteractor.connectToPrinter();
+    }
+    return true;
   }
   // <======================== Kiosk ========================>
 

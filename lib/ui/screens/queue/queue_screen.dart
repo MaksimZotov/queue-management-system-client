@@ -9,7 +9,7 @@ import 'package:queue_management_system_client/domain/interactors/queue_interact
 import 'package:queue_management_system_client/domain/models/base/result.dart';
 import 'package:queue_management_system_client/domain/models/client/serve_client_request.dart';
 import 'package:queue_management_system_client/domain/models/locationnew/location_state.dart';
-import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
+import 'package:queue_management_system_client/domain/models/client/client_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_state_model.dart';
 import 'package:queue_management_system_client/ui/screens/account/initial_screen.dart';
 import 'package:queue_management_system_client/ui/widgets/client_item_widget.dart';

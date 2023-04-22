@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/interactors/client_interactor.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/domain/models/client/add_client_request.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
-import '../../../domain/interactors/account_interactor.dart';
-import '../../../domain/models/account/confirm_model.dart';
-import '../../../domain/models/account/login_model.dart';
 import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/text_field_widget.dart';
@@ -60,18 +57,34 @@ class _AddClientState extends BaseDialogState<
       BuildContext context,
       AddClientLogicState state,
       AddClientWidget widget
-  ) => [
-    TextFieldWidget(
-        label: getLocalizations(context).email,
-        text: state.email,
-        onTextChanged: getCubitInstance(context).setEmail
-    ),
-    const SizedBox(height: Dimens.contentMargin),
-    ButtonWidget(
-        text: getLocalizations(context).connect,
-        onClick: getCubitInstance(context).connect
-    )
-  ];
+  ) => state.clientAdded ? [
+      Text(
+          getLocalizations(context).yourTicketNumberWithColonPattern(
+              state.ticketCode
+          )
+      ),
+      const SizedBox(height: Dimens.contentMargin),
+      ButtonWidget(
+          text: getLocalizations(context).close,
+          onClick: () => Navigator.of(context).pop()
+      )
+    ] : (
+      (defaultTargetPlatform != TargetPlatform.android ? [
+        TextFieldWidget(
+            label: getLocalizations(context).email,
+            text: state.email,
+            onTextChanged: getCubitInstance(context).setEmail
+        )
+      ] : <Widget>[]) + [
+        const SizedBox(height: Dimens.contentMargin),
+        ButtonWidget(
+            text: getLocalizations(context).connect,
+            onClick: () => getCubitInstance(context).connect(
+                getLocalizations(context).yourTicketNumberWithColon
+            )
+        )
+      ]
+  );
 
   @override
   AddClientCubit getCubit() =>
@@ -85,6 +98,9 @@ class AddClientLogicState extends BaseDialogLogicState<
 
   final String email;
 
+  final bool clientAdded;
+  final int ticketCode;
+
   AddClientLogicState({
     super.nextConfig,
     super.error,
@@ -92,7 +108,9 @@ class AddClientLogicState extends BaseDialogLogicState<
     super.loading,
     required super.config,
     super.result,
-    required this.email
+    required this.email,
+    required this.clientAdded,
+    required this.ticketCode
   });
 
   @override
@@ -103,8 +121,8 @@ class AddClientLogicState extends BaseDialogLogicState<
     bool? loading,
     AddClientResult? result,
     String? email,
-    String? firstName,
-    String? lastName
+    bool? clientAdded,
+    int? ticketCode,
   }) => AddClientLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -112,7 +130,9 @@ class AddClientLogicState extends BaseDialogLogicState<
       loading: loading ?? this.loading,
       config: config,
       result: result,
-      email: email ?? this.email
+      email: email ?? this.email,
+      clientAdded: clientAdded ?? this.clientAdded,
+      ticketCode: ticketCode ?? this.ticketCode
   );
 }
 
@@ -129,7 +149,9 @@ class AddClientCubit extends BaseDialogCubit<
   ) : super(
       AddClientLogicState(
           config: config,
-          email: ''
+          email: '',
+          clientAdded: false,
+          ticketCode: -1
       )
   );
 
@@ -137,18 +159,25 @@ class AddClientCubit extends BaseDialogCubit<
     emit(state.copy(email: text));
   }
 
-  Future<void> connect() async {
+  Future<void> connect(String yourTicketNumberWithColon) async {
     showLoad();
     await _locationInteractor.addClientInLocation(
         state.config.locationId,
         AddClientRequest(
             email: state.email,
             serviceIds: state.config.serviceIds,
-            servicesSequenceId: state.config.servicesSequenceId
-        )
+            servicesSequenceId: state.config.servicesSequenceId,
+            confirmationRequired: defaultTargetPlatform != TargetPlatform.android
+        ),
+        yourTicketNumberWithColon
     )
       ..onSuccess((result) async {
-        popResult(AddClientResult());
+        int? code = result.data.code;
+        if (code != null) {
+          emit(state.copy(clientAdded: true, ticketCode: code));
+        } else {
+          popResult(AddClientResult());
+        }
       })
       ..onError((result) {
         showError(result);

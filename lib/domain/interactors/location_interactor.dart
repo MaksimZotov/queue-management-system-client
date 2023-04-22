@@ -3,6 +3,7 @@ import 'package:queue_management_system_client/domain/models/client/change_clien
 import '../models/base/container_for_list.dart';
 import '../models/base/result.dart';
 import '../models/client/add_client_request.dart';
+import '../models/client/client_model.dart';
 import '../models/location/create_location_request.dart';
 import '../models/location/create_specialist_request.dart';
 import '../models/location/create_service_request.dart';
@@ -30,6 +31,6 @@ abstract class LocationInteractor {
   Future<Result<ContainerForList<SpecialistModel>>> getSpecialistsInLocation(int locationId);
   Future<Result<SpecialistModel>> createSpecialistInLocation(int locationId, CreateSpecialistRequest createSpecialistRequest);
   Future<Result> deleteSpecialistInLocation(int locationId, int specialistId);
-  Future<Result> addClientInLocation(int locationId, AddClientRequest addClientRequest);
+  Future<Result<ClientModel>> addClientInLocation(int locationId, AddClientRequest addClientRequest, String ticketNumberText);
   Future<Result> changeClientInLocation(int locationId, ChangeClientRequest changeClientRequest);
 }
