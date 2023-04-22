@@ -57,7 +57,7 @@ class _AddClientState extends BaseDialogState<
       BuildContext context,
       AddClientLogicState state,
       AddClientWidget widget
-  ) => state.clientAdded ? [
+  ) => state.clientAdded ? <Widget>[
       Text(
           getLocalizations(context).yourTicketNumberWithColonPattern(
               state.ticketCode
@@ -69,13 +69,13 @@ class _AddClientState extends BaseDialogState<
           onClick: () => Navigator.of(context).pop()
       )
     ] : (
-      (defaultTargetPlatform != TargetPlatform.android ? [
+      (defaultTargetPlatform != TargetPlatform.android ? <Widget>[
         TextFieldWidget(
             label: getLocalizations(context).email,
             text: state.email,
             onTextChanged: getCubitInstance(context).setEmail
         )
-      ] : <Widget>[]) + [
+      ] : <Widget>[]) + <Widget>[
         const SizedBox(height: Dimens.contentMargin),
         ButtonWidget(
             text: getLocalizations(context).connect,
