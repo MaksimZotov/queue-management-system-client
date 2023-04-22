@@ -272,7 +272,7 @@ class SwitchToKioskCubit extends BaseDialogCubit<SwitchToKioskLogicState> {
   void setPrinterEnabled(bool enabled) {
     emit(
         state.copy(
-            printerEnabled: !enabled && defaultTargetPlatform == TargetPlatform.android
+            printerEnabled: enabled && defaultTargetPlatform == TargetPlatform.android
         )
     );
   }
