@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
@@ -61,12 +63,11 @@ class _AddClientState extends BaseDialogState<
       Text(
           getLocalizations(context).yourTicketNumberWithColonPattern(
               state.ticketCode
-          )
-      ),
-      const SizedBox(height: Dimens.contentMargin),
-      ButtonWidget(
-          text: getLocalizations(context).close,
-          onClick: () => Navigator.of(context).pop()
+          ),
+          style: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold
+          ),
       )
     ] : (
       (defaultTargetPlatform != TargetPlatform.android ? <Widget>[
@@ -175,6 +176,7 @@ class AddClientCubit extends BaseDialogCubit<
         int? code = result.data.code;
         if (code != null) {
           emit(state.copy(clientAdded: true, ticketCode: code));
+          hideLoad();
         } else {
           popResult(AddClientResult());
         }
