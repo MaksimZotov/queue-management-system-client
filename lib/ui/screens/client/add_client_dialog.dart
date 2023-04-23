@@ -162,13 +162,16 @@ class AddClientCubit extends BaseDialogCubit<
 
   Future<void> connect(String yourTicketNumberWithColon) async {
     showLoad();
+    bool confirmationRequired = defaultTargetPlatform != TargetPlatform.android;
     await _locationInteractor.addClientInLocation(
         state.config.locationId,
         AddClientRequest(
-            email: state.email,
+            email: confirmationRequired
+                ? state.email
+                : null,
             serviceIds: state.config.serviceIds,
             servicesSequenceId: state.config.servicesSequenceId,
-            confirmationRequired: defaultTargetPlatform != TargetPlatform.android
+            confirmationRequired: confirmationRequired
         ),
         yourTicketNumberWithColon
     )

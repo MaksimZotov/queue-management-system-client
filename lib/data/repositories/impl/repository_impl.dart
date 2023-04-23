@@ -324,7 +324,8 @@ class RepositoryImpl extends Repository {
     if (printerEnabled) {
       return _printerInteractor.connectToPrinter();
     }
-    return _androidNativeInteractor.enableLockTask();
+    return true;
+    //return _androidNativeInteractor.enableLockTask();
   }
   // <======================== Kiosk ========================>
 
