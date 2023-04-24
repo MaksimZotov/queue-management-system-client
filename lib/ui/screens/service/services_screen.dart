@@ -148,13 +148,19 @@ class _ServicesState extends BaseState<
         ),
         Container(height: 2, color: Colors.grey),
         const SizedBox(height: Dimens.contentMargin),
-        ButtonWidget(
-          text: getLocalizations(context).connect,
-          onClick: () => _showAddClientDialog(context, state, state.selectedServices),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: ButtonWidget(
+            text: getLocalizations(context).connect,
+            onClick: () => _showAddClientDialog(context, state, state.selectedServices)
+          )
         ),
-        ButtonWidget(
-          text: getLocalizations(context).cancel,
-          onClick: getCubitInstance(context).clearSelect,
+        Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: ButtonWidget(
+              text: getLocalizations(context).cancel,
+              onClick: getCubitInstance(context).clearSelect
+            )
         ),
         const SizedBox(height: Dimens.contentMargin),
       ],
