@@ -42,7 +42,7 @@
 "reserved": "Зарезервирован",
 "queueLengthWithColon": "В очереди:",
 "statusWithColon": "Статус:",
-"emailWithColon": "Почта:",
+"phoneWithColon": "Телефон:",
 "firstNameWithColon": "Имя:",
 "lastNameWithColon": "Фамилия:",
 "codeWithColon": "Код:",
@@ -130,6 +130,7 @@
 "switchToKioskError": "Не удалось переключиться в режим киоска",
 "yourTicketNumberWithColon": "Номер вашего талона:",
 "close": "Закрыть",
+"phone": "Телефон",
 
 "yourTicketNumberWithColonPattern": "Номер вашего талона: {code}",
 "@yourTicketNumberWithColonPattern": {

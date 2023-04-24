@@ -72,9 +72,9 @@ class _AddClientState extends BaseDialogState<
     ] : (
       (defaultTargetPlatform != TargetPlatform.android ? <Widget>[
         TextFieldWidget(
-            label: getLocalizations(context).email,
-            text: state.email,
-            onTextChanged: getCubitInstance(context).setEmail
+            label: getLocalizations(context).phone,
+            text: state.phone,
+            onTextChanged: getCubitInstance(context).setPhone
         )
       ] : <Widget>[]) + <Widget>[
         const SizedBox(height: Dimens.contentMargin),
@@ -97,7 +97,7 @@ class AddClientLogicState extends BaseDialogLogicState<
     AddClientResult
 > {
 
-  final String email;
+  final String phone;
 
   final bool clientAdded;
   final int ticketCode;
@@ -109,7 +109,7 @@ class AddClientLogicState extends BaseDialogLogicState<
     super.loading,
     required super.config,
     super.result,
-    required this.email,
+    required this.phone,
     required this.clientAdded,
     required this.ticketCode
   });
@@ -121,7 +121,7 @@ class AddClientLogicState extends BaseDialogLogicState<
     String? snackBar,
     bool? loading,
     AddClientResult? result,
-    String? email,
+    String? phone,
     bool? clientAdded,
     int? ticketCode,
   }) => AddClientLogicState(
@@ -131,7 +131,7 @@ class AddClientLogicState extends BaseDialogLogicState<
       loading: loading ?? this.loading,
       config: config,
       result: result,
-      email: email ?? this.email,
+      phone: phone ?? this.phone,
       clientAdded: clientAdded ?? this.clientAdded,
       ticketCode: ticketCode ?? this.ticketCode
   );
@@ -150,14 +150,14 @@ class AddClientCubit extends BaseDialogCubit<
   ) : super(
       AddClientLogicState(
           config: config,
-          email: '',
+          phone: '',
           clientAdded: false,
           ticketCode: -1
       )
   );
 
-  void setEmail(String text) {
-    emit(state.copy(email: text));
+  void setPhone(String text) {
+    emit(state.copy(phone: text));
   }
 
   Future<void> connect(String yourTicketNumberWithColon) async {
@@ -166,8 +166,8 @@ class AddClientCubit extends BaseDialogCubit<
     await _locationInteractor.addClientInLocation(
         state.config.locationId,
         AddClientRequest(
-            email: confirmationRequired
-                ? state.email
+            phone: confirmationRequired
+                ? state.phone
                 : null,
             serviceIds: state.config.serviceIds,
             servicesSequenceId: state.config.servicesSequenceId,

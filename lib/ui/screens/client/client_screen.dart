@@ -87,8 +87,8 @@ class _ClientState extends BaseState<
                               fieldValue: state.queueName ?? '-'
                           ),
                           ClientInfoFieldWidget(
-                              fieldName: getLocalizations(context).emailWithColon,
-                              fieldValue: state.clientState.email ?? '-'
+                              fieldName: getLocalizations(context).phoneWithColon,
+                              fieldValue: state.clientState.phone ?? '-'
                           ),
                           ClientInfoFieldWidget(
                               fieldName: getLocalizations(context).codeWithColon,
@@ -124,7 +124,7 @@ class ClientLogicState extends BaseLogicState {
 
   final ClientConfig config;
   final QueueStateForClientModel clientState;
-  final String email;
+  final String phone;
   final bool showConfirmDialog;
   final LocationState locationState;
 
@@ -147,7 +147,7 @@ class ClientLogicState extends BaseLogicState {
     super.loading,
     required this.config,
     required this.clientState,
-    required this.email,
+    required this.phone,
     required this.showConfirmDialog,
     required this.locationState
   });
@@ -160,7 +160,7 @@ class ClientLogicState extends BaseLogicState {
     bool? loading,
     List<LocationModel>? locations,
     QueueStateForClientModel? clientState,
-    String? email,
+    String? phone,
     bool? showConfirmDialog,
     LocationState? locationState,
   }) => ClientLogicState(
@@ -170,7 +170,7 @@ class ClientLogicState extends BaseLogicState {
       loading: loading ?? this.loading,
       config: config,
       clientState: clientState ?? this.clientState,
-      email: email ?? this.email,
+      phone: phone ?? this.phone,
       showConfirmDialog: showConfirmDialog ?? this.showConfirmDialog,
       locationState: locationState ?? this.locationState
   );
@@ -201,7 +201,7 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
             clientId: -1,
             locationId: -1
           ),
-          email: '',
+          phone: '',
           showConfirmDialog: false,
           locationState: LocationState(null, [])
       )
@@ -215,7 +215,7 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
         state.config.accessKey
     )
       ..onSuccess((result) {
-        emit(state.copy(clientState: result.data, email: result.data.email));
+        emit(state.copy(clientState: result.data, phone: result.data.phone));
         _connectToSocket();
         hideLoad();
       })
@@ -225,7 +225,7 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
             state.config.accessKey
         )
           ..onSuccess((result) {
-            emit(state.copy(clientState: result.data, email: result.data.email));
+            emit(state.copy(clientState: result.data, phone: result.data.phone));
             hideLoad();
             _connectToSocket();
           })

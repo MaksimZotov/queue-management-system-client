@@ -4,7 +4,7 @@ part 'add_client_request.g.dart';
 
 @JsonSerializable()
 class AddClientRequest {
-  final String? email;
+  final String? phone;
   @JsonKey(name: 'service_ids')
   final List<int>? serviceIds;
   @JsonKey(name: 'services_sequence_id')
@@ -13,7 +13,7 @@ class AddClientRequest {
   final bool confirmationRequired;
 
   AddClientRequest({
-    required this.email,
+    required this.phone,
     required this.serviceIds,
     required this.servicesSequenceId,
     required this.confirmationRequired

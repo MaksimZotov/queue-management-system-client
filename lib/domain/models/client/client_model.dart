@@ -6,13 +6,13 @@ part 'client_model.g.dart';
 @JsonSerializable()
 class ClientModel {
   final int id;
-  final String? email;
+  final String? phone;
   final int? code;
   final ClientInQueueStatus status;
 
   ClientModel({
     required this.id,
-    required this.email,
+    required this.phone,
     required this.code,
     required this.status
   });
