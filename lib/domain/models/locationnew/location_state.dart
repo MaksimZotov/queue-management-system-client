@@ -7,11 +7,14 @@ part 'location_state.g.dart';
 @JsonSerializable()
 class LocationState {
   final int? id;
-  List<Client> clients;
+  final List<Client> clients;
+  @JsonKey(name: 'created_at')
+  final DateTime createdAt;
 
   LocationState(
     this.id,
-    this.clients
+    this.clients,
+    this.createdAt
   );
 
   static LocationState fromJson(Map<String, dynamic> json) => _$LocationStateFromJson(json);

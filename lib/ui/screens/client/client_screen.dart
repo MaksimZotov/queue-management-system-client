@@ -124,7 +124,6 @@ class ClientLogicState extends BaseLogicState {
 
   final ClientConfig config;
   final QueueStateForClientModel clientState;
-  final String phone;
   final bool showConfirmDialog;
   final LocationState locationState;
 
@@ -147,7 +146,6 @@ class ClientLogicState extends BaseLogicState {
     super.loading,
     required this.config,
     required this.clientState,
-    required this.phone,
     required this.showConfirmDialog,
     required this.locationState
   });
@@ -160,7 +158,6 @@ class ClientLogicState extends BaseLogicState {
     bool? loading,
     List<LocationModel>? locations,
     QueueStateForClientModel? clientState,
-    String? phone,
     bool? showConfirmDialog,
     LocationState? locationState,
   }) => ClientLogicState(
@@ -170,7 +167,6 @@ class ClientLogicState extends BaseLogicState {
       loading: loading ?? this.loading,
       config: config,
       clientState: clientState ?? this.clientState,
-      phone: phone ?? this.phone,
       showConfirmDialog: showConfirmDialog ?? this.showConfirmDialog,
       locationState: locationState ?? this.locationState
   );
@@ -201,9 +197,8 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
             clientId: -1,
             locationId: -1
           ),
-          phone: '',
           showConfirmDialog: false,
-          locationState: LocationState(null, [])
+          locationState: LocationState(null, [], DateTime(0))
       )
   );
 
@@ -215,7 +210,7 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
         state.config.accessKey
     )
       ..onSuccess((result) {
-        emit(state.copy(clientState: result.data, phone: result.data.phone));
+        emit(state.copy(clientState: result.data));
         _connectToSocket();
         hideLoad();
       })
@@ -225,7 +220,7 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
             state.config.accessKey
         )
           ..onSuccess((result) {
-            emit(state.copy(clientState: result.data, phone: result.data.phone));
+            emit(state.copy(clientState: result.data));
             hideLoad();
             _connectToSocket();
           })
@@ -265,24 +260,27 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
   }
 
   Future<void> _connectToSocket() async {
-    await _locationInteractor.getLocationState(
-        state.clientState.locationId
-    )..onSuccess((result) {
-      _handleNewLocationState(result.data);
-    })..onError((result) {
-      showError(result);
-    });
     _socketInteractor.connectToSocket<LocationState>(
         _locationTopic + state.clientState.locationId.toString(),
-        () => { /* Do nothing */ },
+        () async => {
+          await _locationInteractor.getLocationState(
+              state.clientState.locationId
+          )..onSuccess((result) {
+              _handleNewLocationState(result.data);
+          })..onError((result) {
+              showError(result);
+          })
+        },
         _handleNewLocationState,
-        (error) => { /* Do nothing */ }
+        (error) => { }
     );
     _startUpdating();
   }
 
   void _handleNewLocationState(LocationState locationState) {
-    emit(state.copy(locationState: locationState));
+    if (locationState.createdAt.millisecondsSinceEpoch > state.locationState.createdAt.millisecondsSinceEpoch) {
+      emit(state.copy(locationState: locationState));
+    }
   }
 
   void _startUpdating() async {

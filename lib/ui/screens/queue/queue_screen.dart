@@ -200,7 +200,7 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
               name: '',
               services: []
           ),
-          locationState: LocationState(null, [])
+          locationState: LocationState(null, [], DateTime(0))
       )
   );
 
@@ -214,19 +214,19 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
       showError(result);
     });
 
-    await _locationInteractor.getLocationState(
-        state.config.locationId
-    )..onSuccess((result) {
-      _handleNewLocationState(result.data);
-    })..onError((result) {
-      showError(result);
-    });
-
     _socketInteractor.connectToSocket<LocationState>(
       _locationTopic + state.config.locationId.toString(),
-      () => { /* Do nothing */ },
+      () async => {
+        await _locationInteractor.getLocationState(
+            state.config.locationId
+        )..onSuccess((result) {
+            _handleNewLocationState(result.data);
+        })..onError((result) {
+            showError(result);
+        })
+      },
       _handleNewLocationState,
-      (error) => { /* Do nothing */ }
+      (error) => { }
     );
 
     _startUpdating();
@@ -283,12 +283,14 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
   }
 
   void _handleNewLocationState(LocationState locationState) {
-    emit(
-        state.copy(
-            locationState: locationState,
-            clients: locationState.clients
-        )
-    );
+    if (locationState.createdAt.millisecondsSinceEpoch > state.locationState.createdAt.millisecondsSinceEpoch) {
+      emit(
+          state.copy(
+              locationState: locationState,
+              clients: locationState.clients
+          )
+      );
+    }
   }
 
   void _startUpdating() async {
