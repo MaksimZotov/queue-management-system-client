@@ -3,8 +3,6 @@ import 'package:injectable/injectable.dart';
 import '../../../data/repositories/repository.dart';
 import '../../models/base/container_for_list.dart';
 import '../../models/base/result.dart';
-import '../../models/client/serve_client_request.dart';
-import '../../models/location/service_model.dart';
 import '../../models/queue/create_queue_request.dart';
 import '../../models/queue/queue_model.dart';
 import '../../models/queue/queue_state_model.dart';
@@ -34,35 +32,5 @@ class QueueInteractorImpl extends QueueInteractor {
   @override
   Future<Result<QueueStateModel>> getQueueState(int queueId) {
     return _repository.getQueueState(queueId);
-  }
-
-  @override
-  Future<Result> notifyClientInQueue(int queueId, int clientId) {
-    return _repository.notifyClientInQueue(queueId, clientId);
-  }
-
-  @override
-  Future<Result> serveClientInQueue(ServeClientRequest serveClientRequest) {
-    return _repository.serveClientInQueue(serveClientRequest);
-  }
-
-  @override
-  Future<Result> callClientInQueue(int queueId, int clientId) {
-    return _repository.callClientInQueue(queueId, clientId);
-  }
-
-  @override
-  Future<Result> returnClientToQueue(int queueId, int clientId) {
-    return _repository.returnClientToQueue(queueId, clientId);
-  }
-
-  @override
-  Future<Result<ContainerForList<ServiceModel>>> getServicesInQueue(int queueId) {
-    return _repository.getServicesInQueue(queueId);
-  }
-
-  @override
-  Future<Result<ContainerForList<ServiceModel>>> getServicesInSpecialist(int specialistId) {
-    return _repository.getServicesInSpecialist(specialistId);
   }
 }

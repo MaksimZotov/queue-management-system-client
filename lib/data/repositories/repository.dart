@@ -13,7 +13,7 @@ import '../../domain/models/location/create_service_request.dart';
 import '../../domain/models/location/create_services_sequence_request.dart';
 import '../../domain/models/location/check_is_owner_model.dart';
 import '../../domain/models/location/location_model.dart';
-import '../../domain/models/client/add_client_request.dart';
+import '../../domain/models/client/create_client_request.dart';
 import '../../domain/models/location/specialist_model.dart';
 import '../../domain/models/location/service_model.dart';
 import '../../domain/models/location/services_sequence_model.dart';
@@ -44,43 +44,52 @@ abstract class Repository {
   Future<Result> deleteLocation(int locationId);
   Future<Result<LocationModel>> getLocation(int locationId);
   Future<Result<LocationState>> getLocationState(int locationId);
+  // <======================== Location ========================>
+
+  // <======================== Service ========================>
   Future<Result<ContainerForList<ServiceModel>>> getServicesInLocation(int locationId);
+  Future<Result<ContainerForList<ServiceModel>>> getServicesInQueue(int queueId);
+  Future<Result<ContainerForList<ServiceModel>>> getServicesInSpecialist(int specialistId);
+  Future<Result<ContainerForList<ServiceModel>>> getServicesInServicesSequence(int servicesSequenceId);
   Future<Result<ServiceModel>> createServiceInLocation(int locationId, CreateServiceRequest createServiceRequest);
   Future<Result> deleteServiceInLocation(int locationId, int serviceId);
+  // <======================== Service ========================>
+
+  // <======================== ServicesSequence ========================>
   Future<Result<ContainerForList<ServicesSequenceModel>>> getServicesSequencesInLocation(int locationId);
   Future<Result<ServicesSequenceModel>> createServicesSequenceInLocation(int locationId, CreateServicesSequenceRequest createServicesSequenceRequest);
   Future<Result> deleteServicesSequenceInLocation(int locationId, int servicesSequence);
+  // <======================== ServicesSequence ========================>
+
+  // <======================== Specialist ========================>
   Future<Result<ContainerForList<SpecialistModel>>> getSpecialistsInLocation(int locationId);
   Future<Result<SpecialistModel>> createSpecialistInLocation(int locationId, CreateSpecialistRequest createSpecialistRequest);
   Future<Result> deleteSpecialistInLocation(int locationId, int specialistId);
-  Future<Result<ClientModel>> addClientInLocation(int locationId, AddClientRequest addClientRequest, String ticketNumberText);
-  Future<Result> changeClientInLocation(int locationId, ChangeClientRequest changeClientRequest);
-  // <======================== Location ========================>
+  // <======================== Specialist ========================>
 
   // <======================== Queue ========================>
   Future<Result<ContainerForList<QueueModel>>> getQueues(int locationId);
   Future<Result<QueueModel>> createQueue(int locationId, CreateQueueRequest createQueueRequest);
   Future<Result> deleteQueue(int queueId);
   Future<Result<QueueStateModel>> getQueueState(int queueId);
-  Future<Result> serveClientInQueue(ServeClientRequest serveClientRequest);
-  Future<Result> callClientInQueue(int queueId, int clientId);
-  Future<Result> returnClientToQueue(int queueId, int clientId);
-  Future<Result> notifyClientInQueue(int queueId, int clientId);
-  Future<Result<ContainerForList<ServiceModel>>> getServicesInQueue(int queueId);
-  Future<Result<ContainerForList<ServiceModel>>> getServicesInSpecialist(int specialistId);
   // <======================== Queue ========================>
 
   // <======================== Client ========================>
-  Future<Result<QueueStateForClientModel>> getQueueStateForClient(int clientId, String accessKey);
+  Future<Result<ClientModel>> createClientInLocation(int locationId, CreateClientRequest addClientRequest, String ticketNumberText);
   Future<Result<QueueStateForClientModel>> confirmAccessKeyByClient(int clientId, String accessKey);
-  Future<Result<QueueStateForClientModel>> leaveQueue(int clientId, String accessKey);
+  Future<Result<QueueStateForClientModel>> getQueueStateForClient(int clientId, String accessKey);
   Future<Result> deleteClientInLocation(int locationId, int clientId);
+  Future<Result> changeClientInLocation(int locationId, int clientId, ChangeClientRequest changeClientRequest);
+  Future<Result> serveClientInQueue(int queueId, int clientId, ServeClientRequest serveClientRequest);
+  Future<Result> callClientInQueue(int queueId, int clientId);
+  Future<Result> returnClientToQueue(int queueId, int clientId);
+  Future<Result> notifyClientInQueue(int queueId, int clientId);
   // <======================== Client ========================>
 
   // <======================== Rights ========================>
-  Future<Result<ContainerForList<RightsModel>>> getRights(int locationId);
   Future<Result> addRights(int locationId, AddRightsRequest addRightsRequest);
   Future<Result> deleteRights(int locationId, String email);
+  Future<Result<ContainerForList<RightsModel>>> getRights(int locationId);
   // <======================== Rights ========================>
 
   // <======================== Kiosk ========================>

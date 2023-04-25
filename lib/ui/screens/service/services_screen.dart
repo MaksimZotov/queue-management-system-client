@@ -1,22 +1,15 @@
-import 'dart:developer';
-
-import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 
-import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
 import '../../../domain/enums/kiosk_mode.dart';
 import '../../../domain/interactors/location_interactor.dart';
-import '../../../domain/interactors/kiosk_interactor.dart';
+import '../../../domain/interactors/service_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/kiosk/kiosk_state.dart';
 import '../../../domain/models/location/location_model.dart';
-import '../../../domain/models/location/service_model.dart';
 import '../../models/service/service_wrapper.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/button_widget.dart';
@@ -255,10 +248,13 @@ class ServicesLogicState extends BaseLogicState {
 
 @injectable
 class ServicesCubit extends BaseCubit<ServicesLogicState> {
+
   final LocationInteractor _locationInteractor;
+  final ServiceInteractor _serviceInteractor;
 
   ServicesCubit(
       this._locationInteractor,
+      this._serviceInteractor,
       @factoryParam ServicesConfig config
   ) : super(
       ServicesLogicState(
@@ -331,7 +327,7 @@ class ServicesCubit extends BaseCubit<ServicesLogicState> {
   }
 
   Future<void> _load() async {
-    await _locationInteractor.getServicesInLocation(
+    await _serviceInteractor.getServicesInLocation(
         state.config.locationId
     )
       ..onSuccess((result) {

@@ -14,8 +14,11 @@ import 'package:queue_management_system_client/ui/widgets/specialist_item_widget
 import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
+import '../../../domain/interactors/client_interactor.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/kiosk_interactor.dart';
+import '../../../domain/interactors/service_interactor.dart';
+import '../../../domain/interactors/services_sequence_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/kiosk/kiosk_state.dart';
 import '../../../domain/models/location/location_model.dart';
@@ -366,12 +369,17 @@ class ServicesSequencesLogicState extends BaseLogicState {
 
 @injectable
 class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
+
   final LocationInteractor _locationInteractor;
-  final KioskInteractor _terminalInteractor;
+  final ClientInteractor _clientInteractor;
+  final ServiceInteractor _serviceInteractor;
+  final ServicesSequenceInteractor _servicesSequenceInteractor;
 
   ServicesSequencesCubit(
       this._locationInteractor,
-      this._terminalInteractor,
+      this._clientInteractor,
+      this._serviceInteractor,
+      this._servicesSequenceInteractor,
       @factoryParam ServicesSequencesConfig config
   ) : super(
       ServicesSequencesLogicState(
@@ -626,10 +634,10 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
     if (clientId == null) {
       return;
     }
-    await _locationInteractor.changeClientInLocation(
+    await _clientInteractor.changeClientInLocation(
         state.config.locationId,
+        clientId,
         ChangeClientRequest(
-            clientId: clientId,
             serviceIdsToOrderNumbers: {
               for (var serviceWrapper in state.selectedServices)
                 (serviceWrapper).service.id : (serviceWrapper).orderNumber
@@ -652,12 +660,12 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
   }
 
   Future<void> _load() async {
-    await _locationInteractor.getServicesSequencesInLocation(
+    await _servicesSequenceInteractor.getServicesSequencesInLocation(
         state.config.locationId
     )
       ..onSuccess((result) async {
         emit(state.copy(servicesSequences: result.data.results));
-        await _locationInteractor.getServicesInLocation(
+        await _serviceInteractor.getServicesInLocation(
             state.config.locationId
         )
           ..onSuccess((result) {

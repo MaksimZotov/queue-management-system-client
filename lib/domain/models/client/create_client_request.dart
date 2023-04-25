@@ -1,9 +1,9 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part 'add_client_request.g.dart';
+part 'create_client_request.g.dart';
 
 @JsonSerializable()
-class AddClientRequest {
+class CreateClientRequest {
   final String? phone;
   @JsonKey(name: 'service_ids')
   final List<int>? serviceIds;
@@ -12,13 +12,13 @@ class AddClientRequest {
   @JsonKey(name: 'confirmation_required')
   final bool confirmationRequired;
 
-  AddClientRequest({
+  CreateClientRequest({
     required this.phone,
     required this.serviceIds,
     required this.servicesSequenceId,
     required this.confirmationRequired
   });
 
-  static AddClientRequest fromJson(Map<String, dynamic> json) => _$AddClientRequestFromJson(json);
-  Map<String, dynamic> toJson() => _$AddClientRequestToJson(this);
+  static CreateClientRequest fromJson(Map<String, dynamic> json) => _$CreateClientRequestFromJson(json);
+  Map<String, dynamic> toJson() => _$CreateClientRequestToJson(this);
 }

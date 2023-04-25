@@ -1,7 +1,5 @@
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
 import 'package:queue_management_system_client/domain/models/queue/create_queue_request.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
@@ -9,8 +7,8 @@ import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
-import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/queue_interactor.dart';
+import '../../../domain/interactors/specialist_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/location/specialist_model.dart';
 import '../../../domain/models/queue/queue_model.dart';
@@ -156,11 +154,11 @@ class CreateQueueLogicState extends BaseDialogLogicState<
 class CreateQueueCubit extends BaseDialogCubit<CreateQueueLogicState> {
 
   final QueueInteractor _queueInteractor;
-  final LocationInteractor _locationInteractor;
+  final SpecialistInteractor _specialistInteractor;
 
   CreateQueueCubit(
       this._queueInteractor,
-      this._locationInteractor,
+      this._specialistInteractor,
       @factoryParam CreateQueueConfig config
   ) : super(
       CreateQueueLogicState(
@@ -175,7 +173,7 @@ class CreateQueueCubit extends BaseDialogCubit<CreateQueueLogicState> {
   @override
   Future<void> onStart() async {
     showLoad();
-    await _locationInteractor.getSpecialistsInLocation(
+    await _specialistInteractor.getSpecialistsInLocation(
         state.config.locationId
     )
       ..onSuccess((result) async {

@@ -1,20 +1,16 @@
-import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
-import 'package:qr_flutter/qr_flutter.dart';
+import 'package:queue_management_system_client/domain/interactors/specialist_interactor.dart';
 import 'package:queue_management_system_client/domain/models/location/specialist_model.dart';
 import 'package:queue_management_system_client/ui/models/service/service_wrapper.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/specialist_item_widget.dart';
 
-import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
 import '../../../domain/enums/kiosk_mode.dart';
 import '../../../domain/interactors/location_interactor.dart';
-import '../../../domain/interactors/kiosk_interactor.dart';
-import '../../../domain/interactors/queue_interactor.dart';
+import '../../../domain/interactors/service_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/kiosk/kiosk_state.dart';
 import '../../../domain/models/location/location_model.dart';
@@ -334,11 +330,13 @@ class SpecialistsLogicState extends BaseLogicState {
 @injectable
 class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
   final LocationInteractor _locationInteractor;
-  final QueueInteractor _queueInteractor;
+  final SpecialistInteractor _specialistInteractor;
+  final ServiceInteractor _serviceInteractor;
 
   SpecialistsCubit(
       this._locationInteractor,
-      this._queueInteractor,
+      this._specialistInteractor,
+      this._serviceInteractor,
       @factoryParam SpecialistsConfig config
   ) : super(
       SpecialistsLogicState(
@@ -443,7 +441,7 @@ class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
       return;
     }
     showLoad();
-    await _queueInteractor.getServicesInSpecialist(specialistModel.id)
+    await _serviceInteractor.getServicesInSpecialist(specialistModel.id)
       ..onSuccess((result) {
         hideLoad();
         emit(
@@ -462,12 +460,12 @@ class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
   }
 
   Future<void> _load() async {
-    await _locationInteractor.getSpecialistsInLocation(
+    await _specialistInteractor.getSpecialistsInLocation(
         state.config.locationId
     )
       ..onSuccess((result) async {
         emit(state.copy(specialists: result.data.results));
-        await _locationInteractor.getServicesInLocation(
+        await _serviceInteractor.getServicesInLocation(
             state.config.locationId
         )
           ..onSuccess((result) {

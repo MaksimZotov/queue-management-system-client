@@ -27,7 +27,7 @@ import '../../domain/models/client/change_client_request.dart';
 import '../../domain/models/client/client_model.dart';
 import '../../domain/models/client/serve_client_request.dart';
 import '../../domain/models/location/service_model.dart';
-import '../../domain/models/client/add_client_request.dart';
+import '../../domain/models/client/create_client_request.dart';
 import '../../domain/models/locationnew/location_state.dart';
 import '../../domain/models/queue/create_queue_request.dart';
 import '../../domain/models/queue/queue_model.dart';
@@ -221,97 +221,121 @@ class ServerApi {
           '$url/locations/$locationId/state'
       )
   );
+  // <======================== Location ========================>
 
+
+
+
+
+  // <======================== Service ========================>
   Future<Result<ContainerForList<ServiceModel>>> getServicesInLocation(int locationId) => _execRequestForList(
       fromJson: ServiceModel.fromJson,
       request: _dioApi.get(
-          '$url/locations/$locationId/services'
+          '$url/services',
+          queryParameters: { 'location_id': locationId }
+      )
+  );
+
+  Future<Result<ContainerForList<ServiceModel>>> getServicesInQueue(int queueId) => _execRequestForList(
+      fromJson: ServiceModel.fromJson,
+      request: _dioApi.get(
+          '$url/services',
+          queryParameters: { 'queue_id': queueId }
+      )
+  );
+
+  Future<Result<ContainerForList<ServiceModel>>> getServicesInSpecialist(int specialistId) => _execRequestForList(
+      fromJson: ServiceModel.fromJson,
+      request: _dioApi.get(
+          '$url/services',
+          queryParameters: { 'specialist_id': specialistId }
+      )
+  );
+
+  Future<Result<ContainerForList<ServiceModel>>> getServicesInServicesSequence(int servicesSequenceId) => _execRequestForList(
+      fromJson: ServiceModel.fromJson,
+      request: _dioApi.get(
+          '$url/services',
+          queryParameters: { 'services_sequence_id': servicesSequenceId }
       )
   );
 
   Future<Result<ServiceModel>> createServiceInLocation(int locationId, CreateServiceRequest createServiceRequest) => _execRequest(
       fromJson: ServiceModel.fromJson,
       request: _dioApi.post(
-          '$url/locations/$locationId/services/create',
+          '$url/services/create',
+          queryParameters: { 'location_id': locationId },
           data: createServiceRequest.toJson()
       )
   );
 
   Future<Result> deleteServiceInLocation(int locationId, int serviceId) => _execRequest(
       request: _dioApi.delete(
-          '$url/locations/$locationId/services/$serviceId/delete'
+          '$url/services/$serviceId/delete',
+          queryParameters: { 'location_id': locationId }
       )
   );
+  // <======================== Service ========================>
 
+
+
+
+
+  // <======================== ServicesSequence ========================>
   Future<Result<ContainerForList<ServicesSequenceModel>>> getServicesSequencesInLocation(int locationId) => _execRequestForList(
       fromJson: ServicesSequenceModel.fromJson,
       request: _dioApi.get(
-          '$url/locations/$locationId/sequences'
+          '$url/services_sequences',
+          queryParameters: { 'location_id': locationId }
       )
   );
 
   Future<Result<ServicesSequenceModel>> createServicesSequenceInLocation(int locationId, CreateServicesSequenceRequest createServicesSequenceRequest) => _execRequest(
       fromJson: ServicesSequenceModel.fromJson,
       request: _dioApi.post(
-          '$url/locations/$locationId/sequences/create',
+          '$url/services_sequences/create',
+          queryParameters: { 'location_id': locationId },
           data: createServicesSequenceRequest.toJson()
       )
   );
 
-  Future<Result> deleteServicesSequenceInLocation(int locationId, int servicesSequence) => _execRequest(
+  Future<Result> deleteServicesSequenceInLocation(int locationId, int servicesSequenceId) => _execRequest(
       request: _dioApi.delete(
-          '$url/locations/$locationId/sequences/$servicesSequence/delete'
+          '$url/services_sequences/$servicesSequenceId/delete',
+          queryParameters: { 'location_id': locationId }
       )
   );
+  // <======================== ServicesSequence ========================>
 
+
+
+
+
+  // <======================== Specialist ========================>
   Future<Result<ContainerForList<SpecialistModel>>> getSpecialistsInLocation(int locationId) => _execRequestForList(
       fromJson: SpecialistModel.fromJson,
       request: _dioApi.get(
-          '$url/locations/$locationId/specialists'
+          '$url/specialists',
+          queryParameters: { 'location_id': locationId }
       )
   );
 
   Future<Result<SpecialistModel>> createSpecialistInLocation(int locationId, CreateSpecialistRequest createSpecialistRequest) => _execRequest(
       fromJson: SpecialistModel.fromJson,
       request: _dioApi.post(
-          '$url/locations/$locationId/specialists/create',
+          '$url/specialists/create',
+          queryParameters: { 'location_id': locationId },
           data: createSpecialistRequest.toJson()
       )
   );
 
   Future<Result> deleteSpecialistInLocation(int locationId, int specialistId) => _execRequest(
       request: _dioApi.delete(
-          '$url/locations/$locationId/specialists/$specialistId/delete'
+          '$url/specialists/$specialistId/delete',
+          queryParameters: { 'location_id': locationId }
       )
   );
-
-  Future<Result> enableLocation(int locationId) => _execRequest(
-      request: _dioApi.post(
-          '$url/locations/$locationId/enable'
-      )
-  );
-
-  Future<Result> disableLocation(int locationId) => _execRequest(
-      request: _dioApi.post(
-          '$url/locations/$locationId/disable'
-      )
-  );
-
-  Future<Result<ClientModel>> addClientInLocation(int locationId, AddClientRequest addClientRequest) => _execRequest(
-      fromJson: ClientModel.fromJson,
-      request: _dioApi.post(
-          '$url/locations/$locationId/clients/add',
-          data: addClientRequest.toJson()
-      )
-  );
-
-  Future<Result> changeClientInLocation(int locationId, ChangeClientRequest changeClientRequest) => _execRequest(
-      request: _dioApi.post(
-          '$url/locations/$locationId/clients/change',
-          data: changeClientRequest.toJson()
-      )
-  );
-  // <======================== Location ========================>
+  // <======================== Specialist ========================>
 
 
 
@@ -345,55 +369,7 @@ class ServerApi {
   Future<Result<QueueStateModel>> getQueueState(int queueId) => _execRequest(
       fromJson: QueueStateModel.fromJson,
       request: _dioApi.get(
-          '$url/queues/$queueId'
-      )
-  );
-
-  Future<Result> serveClientInQueue(ServeClientRequest serveClientRequest) => _execRequest(
-      request: _dioApi.post(
-          '$url/queues/serve',
-          data: serveClientRequest.toJson()
-      )
-  );
-
-  Future<Result> callClientInQueue(int queueId, int clientId) => _execRequest(
-      request: _dioApi.post(
-          '$url/queues/$queueId/call',
-          queryParameters: {
-            'client_id': clientId
-          }
-      )
-  );
-
-  Future<Result> returnClientToQueue(int queueId, int clientId) => _execRequest(
-      request: _dioApi.post(
-          '$url/queues/$queueId/return',
-          queryParameters: {
-            'client_id': clientId
-          }
-      )
-  );
-
-  Future<Result> notifyClientInQueue(int queueId, int clientId) => _execRequest(
-      request: _dioApi.post(
-          '$url/queues/$queueId/notify',
-          queryParameters: {
-            'client_id': clientId
-          }
-      )
-  );
-
-  Future<Result<ContainerForList<ServiceModel>>> getServicesInQueue(int queueId) => _execRequestForList(
-      fromJson: ServiceModel.fromJson,
-      request: _dioApi.get(
-          '$url/queues/$queueId/services'
-      )
-  );
-
-  Future<Result<ContainerForList<ServiceModel>>> getServicesInSpecialist(int specialistId) => _execRequestForList(
-      fromJson: ServiceModel.fromJson,
-      request: _dioApi.get(
-          '$url/queues/specialists/$specialistId'
+          '$url/queues/$queueId/state'
       )
   );
   // <======================== Queue ========================>
@@ -403,46 +379,73 @@ class ServerApi {
 
 
   // <======================== Client ========================>
-  Future<Result<QueueStateForClientModel>> getQueueStateForClient(int clientId, String accessKey) => _execRequest(
-      fromJson: QueueStateForClientModel.fromJson,
-      request: _dioApi.get(
-          '$url/client',
-          queryParameters: {
-            'client_id': clientId,
-            'access_key': accessKey
-          },
+  Future<Result<ClientModel>> createClientInLocation(int locationId, CreateClientRequest createClientRequest) => _execRequest(
+      fromJson: ClientModel.fromJson,
+      request: _dioApi.post(
+          '$url/clients/create',
+          queryParameters: { 'location_id': locationId },
+          data: createClientRequest.toJson()
       )
   );
 
   Future<Result<QueueStateForClientModel>> confirmAccessKeyByClient(int clientId, String accessKey) => _execRequest(
       fromJson: QueueStateForClientModel.fromJson,
       request: _dioApi.post(
-        '$url/client/confirm',
-        queryParameters: {
-          'client_id': clientId,
-          'access_key': accessKey
-        },
+        '$url/clients/$clientId/confirm',
+        queryParameters: { 'access_key': accessKey },
       )
   );
 
-  Future<Result<QueueStateForClientModel>> leaveQueue(int clientId, String accessKey) => _execRequest(
+  Future<Result<QueueStateForClientModel>> getQueueStateForClient(int clientId, String accessKey) => _execRequest(
       fromJson: QueueStateForClientModel.fromJson,
-      request: _dioApi.post(
-          '$url/client/leave',
-          queryParameters: {
-            'client_id': clientId,
-            'access_key': accessKey
-          },
+      request: _dioApi.get(
+        '$url/clients/$clientId/state',
+        queryParameters: { 'access_key': accessKey },
       )
   );
 
   Future<Result> deleteClientInLocation(int locationId, int clientId) => _execRequest(
       fromJson: QueueStateForClientModel.fromJson,
       request: _dioApi.delete(
-        '$url/client/$clientId/delete',
-        queryParameters: {
-          'location_id': locationId
-        },
+        '$url/clients/$clientId/delete',
+        queryParameters: { 'location_id': locationId },
+      )
+  );
+
+  Future<Result> changeClientInLocation(int locationId, int clientId, ChangeClientRequest changeClientRequest) => _execRequest(
+      request: _dioApi.post(
+          '$url/clients/$clientId/change',
+          queryParameters: { 'location_id': locationId },
+          data: changeClientRequest.toJson()
+      )
+  );
+
+  Future<Result> serveClientInQueue(int queueId, int clientId, ServeClientRequest serveClientRequest) => _execRequest(
+      request: _dioApi.post(
+          '$url/clients/$clientId/serve',
+          queryParameters: { 'queue_id': queueId },
+          data: serveClientRequest.toJson()
+      )
+  );
+
+  Future<Result> callClientInQueue(int queueId, int clientId) => _execRequest(
+      request: _dioApi.post(
+          '$url/clients/$clientId/call',
+          queryParameters: { 'queue_id': clientId }
+      )
+  );
+
+  Future<Result> returnClientToQueue(int queueId, int clientId) => _execRequest(
+      request: _dioApi.post(
+          '$url/clients/$clientId/return',
+          queryParameters: { 'queue_id': clientId }
+      )
+  );
+
+  Future<Result> notifyClientInQueue(int queueId, int clientId) => _execRequest(
+      request: _dioApi.post(
+          '$url/clients/$clientId/notify',
+          queryParameters: { 'queue_id': clientId }
       )
   );
   // <======================== Client ========================>
@@ -469,7 +472,6 @@ class ServerApi {
           }
       )
   );
-
 
   Future<Result<ContainerForList<RightsModel>>> getRights(int locationId) => _execRequestForList(
       fromJson: RightsModel.fromJson,

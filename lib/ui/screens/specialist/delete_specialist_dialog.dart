@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
+import 'package:queue_management_system_client/domain/interactors/specialist_interactor.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 
@@ -101,10 +101,10 @@ class DeleteSpecialistLogicState extends BaseDialogLogicState<
 @injectable
 class DeleteSpecialistCubit extends BaseDialogCubit<DeleteSpecialistLogicState> {
 
-  final LocationInteractor _locationInteractor;
+  final SpecialistInteractor _specialistInteractor;
 
   DeleteSpecialistCubit(
-      this._locationInteractor,
+      this._specialistInteractor,
       @factoryParam DeleteSpecialistConfig config
   ) : super(
       DeleteSpecialistLogicState(
@@ -114,7 +114,7 @@ class DeleteSpecialistCubit extends BaseDialogCubit<DeleteSpecialistLogicState> 
 
   Future<void> deleteSpecialist() async {
     showLoad();
-    await _locationInteractor.deleteSpecialistInLocation(
+    await _specialistInteractor.deleteSpecialistInLocation(
         state.config.locationId,
         state.config.specialistId
     )

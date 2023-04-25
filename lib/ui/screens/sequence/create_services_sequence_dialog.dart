@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
+import 'package:queue_management_system_client/domain/interactors/services_sequence_interactor.dart';
 import 'package:queue_management_system_client/domain/models/location/services_sequence_model.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
@@ -126,10 +126,10 @@ class CreateServicesSequenceLogicState extends BaseDialogLogicState<
 @injectable
 class CreateServicesSequenceCubit extends BaseDialogCubit<CreateServicesSequenceLogicState> {
 
-  final LocationInteractor _locationInteractor;
+  final ServicesSequenceInteractor _servicesSequenceInteractor;
 
   CreateServicesSequenceCubit(
-      this._locationInteractor,
+      this._servicesSequenceInteractor,
       @factoryParam CreateServicesSequenceConfig config
   ) : super(
       CreateServicesSequenceLogicState(
@@ -150,7 +150,7 @@ class CreateServicesSequenceCubit extends BaseDialogCubit<CreateServicesSequence
   Future<void> createQueue() async {
     showLoad();
 
-    await _locationInteractor.createServicesSequenceInLocation(
+    await _servicesSequenceInteractor.createServicesSequenceInLocation(
         state.config.locationId,
         CreateServicesSequenceRequest(
             name: state.name,

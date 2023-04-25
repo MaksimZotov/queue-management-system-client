@@ -1,17 +1,12 @@
 import 'dart:async';
 
-import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
 import 'package:queue_management_system_client/domain/models/client/serve_client_request.dart';
 import 'package:queue_management_system_client/domain/models/locationnew/location_state.dart';
-import 'package:queue_management_system_client/domain/models/client/client_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_state_model.dart';
-import 'package:queue_management_system_client/ui/screens/account/initial_screen.dart';
 import 'package:queue_management_system_client/ui/widgets/client_item_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
@@ -233,19 +228,19 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
   }
 
   Future<void> notify(Client client) async {
-    await _queueInteractor.notifyClientInQueue(state.config.queueId, client.id)
+    await _clientInteractor.notifyClientInQueue(state.config.queueId, client.id)
       ..onError((result) {
         showError(result);
       });
   }
 
   Future<void> serve(Client client) async {
-    await _queueInteractor.serveClientInQueue(
-      ServeClientRequest(
-          clientId: client.id,
-          queueId: state.config.queueId,
-          services: state.servingClient?.services.map((e) => e.id).toList() ?? []
-      )
+    await _clientInteractor.serveClientInQueue(
+        state.config.queueId,
+        client.id,
+        ServeClientRequest(
+            services: state.servingClient?.services.map((e) => e.id).toList() ?? []
+        )
     )
       ..onError((result) {
         showError(result);
@@ -253,14 +248,14 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
   }
 
   Future<void> returnClient(Client client) async {
-    await _queueInteractor.returnClientToQueue(state.config.queueId, client.id)
+    await _clientInteractor.returnClientToQueue(state.config.queueId, client.id)
       ..onError((result) {
         showError(result);
       });
   }
 
   Future<void> call(Client client) async {
-    await _queueInteractor.callClientInQueue(state.config.queueId, client.id)
+    await _clientInteractor.callClientInQueue(state.config.queueId, client.id)
       ..onError((result) {
         showError(result);
       });

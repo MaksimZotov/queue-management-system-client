@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
+import 'package:queue_management_system_client/domain/interactors/service_interactor.dart';
 import 'package:queue_management_system_client/domain/models/location/service_model.dart';
-import 'package:queue_management_system_client/domain/models/queue/create_queue_request.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
-import '../../../domain/interactors/queue_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/location/create_service_request.dart';
-import '../../../domain/models/queue/queue_model.dart';
 import '../../router/routes_config.dart';
 
 class CreateServiceConfig extends BaseDialogConfig {
@@ -130,10 +127,10 @@ class CreateServiceLogicState extends BaseDialogLogicState<
 @injectable
 class CreateServiceCubit extends BaseDialogCubit<CreateServiceLogicState> {
 
-  final LocationInteractor _locationInteractor;
+  final ServiceInteractor _serviceInteractor;
 
   CreateServiceCubit(
-      this._locationInteractor,
+      this._serviceInteractor,
       @factoryParam CreateServiceConfig config
   ) : super(
       CreateServiceLogicState(
@@ -156,7 +153,7 @@ class CreateServiceCubit extends BaseDialogCubit<CreateServiceLogicState> {
       String parseMaxDurationErrorMessage
   ) async {
     showLoad();
-    await _locationInteractor.createServiceInLocation(
+    await _serviceInteractor.createServiceInLocation(
         state.config.locationId,
         CreateServiceRequest(
             name: state.name,

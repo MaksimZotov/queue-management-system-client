@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
-import 'package:queue_management_system_client/domain/models/location/service_model.dart';
-import 'package:queue_management_system_client/domain/models/queue/create_queue_request.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
-import '../../../domain/interactors/queue_interactor.dart';
+import '../../../domain/interactors/specialist_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/location/create_specialist_request.dart';
-import '../../../domain/models/location/create_service_request.dart';
 import '../../../domain/models/location/specialist_model.dart';
-import '../../../domain/models/queue/queue_model.dart';
 import '../../router/routes_config.dart';
 
 class CreateSpecialistConfig extends BaseDialogConfig {
@@ -131,10 +126,10 @@ class CreateSpecialistLogicState extends BaseDialogLogicState<
 @injectable
 class CreateSpecialistCubit extends BaseDialogCubit<CreateSpecialistLogicState> {
 
-  final LocationInteractor _locationInteractor;
+  final SpecialistInteractor _specialistInteractor;
 
   CreateSpecialistCubit(
-      this._locationInteractor,
+      this._specialistInteractor,
       @factoryParam CreateSpecialistConfig config
   ) : super(
       CreateSpecialistLogicState(
@@ -155,7 +150,7 @@ class CreateSpecialistCubit extends BaseDialogCubit<CreateSpecialistLogicState> 
   Future<void> createSpecialist() async {
     showLoad();
 
-    await _locationInteractor.createSpecialistInLocation(
+    await _specialistInteractor.createSpecialistInLocation(
         state.config.locationId,
         CreateSpecialistRequest(
             name: state.name,

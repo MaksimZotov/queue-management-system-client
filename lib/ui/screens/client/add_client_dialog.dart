@@ -3,8 +3,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
-import 'package:queue_management_system_client/domain/models/client/add_client_request.dart';
+import 'package:queue_management_system_client/domain/interactors/client_interactor.dart';
+import 'package:queue_management_system_client/domain/models/client/create_client_request.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import '../../../di/assemblers/states_assembler.dart';
@@ -142,10 +142,10 @@ class AddClientCubit extends BaseDialogCubit<
     AddClientLogicState
 > {
 
-  final LocationInteractor _locationInteractor;
+  final ClientInteractor _clientInteractor;
 
   AddClientCubit(
-      this._locationInteractor,
+      this._clientInteractor,
       @factoryParam AddClientConfig config
   ) : super(
       AddClientLogicState(
@@ -163,9 +163,9 @@ class AddClientCubit extends BaseDialogCubit<
   Future<void> connect(String yourTicketNumberWithColon) async {
     showLoad();
     bool confirmationRequired = defaultTargetPlatform != TargetPlatform.android;
-    await _locationInteractor.addClientInLocation(
+    await _clientInteractor.createClientInLocation(
         state.config.locationId,
-        AddClientRequest(
+        CreateClientRequest(
             phone: confirmationRequired
                 ? state.phone
                 : null,

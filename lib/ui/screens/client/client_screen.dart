@@ -96,12 +96,7 @@ class _ClientState extends BaseState<
                           )
                         ],
                       )
-                  ),
-                  const SizedBox(height: 10),
-                  ButtonWidget(
-                      text: getLocalizations(context).leave,
-                      onClick: getCubitInstance(context).leave
-                  ),
+                  )
                 ]
             ),
           ),
@@ -246,17 +241,6 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
     );
     _timer?.cancel();
     emit(state.copy(loading: false, error: result));
-  }
-
-  Future<void> leave() async {
-    showLoad();
-    await _clientInteractor.leaveQueue(state.config.clientId, state.config.accessKey)
-      ..onSuccess((result) {
-        emit(state.copy(clientState: result.data));
-      })
-      ..onError((result) {
-        showError(result);
-      });
   }
 
   Future<void> _connectToSocket() async {
