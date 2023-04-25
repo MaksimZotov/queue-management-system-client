@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:flutter/services.dart';
 import 'package:flutter_usb_printer/flutter_usb_printer.dart';
 import 'package:injectable/injectable.dart';
@@ -12,9 +9,8 @@ class PrinterInteractor {
 
   Future<void> print(String text, int code) async {
     try {
-      await flutterUsbPrinter.write(
-          Uint8List.fromList(utf8.encode("$text\n$code"))
-      );
+      await flutterUsbPrinter.printText('$text\n$code');
+      await flutterUsbPrinter.printText('\x1B\x6D');
     } on PlatformException { /* Do nothing */ }
   }
 
