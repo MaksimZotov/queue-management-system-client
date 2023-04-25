@@ -125,9 +125,7 @@ class _SpecialistsState extends BaseState<
                     }
                   })
                 : null,
-              onTap: state.kioskState != null
-                  ? getCubitInstance(context).switchToServicesInSpecialist
-                  : null
+              onTap: getCubitInstance(context).switchToServicesInSpecialist
             );
           },
           itemCount: state.specialists.length,
@@ -138,9 +136,15 @@ class _SpecialistsState extends BaseState<
             itemBuilder: (context, index) {
               return ServiceItemWidget(
                   serviceWrapper: state.services[index],
-                  onTap: state.kioskState?.multipleSelect == false
-                      ? (serviceWrapper) => _showAddClientDialog(context, state, [serviceWrapper])
-                      : getCubitInstance(context).onClickServiceWhenServicesSelecting
+                  onTap: state.kioskState != null
+                    ? (serviceWrapper) => {
+                      if (state.kioskState?.multipleSelect == false) {
+                        _showAddClientDialog(context, state, [serviceWrapper])
+                      } else {
+                        getCubitInstance(context).onClickServiceWhenServicesSelecting(serviceWrapper)
+                      }
+                    }
+                    : null
               );
             },
             itemCount: state.services.length,
