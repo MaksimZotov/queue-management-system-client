@@ -142,7 +142,7 @@ class _ServicesSequencesState extends BaseState<
                         }
                       }
                     })
-                  : getCubit().switchToServicesInCreatedServicesSequenceViewing
+                  : getCubitInstance(context).switchToServicesInCreatedServicesSequenceViewing
             );
           },
           itemCount: state.servicesSequences.length,
@@ -306,7 +306,7 @@ class _ServicesSequencesState extends BaseState<
                         flex: 1,
                         child: ServiceItemWidget(
                           serviceWrapper: state.selectedServices[index],
-                          onTap: getCubitInstance(context).onClickServiceWhenSelectedServicesViewing
+                          onTap: null
                         )
                       )
                     ],
