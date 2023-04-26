@@ -396,11 +396,10 @@ class ServerApi {
       )
   );
 
-  Future<Result<QueueStateForClientModel>> getQueueStateForClient(int clientId, String accessKey) => _execRequest(
+  Future<Result<QueueStateForClientModel>> getQueueStateForClient(int clientId) => _execRequest(
       fromJson: QueueStateForClientModel.fromJson,
       request: _dioApi.get(
-        '$url/clients/$clientId/state',
-        queryParameters: { 'access_key': accessKey },
+        '$url/clients/$clientId/state'
       )
   );
 

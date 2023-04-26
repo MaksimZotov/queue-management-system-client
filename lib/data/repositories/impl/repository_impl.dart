@@ -271,8 +271,8 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result<QueueStateForClientModel>> getQueueStateForClient(int clientId, String accessKey) {
-    return _serverApi.getQueueStateForClient(clientId, accessKey);
+  Future<Result<QueueStateForClientModel>> getQueueStateForClient(int clientId) {
+    return _serverApi.getQueueStateForClient(clientId);
   }
 
   @override

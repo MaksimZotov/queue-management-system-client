@@ -211,8 +211,7 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
       })
       ..onError((result) async {
         await _clientInteractor.getQueueStateForClient(
-            state.config.clientId,
-            state.config.accessKey
+            state.config.clientId
         )
           ..onSuccess((result) {
             emit(state.copy(clientState: result.data));

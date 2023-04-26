@@ -26,8 +26,8 @@ class ClientInteractorImpl extends ClientInteractor {
   }
 
   @override
-  Future<Result<QueueStateForClientModel>> getQueueStateForClient(int clientId, String accessKey) {
-    return _repository.getQueueStateForClient(clientId, accessKey);
+  Future<Result<QueueStateForClientModel>> getQueueStateForClient(int clientId) {
+    return _repository.getQueueStateForClient(clientId);
   }
 
   @override
