@@ -26,6 +26,7 @@ import '../../domain/models/base/result.dart';
 import '../../domain/models/client/change_client_request.dart';
 import '../../domain/models/client/client_model.dart';
 import '../../domain/models/client/serve_client_request.dart';
+import '../../domain/models/service/ordered_services_model.dart';
 import '../../domain/models/service/service_model.dart';
 import '../../domain/models/client/create_client_request.dart';
 import '../../domain/models/location/location_state.dart';
@@ -252,8 +253,8 @@ class ServerApi {
       )
   );
 
-  Future<Result<ContainerForList<ServiceModel>>> getServicesInServicesSequence(int servicesSequenceId) => _execRequestForList(
-      fromJson: ServiceModel.fromJson,
+  Future<Result<OrderedServicesModel>> getServicesInServicesSequence(int servicesSequenceId) => _execRequest(
+      fromJson: OrderedServicesModel.fromJson,
       request: _dioApi.get(
           '$url/services',
           queryParameters: { 'services_sequence_id': servicesSequenceId }

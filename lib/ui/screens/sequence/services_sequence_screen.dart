@@ -125,7 +125,7 @@ class _ServicesSequencesState extends BaseState<
                         getCubitInstance(context).handleDeleteServicesSequenceResult(result);
                       }
                     })
-                  : null,
+                  : getCubit().switchToServicesInCreatedServicesSequenceViewing,
               onTap: state.kioskState != null
                   ? (servicesSequence) => showDialog(
                         context: context,
@@ -278,6 +278,52 @@ class _ServicesSequencesState extends BaseState<
             const SizedBox(height: Dimens.contentMargin)
           ],
         );
+      case ServicesSequencesStateEnum.servicesInCreatedServicesSequenceViewing:
+        return Column(
+          children: [
+            Expanded(
+              flex: 1,
+              child: ListView.builder(
+                itemBuilder: (context, index) {
+                  return Row(
+                    key: Key(state.selectedServices[index].service.id.toString()),
+                    children: [
+                      Card(
+                        color: Colors.blueGrey[300],
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            '${state.selectedServices[index].orderNumber}:',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: ServiceItemWidget(
+                          serviceWrapper: state.selectedServices[index],
+                          onTap: getCubitInstance(context).onClickServiceWhenSelectedServicesViewing
+                        )
+                      )
+                    ],
+                  );
+                },
+                itemCount: state.selectedServices.length
+              ),
+            ),
+            Container(height: 2, color: Colors.grey),
+            const SizedBox(height: Dimens.contentMargin),
+            ButtonWidget(
+              text: getLocalizations(context).cancel,
+              onClick: getCubitInstance(context).switchToServicesSequencesViewing,
+            ),
+            const SizedBox(height: Dimens.contentMargin)
+          ],
+        );
     }
   }
 
@@ -289,7 +335,8 @@ enum ServicesSequencesStateEnum {
   servicesSequencesViewing,
   servicesSelecting,
   selectedServicesViewing,
-  selectedServicesViewingClientChanging
+  selectedServicesViewingClientChanging,
+  servicesInCreatedServicesSequenceViewing
 }
 
 class ServicesSequencesLogicState extends BaseLogicState {
@@ -622,6 +669,41 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
               .toList(),
           selectedServices: [],
         ));
+  }
+
+  Future<void> switchToServicesInCreatedServicesSequenceViewing(ServicesSequenceModel servicesSequenceModel) async {
+    showLoad();
+    await _serviceInteractor.getServicesInServicesSequence(servicesSequenceModel.id)
+      ..onSuccess((result) async {
+
+        Map<int, int> serviceIdsToOrderNumbers = result.data.serviceIdsToOrderNumbers;
+        List<ServiceWrapper> selectedServices = [];
+
+        for (MapEntry<int, int> idToOrder in serviceIdsToOrderNumbers.entries) {
+          ServiceWrapper serviceWrapper = state.services.firstWhere(
+            (serviceWrapper) => serviceWrapper.service.id == idToOrder.key,
+            orElse: () => ServiceWrapper(service: ServiceModel(-1, "", ""))
+          );
+          if (serviceWrapper.service.id != -1) {
+            selectedServices.add(
+              serviceWrapper.copy(
+                orderNumber: idToOrder.value
+              )
+            );
+          }
+        }
+
+        emit(
+            state.copy(
+                servicesSequencesStateEnum: ServicesSequencesStateEnum.servicesInCreatedServicesSequenceViewing,
+                selectedServices: selectedServices
+            )
+        );
+
+      })
+      ..onError((result) {
+        showError(result);
+      });
   }
 
   void confirmSelectedServices() {

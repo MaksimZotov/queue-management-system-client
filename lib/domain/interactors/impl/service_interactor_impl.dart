@@ -5,6 +5,7 @@ import 'package:queue_management_system_client/domain/models/service/create_serv
 import 'package:queue_management_system_client/domain/models/service/service_model.dart';
 
 import '../../../data/repositories/repository.dart';
+import '../../models/service/ordered_services_model.dart';
 import '../service_interactor.dart';
 
 @Singleton(as: ServiceInteractor)
@@ -29,7 +30,7 @@ class ServiceInteractorImpl extends ServiceInteractor {
   }
 
   @override
-  Future<Result<ContainerForList<ServiceModel>>> getServicesInServicesSequence(int servicesSequenceId) {
+  Future<Result<OrderedServicesModel>> getServicesInServicesSequence(int servicesSequenceId) {
     return _repository.getServicesInServicesSequence(servicesSequenceId);
   }
 

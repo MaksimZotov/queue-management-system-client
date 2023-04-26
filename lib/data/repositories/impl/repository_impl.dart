@@ -23,6 +23,7 @@ import 'package:queue_management_system_client/domain/models/rights/rights_model
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/client/serve_client_request.dart';
 import '../../../domain/models/location/create_location_request.dart';
+import '../../../domain/models/service/ordered_services_model.dart';
 import '../../../domain/models/service/service_model.dart';
 import '../../../domain/models/account/confirm_model.dart';
 import '../../../domain/models/account/login_model.dart';
@@ -159,7 +160,7 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result<ContainerForList<ServiceModel>>> getServicesInServicesSequence(int servicesSequenceId) {
+  Future<Result<OrderedServicesModel>> getServicesInServicesSequence(int servicesSequenceId) {
     return _serverApi.getServicesInServicesSequence(servicesSequenceId);
   }
 

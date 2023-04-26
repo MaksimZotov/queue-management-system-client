@@ -14,6 +14,7 @@ import '../../domain/models/sequence/create_services_sequence_request.dart';
 import '../../domain/models/location/check_is_owner_model.dart';
 import '../../domain/models/location/location_model.dart';
 import '../../domain/models/client/create_client_request.dart';
+import '../../domain/models/service/ordered_services_model.dart';
 import '../../domain/models/specialist/specialist_model.dart';
 import '../../domain/models/service/service_model.dart';
 import '../../domain/models/sequence/services_sequence_model.dart';
@@ -50,7 +51,7 @@ abstract class Repository {
   Future<Result<ContainerForList<ServiceModel>>> getServicesInLocation(int locationId);
   Future<Result<ContainerForList<ServiceModel>>> getServicesInQueue(int queueId);
   Future<Result<ContainerForList<ServiceModel>>> getServicesInSpecialist(int specialistId);
-  Future<Result<ContainerForList<ServiceModel>>> getServicesInServicesSequence(int servicesSequenceId);
+  Future<Result<OrderedServicesModel>> getServicesInServicesSequence(int servicesSequenceId);
   Future<Result<ServiceModel>> createServiceInLocation(int locationId, CreateServiceRequest createServiceRequest);
   Future<Result> deleteServiceInLocation(int locationId, int serviceId);
   // <======================== Service ========================>
