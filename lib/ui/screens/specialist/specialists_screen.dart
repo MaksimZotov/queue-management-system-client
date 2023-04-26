@@ -132,15 +132,9 @@ class _SpecialistsState extends BaseState<
             itemBuilder: (context, index) {
               return ServiceItemWidget(
                   serviceWrapper: state.services[index],
-                  onTap: state.kioskState != null
-                    ? (serviceWrapper) => {
-                      if (state.kioskState?.multipleSelect == false) {
-                        _showAddClientDialog(context, state, [serviceWrapper])
-                      } else {
-                        getCubitInstance(context).onClickServiceWhenServicesSelecting(serviceWrapper)
-                      }
-                    }
-                    : null
+                  onTap: state.kioskState?.multipleSelect == false
+                      ? (serviceWrapper) => _showAddClientDialog(context, state, [serviceWrapper])
+                      : getCubitInstance(context).onClickServiceWhenServicesSelecting
               );
             },
             itemCount: state.services.length,
@@ -205,6 +199,22 @@ class _SpecialistsState extends BaseState<
             const SizedBox(height: Dimens.contentMargin)
           ],
         );
+      case SpecialistsStateEnum.servicesInCreatedSpecialistViewing:
+        return Column(
+          children: [
+            Expanded(
+              flex: 1,
+              child: ListView.builder(
+                itemBuilder: (context, index) {
+                  return ServiceItemWidget(
+                      serviceWrapper: state.services[index]
+                  );
+                },
+                itemCount: state.services.length,
+              ),
+            )
+          ],
+        );
     }
   }
 
@@ -249,7 +259,8 @@ class _SpecialistsState extends BaseState<
 enum SpecialistsStateEnum {
   specialistsViewing,
   servicesSelecting,
-  selectedServicesViewing
+  selectedServicesViewing,
+  servicesInCreatedSpecialistViewing
 }
 
 class SpecialistsLogicState extends BaseLogicState {
@@ -446,7 +457,9 @@ class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
         hideLoad();
         emit(
             state.copy(
-                specialistsStateEnum: SpecialistsStateEnum.servicesSelecting,
+                specialistsStateEnum: state.kioskState != null
+                  ? SpecialistsStateEnum.servicesSelecting
+                  : SpecialistsStateEnum.servicesInCreatedSpecialistViewing,
                 services: result.data.results
                     .map((service) => ServiceWrapper(service: service))
                     .toList()

@@ -77,24 +77,29 @@ class _ServicesSequencesState extends BaseState<
       BuildContext context,
       ServicesSequencesLogicState state,
       ServicesSequencesWidget widget
-  ) => Scaffold(
-    appBar: state.kioskState == null || state.kioskState?.kioskMode == KioskMode.all
-      ? AppBar(
-        title: Text(
-            state.locationName.isEmpty
-                ? ''
-                : getLocalizations(context).servicesSequences
-        ),
+  ) => WillPopScope(
+      onWillPop: () async {
+        if (state.servicesSequencesStateEnum == ServicesSequencesStateEnum.servicesSequencesViewing) {
+          return true;
+        }
+        getCubitInstance(context).switchToServicesSequencesViewing();
+        return false;
+      },
+      child: Scaffold(
+        appBar: state.kioskState == null || state.kioskState?.kioskMode == KioskMode.all
+            ? AppBar(
+              title: Text(_getTitleText(context, state)),
+            )
+                : null,
+            body: _getBody(context, state, widget),
+            floatingActionButton: _checkFloatingActionButton(state)
+                ? FloatingActionButton(
+              tooltip: getLocalizations(context).createServicesSequence,
+              onPressed: getCubitInstance(context).switchToServicesSelecting,
+              child: const Icon(Icons.add),
+            )
+            : null,
       )
-      : null,
-    body: _getBody(context, state, widget),
-    floatingActionButton: _checkFloatingActionButton(state)
-        ? FloatingActionButton(
-          tooltip: getLocalizations(context).createServicesSequence,
-          onPressed: getCubitInstance(context).switchToServicesSelecting,
-          child: const Icon(Icons.add),
-        )
-        : null,
   );
 
   @override
@@ -314,17 +319,20 @@ class _ServicesSequencesState extends BaseState<
                 },
                 itemCount: state.selectedServices.length
               ),
-            ),
-            Container(height: 2, color: Colors.grey),
-            const SizedBox(height: Dimens.contentMargin),
-            ButtonWidget(
-              text: getLocalizations(context).cancel,
-              onClick: getCubitInstance(context).switchToServicesSequencesViewing,
-            ),
-            const SizedBox(height: Dimens.contentMargin)
+            )
           ],
         );
     }
+  }
+
+  String _getTitleText(BuildContext context, ServicesSequencesLogicState state) {
+    if (state.servicesSequencesStateEnum == ServicesSequencesStateEnum.servicesSequencesViewing) {
+      if (state.locationName.isEmpty) {
+        return '';
+      }
+      return getLocalizations(context).servicesSequences;
+    }
+    return getLocalizations(context).services;
   }
 
   bool _checkFloatingActionButton(ServicesSequencesLogicState state) =>
