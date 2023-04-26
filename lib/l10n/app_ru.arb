@@ -154,7 +154,7 @@
 "@phoneWithColonPattern": {
   "placeholders": {
     "phone": {
-      "type": "string"
+      "type": "String"
     }
   }
 },
