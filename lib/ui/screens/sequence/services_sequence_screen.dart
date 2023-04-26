@@ -125,7 +125,7 @@ class _ServicesSequencesState extends BaseState<
                         getCubitInstance(context).handleDeleteServicesSequenceResult(result);
                       }
                     })
-                  : getCubit().switchToServicesInCreatedServicesSequenceViewing,
+                  : null,
               onTap: state.kioskState != null
                   ? (servicesSequence) => showDialog(
                         context: context,
@@ -142,7 +142,7 @@ class _ServicesSequencesState extends BaseState<
                         }
                       }
                     })
-                  : null
+                  : getCubit().switchToServicesInCreatedServicesSequenceViewing
             );
           },
           itemCount: state.servicesSequences.length,
