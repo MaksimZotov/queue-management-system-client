@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/services_sequence_interactor.dart';
-import 'package:queue_management_system_client/domain/models/location/services_sequence_model.dart';
+import 'package:queue_management_system_client/domain/models/sequence/services_sequence_model.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
@@ -9,7 +9,7 @@ import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/location/create_services_sequence_request.dart';
+import '../../../domain/models/sequence/create_services_sequence_request.dart';
 import '../../router/routes_config.dart';
 
 class CreateServicesSequenceConfig extends BaseDialogConfig {

@@ -13,8 +13,8 @@ import 'package:queue_management_system_client/ui/widgets/client_info_field_widg
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/socket_interactor.dart';
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/locationnew/client.dart';
-import '../../../domain/models/locationnew/location_state.dart';
+import '../../../domain/models/location/client.dart';
+import '../../../domain/models/location/location_state.dart';
 import '../../widgets/button_widget.dart';
 import '../base.dart';
 

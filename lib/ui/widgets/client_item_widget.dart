@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:queue_management_system_client/domain/enums/client_in_queue_status.dart';
-import 'package:queue_management_system_client/domain/models/locationnew/service.dart';
-import 'package:queue_management_system_client/domain/models/client/client_model.dart';
 
-import '../../dimens.dart';
-import '../../domain/models/locationnew/client.dart';
+import '../../domain/models/location/client.dart';
+import '../../domain/models/location/service.dart';
 
 class ClientItemWidget extends StatefulWidget {
   final Client client;

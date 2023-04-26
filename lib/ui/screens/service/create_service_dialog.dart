@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/service_interactor.dart';
-import 'package:queue_management_system_client/domain/models/location/service_model.dart';
+import 'package:queue_management_system_client/domain/models/service/service_model.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart';
@@ -9,7 +9,7 @@ import 'package:queue_management_system_client/ui/widgets/text_field_widget.dart
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/location/create_service_request.dart';
+import '../../../domain/models/service/create_service_request.dart';
 import '../../router/routes_config.dart';
 
 class CreateServiceConfig extends BaseDialogConfig {

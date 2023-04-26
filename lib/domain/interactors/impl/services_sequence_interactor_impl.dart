@@ -1,8 +1,8 @@
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
-import 'package:queue_management_system_client/domain/models/location/create_services_sequence_request.dart';
-import 'package:queue_management_system_client/domain/models/location/services_sequence_model.dart';
+import 'package:queue_management_system_client/domain/models/sequence/create_services_sequence_request.dart';
+import 'package:queue_management_system_client/domain/models/sequence/services_sequence_model.dart';
 
 import '../../../data/repositories/repository.dart';
 import '../services_sequence_interactor.dart';

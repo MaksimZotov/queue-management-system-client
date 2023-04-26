@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
-import 'package:queue_management_system_client/domain/models/locationnew/client.dart';
+import 'package:queue_management_system_client/domain/models/location/client.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/socket_interactor.dart';
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/locationnew/board.dart';
-import '../../../domain/models/locationnew/location_state.dart';
+import '../../../domain/models/location/board.dart';
+import '../../../domain/models/location/location_state.dart';
 import '../../router/routes_config.dart';
 
 class BoardWidget extends BaseWidget<BoardConfig> {

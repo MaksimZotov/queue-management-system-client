@@ -10,7 +10,7 @@ import '../../../dimens.dart';
 import '../../../domain/interactors/queue_interactor.dart';
 import '../../../domain/interactors/specialist_interactor.dart';
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/location/specialist_model.dart';
+import '../../../domain/models/specialist/specialist_model.dart';
 import '../../../domain/models/queue/queue_model.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/dropdown_widget.dart';

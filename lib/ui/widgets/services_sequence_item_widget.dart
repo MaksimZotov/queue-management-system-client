@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import '../../domain/models/location/services_sequence_model.dart';
+import '../../domain/models/sequence/services_sequence_model.dart';
 
 class ServicesSequenceItemWidget extends StatefulWidget {
   final ValueChanged<ServicesSequenceModel>? onTap;

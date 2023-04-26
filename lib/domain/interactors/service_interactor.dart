@@ -1,7 +1,7 @@
 import '../models/base/container_for_list.dart';
 import '../models/base/result.dart';
-import '../models/location/create_service_request.dart';
-import '../models/location/service_model.dart';
+import '../models/service/create_service_request.dart';
+import '../models/service/service_model.dart';
 
 abstract class ServiceInteractor {
   Future<Result<ContainerForList<ServiceModel>>> getServicesInLocation(int locationId);

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/specialist_interactor.dart';
-import 'package:queue_management_system_client/domain/models/location/specialist_model.dart';
+import 'package:queue_management_system_client/domain/models/specialist/specialist_model.dart';
 import 'package:queue_management_system_client/ui/models/service/service_wrapper.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/specialist_item_widget.dart';

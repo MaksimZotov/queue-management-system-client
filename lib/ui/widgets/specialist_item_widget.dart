@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import '../../domain/models/location/specialist_model.dart';
+import '../../domain/models/specialist/specialist_model.dart';
 
 class SpecialistItemWidget extends StatefulWidget {
   final ValueChanged<SpecialistModel>? onTap;

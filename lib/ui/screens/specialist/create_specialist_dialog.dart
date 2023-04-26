@@ -8,8 +8,8 @@ import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
 import '../../../domain/interactors/specialist_interactor.dart';
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/location/create_specialist_request.dart';
-import '../../../domain/models/location/specialist_model.dart';
+import '../../../domain/models/specialist/create_specialist_request.dart';
+import '../../../domain/models/specialist/specialist_model.dart';
 import '../../router/routes_config.dart';
 
 class CreateSpecialistConfig extends BaseDialogConfig {

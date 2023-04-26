@@ -7,7 +7,7 @@ import 'package:queue_management_system_client/domain/models/location/location_m
 import '../../../data/repositories/repository.dart';
 import '../../models/base/container_for_list.dart';
 import '../../models/location/create_location_request.dart';
-import '../../models/locationnew/location_state.dart';
+import '../../models/location/location_state.dart';
 
 @Singleton(as: LocationInteractor)
 class LocationInteractorImpl extends LocationInteractor {
