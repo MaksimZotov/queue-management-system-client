@@ -207,10 +207,10 @@ class _SpecialistsState extends BaseState<
               child: ListView.builder(
                 itemBuilder: (context, index) {
                   return ServiceItemWidget(
-                      serviceWrapper: state.services[index]
+                      serviceWrapper: state.servicesInSpecialist[index]
                   );
                 },
-                itemCount: state.services.length,
+                itemCount: state.servicesInSpecialist.length,
               ),
             )
           ],
@@ -275,6 +275,7 @@ class SpecialistsLogicState extends BaseLogicState {
 
   final List<SpecialistModel> specialists;
   final List<ServiceWrapper> services;
+  final List<ServiceWrapper> servicesInSpecialist;
 
   final bool showCreateSpecialistDialog;
 
@@ -306,6 +307,7 @@ class SpecialistsLogicState extends BaseLogicState {
     required this.hasRights,
     required this.specialists,
     required this.services,
+    required this.servicesInSpecialist,
     required this.showCreateSpecialistDialog
   });
 
@@ -321,6 +323,7 @@ class SpecialistsLogicState extends BaseLogicState {
     bool? hasRights,
     List<SpecialistModel>? specialists,
     List<ServiceWrapper>? services,
+    List<ServiceWrapper>? servicesInSpecialist,
     bool? showCreateSpecialistDialog,
   }) => SpecialistsLogicState(
       nextConfig: nextConfig,
@@ -334,6 +337,7 @@ class SpecialistsLogicState extends BaseLogicState {
       hasRights: hasRights ?? this.hasRights,
       specialists: specialists ?? this.specialists,
       services: services ?? this.services,
+      servicesInSpecialist: servicesInSpecialist ?? this.servicesInSpecialist,
       showCreateSpecialistDialog: showCreateSpecialistDialog ?? this.showCreateSpecialistDialog
   );
 }
@@ -358,6 +362,7 @@ class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
           hasRights: false,
           specialists: [],
           services: [],
+          servicesInSpecialist: [],
           showCreateSpecialistDialog: false
       )
   );
@@ -455,16 +460,25 @@ class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
     await _serviceInteractor.getServicesInSpecialist(specialistModel.id)
       ..onSuccess((result) {
         hideLoad();
-        emit(
-            state.copy(
-                specialistsStateEnum: state.kioskState != null
-                  ? SpecialistsStateEnum.servicesSelecting
-                  : SpecialistsStateEnum.servicesInCreatedSpecialistViewing,
-                services: result.data.results
-                    .map((service) => ServiceWrapper(service: service))
-                    .toList()
-            )
-        );
+        if (state.kioskState != null) {
+          emit(
+              state.copy(
+                  specialistsStateEnum: SpecialistsStateEnum.servicesSelecting,
+                  services: result.data.results
+                      .map((service) => ServiceWrapper(service: service))
+                      .toList()
+              )
+          );
+        } else {
+          emit(
+              state.copy(
+                  specialistsStateEnum: SpecialistsStateEnum.servicesInCreatedSpecialistViewing,
+                  servicesInSpecialist: result.data.results
+                      .map((service) => ServiceWrapper(service: service))
+                      .toList()
+              )
+          );
+        }
         hideLoad();
       })
       ..onError((result) {
