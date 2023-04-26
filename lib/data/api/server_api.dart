@@ -43,7 +43,7 @@ import '../local/secure_storage.dart';
 @singleton
 class ServerApi {
 
-  static const url = 'http://localhost:8080';
+  static const url = 'http://192.168.137.1:8080';
   static const clientUrl = 'http://localhost:64407';
 
   static const signupMethod = '/account/signup';
@@ -431,21 +431,21 @@ class ServerApi {
   Future<Result> callClientInQueue(int queueId, int clientId) => _execRequest(
       request: _dioApi.post(
           '$url/clients/$clientId/call',
-          queryParameters: { 'queue_id': clientId }
+          queryParameters: { 'queue_id': queueId }
       )
   );
 
   Future<Result> returnClientToQueue(int queueId, int clientId) => _execRequest(
       request: _dioApi.post(
           '$url/clients/$clientId/return',
-          queryParameters: { 'queue_id': clientId }
+          queryParameters: { 'queue_id': queueId }
       )
   );
 
   Future<Result> notifyClientInQueue(int queueId, int clientId) => _execRequest(
       request: _dioApi.post(
           '$url/clients/$clientId/notify',
-          queryParameters: { 'queue_id': clientId }
+          queryParameters: { 'queue_id': queueId }
       )
   );
   // <======================== Client ========================>
