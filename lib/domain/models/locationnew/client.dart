@@ -9,6 +9,7 @@ part 'client.g.dart';
 class Client {
   final int id;
   final int code;
+  final String? phone;
   @JsonKey(name: 'wait_timestamp')
   final DateTime waitTimestamp;
   final List<Service> services;
@@ -23,6 +24,7 @@ class Client {
   Client({
     required this.id,
     required this.code,
+    required this.phone,
     required this.waitTimestamp,
     required this.services,
     required this.queue

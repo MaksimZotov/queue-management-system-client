@@ -50,7 +50,17 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
           ? <Widget>[
             ClientItemWidget(
               client: state.servingClient!,
-              onChange: null,
+              onChange: (client) => widget.emitConfig(
+                  ServicesSequencesConfig(
+                      accountId: widget.config.accountId,
+                      locationId: widget.config.locationId,
+                      kioskMode: null,
+                      multipleSelect: null,
+                      clientId: client.id,
+                      queueId: widget.config.queueId,
+                      updateQueue: !widget.config.updateQueue
+                  )
+              ),
               onNotify: getCubitInstance(context).notify,
               onServe: getCubitInstance(context).serve,
               onReturn: getCubitInstance(context).returnClient,
@@ -67,17 +77,7 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
             child: ListView.builder(
               itemBuilder: (context, index) => ClientItemWidget(
                 client: state.availableClients[index],
-                onChange: (client) => widget.emitConfig(
-                  ServicesSequencesConfig(
-                      accountId: widget.config.accountId,
-                      locationId: widget.config.locationId,
-                      kioskMode: null,
-                      multipleSelect: null,
-                      clientId: client.id,
-                      queueId: widget.config.queueId,
-                      updateQueue: !widget.config.updateQueue
-                  )
-                ),
+                onChange: null,
                 onNotify: getCubitInstance(context).notify,
                 onServe: null,
                 onReturn: null,
@@ -159,6 +159,7 @@ class QueueLogicState extends BaseLogicState {
     return Client(
         id: client.id,
         code: client.code,
+        phone: client.phone,
         waitTimestamp: client.waitTimestamp,
         services: List.from(client.services)
           ..removeWhere((service) => !queueStateModel.services.contains(service.id) || service.orderNumber != min),

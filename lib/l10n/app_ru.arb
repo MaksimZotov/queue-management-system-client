@@ -150,6 +150,15 @@
   }
 },
 
+"phoneWithColonPattern": "Телефон: {phone}",
+"@phoneWithColonPattern": {
+  "placeholders": {
+    "phone": {
+      "type": "string"
+    }
+  }
+},
+
 "waitTimeInMinutesPattern": "Время ожидания: {waitTime} мин.",
 "@waitTimeInMinutesPattern": {
   "placeholders": {
