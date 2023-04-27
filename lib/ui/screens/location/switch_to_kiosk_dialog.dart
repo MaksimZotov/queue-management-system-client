@@ -148,16 +148,17 @@ class _SwitchToKioskState extends BaseDialogState<
               getLocalizations(context).switchToKioskError
           )
       )
-    ] : []) + [
+    ] : [
+      ButtonWidget(
+          text: getLocalizations(context).downloadQrCode,
+          onClick: getCubitInstance(context).downloadQrCode
+      )
+    ]) + [
       ButtonWidget(
           text: getLocalizations(context).copyLink,
           onClick: () => getCubitInstance(context).copyLink(
               getLocalizations(context).locationLinkCopied
           )
-      ),
-      ButtonWidget(
-          text: getLocalizations(context).downloadQrCode,
-          onClick: getCubitInstance(context).downloadQrCode
       )
     ];
   }
