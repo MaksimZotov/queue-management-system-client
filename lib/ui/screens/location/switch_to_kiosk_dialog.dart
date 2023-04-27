@@ -326,6 +326,21 @@ class SwitchToKioskCubit extends BaseDialogCubit<SwitchToKioskLogicState> {
   String _getLocationUrl() {
     int accountId = state.config.accountId;
     int locationId = state.config.locationId;
-    return '${ServerApi.clientUrl}/accounts/$accountId/locations/$locationId?mode=${state.selectedMode.name}&multiple=${state.multipleSelect}';
+    String startUrl = '${ServerApi.clientUrl}/accounts/$accountId/locations/$locationId';
+    String middleUrl;
+    switch (state.selectedMode) {
+      case KioskMode.services:
+        middleUrl = '/services';
+        break;
+      case KioskMode.sequences:
+        middleUrl = '/sequences';
+        break;
+      case KioskMode.specialists:
+        middleUrl = '/specialists';
+        break;
+      default:
+        middleUrl = '';
+    }
+    return '$startUrl$middleUrl?mode=${state.selectedMode.name}&multiple=${state.multipleSelect}';
   }
 }
