@@ -169,13 +169,19 @@ class _ServicesSequencesState extends BaseState<
             ),
             Container(height: 2, color: Colors.grey),
             const SizedBox(height: Dimens.contentMargin),
-            ButtonWidget(
-              text: getLocalizations(context).select,
-              onClick: getCubitInstance(context).switchToSelectedServicesViewing,
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: ButtonWidget(
+                  text: getLocalizations(context).select,
+                  onClick: getCubitInstance(context).switchToSelectedServicesViewing,
+                )
             ),
-            ButtonWidget(
-              text: getLocalizations(context).cancel,
-              onClick: getCubitInstance(context).switchToServicesSequencesViewing,
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: ButtonWidget(
+                  text: getLocalizations(context).cancel,
+                  onClick: getCubitInstance(context).switchToServicesSequencesViewing,
+                )
             ),
             const SizedBox(height: Dimens.contentMargin)
           ],
@@ -222,13 +228,19 @@ class _ServicesSequencesState extends BaseState<
             ),
             Container(height: 2, color: Colors.grey),
             const SizedBox(height: Dimens.contentMargin),
-            ButtonWidget(
-              text: getLocalizations(context).confirm,
-              onClick: getCubitInstance(context).confirmSelectedServices,
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: ButtonWidget(
+                  text: getLocalizations(context).confirm,
+                  onClick: getCubitInstance(context).confirmSelectedServices,
+                )
             ),
-            ButtonWidget(
-              text: getLocalizations(context).cancel,
-              onClick: getCubitInstance(context).switchToServicesSequencesViewing,
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: ButtonWidget(
+                  text: getLocalizations(context).cancel,
+                  onClick: getCubitInstance(context).switchToServicesSequencesViewing,
+                )
             ),
             const SizedBox(height: Dimens.contentMargin)
           ],
@@ -272,13 +284,19 @@ class _ServicesSequencesState extends BaseState<
             ),
             Container(height: 2, color: Colors.grey),
             const SizedBox(height: Dimens.contentMargin),
-            ButtonWidget(
-              text: getLocalizations(context).assign,
-              onClick: getCubitInstance(context).changeClient,
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: ButtonWidget(
+                  text: getLocalizations(context).assign,
+                  onClick: getCubitInstance(context).changeClient,
+                )
             ),
-            ButtonWidget(
-              text: getLocalizations(context).cancel,
-              onClick: Navigator.of(context).pop
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: ButtonWidget(
+                    text: getLocalizations(context).cancel,
+                    onClick: Navigator.of(context).pop
+                )
             ),
             const SizedBox(height: Dimens.contentMargin)
           ],

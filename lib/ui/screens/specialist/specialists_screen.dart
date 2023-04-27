@@ -156,17 +156,23 @@ class _SpecialistsState extends BaseState<
               ),
               Container(height: 2, color: Colors.grey),
               const SizedBox(height: Dimens.contentMargin),
-              ButtonWidget(
-                  text: state.kioskState == null
-                      ? getLocalizations(context).select
-                      : getLocalizations(context).connect,
-                  onClick: state.kioskState == null
-                      ? getCubitInstance(context).switchToSelectedServicesViewing
-                      : () => _showAddClientDialog(context, state, state.selectedServices)
+              Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: ButtonWidget(
+                      text: state.kioskState == null
+                          ? getLocalizations(context).select
+                          : getLocalizations(context).connect,
+                      onClick: state.kioskState == null
+                          ? getCubitInstance(context).switchToSelectedServicesViewing
+                          : () => _showAddClientDialog(context, state, state.selectedServices)
+                  )
               ),
-              ButtonWidget(
-                text: getLocalizations(context).cancel,
-                onClick: getCubitInstance(context).switchToSpecialistsViewing,
+              Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: ButtonWidget(
+                    text: getLocalizations(context).cancel,
+                    onClick: getCubitInstance(context).switchToSpecialistsViewing,
+                  )
               ),
               const SizedBox(height: Dimens.contentMargin)
             ],
@@ -188,32 +194,31 @@ class _SpecialistsState extends BaseState<
             ),
             Container(height: 2, color: Colors.grey),
             const SizedBox(height: Dimens.contentMargin),
-            ButtonWidget(
-              text: getLocalizations(context).confirm,
-              onClick: getCubitInstance(context).confirmSelectedServices,
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: ButtonWidget(
+                  text: getLocalizations(context).confirm,
+                  onClick: getCubitInstance(context).confirmSelectedServices,
+                )
             ),
-            ButtonWidget(
-              text: getLocalizations(context).cancel,
-              onClick: getCubitInstance(context).switchToSpecialistsViewing,
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: ButtonWidget(
+                  text: getLocalizations(context).cancel,
+                  onClick: getCubitInstance(context).switchToSpecialistsViewing,
+                )
             ),
             const SizedBox(height: Dimens.contentMargin)
           ],
         );
       case SpecialistsStateEnum.servicesInCreatedSpecialistViewing:
-        return Column(
-          children: [
-            Expanded(
-              flex: 1,
-              child: ListView.builder(
-                itemBuilder: (context, index) {
-                  return ServiceItemWidget(
-                      serviceWrapper: state.servicesInSpecialist[index]
-                  );
-                },
-                itemCount: state.servicesInSpecialist.length,
-              ),
-            )
-          ],
+        return ListView.builder(
+          itemBuilder: (context, index) {
+            return ServiceItemWidget(
+                serviceWrapper: state.servicesInSpecialist[index]
+            );
+          },
+          itemCount: state.servicesInSpecialist.length,
         );
     }
   }
