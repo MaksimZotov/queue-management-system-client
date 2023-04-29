@@ -43,8 +43,8 @@ import '../local/secure_storage.dart';
 @singleton
 class ServerApi {
 
-  static const url = 'http://192.168.137.1:8080';
-  static const clientUrl = 'http://localhost:64407';
+  static const url = 'http://localhost:8080';
+  static const clientUrl = 'http://localhost:54407';
 
   static const signupMethod = '/account/signup';
   static const confirmMethod = '/account/confirm';
