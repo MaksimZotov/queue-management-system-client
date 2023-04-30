@@ -43,8 +43,8 @@ import '../local/secure_storage.dart';
 @singleton
 class ServerApi {
 
-  static const url = 'http://localhost:8080';
-  static const clientUrl = 'http://localhost:54407';
+  static const url = String.fromEnvironment('QMS_SERVER_BASE_URL');
+  static const clientUrl = String.fromEnvironment('QMS_CLIENT_BASE_URL');
 
   static const signupMethod = '/account/signup';
   static const confirmMethod = '/account/confirm';
