@@ -33,8 +33,8 @@ import '../../../domain/models/location/location_state.dart';
 import '../../../domain/models/queue/create_queue_request.dart';
 import '../../../domain/models/queue/queue_state_model.dart';
 import '../../../domain/models/rights/add_rights_request.dart';
-import '../../local/secure_storage.dart';
-import '../../local/shared_preferences_storage.dart';
+import '../../local/account_storage.dart';
+import '../../local/printer_info_storage.dart';
 import '../../native/android/android_native_interactor.dart';
 import '../../printer/printer_interactor.dart';
 
@@ -42,8 +42,8 @@ import '../../printer/printer_interactor.dart';
 class RepositoryImpl extends Repository {
 
   final ServerApi _serverApi;
-  final SharedPreferencesStorage _sharedPreferencesStorage;
-  final SecureStorage _secureStorage;
+  final PrinterInfoStorage _sharedPreferencesStorage;
+  final AccountInfoStorage _secureStorage;
   final AndroidNativeInteractor _androidNativeInteractor;
   final PrinterInteractor _printerInteractor;
 
@@ -344,8 +344,8 @@ class RepositoryImpl extends Repository {
     if (printerEnabled) {
       return _printerInteractor.connectToPrinter();
     }
+    _androidNativeInteractor.enableLockTask();
     return true;
-    //return _androidNativeInteractor.enableLockTask();
   }
   // <======================== Kiosk ========================>
 

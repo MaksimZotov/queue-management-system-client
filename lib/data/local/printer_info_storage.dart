@@ -3,12 +3,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 
 @lazySingleton
-class SharedPreferencesStorage {
+class PrinterInfoStorage {
   static const _printerEnabled = 'PRINTER_ENABLED';
 
   Future<void> setPrinterEnabled(bool printerEnabled) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setBool(_printerEnabled, printerEnabled);
+    await prefs.setBool(_printerEnabled, printerEnabled);
   }
 
   Future<bool> getPrinterEnabled() async {

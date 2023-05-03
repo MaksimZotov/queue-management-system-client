@@ -38,7 +38,7 @@ import '../../domain/models/account/tokens_model.dart';
 import '../../domain/models/queue/queue_state_model.dart';
 import '../converters/container_for_list_converter.dart';
 import '../converters/from_json.dart';
-import '../local/secure_storage.dart';
+import '../local/account_storage.dart';
 
 @singleton
 class ServerApi {
@@ -51,7 +51,7 @@ class ServerApi {
   static const loginMethod = '/account/login';
 
   final Dio _dioApi;
-  final SecureStorage _tokensStorage;
+  final AccountInfoStorage _accountInfoStorage;
   final ContainerForListConverter _containerForListConverter;
 
   Map<String, StompClient> stompClients = {};
@@ -59,7 +59,7 @@ class ServerApi {
 
   ServerApi(
       this._dioApi,
-      this._tokensStorage,
+      this._accountInfoStorage,
       this._containerForListConverter,
   );
 
@@ -134,9 +134,9 @@ class ServerApi {
 
   Future<void> _saveTokens(SuccessResult<TokensModel> result) async {
     final tokens = result.data;
-    await _tokensStorage.setAccessToken(accessToken: tokens.access);
-    await _tokensStorage.setRefreshToken(refreshToken: tokens.refresh);
-    await _tokensStorage.setAccountId(accountId: tokens.accountId);
+    await _accountInfoStorage.setAccessToken(accessToken: tokens.access);
+    await _accountInfoStorage.setRefreshToken(refreshToken: tokens.refresh);
+    await _accountInfoStorage.setAccountId(accountId: tokens.accountId);
   }
 
 
