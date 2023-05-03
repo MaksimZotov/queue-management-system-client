@@ -17,6 +17,4 @@ RUN flutter build web --release --web-renderer html --dart-define SERVER_URL=htt
 COPY /nginx/nginx.conf /etc/nginx/conf.d/default.conf
 RUN chmod +x /app/entrypoint.sh
 
-EXPOSE 80
-
 ENTRYPOINT ["/app/entrypoint.sh"]
