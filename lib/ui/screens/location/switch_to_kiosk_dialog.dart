@@ -316,7 +316,7 @@ class SwitchToKioskCubit extends BaseDialogCubit<SwitchToKioskLogicState> {
 
     if (image != null) {
       await FileSaver.instance.saveFile(
-          url,
+          'link',
           image.buffer.asUint8List(),
           'png',
           mimeType: MimeType.PNG

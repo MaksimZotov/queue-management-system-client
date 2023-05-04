@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:queue_management_system_client/ui/router/router_page.dart';
 import 'routes_config.dart';
 
 class AppRouterDelegate extends RouterDelegate<BaseConfig>
@@ -19,7 +20,12 @@ class AppRouterDelegate extends RouterDelegate<BaseConfig>
       curConfig = curConfig.getPrevConfig();
     }
     if (pages.isEmpty) {
-      return [InitialConfig().getPage(emitConfig)];
+      return [
+        const RouterPage(
+          key: ValueKey(''),
+          child: SizedBox.shrink()
+        )
+      ];
     }
     return pages.reversed.toList();
   }

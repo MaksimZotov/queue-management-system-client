@@ -43,11 +43,6 @@ class ErrorConfig extends BaseConfig {
 }
 
 class InitialConfig extends BaseConfig {
-  bool firstLaunch;
-
-  InitialConfig({
-    this.firstLaunch = true
-  });
 
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
@@ -75,9 +70,7 @@ class AuthorizationConfig extends BaseConfig {
 
   @override
   BaseConfig getPrevConfig() {
-    return InitialConfig(
-      firstLaunch: false
-    );
+    return InitialConfig();
   }
 }
 
@@ -95,9 +88,7 @@ class RegistrationConfig extends BaseConfig {
 
   @override
   BaseConfig getPrevConfig() {
-    return InitialConfig(
-        firstLaunch: false
-    );
+    return InitialConfig();
   }
 }
 
