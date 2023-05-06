@@ -141,6 +141,7 @@ class BoardLogicState extends BaseLogicState {
   final BoardConfig config;
   final Board board;
   final int page;
+  final DateTime locationStateCreatedAt;
 
   BoardLogicState({
     super.nextConfig,
@@ -149,7 +150,8 @@ class BoardLogicState extends BaseLogicState {
     super.loading,
     required this.config,
     required this.board,
-    required this.page
+    required this.page,
+    required this.locationStateCreatedAt
   });
 
   @override
@@ -159,7 +161,8 @@ class BoardLogicState extends BaseLogicState {
     String? snackBar,
     bool? loading,
     Board? board,
-    int? page
+    int? page,
+    DateTime? locationStateCreatedAt
   }) => BoardLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -167,7 +170,8 @@ class BoardLogicState extends BaseLogicState {
       loading: loading ?? this.loading,
       config: config,
       board: board ?? this.board,
-      page: page ?? this.page
+      page: page ?? this.page,
+      locationStateCreatedAt: locationStateCreatedAt ?? this.locationStateCreatedAt
   );
 }
 
@@ -189,28 +193,26 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
       BoardLogicState(
           config: config,
           board: Board([]),
-          page: 0
+          page: 0,
+          locationStateCreatedAt: DateTime(0)
       )
   );
 
   @override
   Future<void> onStart() async {
     showLoad();
-    await _locationInteractor.getLocationState(
-        state.config.locationId
-    )..onSuccess((result) {
-      emit(state.copy(board: Board.fromLocationState(result.data, state.config.rowsAmount)));
-      hideLoad();
-    })..onError((result) {
-      showError(result);
-    });
-
     _socketInteractor.connectToSocket<LocationState>(
       _locationTopic + state.config.locationId.toString(),
-      () => { /* Do nothing */ },
-      (locationState) => {
-        emit(state.copy(board: Board.fromLocationState(locationState, state.config.rowsAmount)))
+      () async => {
+        await _locationInteractor.getLocationState(
+            state.config.locationId
+        )..onSuccess((result) {
+          _handleNewLocationState(result.data);
+        })..onError((result) {
+          showError(result);
+        })
       },
+      _handleNewLocationState,
       (error) => { /* Do nothing */ }
     );
 
@@ -235,5 +237,16 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
         emit(state.copy(page: state.page + 1));
       }
     });
+  }
+
+  void _handleNewLocationState(LocationState locationState) {
+    if (locationState.createdAt.millisecondsSinceEpoch > state.locationStateCreatedAt.millisecondsSinceEpoch) {
+      emit(
+          state.copy(
+              board: Board.fromLocationState(locationState, state.config.rowsAmount),
+              locationStateCreatedAt: locationState.createdAt
+          )
+      );
+    }
   }
 }
