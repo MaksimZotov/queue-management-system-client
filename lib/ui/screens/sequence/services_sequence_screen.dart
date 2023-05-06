@@ -86,19 +86,17 @@ class _ServicesSequencesState extends BaseState<
         return false;
       },
       child: Scaffold(
-        appBar: state.kioskState == null || state.kioskState?.kioskMode == KioskMode.all
-            ? AppBar(
+        appBar: AppBar(
               title: Text(_getTitleText(context, state)),
-            )
-                : null,
+            ),
             body: _getBody(context, state, widget),
             floatingActionButton: _checkFloatingActionButton(state)
                 ? FloatingActionButton(
-              tooltip: getLocalizations(context).createServicesSequence,
-              onPressed: getCubitInstance(context).switchToServicesSelecting,
-              child: const Icon(Icons.add),
-            )
-            : null,
+                  tooltip: getLocalizations(context).createServicesSequence,
+                  onPressed: getCubitInstance(context).switchToServicesSelecting,
+                  child: const Icon(Icons.add),
+                )
+                : null,
       )
   );
 

@@ -42,15 +42,13 @@ class _ServicesState extends BaseState<
       ServicesLogicState state,
       ServicesWidget widget
   ) => Scaffold(
-    appBar: state.kioskState == null || state.kioskState?.kioskMode == KioskMode.all
-      ? AppBar(
-        title: Text(
-            state.locationName.isEmpty
-                ? ''
-                : getLocalizations(context).services
-        ),
-      )
-      : null,
+    appBar: AppBar(
+      title: Text(
+          state.locationName.isEmpty
+              ? ''
+              : getLocalizations(context).services
+      ),
+    ),
     body: _getBody(context, state, widget),
     floatingActionButton: state.hasRights && state.kioskState == null
         ? FloatingActionButton(

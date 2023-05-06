@@ -75,11 +75,18 @@ class _SpecialistsState extends BaseState<
       return false;
     },
     child: Scaffold(
-      appBar: state.kioskState == null || state.kioskState?.kioskMode == KioskMode.all
-          ? AppBar(
-              title: Text(_getTitleText(context, state))
-          )
-          : null,
+      appBar: AppBar(
+          title: Text(_getTitleText(context, state)),
+          leading: state.kioskState?.kioskMode == KioskMode.specialists && state.specialistsStateEnum == SpecialistsStateEnum.servicesSelecting
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                iconSize: Dimens.backArrowSize,
+                onPressed: () {
+                  getCubitInstance(context).switchToSpecialistsViewing();
+                },
+            )
+            : null
+      ),
       body: _getBody(context, state, widget),
       floatingActionButton: _checkFloatingActionButton(state)
           ? FloatingActionButton(
