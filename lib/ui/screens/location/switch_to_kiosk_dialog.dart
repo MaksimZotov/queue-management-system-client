@@ -18,6 +18,10 @@ import '../../../domain/models/base/result.dart';
 import '../../../domain/models/kiosk/kiosk_state.dart';
 import '../../router/routes_config.dart';
 
+bool _checkAndroidAndNotWeb() {
+  return !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+}
+
 class SwitchToKioskConfig extends BaseDialogConfig {
   final int accountId;
   final int locationId;
@@ -112,7 +116,7 @@ class _SwitchToKioskState extends BaseDialogState<
           ),
         ],
       )
-    ] + (defaultTargetPlatform == TargetPlatform.android ? [
+    ] + (_checkAndroidAndNotWeb() ? [
       const SizedBox(height: Dimens.contentMargin),
       Row(
         children: [
@@ -141,7 +145,7 @@ class _SwitchToKioskState extends BaseDialogState<
       ),
     ] : []) + [
       const SizedBox(height: Dimens.contentMargin * 2)
-    ] + (defaultTargetPlatform == TargetPlatform.android ? [
+    ] + (_checkAndroidAndNotWeb() ? [
       ButtonWidget(
           text: getLocalizations(context).switchButton,
           onClick: () => getCubitInstance(context).switchToKiosk(
@@ -244,7 +248,7 @@ class SwitchToKioskCubit extends BaseDialogCubit<SwitchToKioskLogicState> {
     bool printerEnabled = await _kioskInteractor.getPrinterEnabled();
     emit(
         state.copy(
-          printerEnabled: printerEnabled && defaultTargetPlatform == TargetPlatform.android
+          printerEnabled: printerEnabled && _checkAndroidAndNotWeb()
         )
     );
     hideLoad();
@@ -273,7 +277,7 @@ class SwitchToKioskCubit extends BaseDialogCubit<SwitchToKioskLogicState> {
   void setPrinterEnabled(bool enabled) {
     emit(
         state.copy(
-            printerEnabled: enabled && defaultTargetPlatform == TargetPlatform.android
+            printerEnabled: enabled && _checkAndroidAndNotWeb()
         )
     );
   }
