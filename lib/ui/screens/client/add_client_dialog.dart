@@ -13,6 +13,10 @@ import '../../../domain/models/base/result.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/text_field_widget.dart';
 
+bool _checkAndroidAndNotWeb() {
+  return !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+}
+
 class AddClientConfig extends BaseDialogConfig {
   final int locationId;
   final List<int>? serviceIds;
@@ -70,7 +74,7 @@ class _AddClientState extends BaseDialogState<
           ),
       )
     ] : (
-      (defaultTargetPlatform != TargetPlatform.android ? <Widget>[
+      (!_checkAndroidAndNotWeb() ? <Widget>[
         TextFieldWidget(
             label: getLocalizations(context).phone,
             text: state.phone,
@@ -162,7 +166,7 @@ class AddClientCubit extends BaseDialogCubit<
 
   Future<void> connect(String yourTicketNumberWithColon) async {
     showLoad();
-    bool confirmationRequired = defaultTargetPlatform != TargetPlatform.android;
+    bool confirmationRequired = !_checkAndroidAndNotWeb();
     await _clientInteractor.createClientInLocation(
         state.config.locationId,
         CreateClientRequest(
