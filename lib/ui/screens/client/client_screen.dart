@@ -91,6 +91,14 @@ class _ClientState extends BaseState<
                               fieldValue: state.clientState.phone ?? '-'
                           ),
                           ClientInfoFieldWidget(
+                              fieldName: getLocalizations(context).waitTimeWithColon,
+                              fieldValue: _getTimeInMinutes(context, state.waitTimeInMinutes)
+                          ),
+                          ClientInfoFieldWidget(
+                              fieldName: getLocalizations(context).totalTimeWithColon,
+                              fieldValue: _getTimeInMinutes(context, state.totalTimeInMinutes)
+                          ),
+                          ClientInfoFieldWidget(
                               fieldName: getLocalizations(context).codeWithColon,
                               fieldValue: state.clientState.code?.toString() ?? '-'
                           )
@@ -113,6 +121,13 @@ class _ClientState extends BaseState<
   ) {
     // Do nothing
   }
+
+  String _getTimeInMinutes(BuildContext context, int? time) {
+    if (time == null) {
+      return '-';
+    }
+    return getLocalizations(context).timeInMinutesPattern(time);
+  }
 }
 
 class ClientLogicState extends BaseLogicState {
@@ -122,14 +137,9 @@ class ClientLogicState extends BaseLogicState {
   final bool showConfirmDialog;
   final LocationState locationState;
 
-  String? get queueName {
-    for (Client client in locationState.clients) {
-      if (client.id == clientState.clientId && client.queue?.name != null) {
-        return client.queue?.name;
-      }
-    }
-    return null;
-  }
+  final String? queueName;
+  final int? waitTimeInMinutes;
+  final int? totalTimeInMinutes;
 
   bool get inQueue =>
       queueName != null;
@@ -142,7 +152,10 @@ class ClientLogicState extends BaseLogicState {
     required this.config,
     required this.clientState,
     required this.showConfirmDialog,
-    required this.locationState
+    required this.locationState,
+    required this.queueName,
+    required this.waitTimeInMinutes,
+    required this.totalTimeInMinutes
   });
 
   @override
@@ -155,6 +168,9 @@ class ClientLogicState extends BaseLogicState {
     QueueStateForClientModel? clientState,
     bool? showConfirmDialog,
     LocationState? locationState,
+    String? queueName,
+    int? waitTimeInMinutes,
+    int? totalTimeInMinutes
   }) => ClientLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -163,7 +179,10 @@ class ClientLogicState extends BaseLogicState {
       config: config,
       clientState: clientState ?? this.clientState,
       showConfirmDialog: showConfirmDialog ?? this.showConfirmDialog,
-      locationState: locationState ?? this.locationState
+      locationState: locationState ?? this.locationState,
+      queueName: queueName,
+      waitTimeInMinutes: waitTimeInMinutes,
+      totalTimeInMinutes: totalTimeInMinutes
   );
 }
 
@@ -193,7 +212,10 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
             locationId: -1
           ),
           showConfirmDialog: false,
-          locationState: LocationState(null, [], DateTime(0))
+          locationState: LocationState(null, [], DateTime(0)),
+          queueName: null,
+          waitTimeInMinutes: null,
+          totalTimeInMinutes: null
       )
   );
 
@@ -262,13 +284,47 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
 
   void _handleNewLocationState(LocationState locationState) {
     if (locationState.createdAt.millisecondsSinceEpoch > state.locationState.createdAt.millisecondsSinceEpoch) {
-      emit(state.copy(locationState: locationState));
+      String? queueName;
+      int? waitTimeInMinutes;
+      int? totalTimeInMinutes;
+
+      for (Client client in locationState.clients) {
+        if (client.id == state.clientState.clientId) {
+          queueName = client.queue?.name;
+          waitTimeInMinutes = client.waitTimeInMinutes;
+          totalTimeInMinutes = client.totalTimeInMinutes;
+        }
+      }
+
+      emit(
+          state.copy(
+              locationState: locationState,
+              queueName: queueName,
+              waitTimeInMinutes: waitTimeInMinutes,
+              totalTimeInMinutes: totalTimeInMinutes
+          )
+      );
     }
   }
 
   void _startUpdating() async {
     _timer = Timer.periodic(const Duration(seconds: _updatePeriod), (timer) {
-      emit(state.copy(error: state.error));
+      int? waitTimeInMinutes;
+      int? totalTimeInMinutes;
+
+      for (Client client in state.locationState.clients) {
+        if (client.id == state.clientState.clientId) {
+          waitTimeInMinutes = client.waitTimeInMinutes;
+          totalTimeInMinutes = client.totalTimeInMinutes;
+        }
+      }
+
+      emit(
+          state.copy(
+              waitTimeInMinutes: waitTimeInMinutes,
+              totalTimeInMinutes: totalTimeInMinutes
+          )
+      );
     });
   }
 }

@@ -160,6 +160,7 @@ class QueueLogicState extends BaseLogicState {
         code: client.code,
         phone: client.phone,
         waitTimestamp: client.waitTimestamp,
+        totalTimestamp: client.totalTimestamp,
         services: List.from(client.services)
           ..removeWhere((service) => !queueStateModel.services.contains(service.id) || service.orderNumber != min),
         queue: client.queue

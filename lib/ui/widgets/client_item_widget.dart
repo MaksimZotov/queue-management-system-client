@@ -99,6 +99,19 @@ class _ClientItemState extends State<ClientItemWidget> {
                         )
                     )
                 ),
+                Card(
+                    elevation: 2,
+                    color: Colors.white,
+                    child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Text(
+                            AppLocalizations.of(context)!.totalTimeInMinutesPattern(
+                                widget.client.totalTimeInMinutes
+                            ),
+                            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)
+                        )
+                    )
+                ),
                 const SizedBox(height: 10),
                 Text(
                     'Услуги:',

@@ -131,6 +131,8 @@
 "yourTicketNumberWithColon": "Номер вашего талона:",
 "close": "Закрыть",
 "phone": "Телефон",
+"waitTimeWithColon": "Время ожидания:",
+"totalTimeWithColon": "Общее время:",
 
 "yourTicketNumberWithColonPattern": "Номер вашего талона: {code}",
 "@yourTicketNumberWithColonPattern": {
@@ -163,6 +165,24 @@
 "@waitTimeInMinutesPattern": {
   "placeholders": {
     "waitTime": {
+      "type": "int"
+    }
+  }
+},
+
+"totalTimeInMinutesPattern": "Общее время: {waitTime} мин.",
+"@waitTimeInMinutesPattern": {
+  "placeholders": {
+    "waitTime": {
+      "type": "int"
+    }
+  }
+},
+
+"timeInMinutesPattern": "{time} мин.",
+"@timeInMinutesPattern": {
+  "placeholders": {
+    "time": {
       "type": "int"
     }
   }
