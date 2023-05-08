@@ -717,6 +717,8 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
           }
         }
 
+        selectedServices.sort((a, b) => a.orderNumber.compareTo(b.orderNumber));
+
         emit(
             state.copy(
                 servicesSequencesStateEnum: ServicesSequencesStateEnum.servicesInCreatedServicesSequenceViewing,
