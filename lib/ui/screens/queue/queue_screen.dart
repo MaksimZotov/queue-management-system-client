@@ -100,33 +100,8 @@ class QueueLogicState extends BaseLogicState {
   final QueueConfig config;
   final QueueStateModel queueStateModel;
   final LocationState? locationState;
-
-  Client? get servingClient {
-    LocationState? state = locationState;
-    if (state == null) {
-      return null;
-    }
-    for (Client client in state.clients) {
-      if (client.queue?.id == queueStateModel.id) {
-        Client mapped =_mapClient(client);
-        if (mapped.services.isNotEmpty) {
-          return mapped;
-        }
-      }
-    }
-    return null;
-  }
-
-  List<Client> get availableClients {
-    LocationState? state = locationState;
-    if (state == null) {
-      return [];
-    }
-    List<Client> filtered = List.from(state.clients)
-      ..removeWhere((client) => client.id == servingClient?.id || client.queue != null);
-
-    return filtered.map(_mapClient).toList()..removeWhere((client) => client.services.isEmpty);
-  }
+  final Client? servingClient;
+  final List<Client> availableClients;
   
   QueueLogicState({
     super.nextConfig,
@@ -135,7 +110,9 @@ class QueueLogicState extends BaseLogicState {
     super.loading,
     required this.config,
     required this.queueStateModel,
-    required this.locationState
+    required this.locationState,
+    required this.servingClient,
+    required this.availableClients
   });
 
   @override
@@ -146,7 +123,8 @@ class QueueLogicState extends BaseLogicState {
     bool? loading,
     QueueStateModel? queueStateModel,
     LocationState? locationState,
-    List<Client>? clients
+    Client? servingClient,
+    List<Client>? availableClients,
   }) => QueueLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -154,27 +132,10 @@ class QueueLogicState extends BaseLogicState {
       loading: loading ?? this.loading,
       config: config,
       queueStateModel: queueStateModel ?? this.queueStateModel,
-      locationState: locationState ?? this.locationState
+      locationState: locationState ?? this.locationState,
+      servingClient: servingClient ?? this.servingClient,
+      availableClients: availableClients ?? this.availableClients
   );
-
-  Client _mapClient(Client client) {
-    int min = 0x7fffffff;
-    for (Service service in client.services) {
-      if (service.orderNumber < min) {
-        min = service.orderNumber;
-      }
-    }
-    return Client(
-        id: client.id,
-        code: client.code,
-        phone: client.phone,
-        waitTimestamp: client.waitTimestamp,
-        totalTimestamp: client.totalTimestamp,
-        services: List.from(client.services)
-          ..removeWhere((service) => !queueStateModel.services.contains(service.id) || service.orderNumber != min),
-        queue: client.queue
-    );
-  }
 }
 
 @injectable
@@ -207,7 +168,9 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
               name: '',
               services: []
           ),
-          locationState: null
+          locationState: null,
+          servingClient: null,
+          availableClients: []
       )
   );
 
@@ -301,10 +264,29 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
         changes
     );
 
+    Client? servingClient;
+    for (Client client in actualLocationState.clients) {
+      if (client.queue?.id == state.queueStateModel.id) {
+        servingClient = _mapClientWithMinOrder(client);
+        if (servingClient.services.isNotEmpty) {
+          break;
+        }
+      }
+    }
+
+    List<Client> filteredClients = List.from(actualLocationState.clients)
+      ..removeWhere((client) => client.id == servingClient?.id || client.queue != null);
+
+    List<Client> availableClients = filteredClients.map(_mapClientWithMinOrder).toList()
+      ..removeWhere((client) => client.services.isEmpty);
+
     emit(
-        state.copy(
+        QueueLogicState(
+            config: state.config,
+            queueStateModel: state.queueStateModel,
             locationState: actualLocationState,
-            clients: actualLocationState.clients
+            servingClient: servingClient,
+            availableClients: availableClients
         )
     );
 
@@ -322,5 +304,24 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
       changes.clear();
       _setLocationState(newLocationState);
     }
+  }
+
+  Client _mapClientWithMinOrder(Client client) {
+    int min = 0x7fffffff;
+    for (Service service in client.services) {
+      if (service.orderNumber < min) {
+        min = service.orderNumber;
+      }
+    }
+    return Client(
+        id: client.id,
+        code: client.code,
+        phone: client.phone,
+        waitTimestamp: client.waitTimestamp,
+        totalTimestamp: client.totalTimestamp,
+        services: List.from(client.services)
+          ..removeWhere((service) => !state.queueStateModel.services.contains(service.id) || service.orderNumber != min),
+        queue: client.queue
+    );
   }
 }
