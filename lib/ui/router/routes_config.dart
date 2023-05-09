@@ -314,20 +314,16 @@ class QueueConfig extends BaseConfig {
   int locationId;
   int queueId;
 
-  bool updateQueue;
-
   QueueConfig({
     required this.accountId,
     required this.locationId,
-    required this.queueId,
-
-    this.updateQueue = false
+    required this.queueId
   });
 
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
     return RouterPage(
-        key: ValueKey('Queue Page $accountId $locationId $queueId $updateQueue'),
+        key: ValueKey('Queue Page $accountId $locationId $queueId'),
         child: QueueWidget(
           config: this,
           emitConfig: emitConfig,

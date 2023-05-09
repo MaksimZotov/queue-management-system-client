@@ -56,8 +56,7 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
                   kioskMode: null,
                   multipleSelect: null,
                   clientId: client.id,
-                  queueId: widget.config.queueId,
-                  updateQueue: !widget.config.updateQueue
+                  queueId: widget.config.queueId
               )
           ),
           onNotify: getCubitInstance(context).notify,
