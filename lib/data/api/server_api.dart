@@ -498,7 +498,7 @@ class ServerApi {
       VoidCallback onConnected,
       ValueChanged<T> onQueueChanged,
       ValueChanged<dynamic> onError
-      ) {
+  ) {
     if (stompClients.containsKey(destination)) {
       stompClients.remove(destination)?.deactivate();
     }
