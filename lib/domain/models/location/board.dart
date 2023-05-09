@@ -15,12 +15,10 @@ class Board {
       LocationState locationState,
       int rowsAmount
   ) {
-    List<Client> clients = locationState.clients
-      ..sort((a, b) => a.waitTimestamp.second.compareTo(b.waitTimestamp.second));
-
     List<List<Client>> clientsColumns = [];
     List<Client> currentRows = [];
 
+    List<Client> clients = locationState.clients;
     for (int i = 1; i <= clients.length; i++) {
       currentRows.add(clients[i - 1]);
       if ((i >= rowsAmount && i % rowsAmount == 0) || i == clients.length) {

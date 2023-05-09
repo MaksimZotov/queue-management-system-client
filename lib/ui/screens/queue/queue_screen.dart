@@ -44,50 +44,47 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
     appBar: AppBar(
       title: Text(state.queueStateModel.name)
     ),
-    body: SingleChildScrollView(
-      physics: const ScrollPhysics(),
-      child: Column(
-        children: (state.servingClient != null
-            ? <Widget>[
-              ClientItemWidget(
-                client: state.servingClient!,
-                onChange: (client) => widget.emitConfig(
-                  ServicesSequencesConfig(
-                    accountId: widget.config.accountId,
-                    locationId: widget.config.locationId,
-                    kioskMode: null,
-                    multipleSelect: null,
-                    clientId: client.id,
-                    queueId: widget.config.queueId,
-                    updateQueue: !widget.config.updateQueue
-                  )
-                ),
+    body: Column(
+      children: (state.servingClient != null
+          ? <Widget>[
+        ClientItemWidget(
+          client: state.servingClient!,
+          onChange: (client) => widget.emitConfig(
+              ServicesSequencesConfig(
+                  accountId: widget.config.accountId,
+                  locationId: widget.config.locationId,
+                  kioskMode: null,
+                  multipleSelect: null,
+                  clientId: client.id,
+                  queueId: widget.config.queueId,
+                  updateQueue: !widget.config.updateQueue
+              )
+          ),
+          onNotify: getCubitInstance(context).notify,
+          onServe: getCubitInstance(context).serve,
+          onReturn: getCubitInstance(context).returnClient,
+          onCall: null,
+          onDelete: getCubitInstance(context).delete,
+        ),
+        const SizedBox(height: Dimens.contentMargin),
+        Container(height: 2, color: Colors.grey),
+        const SizedBox(height: Dimens.contentMargin)
+      ] : <Widget>[]) + [
+        Expanded(
+            child: ListView.builder(
+              itemBuilder: (context, index) => ClientItemWidget(
+                client: state.availableClients[index],
+                onChange: null,
                 onNotify: getCubitInstance(context).notify,
-                onServe: getCubitInstance(context).serve,
-                onReturn: getCubitInstance(context).returnClient,
-                onCall: null,
+                onServe: null,
+                onReturn: null,
+                onCall: getCubitInstance(context).call,
                 onDelete: getCubitInstance(context).delete,
               ),
-              const SizedBox(height: Dimens.contentMargin),
-              Container(height: 2, color: Colors.grey),
-              const SizedBox(height: Dimens.contentMargin)
-            ] : <Widget>[]) + [
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemBuilder: (context, index) => ClientItemWidget(
-                  client: state.availableClients[index],
-                  onChange: null,
-                  onNotify: getCubitInstance(context).notify,
-                  onServe: null,
-                  onReturn: null,
-                  onCall: getCubitInstance(context).call,
-                  onDelete: getCubitInstance(context).delete,
-                ),
-                itemCount: state.availableClients.length,
-              )
-            ],
-      )
+              itemCount: state.availableClients.length,
+            )
+        )
+      ],
     )
   );
 

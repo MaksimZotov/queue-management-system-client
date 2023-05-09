@@ -71,7 +71,9 @@ class _BoardState extends BaseState<BoardWidget, BoardLogicState, BoardCubit> {
                           children: [
                             Expanded(
                               child: Card(
-                                color: Colors.blueGrey[300],
+                                color: client.queue == null
+                                    ? Colors.blueGrey[300]
+                                    : Colors.green[300],
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Align(
@@ -94,7 +96,9 @@ class _BoardState extends BaseState<BoardWidget, BoardLogicState, BoardCubit> {
                             Expanded(
                               flex: 2,
                               child: Card(
-                                color: Colors.blueGrey[300],
+                                color: client.queue == null
+                                  ? Colors.blueGrey[300]
+                                  : Colors.green[300],
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                     child: Align(
