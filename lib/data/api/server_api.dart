@@ -5,8 +5,11 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:injectable/injectable.dart';
+import 'package:queue_management_system_client/domain/enums/location_change_event.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
 import 'package:queue_management_system_client/domain/models/client/queue_state_for_client_model.dart';
+import 'package:queue_management_system_client/domain/models/location/change/location_add_client.dart';
+import 'package:queue_management_system_client/domain/models/location/change/base/location_change_model.dart';
 import 'package:queue_management_system_client/domain/models/location/create_location_request.dart';
 import 'package:queue_management_system_client/domain/models/specialist/create_specialist_request.dart';
 import 'package:queue_management_system_client/domain/models/service/create_service_request.dart';
@@ -26,6 +29,8 @@ import '../../domain/models/base/result.dart';
 import '../../domain/models/client/change_client_request.dart';
 import '../../domain/models/client/client_model.dart';
 import '../../domain/models/client/serve_client_request.dart';
+import '../../domain/models/location/change/location_delete_client.dart';
+import '../../domain/models/location/change/location_update_client.dart';
 import '../../domain/models/service/ordered_services_model.dart';
 import '../../domain/models/service/service_model.dart';
 import '../../domain/models/client/create_client_request.dart';
@@ -405,7 +410,6 @@ class ServerApi {
   );
 
   Future<Result> deleteClientInLocation(int locationId, int clientId) => _execRequest(
-      fromJson: QueueStateForClientModel.fromJson,
       request: _dioApi.delete(
         '$url/clients/$clientId/delete',
         queryParameters: { 'location_id': locationId },
@@ -523,11 +527,31 @@ class ServerApi {
     stompClients[destination]?.subscribe(
         destination: destination,
         callback: (StompFrame frame) {
-          if (T == LocationState) {
-            onQueueChanged.call(LocationState.fromJson(json.decode(frame.body!)) as T);
+          if (T == LocationChange) {
+            Map<String, dynamic> jsonMap = json.decode(frame.body!);
+            String event = jsonMap[LocationChange.eventFieldName] as String;
+            _handleLocationChangeEvent(
+                event,
+                jsonMap,
+                onQueueChanged as ValueChanged<LocationChange>
+            );
           }
         }
     );
+  }
+
+  void _handleLocationChangeEvent(
+      String event,
+      Map<String, dynamic> jsonMap,
+      ValueChanged<LocationChange> onQueueChanged,
+  ) {
+    if (event == LocationChangeEvent.addClient.serverName) {
+      onQueueChanged(LocationAddClient.fromJson(jsonMap));
+    } else if (event == LocationChangeEvent.updateClient.serverName) {
+      onQueueChanged(LocationUpdateClient.fromJson(jsonMap));
+    } else if (event == LocationChangeEvent.deleteClient.serverName) {
+      onQueueChanged(LocationDeleteClient.fromJson(jsonMap));
+    }
   }
   // <======================== Socket ========================>
 }

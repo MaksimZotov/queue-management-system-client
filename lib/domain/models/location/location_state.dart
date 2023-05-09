@@ -1,4 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:queue_management_system_client/domain/models/location/queue.dart';
+import 'package:queue_management_system_client/domain/models/location/service.dart';
 
 import 'client.dart';
 
@@ -8,13 +10,19 @@ part 'location_state.g.dart';
 class LocationState {
   final int? id;
   final List<Client> clients;
-  @JsonKey(name: 'created_at')
-  final DateTime createdAt;
 
-  LocationState(
-    this.id,
-    this.clients,
-    this.createdAt
+  LocationState({
+    required this.id,
+    required this.clients,
+  });
+
+  LocationState copy({
+    List<Client>? clients,
+    List<Queue>? queues,
+    List<Service>? services
+  }) => LocationState(
+    id: id,
+    clients: clients ?? this.clients
   );
 
   static LocationState fromJson(Map<String, dynamic> json) => _$LocationStateFromJson(json);

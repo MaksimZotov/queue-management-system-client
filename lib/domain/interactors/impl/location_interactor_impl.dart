@@ -1,7 +1,12 @@
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
+import 'package:queue_management_system_client/domain/models/location/change/base/location_change_model.dart';
+import 'package:queue_management_system_client/domain/models/location/change/location_add_client.dart';
+import 'package:queue_management_system_client/domain/models/location/change/location_delete_client.dart';
+import 'package:queue_management_system_client/domain/models/location/change/location_update_client.dart';
 import 'package:queue_management_system_client/domain/models/location/check_is_owner_model.dart';
+import 'package:queue_management_system_client/domain/models/location/client.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 
 import '../../../data/repositories/repository.dart';
@@ -43,5 +48,51 @@ class LocationInteractorImpl extends LocationInteractor {
   @override
   Future<Result<LocationState>> getLocationState(int locationId) {
     return _repository.getLocationState(locationId);
+  }
+
+  @override
+  LocationState transformLocation(LocationState prevState, List<LocationChange> changes) {
+    LocationState state = prevState;
+    for (LocationChange change in changes) {
+      state = _transformLocation(state, change);
+    }
+    return state;
+  }
+
+  LocationState _transformLocation(LocationState prevState, LocationChange change) {
+    List<Client> clients = prevState.clients.toList();
+
+    if (change is LocationAddClient) {
+      clients.removeWhere((client) => client.id == change.client.id);
+      clients.add(change.client);
+      return prevState.copy(
+        clients: clients
+      );
+    }
+
+    if (change is LocationUpdateClient) {
+      return prevState.copy(
+        clients: clients
+            .map((client) => _mapClientUpdate(client, change))
+            .toList()
+      );
+    }
+
+    if (change is LocationDeleteClient) {
+      clients.removeWhere((client) => client.id == change.clientId);
+      return prevState.copy(
+          clients: clients
+      );
+    }
+
+    return prevState;
+  }
+
+  Client _mapClientUpdate(Client client, LocationUpdateClient locationUpdateClient) {
+    if (client.id == locationUpdateClient.client.id) {
+      return locationUpdateClient.client;
+    } else {
+      return client;
+    }
   }
 }

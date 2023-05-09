@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/enums/client_in_queue_status.dart';
 import 'package:queue_management_system_client/domain/interactors/client_interactor.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/domain/models/client/queue_state_for_client_model.dart';
@@ -13,9 +12,9 @@ import 'package:queue_management_system_client/ui/widgets/client_info_field_widg
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/socket_interactor.dart';
 import '../../../domain/models/base/result.dart';
+import '../../../domain/models/location/change/base/location_change_model.dart';
 import '../../../domain/models/location/client.dart';
 import '../../../domain/models/location/location_state.dart';
-import '../../widgets/button_widget.dart';
 import '../base.dart';
 
 class ClientWidget extends BaseWidget<ClientConfig> {
@@ -135,7 +134,7 @@ class ClientLogicState extends BaseLogicState {
   final ClientConfig config;
   final QueueStateForClientModel clientState;
   final bool showConfirmDialog;
-  final LocationState locationState;
+  final LocationState? locationState;
 
   final String? queueName;
   final int? waitTimeInMinutes;
@@ -199,6 +198,8 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
 
   Timer? _timer;
 
+  List<LocationChange> changes = [];
+
   ClientCubit(
     this._clientInteractor,
     this._socketInteractor,
@@ -212,7 +213,10 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
             locationId: -1
           ),
           showConfirmDialog: false,
-          locationState: LocationState(null, [], DateTime(0)),
+          locationState: LocationState(
+              id: null,
+              clients: []
+          ),
           queueName: null,
           waitTimeInMinutes: null,
           totalTimeInMinutes: null
@@ -265,54 +269,34 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
   }
 
   Future<void> _connectToSocket() async {
-    _socketInteractor.connectToSocket<LocationState>(
+    _socketInteractor.connectToSocket<LocationChange>(
         _locationTopic + state.clientState.locationId.toString(),
         () async => {
           await _locationInteractor.getLocationState(
               state.clientState.locationId
           )..onSuccess((result) {
-              _handleNewLocationState(result.data);
+              _setLocationState(result.data);
           })..onError((result) {
               showError(result);
           })
         },
-        _handleNewLocationState,
+        _handleLocationChange,
         (error) => { }
     );
     _startUpdating();
   }
 
-  void _handleNewLocationState(LocationState locationState) {
-    if (locationState.createdAt.millisecondsSinceEpoch > state.locationState.createdAt.millisecondsSinceEpoch) {
-      String? queueName;
-      int? waitTimeInMinutes;
-      int? totalTimeInMinutes;
-
-      for (Client client in locationState.clients) {
-        if (client.id == state.clientState.clientId) {
-          queueName = client.queue?.name;
-          waitTimeInMinutes = client.waitTimeInMinutes;
-          totalTimeInMinutes = client.totalTimeInMinutes;
-        }
-      }
-
-      emit(
-          state.copy(
-              locationState: locationState,
-              queueName: queueName,
-              waitTimeInMinutes: waitTimeInMinutes,
-              totalTimeInMinutes: totalTimeInMinutes
-          )
-      );
-    }
-  }
-
   void _startUpdating() async {
     _timer = Timer.periodic(const Duration(seconds: _updatePeriod), (timer) {
+      LocationState? curLocationState = state.locationState;
+      if (curLocationState == null) {
+        return;
+      }
+
       int? waitTimeInMinutes;
       int? totalTimeInMinutes;
 
-      for (Client client in state.locationState.clients) {
+      for (Client client in curLocationState.clients) {
         if (client.id == state.clientState.clientId) {
           waitTimeInMinutes = client.waitTimeInMinutes;
           totalTimeInMinutes = client.totalTimeInMinutes;
@@ -326,5 +310,48 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
           )
       );
     });
+  }
+
+  void _setLocationState(LocationState locationState) {
+    LocationState actualLocationState = _locationInteractor.transformLocation(
+        locationState,
+        changes
+    );
+
+    String? queueName;
+    int? waitTimeInMinutes;
+    int? totalTimeInMinutes;
+
+    for (Client client in actualLocationState.clients) {
+      if (client.id == state.clientState.clientId) {
+        queueName = client.queue?.name;
+        waitTimeInMinutes = client.waitTimeInMinutes;
+        totalTimeInMinutes = client.totalTimeInMinutes;
+      }
+    }
+
+    emit(
+        state.copy(
+            locationState: actualLocationState,
+            queueName: queueName,
+            waitTimeInMinutes: waitTimeInMinutes,
+            totalTimeInMinutes: totalTimeInMinutes
+        )
+    );
+
+    changes.clear();
+  }
+
+  void _handleLocationChange(LocationChange locationChange) {
+    LocationState? prevLocationState = state.locationState;
+    changes.add(locationChange);
+    if (prevLocationState != null) {
+      LocationState newLocationState = _locationInteractor.transformLocation(
+          prevLocationState,
+          changes
+      );
+      changes.clear();
+      _setLocationState(newLocationState);
+    }
   }
 }

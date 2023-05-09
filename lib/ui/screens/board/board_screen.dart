@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
+import 'package:queue_management_system_client/domain/models/location/change/base/location_change_model.dart';
 import 'package:queue_management_system_client/domain/models/location/client.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 
@@ -141,7 +142,7 @@ class BoardLogicState extends BaseLogicState {
   final BoardConfig config;
   final Board board;
   final int page;
-  final DateTime locationStateCreatedAt;
+  final LocationState? locationState;
 
   BoardLogicState({
     super.nextConfig,
@@ -151,7 +152,7 @@ class BoardLogicState extends BaseLogicState {
     required this.config,
     required this.board,
     required this.page,
-    required this.locationStateCreatedAt
+    required this.locationState
   });
 
   @override
@@ -162,7 +163,7 @@ class BoardLogicState extends BaseLogicState {
     bool? loading,
     Board? board,
     int? page,
-    DateTime? locationStateCreatedAt
+    LocationState? locationState
   }) => BoardLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -171,7 +172,7 @@ class BoardLogicState extends BaseLogicState {
       config: config,
       board: board ?? this.board,
       page: page ?? this.page,
-      locationStateCreatedAt: locationStateCreatedAt ?? this.locationStateCreatedAt
+      locationState: locationState ?? this.locationState
   );
 }
 
@@ -185,6 +186,8 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
 
   Timer? _timer;
 
+  List<LocationChange> changes = [];
+
   BoardCubit(
     this._locationInteractor,
     this._socketInteractor,
@@ -194,25 +197,28 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
           config: config,
           board: Board([]),
           page: 0,
-          locationStateCreatedAt: DateTime(0)
+          locationState: LocationState(
+              id: null,
+              clients: []
+          )
       )
   );
 
   @override
   Future<void> onStart() async {
     showLoad();
-    _socketInteractor.connectToSocket<LocationState>(
+    _socketInteractor.connectToSocket<LocationChange>(
       _locationTopic + state.config.locationId.toString(),
       () async => {
         await _locationInteractor.getLocationState(
             state.config.locationId
         )..onSuccess((result) {
-          _handleNewLocationState(result.data);
+          _setLocationState(result.data);
         })..onError((result) {
           showError(result);
         })
       },
-      _handleNewLocationState,
+      _handleLocationChange,
       (error) => { /* Do nothing */ }
     );
 
@@ -239,14 +245,32 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
     });
   }
 
-  void _handleNewLocationState(LocationState locationState) {
-    if (locationState.createdAt.millisecondsSinceEpoch > state.locationStateCreatedAt.millisecondsSinceEpoch) {
-      emit(
-          state.copy(
-              board: Board.fromLocationState(locationState, state.config.rowsAmount),
-              locationStateCreatedAt: locationState.createdAt
-          )
+  void _setLocationState(LocationState locationState) {
+    LocationState actualLocationState = _locationInteractor.transformLocation(
+        locationState,
+        changes
+    );
+
+    emit(
+        state.copy(
+            locationState: actualLocationState,
+            board: Board.fromLocationState(actualLocationState, state.config.rowsAmount)
+        )
+    );
+
+    changes.clear();
+  }
+
+  void _handleLocationChange(LocationChange locationChange) {
+    LocationState? prevLocationState = state.locationState;
+    changes.add(locationChange);
+    if (prevLocationState != null) {
+      LocationState newLocationState = _locationInteractor.transformLocation(
+          prevLocationState,
+          changes
       );
+      changes.clear();
+      _setLocationState(newLocationState);
     }
   }
 }

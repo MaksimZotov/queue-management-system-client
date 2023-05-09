@@ -14,6 +14,7 @@ import '../../../dimens.dart';
 import '../../../domain/interactors/client_interactor.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/socket_interactor.dart';
+import '../../../domain/models/location/change/base/location_change_model.dart';
 import '../../../domain/models/location/client.dart';
 import '../../../domain/models/location/service.dart';
 import '../../router/routes_config.dart';
@@ -98,10 +99,14 @@ class QueueLogicState extends BaseLogicState {
 
   final QueueConfig config;
   final QueueStateModel queueStateModel;
-  final LocationState locationState;
+  final LocationState? locationState;
 
   Client? get servingClient {
-    for (Client client in locationState.clients) {
+    LocationState? state = locationState;
+    if (state == null) {
+      return null;
+    }
+    for (Client client in state.clients) {
       if (client.queue?.id == queueStateModel.id) {
         Client mapped =_mapClient(client);
         if (mapped.services.isNotEmpty) {
@@ -113,7 +118,11 @@ class QueueLogicState extends BaseLogicState {
   }
 
   List<Client> get availableClients {
-    List<Client> filtered = List.from(locationState.clients)
+    LocationState? state = locationState;
+    if (state == null) {
+      return [];
+    }
+    List<Client> filtered = List.from(state.clients)
       ..removeWhere((client) => client.id == servingClient?.id || client.queue != null);
 
     return filtered.map(_mapClient).toList()..removeWhere((client) => client.services.isEmpty);
@@ -182,6 +191,8 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
 
   Timer? _timer;
 
+  List<LocationChange> changes = [];
+
   QueueCubit(
     this._queueInteractor,
     this._clientInteractor,
@@ -196,7 +207,7 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
               name: '',
               services: []
           ),
-          locationState: LocationState(null, [], DateTime(0))
+          locationState: null
       )
   );
 
@@ -210,18 +221,18 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
       showError(result);
     });
 
-    _socketInteractor.connectToSocket<LocationState>(
+    _socketInteractor.connectToSocket<LocationChange>(
       _locationTopic + state.config.locationId.toString(),
       () async => {
         await _locationInteractor.getLocationState(
             state.config.locationId
         )..onSuccess((result) {
-            _handleNewLocationState(result.data);
+            _setLocationState(result.data);
         })..onError((result) {
             showError(result);
         })
       },
-      _handleNewLocationState,
+      _handleLocationChange,
       (error) => { }
     );
 
@@ -278,20 +289,38 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
     return super.close();
   }
 
-  void _handleNewLocationState(LocationState locationState) {
-    if (locationState.createdAt.millisecondsSinceEpoch > state.locationState.createdAt.millisecondsSinceEpoch) {
-      emit(
-          state.copy(
-              locationState: locationState,
-              clients: locationState.clients
-          )
-      );
-    }
-  }
-
   void _startUpdating() async {
     _timer = Timer.periodic(const Duration(seconds: _updatePeriod), (timer) {
       emit(state.copy());
     });
+  }
+
+  void _setLocationState(LocationState locationState) {
+    LocationState actualLocationState = _locationInteractor.transformLocation(
+        locationState,
+        changes
+    );
+
+    emit(
+        state.copy(
+            locationState: actualLocationState,
+            clients: actualLocationState.clients
+        )
+    );
+
+    changes.clear();
+  }
+
+  void _handleLocationChange(LocationChange locationChange) {
+    LocationState? prevLocationState = state.locationState;
+    changes.add(locationChange);
+    if (prevLocationState != null) {
+      LocationState newLocationState = _locationInteractor.transformLocation(
+          prevLocationState,
+          changes
+      );
+      changes.clear();
+      _setLocationState(newLocationState);
+    }
   }
 }
