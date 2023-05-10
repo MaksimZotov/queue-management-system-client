@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:flutter/src/foundation/basic_types.dart';
-import 'package:flutter_usb_printer/flutter_usb_printer.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/data/repositories/repository.dart';
@@ -23,13 +22,13 @@ import 'package:queue_management_system_client/domain/models/rights/rights_model
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/client/serve_client_request.dart';
 import '../../../domain/models/location/create_location_request.dart';
+import '../../../domain/models/location/state/location_state.dart';
 import '../../../domain/models/service/ordered_services_model.dart';
 import '../../../domain/models/service/service_model.dart';
 import '../../../domain/models/account/confirm_model.dart';
 import '../../../domain/models/account/login_model.dart';
 import '../../../domain/models/account/signup_model.dart';
 import '../../../domain/models/account/tokens_model.dart';
-import '../../../domain/models/location/location_state.dart';
 import '../../../domain/models/queue/create_queue_request.dart';
 import '../../../domain/models/queue/queue_state_model.dart';
 import '../../../domain/models/rights/add_rights_request.dart';

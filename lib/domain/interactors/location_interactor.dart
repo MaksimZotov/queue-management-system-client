@@ -5,7 +5,7 @@ import '../models/base/result.dart';
 import '../models/location/create_location_request.dart';
 import '../models/location/check_is_owner_model.dart';
 import '../models/location/location_model.dart';
-import '../models/location/location_state.dart';
+import '../models/location/state/location_state.dart';
 
 abstract class LocationInteractor {
   Future<Result<ContainerForList<LocationModel>>> getLocations(int? accountId);

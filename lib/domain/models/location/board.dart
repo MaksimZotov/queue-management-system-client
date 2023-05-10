@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:queue_management_system_client/domain/models/location/state/location_state.dart';
 
-import 'client.dart';
-import 'location_state.dart';
+import 'state/client.dart';
 
 part 'board.g.dart';
 

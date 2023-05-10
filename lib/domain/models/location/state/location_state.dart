@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:queue_management_system_client/domain/models/location/queue.dart';
-import 'package:queue_management_system_client/domain/models/location/service.dart';
+import 'package:queue_management_system_client/domain/models/location/state/queue.dart';
+import 'package:queue_management_system_client/domain/models/location/state/service.dart';
 
 import 'client.dart';
 

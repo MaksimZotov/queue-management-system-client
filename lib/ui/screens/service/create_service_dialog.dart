@@ -72,10 +72,7 @@ class _CreateServiceState extends BaseDialogState<
     const SizedBox(height: Dimens.contentMargin),
     ButtonWidget(
         text: getLocalizations(context).create,
-        onClick: () => getCubitInstance(context).createService(
-          getLocalizations(context).supposedDurationMustBeNonNegativeNumber,
-          getLocalizations(context).maxDurationMustBeNonNegativeNumber
-        )
+        onClick: () => getCubitInstance(context).createService()
     )
   ];
 
@@ -148,10 +145,7 @@ class CreateServiceCubit extends BaseDialogCubit<CreateServiceLogicState> {
     emit(state.copy(description: text));
   }
 
-  Future<void> createService(
-      String parseSupposedDurationErrorMessage,
-      String parseMaxDurationErrorMessage
-  ) async {
+  Future<void> createService() async {
     showLoad();
     await _serviceInteractor.createServiceInLocation(
         state.config.locationId,

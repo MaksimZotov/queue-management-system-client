@@ -5,7 +5,7 @@ import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/queue_interactor.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
 import 'package:queue_management_system_client/domain/models/client/serve_client_request.dart';
-import 'package:queue_management_system_client/domain/models/location/location_state.dart';
+import 'package:queue_management_system_client/domain/models/location/state/location_state.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_state_model.dart';
 import 'package:queue_management_system_client/ui/widgets/client_item_widget.dart';
 
@@ -15,8 +15,8 @@ import '../../../domain/interactors/client_interactor.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/socket_interactor.dart';
 import '../../../domain/models/location/change/base/location_change_model.dart';
-import '../../../domain/models/location/client.dart';
-import '../../../domain/models/location/service.dart';
+import '../../../domain/models/location/state/client.dart';
+import '../../../domain/models/location/state/service.dart';
 import '../../router/routes_config.dart';
 import '../base.dart';
 
@@ -275,6 +275,8 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
 
     List<Client> availableClients = filteredClients.map(_mapClientWithMinOrder).toList()
       ..removeWhere((client) => client.services.isEmpty);
+
+    availableClients.sort((a, b) => a.waitTimestamp.compareTo(b.waitTimestamp));
 
     emit(
         QueueLogicState(

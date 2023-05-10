@@ -6,6 +6,7 @@ import 'package:queue_management_system_client/domain/interactors/client_interac
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/domain/models/client/queue_state_for_client_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
+import 'package:queue_management_system_client/ui/models/client/services_container.dart';
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
 import 'package:queue_management_system_client/ui/widgets/client_info_field_widget.dart';
 
@@ -13,8 +14,9 @@ import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/socket_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/location/change/base/location_change_model.dart';
-import '../../../domain/models/location/client.dart';
-import '../../../domain/models/location/location_state.dart';
+import '../../../domain/models/location/state/client.dart';
+import '../../../domain/models/location/state/location_state.dart';
+import '../../../domain/models/location/state/service.dart';
 import '../base.dart';
 
 class ClientWidget extends BaseWidget<ClientConfig> {
@@ -83,7 +85,7 @@ class _ClientState extends BaseState<
                         children: [
                           ClientInfoFieldWidget(
                               fieldName: getLocalizations(context).queueWithColon,
-                              fieldValue: state.queueName ?? '-'
+                              fieldValue: state.client?.queue?.name ?? '-'
                           ),
                           ClientInfoFieldWidget(
                               fieldName: getLocalizations(context).phoneWithColon,
@@ -91,11 +93,11 @@ class _ClientState extends BaseState<
                           ),
                           ClientInfoFieldWidget(
                               fieldName: getLocalizations(context).waitTimeWithColon,
-                              fieldValue: _getTimeInMinutes(context, state.waitTimeInMinutes)
+                              fieldValue: _getTimeInMinutes(context, state.client?.waitTimeInMinutes)
                           ),
                           ClientInfoFieldWidget(
                               fieldName: getLocalizations(context).totalTimeWithColon,
-                              fieldValue: _getTimeInMinutes(context, state.totalTimeInMinutes)
+                              fieldValue: _getTimeInMinutes(context, state.client?.totalTimeInMinutes)
                           ),
                           ClientInfoFieldWidget(
                               fieldName: getLocalizations(context).codeWithColon,
@@ -104,7 +106,7 @@ class _ClientState extends BaseState<
                         ],
                       )
                   )
-                ]
+                ] + _getServices(context, state.client)
             ),
           ),
         ),
@@ -127,6 +129,89 @@ class _ClientState extends BaseState<
     }
     return getLocalizations(context).timeInMinutesPattern(time);
   }
+
+  List<Widget> _getServices(BuildContext context, Client? client) {
+    if (client == null) {
+      return [];
+    }
+    List<Service> services = client.services.toList();
+    if (services.isEmpty) {
+      return [];
+    }
+
+    List<ServicesContainer> servicesForClientContainers = [];
+    List<Service> servicesWithCurOrder = [];
+    int curOrderNumber = services[0].orderNumber;
+
+    services.sort((a, b) => a.orderNumber.compareTo(b.orderNumber));
+
+    int priorityNumber = 1;
+    for (int i = 0; i < services.length; i++) {
+      Service service = services[i];
+      if (service.orderNumber != curOrderNumber) {
+        servicesForClientContainers.add(
+            ServicesContainer(
+                priorityNumber: priorityNumber,
+                services: servicesWithCurOrder
+            )
+        );
+        curOrderNumber = service.orderNumber;
+        servicesWithCurOrder = [];
+        priorityNumber += 1;
+      }
+      servicesWithCurOrder.add(service);
+    }
+    if (servicesWithCurOrder.isNotEmpty) {
+      servicesForClientContainers.add(
+          ServicesContainer(
+              priorityNumber: priorityNumber,
+              services: servicesWithCurOrder
+          )
+      );
+    }
+
+    return servicesForClientContainers.map((container) =>
+        Card(
+            elevation: 5,
+            color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                          getLocalizations(context).servicesWithPriorityPattern(
+                              container.priorityNumber
+                          ),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 18
+                          )
+                      )
+                  )
+                ] + container.services.map((service) =>
+                    Card(
+                        elevation: 2,
+                        color: Colors.white,
+                        child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Text(
+                                service.name,
+                                style: const TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16
+                                )
+                            )
+                        )
+                    )
+                ).toList(),
+              )
+            )
+        )
+    ).toList();
+  }
 }
 
 class ClientLogicState extends BaseLogicState {
@@ -135,13 +220,10 @@ class ClientLogicState extends BaseLogicState {
   final QueueStateForClientModel clientState;
   final bool showConfirmDialog;
   final LocationState? locationState;
-
-  final String? queueName;
-  final int? waitTimeInMinutes;
-  final int? totalTimeInMinutes;
+  final Client? client;
 
   bool get inQueue =>
-      queueName != null;
+      client?.queue != null;
 
   ClientLogicState({
     super.nextConfig,
@@ -152,9 +234,7 @@ class ClientLogicState extends BaseLogicState {
     required this.clientState,
     required this.showConfirmDialog,
     required this.locationState,
-    required this.queueName,
-    required this.waitTimeInMinutes,
-    required this.totalTimeInMinutes
+    required this.client
   });
 
   @override
@@ -167,9 +247,7 @@ class ClientLogicState extends BaseLogicState {
     QueueStateForClientModel? clientState,
     bool? showConfirmDialog,
     LocationState? locationState,
-    String? queueName,
-    int? waitTimeInMinutes,
-    int? totalTimeInMinutes
+    Client? client
   }) => ClientLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -179,9 +257,7 @@ class ClientLogicState extends BaseLogicState {
       clientState: clientState ?? this.clientState,
       showConfirmDialog: showConfirmDialog ?? this.showConfirmDialog,
       locationState: locationState ?? this.locationState,
-      queueName: queueName,
-      waitTimeInMinutes: waitTimeInMinutes,
-      totalTimeInMinutes: totalTimeInMinutes
+      client: client ?? this.client
   );
 }
 
@@ -217,9 +293,7 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
               id: null,
               clients: []
           ),
-          queueName: null,
-          waitTimeInMinutes: null,
-          totalTimeInMinutes: null
+          client: null
       )
   );
 
@@ -288,27 +362,7 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
 
   void _startUpdating() async {
     _timer = Timer.periodic(const Duration(seconds: _updatePeriod), (timer) {
-      LocationState? curLocationState = state.locationState;
-      if (curLocationState == null) {
-        return;
-      }
-
-      int? waitTimeInMinutes;
-      int? totalTimeInMinutes;
-
-      for (Client client in curLocationState.clients) {
-        if (client.id == state.clientState.clientId) {
-          waitTimeInMinutes = client.waitTimeInMinutes;
-          totalTimeInMinutes = client.totalTimeInMinutes;
-        }
-      }
-
-      emit(
-          state.copy(
-              waitTimeInMinutes: waitTimeInMinutes,
-              totalTimeInMinutes: totalTimeInMinutes
-          )
-      );
+      emit(state.copy());
     });
   }
 
@@ -318,24 +372,18 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
         changes
     );
 
-    String? queueName;
-    int? waitTimeInMinutes;
-    int? totalTimeInMinutes;
+    Client? curClient;
 
     for (Client client in actualLocationState.clients) {
       if (client.id == state.clientState.clientId) {
-        queueName = client.queue?.name;
-        waitTimeInMinutes = client.waitTimeInMinutes;
-        totalTimeInMinutes = client.totalTimeInMinutes;
+        curClient = client;
       }
     }
 
     emit(
         state.copy(
             locationState: actualLocationState,
-            queueName: queueName,
-            waitTimeInMinutes: waitTimeInMinutes,
-            totalTimeInMinutes: totalTimeInMinutes
+            client: curClient
         )
     );
 

@@ -6,13 +6,13 @@ import 'package:queue_management_system_client/domain/models/location/change/loc
 import 'package:queue_management_system_client/domain/models/location/change/location_delete_client.dart';
 import 'package:queue_management_system_client/domain/models/location/change/location_update_client.dart';
 import 'package:queue_management_system_client/domain/models/location/check_is_owner_model.dart';
-import 'package:queue_management_system_client/domain/models/location/client.dart';
+import 'package:queue_management_system_client/domain/models/location/state/client.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 
 import '../../../data/repositories/repository.dart';
 import '../../models/base/container_for_list.dart';
 import '../../models/location/create_location_request.dart';
-import '../../models/location/location_state.dart';
+import '../../models/location/state/location_state.dart';
 
 @Singleton(as: LocationInteractor)
 class LocationInteractorImpl extends LocationInteractor {

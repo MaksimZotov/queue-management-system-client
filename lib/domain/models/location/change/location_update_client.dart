@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:queue_management_system_client/domain/enums/location_change_event.dart';
 
-import '../client.dart';
+import '../state/client.dart';
 import 'base/location_change_model.dart';
 
 part 'location_update_client.g.dart';

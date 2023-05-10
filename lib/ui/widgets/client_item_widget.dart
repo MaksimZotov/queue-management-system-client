@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import '../../domain/models/location/client.dart';
-import '../../domain/models/location/service.dart';
+import '../../domain/models/location/state/client.dart';
+import '../../domain/models/location/state/service.dart';
 
 class ClientItemWidget extends StatefulWidget {
   final Client client;
@@ -114,7 +114,7 @@ class _ClientItemState extends State<ClientItemWidget> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                    'Услуги:',
+                    AppLocalizations.of(context)!.servicesWithColon,
                     style: const TextStyle(color: Colors.black, fontSize: 18)
                 ),
                 const SizedBox(height: 5)

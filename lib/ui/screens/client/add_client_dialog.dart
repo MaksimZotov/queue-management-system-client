@@ -14,7 +14,7 @@ import '../../router/routes_config.dart';
 import '../../widgets/text_field_widget.dart';
 
 bool _checkAndroidAndNotWeb() {
-  return true;//!kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+  return !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 }
 
 class AddClientConfig extends BaseDialogConfig {
