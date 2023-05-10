@@ -469,10 +469,9 @@ class ServerApi {
 
   Future<Result> deleteRights(int locationId, String email) => _execRequest(
       request: _dioApi.delete(
-          '$url/rights/delete',
+          '$url/rights/$email/delete',
           queryParameters: {
-            'location_id': locationId,
-            'email': email
+            'location_id': locationId
           }
       )
   );
