@@ -143,9 +143,9 @@ class _ClientState extends BaseState<
 
     List<ServicesContainer> servicesForClientContainers = [];
     List<Service> servicesWithCurOrder = [];
-    int curOrderNumber = services[0].orderNumber;
 
     services.sort((a, b) => a.orderNumber.compareTo(b.orderNumber));
+    int curOrderNumber = services[0].orderNumber;
 
     int priorityNumber = 1;
     for (int i = 0; i < services.length; i++) {
