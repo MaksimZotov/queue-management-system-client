@@ -11,6 +11,7 @@ import 'package:queue_management_system_client/ui/router/routes_config.dart';
 import 'package:queue_management_system_client/ui/widgets/client_info_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../dimens.dart';
 import '../../../domain/interactors/socket_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/location/change/base/location_change_model.dart';
@@ -102,10 +103,11 @@ class _ClientState extends BaseState<
                           ClientInfoFieldWidget(
                               fieldName: getLocalizations(context).codeWithColon,
                               fieldValue: state.clientState.code?.toString() ?? '-'
-                          )
+                          ),
                         ],
                       )
-                  )
+                  ),
+                  const SizedBox(height: Dimens.contentMargin)
                 ] + _getServices(context, state.client)
             ),
           ),
