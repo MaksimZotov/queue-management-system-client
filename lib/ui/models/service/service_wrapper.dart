@@ -1,4 +1,4 @@
-import 'package:queue_management_system_client/domain/models/location/service_model.dart';
+import 'package:queue_management_system_client/domain/models/service/service_model.dart';
 
 class ServiceWrapper {
   final bool selected;

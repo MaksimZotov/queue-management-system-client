@@ -5,16 +5,19 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:injectable/injectable.dart';
+import 'package:queue_management_system_client/domain/enums/location_change_event.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
 import 'package:queue_management_system_client/domain/models/client/queue_state_for_client_model.dart';
+import 'package:queue_management_system_client/domain/models/location/change/location_add_client.dart';
+import 'package:queue_management_system_client/domain/models/location/change/base/location_change_model.dart';
 import 'package:queue_management_system_client/domain/models/location/create_location_request.dart';
-import 'package:queue_management_system_client/domain/models/location/create_specialist_request.dart';
-import 'package:queue_management_system_client/domain/models/location/create_service_request.dart';
-import 'package:queue_management_system_client/domain/models/location/create_services_sequence_request.dart';
+import 'package:queue_management_system_client/domain/models/specialist/create_specialist_request.dart';
+import 'package:queue_management_system_client/domain/models/service/create_service_request.dart';
+import 'package:queue_management_system_client/domain/models/sequence/create_services_sequence_request.dart';
 import 'package:queue_management_system_client/domain/models/location/check_is_owner_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
-import 'package:queue_management_system_client/domain/models/location/specialist_model.dart';
-import 'package:queue_management_system_client/domain/models/location/services_sequence_model.dart';
+import 'package:queue_management_system_client/domain/models/specialist/specialist_model.dart';
+import 'package:queue_management_system_client/domain/models/sequence/services_sequence_model.dart';
 import 'package:queue_management_system_client/domain/models/rights/add_rights_request.dart';
 import 'package:queue_management_system_client/domain/models/rights/rights_model.dart';
 import 'package:queue_management_system_client/domain/models/account/confirm_model.dart';
@@ -24,10 +27,14 @@ import 'package:stomp_dart_client/stomp_frame.dart';
 
 import '../../domain/models/base/result.dart';
 import '../../domain/models/client/change_client_request.dart';
+import '../../domain/models/client/client_model.dart';
 import '../../domain/models/client/serve_client_request.dart';
-import '../../domain/models/location/service_model.dart';
-import '../../domain/models/client/add_client_request.dart';
-import '../../domain/models/locationnew/location_state.dart';
+import '../../domain/models/location/change/location_delete_client.dart';
+import '../../domain/models/location/change/location_update_client.dart';
+import '../../domain/models/location/state/location_state.dart';
+import '../../domain/models/service/ordered_services_model.dart';
+import '../../domain/models/service/service_model.dart';
+import '../../domain/models/client/create_client_request.dart';
 import '../../domain/models/queue/create_queue_request.dart';
 import '../../domain/models/queue/queue_model.dart';
 import '../../domain/models/account/login_model.dart';
@@ -36,20 +43,20 @@ import '../../domain/models/account/tokens_model.dart';
 import '../../domain/models/queue/queue_state_model.dart';
 import '../converters/container_for_list_converter.dart';
 import '../converters/from_json.dart';
-import '../local/secure_storage.dart';
+import '../local/account_storage.dart';
 
 @singleton
 class ServerApi {
 
-  static const url = 'http://localhost:8080';
-  static const clientUrl = 'http://localhost:64407';
+  static const url = String.fromEnvironment('SERVER_URL');
+  static const clientUrl = String.fromEnvironment('CLIENT_URL');
 
   static const signupMethod = '/account/signup';
   static const confirmMethod = '/account/confirm';
   static const loginMethod = '/account/login';
 
   final Dio _dioApi;
-  final SecureStorage _tokensStorage;
+  final AccountInfoStorage _accountInfoStorage;
   final ContainerForListConverter _containerForListConverter;
 
   Map<String, StompClient> stompClients = {};
@@ -57,7 +64,7 @@ class ServerApi {
 
   ServerApi(
       this._dioApi,
-      this._tokensStorage,
+      this._accountInfoStorage,
       this._containerForListConverter,
   );
 
@@ -132,9 +139,9 @@ class ServerApi {
 
   Future<void> _saveTokens(SuccessResult<TokensModel> result) async {
     final tokens = result.data;
-    await _tokensStorage.setAccessToken(accessToken: tokens.access);
-    await _tokensStorage.setRefreshToken(refreshToken: tokens.refresh);
-    await _tokensStorage.setAccountId(accountId: tokens.accountId);
+    await _accountInfoStorage.setAccessToken(accessToken: tokens.access);
+    await _accountInfoStorage.setRefreshToken(refreshToken: tokens.refresh);
+    await _accountInfoStorage.setAccountId(accountId: tokens.accountId);
   }
 
 
@@ -220,96 +227,121 @@ class ServerApi {
           '$url/locations/$locationId/state'
       )
   );
+  // <======================== Location ========================>
 
+
+
+
+
+  // <======================== Service ========================>
   Future<Result<ContainerForList<ServiceModel>>> getServicesInLocation(int locationId) => _execRequestForList(
       fromJson: ServiceModel.fromJson,
       request: _dioApi.get(
-          '$url/locations/$locationId/services'
+          '$url/services',
+          queryParameters: { 'location_id': locationId }
+      )
+  );
+
+  Future<Result<ContainerForList<ServiceModel>>> getServicesInQueue(int queueId) => _execRequestForList(
+      fromJson: ServiceModel.fromJson,
+      request: _dioApi.get(
+          '$url/services',
+          queryParameters: { 'queue_id': queueId }
+      )
+  );
+
+  Future<Result<ContainerForList<ServiceModel>>> getServicesInSpecialist(int specialistId) => _execRequestForList(
+      fromJson: ServiceModel.fromJson,
+      request: _dioApi.get(
+          '$url/services',
+          queryParameters: { 'specialist_id': specialistId }
+      )
+  );
+
+  Future<Result<OrderedServicesModel>> getServicesInServicesSequence(int servicesSequenceId) => _execRequest(
+      fromJson: OrderedServicesModel.fromJson,
+      request: _dioApi.get(
+          '$url/services',
+          queryParameters: { 'services_sequence_id': servicesSequenceId }
       )
   );
 
   Future<Result<ServiceModel>> createServiceInLocation(int locationId, CreateServiceRequest createServiceRequest) => _execRequest(
       fromJson: ServiceModel.fromJson,
       request: _dioApi.post(
-          '$url/locations/$locationId/services/create',
+          '$url/services/create',
+          queryParameters: { 'location_id': locationId },
           data: createServiceRequest.toJson()
       )
   );
 
   Future<Result> deleteServiceInLocation(int locationId, int serviceId) => _execRequest(
       request: _dioApi.delete(
-          '$url/locations/$locationId/services/$serviceId/delete'
+          '$url/services/$serviceId/delete',
+          queryParameters: { 'location_id': locationId }
       )
   );
+  // <======================== Service ========================>
 
+
+
+
+
+  // <======================== ServicesSequence ========================>
   Future<Result<ContainerForList<ServicesSequenceModel>>> getServicesSequencesInLocation(int locationId) => _execRequestForList(
       fromJson: ServicesSequenceModel.fromJson,
       request: _dioApi.get(
-          '$url/locations/$locationId/sequences'
+          '$url/services_sequences',
+          queryParameters: { 'location_id': locationId }
       )
   );
 
   Future<Result<ServicesSequenceModel>> createServicesSequenceInLocation(int locationId, CreateServicesSequenceRequest createServicesSequenceRequest) => _execRequest(
       fromJson: ServicesSequenceModel.fromJson,
       request: _dioApi.post(
-          '$url/locations/$locationId/sequences/create',
+          '$url/services_sequences/create',
+          queryParameters: { 'location_id': locationId },
           data: createServicesSequenceRequest.toJson()
       )
   );
 
-  Future<Result> deleteServicesSequenceInLocation(int locationId, int servicesSequence) => _execRequest(
+  Future<Result> deleteServicesSequenceInLocation(int locationId, int servicesSequenceId) => _execRequest(
       request: _dioApi.delete(
-          '$url/locations/$locationId/sequences/$servicesSequence/delete'
+          '$url/services_sequences/$servicesSequenceId/delete',
+          queryParameters: { 'location_id': locationId }
       )
   );
+  // <======================== ServicesSequence ========================>
 
+
+
+
+
+  // <======================== Specialist ========================>
   Future<Result<ContainerForList<SpecialistModel>>> getSpecialistsInLocation(int locationId) => _execRequestForList(
       fromJson: SpecialistModel.fromJson,
       request: _dioApi.get(
-          '$url/locations/$locationId/specialists'
+          '$url/specialists',
+          queryParameters: { 'location_id': locationId }
       )
   );
 
   Future<Result<SpecialistModel>> createSpecialistInLocation(int locationId, CreateSpecialistRequest createSpecialistRequest) => _execRequest(
       fromJson: SpecialistModel.fromJson,
       request: _dioApi.post(
-          '$url/locations/$locationId/specialists/create',
+          '$url/specialists/create',
+          queryParameters: { 'location_id': locationId },
           data: createSpecialistRequest.toJson()
       )
   );
 
   Future<Result> deleteSpecialistInLocation(int locationId, int specialistId) => _execRequest(
       request: _dioApi.delete(
-          '$url/locations/$locationId/specialists/$specialistId/delete'
+          '$url/specialists/$specialistId/delete',
+          queryParameters: { 'location_id': locationId }
       )
   );
-
-  Future<Result> enableLocation(int locationId) => _execRequest(
-      request: _dioApi.post(
-          '$url/locations/$locationId/enable'
-      )
-  );
-
-  Future<Result> disableLocation(int locationId) => _execRequest(
-      request: _dioApi.post(
-          '$url/locations/$locationId/disable'
-      )
-  );
-
-  Future<Result> addClientInLocation(int locationId, AddClientRequest addClientRequest) => _execRequest(
-      request: _dioApi.post(
-          '$url/locations/$locationId/clients/add',
-          data: addClientRequest.toJson()
-      )
-  );
-
-  Future<Result> changeClientInLocation(int locationId, ChangeClientRequest changeClientRequest) => _execRequest(
-      request: _dioApi.post(
-          '$url/locations/$locationId/clients/change',
-          data: changeClientRequest.toJson()
-      )
-  );
-  // <======================== Location ========================>
+  // <======================== Specialist ========================>
 
 
 
@@ -343,67 +375,7 @@ class ServerApi {
   Future<Result<QueueStateModel>> getQueueState(int queueId) => _execRequest(
       fromJson: QueueStateModel.fromJson,
       request: _dioApi.get(
-          '$url/queues/$queueId'
-      )
-  );
-
-  Future<Result> enableQueue(int queueId) => _execRequest(
-      request: _dioApi.post(
-          '$url/queues/$queueId/enable'
-      )
-  );
-
-  Future<Result> disableQueue(int queueId) => _execRequest(
-      request: _dioApi.post(
-          '$url/queues/$queueId/disable'
-      )
-  );
-
-  Future<Result> serveClientInQueue(ServeClientRequest serveClientRequest) => _execRequest(
-      request: _dioApi.post(
-          '$url/queues/serve',
-          data: serveClientRequest.toJson()
-      )
-  );
-
-  Future<Result> callClientInQueue(int queueId, int clientId) => _execRequest(
-      request: _dioApi.post(
-          '$url/queues/$queueId/call',
-          queryParameters: {
-            'client_id': clientId
-          }
-      )
-  );
-
-  Future<Result> returnClientToQueue(int queueId, int clientId) => _execRequest(
-      request: _dioApi.post(
-          '$url/queues/$queueId/return',
-          queryParameters: {
-            'client_id': clientId
-          }
-      )
-  );
-
-  Future<Result> notifyClientInQueue(int queueId, int clientId) => _execRequest(
-      request: _dioApi.post(
-          '$url/queues/$queueId/notify',
-          queryParameters: {
-            'client_id': clientId
-          }
-      )
-  );
-
-  Future<Result<ContainerForList<ServiceModel>>> getServicesInQueue(int queueId) => _execRequestForList(
-      fromJson: ServiceModel.fromJson,
-      request: _dioApi.get(
-          '$url/queues/$queueId/services'
-      )
-  );
-
-  Future<Result<ContainerForList<ServiceModel>>> getServicesInSpecialist(int specialistId) => _execRequestForList(
-      fromJson: ServiceModel.fromJson,
-      request: _dioApi.get(
-          '$url/queues/specialists/$specialistId'
+          '$url/queues/$queueId/state'
       )
   );
   // <======================== Queue ========================>
@@ -413,46 +385,71 @@ class ServerApi {
 
 
   // <======================== Client ========================>
-  Future<Result<QueueStateForClientModel>> getQueueStateForClient(int clientId, String accessKey) => _execRequest(
-      fromJson: QueueStateForClientModel.fromJson,
-      request: _dioApi.get(
-          '$url/client',
-          queryParameters: {
-            'client_id': clientId,
-            'access_key': accessKey
-          },
+  Future<Result<ClientModel>> createClientInLocation(int locationId, CreateClientRequest createClientRequest) => _execRequest(
+      fromJson: ClientModel.fromJson,
+      request: _dioApi.post(
+          '$url/clients/create',
+          queryParameters: { 'location_id': locationId },
+          data: createClientRequest.toJson()
       )
   );
 
   Future<Result<QueueStateForClientModel>> confirmAccessKeyByClient(int clientId, String accessKey) => _execRequest(
       fromJson: QueueStateForClientModel.fromJson,
       request: _dioApi.post(
-        '$url/client/confirm',
-        queryParameters: {
-          'client_id': clientId,
-          'access_key': accessKey
-        },
+        '$url/clients/$clientId/confirm',
+        queryParameters: { 'access_key': accessKey },
       )
   );
 
-  Future<Result<QueueStateForClientModel>> leaveQueue(int clientId, String accessKey) => _execRequest(
+  Future<Result<QueueStateForClientModel>> getQueueStateForClient(int clientId) => _execRequest(
       fromJson: QueueStateForClientModel.fromJson,
-      request: _dioApi.post(
-          '$url/client/leave',
-          queryParameters: {
-            'client_id': clientId,
-            'access_key': accessKey
-          },
+      request: _dioApi.get(
+        '$url/clients/$clientId/state'
       )
   );
 
   Future<Result> deleteClientInLocation(int locationId, int clientId) => _execRequest(
-      fromJson: QueueStateForClientModel.fromJson,
       request: _dioApi.delete(
-        '$url/client/$clientId/delete',
-        queryParameters: {
-          'location_id': locationId
-        },
+        '$url/clients/$clientId/delete',
+        queryParameters: { 'location_id': locationId },
+      )
+  );
+
+  Future<Result> changeClientInLocation(int locationId, int clientId, ChangeClientRequest changeClientRequest) => _execRequest(
+      request: _dioApi.post(
+          '$url/clients/$clientId/change',
+          queryParameters: { 'location_id': locationId },
+          data: changeClientRequest.toJson()
+      )
+  );
+
+  Future<Result> serveClientInQueue(int queueId, int clientId, ServeClientRequest serveClientRequest) => _execRequest(
+      request: _dioApi.post(
+          '$url/clients/$clientId/serve',
+          queryParameters: { 'queue_id': queueId },
+          data: serveClientRequest.toJson()
+      )
+  );
+
+  Future<Result> callClientInQueue(int queueId, int clientId) => _execRequest(
+      request: _dioApi.post(
+          '$url/clients/$clientId/call',
+          queryParameters: { 'queue_id': queueId }
+      )
+  );
+
+  Future<Result> returnClientToQueue(int queueId, int clientId) => _execRequest(
+      request: _dioApi.post(
+          '$url/clients/$clientId/return',
+          queryParameters: { 'queue_id': queueId }
+      )
+  );
+
+  Future<Result> notifyClientInQueue(int queueId, int clientId) => _execRequest(
+      request: _dioApi.post(
+          '$url/clients/$clientId/notify',
+          queryParameters: { 'queue_id': queueId }
       )
   );
   // <======================== Client ========================>
@@ -472,14 +469,12 @@ class ServerApi {
 
   Future<Result> deleteRights(int locationId, String email) => _execRequest(
       request: _dioApi.delete(
-          '$url/rights/delete',
+          '$url/rights/$email/delete',
           queryParameters: {
-            'location_id': locationId,
-            'email': email
+            'location_id': locationId
           }
       )
   );
-
 
   Future<Result<ContainerForList<RightsModel>>> getRights(int locationId) => _execRequestForList(
       fromJson: RightsModel.fromJson,
@@ -502,7 +497,7 @@ class ServerApi {
       VoidCallback onConnected,
       ValueChanged<T> onQueueChanged,
       ValueChanged<dynamic> onError
-      ) {
+  ) {
     if (stompClients.containsKey(destination)) {
       stompClients.remove(destination)?.deactivate();
     }
@@ -531,12 +526,31 @@ class ServerApi {
     stompClients[destination]?.subscribe(
         destination: destination,
         callback: (StompFrame frame) {
-          print(frame.body);
-          if (T == LocationState) {
-            onQueueChanged.call(LocationState.fromJson(json.decode(frame.body!)) as T);
+          if (T == LocationChange) {
+            Map<String, dynamic> jsonMap = json.decode(frame.body!);
+            String event = jsonMap[LocationChange.eventFieldName] as String;
+            _handleLocationChangeEvent(
+                event,
+                jsonMap,
+                onQueueChanged as ValueChanged<LocationChange>
+            );
           }
         }
     );
+  }
+
+  void _handleLocationChangeEvent(
+      String event,
+      Map<String, dynamic> jsonMap,
+      ValueChanged<LocationChange> onQueueChanged,
+  ) {
+    if (event == LocationChangeEvent.addClient.serverName) {
+      onQueueChanged(LocationAddClient.fromJson(jsonMap));
+    } else if (event == LocationChangeEvent.updateClient.serverName) {
+      onQueueChanged(LocationUpdateClient.fromJson(jsonMap));
+    } else if (event == LocationChangeEvent.deleteClient.serverName) {
+      onQueueChanged(LocationDeleteClient.fromJson(jsonMap));
+    }
   }
   // <======================== Socket ========================>
 }

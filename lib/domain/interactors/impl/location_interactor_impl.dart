@@ -1,21 +1,18 @@
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/domain/models/base/result.dart';
-import 'package:queue_management_system_client/domain/models/client/change_client_request.dart';
+import 'package:queue_management_system_client/domain/models/location/change/base/location_change_model.dart';
+import 'package:queue_management_system_client/domain/models/location/change/location_add_client.dart';
+import 'package:queue_management_system_client/domain/models/location/change/location_delete_client.dart';
+import 'package:queue_management_system_client/domain/models/location/change/location_update_client.dart';
 import 'package:queue_management_system_client/domain/models/location/check_is_owner_model.dart';
+import 'package:queue_management_system_client/domain/models/location/state/client.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 
 import '../../../data/repositories/repository.dart';
 import '../../models/base/container_for_list.dart';
-import '../../models/client/add_client_request.dart';
 import '../../models/location/create_location_request.dart';
-import '../../models/location/create_specialist_request.dart';
-import '../../models/location/create_service_request.dart';
-import '../../models/location/create_services_sequence_request.dart';
-import '../../models/location/specialist_model.dart';
-import '../../models/location/service_model.dart';
-import '../../models/location/services_sequence_model.dart';
-import '../../models/locationnew/location_state.dart';
+import '../../models/location/state/location_state.dart';
 
 @Singleton(as: LocationInteractor)
 class LocationInteractorImpl extends LocationInteractor {
@@ -54,67 +51,48 @@ class LocationInteractorImpl extends LocationInteractor {
   }
 
   @override
-  Future<Result<ContainerForList<ServiceModel>>> getServicesInLocation(int locationId) {
-    return _repository.getServicesInLocation(locationId);
+  LocationState transformLocation(LocationState prevState, List<LocationChange> changes) {
+    LocationState state = prevState;
+    for (LocationChange change in changes) {
+      state = _transformLocation(state, change);
+    }
+    return state;
   }
 
-  @override
-  Future<Result<ServiceModel>> createServiceInLocation(int locationId, CreateServiceRequest createServiceRequest) {
-    return _repository.createServiceInLocation(locationId, createServiceRequest);
+  LocationState _transformLocation(LocationState prevState, LocationChange change) {
+    List<Client> clients = prevState.clients.toList();
+
+    if (change is LocationAddClient) {
+      clients.removeWhere((client) => client.id == change.client.id);
+      clients.add(change.client);
+      return prevState.copy(
+        clients: clients
+      );
+    }
+
+    if (change is LocationUpdateClient) {
+      return prevState.copy(
+        clients: clients
+            .map((client) => _mapClientUpdate(client, change))
+            .toList()
+      );
+    }
+
+    if (change is LocationDeleteClient) {
+      clients.removeWhere((client) => client.id == change.clientId);
+      return prevState.copy(
+          clients: clients
+      );
+    }
+
+    return prevState;
   }
 
-  @override
-  Future<Result> deleteServiceInLocation(int locationId, int serviceId) {
-    return _repository.deleteServiceInLocation(locationId, serviceId);
-  }
-
-  @override
-  Future<Result<ContainerForList<ServicesSequenceModel>>> getServicesSequencesInLocation(int locationId) {
-    return _repository.getServicesSequencesInLocation(locationId);
-  }
-
-  @override
-  Future<Result<ServicesSequenceModel>> createServicesSequenceInLocation(int locationId, CreateServicesSequenceRequest createServicesSequenceRequest) {
-    return _repository.createServicesSequenceInLocation(locationId, createServicesSequenceRequest);
-  }
-
-  @override
-  Future<Result> deleteServicesSequenceInLocation(int locationId, int servicesSequence) {
-    return _repository.deleteServicesSequenceInLocation(locationId, servicesSequence);
-  }
-
-  @override
-  Future<Result<ContainerForList<SpecialistModel>>> getSpecialistsInLocation(int locationId) {
-    return _repository.getSpecialistsInLocation(locationId);
-  }
-
-  @override
-  Future<Result<SpecialistModel>> createSpecialistInLocation(int locationId, CreateSpecialistRequest createSpecialistRequest) {
-    return _repository.createSpecialistInLocation(locationId, createSpecialistRequest);
-  }
-
-  @override
-  Future<Result> deleteSpecialistInLocation(int locationId, int specialistId) {
-    return _repository.deleteSpecialistInLocation(locationId, specialistId);
-  }
-
-  @override
-  Future<Result> enableLocation(int locationId) {
-    return _repository.enableLocation(locationId);
-  }
-
-  @override
-  Future<Result> disableLocation(int locationId) {
-    return _repository.disableLocation(locationId);
-  }
-
-  @override
-  Future<Result> addClientInLocation(int locationId, AddClientRequest addClientRequest) {
-    return _repository.addClientInLocation(locationId, addClientRequest);
-  }
-
-  @override
-  Future<Result> changeClientInLocation(int locationId, ChangeClientRequest changeClientRequest) {
-    return _repository.changeClientInLocation(locationId, changeClientRequest);
+  Client _mapClientUpdate(Client client, LocationUpdateClient locationUpdateClient) {
+    if (client.id == locationUpdateClient.client.id) {
+      return locationUpdateClient.client;
+    } else {
+      return client;
+    }
   }
 }

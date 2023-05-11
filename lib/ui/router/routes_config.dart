@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:queue_management_system_client/domain/enums/kiosk_mode.dart';
 import 'package:queue_management_system_client/ui/router/router_page.dart';
 import 'package:queue_management_system_client/ui/screens/board/board_screen.dart';
 import 'package:queue_management_system_client/ui/screens/client/client_screen.dart';
@@ -42,6 +43,7 @@ class ErrorConfig extends BaseConfig {
 }
 
 class InitialConfig extends BaseConfig {
+
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
     return RouterPage(
@@ -134,8 +136,12 @@ class LocationConfig extends BaseConfig {
   }
 
   @override
-  BaseConfig getPrevConfig() {
-    return LocationsConfig(accountId: accountId);
+  BaseConfig? getPrevConfig() {
+    if (kioskMode == null) {
+      return LocationsConfig(accountId: accountId);
+    } else {
+      return null;
+    }
   }
 }
 
@@ -174,20 +180,22 @@ class ServicesSequencesConfig extends BaseConfig {
   }
 
   @override
-  BaseConfig getPrevConfig() {
+  BaseConfig? getPrevConfig() {
     if (clientId != null && queueId != null) {
       return QueueConfig(
           accountId: accountId,
           locationId: locationId,
           queueId: queueId!
       );
-    } else {
+    } else if (kioskMode == null || kioskMode == KioskMode.all.name) {
       return LocationConfig(
           accountId: accountId,
           locationId: locationId,
           kioskMode: kioskMode,
           multipleSelect: multipleSelect
       );
+    } else {
+      return null;
     }
   }
 }
@@ -217,13 +225,17 @@ class ServicesConfig extends BaseConfig {
   }
 
   @override
-  BaseConfig getPrevConfig() {
-    return LocationConfig(
-        accountId: accountId,
-        locationId: locationId,
-        kioskMode: kioskMode,
-        multipleSelect: multipleSelect
-    );
+  BaseConfig? getPrevConfig() {
+    if (kioskMode == null || kioskMode == KioskMode.all.name) {
+      return LocationConfig(
+          accountId: accountId,
+          locationId: locationId,
+          kioskMode: kioskMode,
+          multipleSelect: multipleSelect
+      );
+    } else {
+      return null;
+    }
   }
 }
 
@@ -252,13 +264,17 @@ class SpecialistsConfig extends BaseConfig {
   }
 
   @override
-  BaseConfig getPrevConfig() {
-    return LocationConfig(
-        accountId: accountId,
-        locationId: locationId,
-        kioskMode: kioskMode,
-        multipleSelect: multipleSelect
-    );
+  BaseConfig? getPrevConfig() {
+    if (kioskMode == null || kioskMode == KioskMode.all.name) {
+      return LocationConfig(
+          accountId: accountId,
+          locationId: locationId,
+          kioskMode: kioskMode,
+          multipleSelect: multipleSelect
+      );
+    } else {
+      return null;
+    }
   }
 }
 
@@ -298,20 +314,16 @@ class QueueConfig extends BaseConfig {
   int locationId;
   int queueId;
 
-  bool updateQueue;
-
   QueueConfig({
     required this.accountId,
     required this.locationId,
-    required this.queueId,
-
-    this.updateQueue = false
+    required this.queueId
   });
 
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
     return RouterPage(
-        key: ValueKey('Queue Page $accountId $locationId $queueId $updateQueue'),
+        key: ValueKey('Queue Page $accountId $locationId $queueId'),
         child: QueueWidget(
           config: this,
           emitConfig: emitConfig,

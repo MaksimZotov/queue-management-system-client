@@ -5,34 +5,35 @@ import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/data/api/server_api.dart';
 import 'package:queue_management_system_client/data/repositories/repository.dart';
 import 'package:queue_management_system_client/domain/models/base/container_for_list.dart';
-import 'package:queue_management_system_client/domain/models/client/add_client_request.dart';
+import 'package:queue_management_system_client/domain/models/client/create_client_request.dart';
 import 'package:queue_management_system_client/domain/models/client/change_client_request.dart';
+import 'package:queue_management_system_client/domain/models/client/client_model.dart';
 import 'package:queue_management_system_client/domain/models/client/queue_state_for_client_model.dart';
-import 'package:queue_management_system_client/domain/models/location/create_specialist_request.dart';
-import 'package:queue_management_system_client/domain/models/location/create_service_request.dart';
-import 'package:queue_management_system_client/domain/models/location/create_services_sequence_request.dart';
+import 'package:queue_management_system_client/domain/models/specialist/create_specialist_request.dart';
+import 'package:queue_management_system_client/domain/models/service/create_service_request.dart';
+import 'package:queue_management_system_client/domain/models/sequence/create_services_sequence_request.dart';
 import 'package:queue_management_system_client/domain/models/location/check_is_owner_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
-import 'package:queue_management_system_client/domain/models/location/specialist_model.dart';
-import 'package:queue_management_system_client/domain/models/location/services_sequence_model.dart';
+import 'package:queue_management_system_client/domain/models/specialist/specialist_model.dart';
+import 'package:queue_management_system_client/domain/models/sequence/services_sequence_model.dart';
 import 'package:queue_management_system_client/domain/models/queue/queue_model.dart';
 import 'package:queue_management_system_client/domain/models/rights/rights_model.dart';
 
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/client/serve_client_request.dart';
-import '../../../domain/models/kiosk/printer_data.dart';
 import '../../../domain/models/location/create_location_request.dart';
-import '../../../domain/models/location/service_model.dart';
+import '../../../domain/models/location/state/location_state.dart';
+import '../../../domain/models/service/ordered_services_model.dart';
+import '../../../domain/models/service/service_model.dart';
 import '../../../domain/models/account/confirm_model.dart';
 import '../../../domain/models/account/login_model.dart';
 import '../../../domain/models/account/signup_model.dart';
 import '../../../domain/models/account/tokens_model.dart';
-import '../../../domain/models/locationnew/location_state.dart';
 import '../../../domain/models/queue/create_queue_request.dart';
 import '../../../domain/models/queue/queue_state_model.dart';
 import '../../../domain/models/rights/add_rights_request.dart';
-import '../../local/secure_storage.dart';
-import '../../local/shared_preferences_storage.dart';
+import '../../local/account_storage.dart';
+import '../../local/printer_info_storage.dart';
 import '../../native/android/android_native_interactor.dart';
 import '../../printer/printer_interactor.dart';
 
@@ -40,8 +41,8 @@ import '../../printer/printer_interactor.dart';
 class RepositoryImpl extends Repository {
 
   final ServerApi _serverApi;
-  final SharedPreferencesStorage _sharedPreferencesStorage;
-  final SecureStorage _secureStorage;
+  final PrinterInfoStorage _sharedPreferencesStorage;
+  final AccountInfoStorage _secureStorage;
   final AndroidNativeInteractor _androidNativeInteractor;
   final PrinterInteractor _printerInteractor;
 
@@ -59,8 +60,8 @@ class RepositoryImpl extends Repository {
 
   // <======================== Account ========================>
   @override
-  Future<Result<TokensModel>> login(LoginModel login) {
-    return _serverApi.login(login);
+  Future<Result> signup(SignupModel signup) {
+    return _serverApi.signup(signup);
   }
 
   @override
@@ -69,8 +70,8 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result> signup(SignupModel signup) {
-    return _serverApi.signup(signup);
+  Future<Result<TokensModel>> login(LoginModel login) {
+    return _serverApi.login(login);
   }
 
   @override
@@ -135,10 +136,31 @@ class RepositoryImpl extends Repository {
   Future<Result<LocationState>> getLocationState(int locationId) {
     return _serverApi.getLocationState(locationId);
   }
+  // <======================== Location ========================>
 
+
+
+
+
+  // <======================== Service ========================>
   @override
   Future<Result<ContainerForList<ServiceModel>>> getServicesInLocation(int locationId) {
     return _serverApi.getServicesInLocation(locationId);
+  }
+
+  @override
+  Future<Result<ContainerForList<ServiceModel>>> getServicesInQueue(int queueId) {
+    return _serverApi.getServicesInQueue(queueId);
+  }
+
+  @override
+  Future<Result<ContainerForList<ServiceModel>>> getServicesInSpecialist(int specialistId) {
+    return _serverApi.getServicesInSpecialist(specialistId);
+  }
+
+  @override
+  Future<Result<OrderedServicesModel>> getServicesInServicesSequence(int servicesSequenceId) {
+    return _serverApi.getServicesInServicesSequence(servicesSequenceId);
   }
 
   @override
@@ -150,7 +172,13 @@ class RepositoryImpl extends Repository {
   Future<Result> deleteServiceInLocation(int locationId, int serviceId) {
     return _serverApi.deleteServiceInLocation(locationId, serviceId);
   }
+  // <======================== Service ========================>
 
+
+
+
+
+  // <======================== ServicesSequence ========================>
   @override
   Future<Result<ContainerForList<ServicesSequenceModel>>> getServicesSequencesInLocation(int locationId) {
     return _serverApi.getServicesSequencesInLocation(locationId);
@@ -165,7 +193,13 @@ class RepositoryImpl extends Repository {
   Future<Result> deleteServicesSequenceInLocation(int locationId, int servicesSequence) {
     return _serverApi.deleteServicesSequenceInLocation(locationId, servicesSequence);
   }
+  // <======================== ServicesSequence ========================>
 
+
+
+
+
+  // <======================== Specialist ========================>
   @override
   Future<Result<ContainerForList<SpecialistModel>>> getSpecialistsInLocation(int locationId) {
     return _serverApi.getSpecialistsInLocation(locationId);
@@ -177,38 +211,10 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result> deleteSpecialistInLocation(int locationId, int SpecialistId) {
-    return _serverApi.deleteSpecialistInLocation(locationId, SpecialistId);
+  Future<Result> deleteSpecialistInLocation(int locationId, int specialistId) {
+    return _serverApi.deleteSpecialistInLocation(locationId, specialistId);
   }
-
-  @override
-  Future<Result> enableLocation(int locationId) {
-    return _serverApi.enableLocation(locationId);
-  }
-
-  @override
-  Future<Result> disableLocation(int locationId) {
-    return _serverApi.disableLocation(locationId);
-  }
-
-  @override
-  Future<Result> addClientInLocation(int locationId, AddClientRequest addClientRequest) async {
-    Result result = await _serverApi.addClientInLocation(locationId, addClientRequest);
-    result.onSuccess((result) async {
-      PrinterData printerData = await _sharedPreferencesStorage.getPrinterData();
-      _printerInteractor.print(
-        printerData.ip,
-        printerData.port
-      );
-    });
-    return result;
-  }
-
-  @override
-  Future<Result> changeClientInLocation(int locationId, ChangeClientRequest changeClientRequest) {
-    return _serverApi.changeClientInLocation(locationId, changeClientRequest);
-  }
-  // <======================== Location ========================>
+  // <======================== Specialist ========================>
 
 
 
@@ -234,25 +240,54 @@ class RepositoryImpl extends Repository {
   Future<Result<QueueStateModel>> getQueueState(int queueId) {
     return _serverApi.getQueueState(queueId);
   }
+  // <======================== Queue ========================>
 
+
+
+
+
+  // <======================== Client ========================>
   @override
-  Future<Result> enableQueue(int queueId) {
-    return _serverApi.enableQueue(queueId);
+  Future<Result<ClientModel>> createClientInLocation(int locationId, CreateClientRequest addClientRequest, String ticketNumberText) async {
+    Result<ClientModel> result = await _serverApi.createClientInLocation(locationId, addClientRequest);
+    result.onSuccess((result) async {
+      bool printerEnabled = await _sharedPreferencesStorage.getPrinterEnabled();
+      if (printerEnabled) {
+        int? code = result.data.code;
+        if (code != null) {
+          _printerInteractor.print(
+              ticketNumberText,
+              code
+          );
+        }
+      }
+    });
+    return result;
   }
 
   @override
-  Future<Result> disableQueue(int queueId) {
-    return _serverApi.disableQueue(queueId);
+  Future<Result<QueueStateForClientModel>> confirmAccessKeyByClient(int clientId, String accessKey) {
+    return _serverApi.confirmAccessKeyByClient(clientId, accessKey);
   }
 
   @override
-  Future<Result> notifyClientInQueue(int queueId, int clientId) {
-    return _serverApi.notifyClientInQueue(queueId, clientId);
+  Future<Result<QueueStateForClientModel>> getQueueStateForClient(int clientId) {
+    return _serverApi.getQueueStateForClient(clientId);
   }
 
   @override
-  Future<Result> serveClientInQueue(ServeClientRequest serveClientRequest) {
-    return _serverApi.serveClientInQueue(serveClientRequest);
+  Future<Result> deleteClientInLocation(int locationId, int clientId) {
+    return _serverApi.deleteClientInLocation(locationId, clientId);
+  }
+
+  @override
+  Future<Result> changeClientInLocation(int locationId, int clientId, ChangeClientRequest changeClientRequest) {
+    return _serverApi.changeClientInLocation(locationId, clientId, changeClientRequest);
+  }
+
+  @override
+  Future<Result> serveClientInQueue(int queueId, int clientId, ServeClientRequest serveClientRequest) {
+    return _serverApi.serveClientInQueue(queueId, clientId, serveClientRequest);
   }
 
   @override
@@ -266,39 +301,8 @@ class RepositoryImpl extends Repository {
   }
 
   @override
-  Future<Result<ContainerForList<ServiceModel>>> getServicesInQueue(int queueId) {
-    return _serverApi.getServicesInQueue(queueId);
-  }
-
-  @override
-  Future<Result<ContainerForList<ServiceModel>>> getServicesInSpecialist(int specialistId) {
-    return _serverApi.getServicesInSpecialist(specialistId);
-  }
-  // <======================== Queue ========================>
-
-
-
-
-
-  // <======================== Client ========================>
-  @override
-  Future<Result<QueueStateForClientModel>> getQueueStateForClient(int clientId, String accessKey) {
-    return _serverApi.getQueueStateForClient(clientId, accessKey);
-  }
-
-  @override
-  Future<Result<QueueStateForClientModel>> confirmAccessKeyByClient(int clientId, String accessKey) {
-    return _serverApi.confirmAccessKeyByClient(clientId, accessKey);
-  }
-
-  @override
-  Future<Result<QueueStateForClientModel>> leaveQueue(int clientId, String accessKey) async {
-    return _serverApi.leaveQueue(clientId, accessKey);
-  }
-
-  @override
-  Future<Result> deleteClientInLocation(int locationId, int clientId) {
-    return _serverApi.deleteClientInLocation(locationId, clientId);
+  Future<Result> notifyClientInQueue(int queueId, int clientId) {
+    return _serverApi.notifyClientInQueue(queueId, clientId);
   }
   // <======================== Client ========================>
 
@@ -326,18 +330,24 @@ class RepositoryImpl extends Repository {
 
 
 
+
   // <======================== Kiosk ========================>
   @override
-  Future<PrinterData> getPrinterData() {
-    return _sharedPreferencesStorage.getPrinterData();
+  Future<bool> getPrinterEnabled() {
+    return _sharedPreferencesStorage.getPrinterEnabled();
   }
 
   @override
-  Future<void> enableKioskMode(PrinterData printerDate) async {
-    await _androidNativeInteractor.enableLockTask();
-    return _sharedPreferencesStorage.setPrinterData(printerDate);
+  Future<bool> enableKioskMode(bool printerEnabled) async {
+    await _sharedPreferencesStorage.setPrinterEnabled(printerEnabled);
+    if (printerEnabled) {
+      return _printerInteractor.connectToPrinter();
+    }
+    _androidNativeInteractor.enableLockTask();
+    return true;
   }
   // <======================== Kiosk ========================>
+
 
 
 

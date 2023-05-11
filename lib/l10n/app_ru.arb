@@ -23,30 +23,14 @@
 "ownerIdentifierCopied": "Идентификатор владельца скопирован",
 "deleteQueueQuestion": "Удалить очередь?",
 "creationOfQueue": "Создание очереди",
-"connectionOfClientToQueue": "Подключение клиента к очереди",
 "add": "Добавить",
-"addAndSave": "Добавить и сохранить",
 "rightsSettings": "Настройки доступа",
 "revokeRights": "Лишить прав",
 "revokeRightsQuestion": "Лишить прав?",
 "revoke": "Лишить",
 "addingOfEmployee": "Добавление сотрудника",
-"connectionToQueue": "Подключение к очереди",
-"join": "Подключиться",
-"reconnectionToQueue": "Переодключение к очереди",
-"rejoin": "Переподключиться",
-"leave": "Покинуть",
-"update": "Обновить",
-"windowConfirmation": "Окно подтверждения",
-"confirmed": "Подтверждён",
-"reserved": "Зарезервирован",
-"queueLengthWithColon": "В очереди:",
-"statusWithColon": "Статус:",
-"emailWithColon": "Почта:",
-"firstNameWithColon": "Имя:",
-"lastNameWithColon": "Фамилия:",
+"phoneWithColon": "Телефон:",
 "codeWithColon": "Код:",
-"beforeMeWithColon": "Перед вами:",
 "unknownError": "Неизвестная ошибка",
 "serverError": "Ошибка на сервере",
 "timeoutError": "Вышло время ожидания ответа",
@@ -55,8 +39,6 @@
 "ownerIdentifier": "Идентификатор владельца",
 "navigate": "Перейти",
 "creationOfService": "Создание услуги",
-"supposedDuration": "Предполагаемая длительность",
-"maxDuration": "Максимальная длительность",
 "creationOfSpecialist": "Создание специалиста",
 "services": "Услуги",
 "servicesSequences": "Наборы услуг",
@@ -92,8 +74,6 @@
 "multipleSelect": "Множественный выбор",
 "finishServing": "Завершить обслуживание",
 "notify": "Отправить уведомление",
-"maxDurationMustBeNonNegativeNumber": "Максимальная длительность должен быть неотрицательным числом",
-"supposedDurationMustBeNonNegativeNumber": "Предполагаемая длительность должна быть неотрицательным числом",
 "logoutFromAccountQuestion": "Выйти из аккаунта?",
 "mode": "Режим",
 "yes": "Да",
@@ -110,13 +90,6 @@
 "maxRowsAmountMustBePositiveNumber": "Количество строк должно быть положительным числом",
 "switchFrequencyMustBePositiveNumber": "Частота переключения должна быть положительным числом",
 "deleteClient": "Удалить клиента",
-"turnOn": "Включить",
-"turnOff": "Выключить",
-"turnOnTurnOffLocation": "Включить/выключить локацию",
-"locationPausing": "Постановка локации на паузу",
-"queuePausing": "Постановка очереди на паузу",
-"turnOnQueue": "Включить очередь",
-"turnOffQueue": "Выключить очередь",
 "downloadQrCode": "Скачать QR-код",
 "callClient": "Вызвать клиента",
 "returnClientToQueue": "Вернуть клиента в очередь",
@@ -124,6 +97,25 @@
 "port": "Порт",
 "assign": "Назначить",
 "redirectClient": "Перенаправить клиента",
+"copyLink": "Скопировать ссылку",
+"locationLinkCopied": "Ссылка на локацию скопирована",
+"printer": "Принтер",
+"switchToKioskError": "Не удалось переключиться в режим киоска",
+"yourTicketNumberWithColon": "Номер вашего талона:",
+"close": "Закрыть",
+"phone": "Телефон",
+"waitTimeWithColon": "Время ожидания:",
+"totalTimeWithColon": "Общее время:",
+"servicesWithColon": "Услуги:",
+
+"yourTicketNumberWithColonPattern": "Номер вашего талона: {code}",
+"@yourTicketNumberWithColonPattern": {
+  "placeholders": {
+    "code": {
+      "type": "int"
+    }
+  }
+},
 
 "codeWithColonPattern": "Код: {code}",
 "@codeWithColonPattern": {
@@ -134,10 +126,46 @@
   }
 },
 
+"phoneWithColonPattern": "Телефон: {phone}",
+"@phoneWithColonPattern": {
+  "placeholders": {
+    "phone": {
+      "type": "String"
+    }
+  }
+},
+
 "waitTimeInMinutesPattern": "Время ожидания: {waitTime} мин.",
 "@waitTimeInMinutesPattern": {
   "placeholders": {
     "waitTime": {
+      "type": "int"
+    }
+  }
+},
+
+"totalTimeInMinutesPattern": "Общее время: {waitTime} мин.",
+"@waitTimeInMinutesPattern": {
+  "placeholders": {
+    "waitTime": {
+      "type": "int"
+    }
+  }
+},
+
+"timeInMinutesPattern": "{time} мин.",
+"@timeInMinutesPattern": {
+  "placeholders": {
+    "time": {
+      "type": "int"
+    }
+  }
+},
+
+"servicesWithPriorityPattern": "Услуги с приоритетом №{number}:",
+"@servicesWithPriorityPattern": {
+  "placeholders": {
+    "number": {
       "type": "int"
     }
   }

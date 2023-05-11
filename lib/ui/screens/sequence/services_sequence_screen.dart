@@ -5,7 +5,7 @@ import 'package:injectable/injectable.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/domain/enums/kiosk_mode.dart';
 import 'package:queue_management_system_client/domain/models/client/change_client_request.dart';
-import 'package:queue_management_system_client/domain/models/location/specialist_model.dart';
+import 'package:queue_management_system_client/domain/models/specialist/specialist_model.dart';
 import 'package:queue_management_system_client/ui/models/service/service_wrapper.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/screens/client/add_client_dialog.dart';
@@ -14,13 +14,16 @@ import 'package:queue_management_system_client/ui/widgets/specialist_item_widget
 import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
+import '../../../domain/interactors/client_interactor.dart';
 import '../../../domain/interactors/location_interactor.dart';
 import '../../../domain/interactors/kiosk_interactor.dart';
+import '../../../domain/interactors/service_interactor.dart';
+import '../../../domain/interactors/services_sequence_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/kiosk/kiosk_state.dart';
 import '../../../domain/models/location/location_model.dart';
-import '../../../domain/models/location/service_model.dart';
-import '../../../domain/models/location/services_sequence_model.dart';
+import '../../../domain/models/service/service_model.dart';
+import '../../../domain/models/sequence/services_sequence_model.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/button_widget.dart';
 import '../../widgets/service_item_widget.dart';
@@ -74,24 +77,27 @@ class _ServicesSequencesState extends BaseState<
       BuildContext context,
       ServicesSequencesLogicState state,
       ServicesSequencesWidget widget
-  ) => Scaffold(
-    appBar: state.kioskState == null || state.kioskState?.kioskMode == KioskMode.all
-      ? AppBar(
-        title: Text(
-            state.locationName.isEmpty
-                ? ''
-                : getLocalizations(context).servicesSequences
-        ),
+  ) => WillPopScope(
+      onWillPop: () async {
+        if (state.servicesSequencesStateEnum == ServicesSequencesStateEnum.servicesSequencesViewing) {
+          return true;
+        }
+        getCubitInstance(context).switchToServicesSequencesViewing();
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+              title: Text(_getTitleText(context, state)),
+            ),
+            body: _getBody(context, state, widget),
+            floatingActionButton: _checkFloatingActionButton(state)
+                ? FloatingActionButton(
+                  tooltip: getLocalizations(context).createServicesSequence,
+                  onPressed: getCubitInstance(context).switchToServicesSelecting,
+                  child: const Icon(Icons.add),
+                )
+                : null,
       )
-      : null,
-    body: _getBody(context, state, widget),
-    floatingActionButton: _checkFloatingActionButton(state)
-        ? FloatingActionButton(
-          tooltip: getLocalizations(context).createServicesSequence,
-          onPressed: getCubitInstance(context).switchToServicesSelecting,
-          child: const Icon(Icons.add),
-        )
-        : null,
   );
 
   @override
@@ -139,7 +145,7 @@ class _ServicesSequencesState extends BaseState<
                         }
                       }
                     })
-                  : null
+                  : getCubitInstance(context).switchToServicesInCreatedServicesSequenceViewing
             );
           },
           itemCount: state.servicesSequences.length,
@@ -161,13 +167,19 @@ class _ServicesSequencesState extends BaseState<
             ),
             Container(height: 2, color: Colors.grey),
             const SizedBox(height: Dimens.contentMargin),
-            ButtonWidget(
-              text: getLocalizations(context).select,
-              onClick: getCubitInstance(context).switchToSelectedServicesViewing,
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: ButtonWidget(
+                  text: getLocalizations(context).select,
+                  onClick: getCubitInstance(context).switchToSelectedServicesViewing,
+                )
             ),
-            ButtonWidget(
-              text: getLocalizations(context).cancel,
-              onClick: getCubitInstance(context).switchToServicesSequencesViewing,
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: ButtonWidget(
+                  text: getLocalizations(context).cancel,
+                  onClick: getCubitInstance(context).switchToServicesSequencesViewing,
+                )
             ),
             const SizedBox(height: Dimens.contentMargin)
           ],
@@ -214,13 +226,19 @@ class _ServicesSequencesState extends BaseState<
             ),
             Container(height: 2, color: Colors.grey),
             const SizedBox(height: Dimens.contentMargin),
-            ButtonWidget(
-              text: getLocalizations(context).confirm,
-              onClick: getCubitInstance(context).confirmSelectedServices,
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: ButtonWidget(
+                  text: getLocalizations(context).confirm,
+                  onClick: getCubitInstance(context).confirmSelectedServices,
+                )
             ),
-            ButtonWidget(
-              text: getLocalizations(context).cancel,
-              onClick: getCubitInstance(context).switchToServicesSequencesViewing,
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: ButtonWidget(
+                  text: getLocalizations(context).cancel,
+                  onClick: getCubitInstance(context).switchToServicesSequencesViewing,
+                )
             ),
             const SizedBox(height: Dimens.contentMargin)
           ],
@@ -264,18 +282,73 @@ class _ServicesSequencesState extends BaseState<
             ),
             Container(height: 2, color: Colors.grey),
             const SizedBox(height: Dimens.contentMargin),
-            ButtonWidget(
-              text: getLocalizations(context).assign,
-              onClick: getCubitInstance(context).changeClient,
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: ButtonWidget(
+                  text: getLocalizations(context).assign,
+                  onClick: getCubitInstance(context).changeClient,
+                )
             ),
-            ButtonWidget(
-              text: getLocalizations(context).cancel,
-              onClick: Navigator.of(context).pop
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: ButtonWidget(
+                    text: getLocalizations(context).cancel,
+                    onClick: Navigator.of(context).pop
+                )
             ),
             const SizedBox(height: Dimens.contentMargin)
           ],
         );
+      case ServicesSequencesStateEnum.servicesInCreatedServicesSequenceViewing:
+        return Column(
+          children: [
+            Expanded(
+              flex: 1,
+              child: ListView.builder(
+                itemBuilder: (context, index) {
+                  return Row(
+                    key: Key(state.selectedServices[index].service.id.toString()),
+                    children: [
+                      Card(
+                        color: Colors.blueGrey[300],
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            '${state.selectedServices[index].orderNumber}:',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: ServiceItemWidget(
+                          serviceWrapper: state.selectedServices[index],
+                          onTap: null
+                        )
+                      )
+                    ],
+                  );
+                },
+                itemCount: state.selectedServices.length
+              ),
+            )
+          ],
+        );
     }
+  }
+
+  String _getTitleText(BuildContext context, ServicesSequencesLogicState state) {
+    if (state.servicesSequencesStateEnum == ServicesSequencesStateEnum.servicesSequencesViewing) {
+      if (state.locationName.isEmpty) {
+        return '';
+      }
+      return getLocalizations(context).servicesSequences;
+    }
+    return getLocalizations(context).services;
   }
 
   bool _checkFloatingActionButton(ServicesSequencesLogicState state) =>
@@ -286,7 +359,8 @@ enum ServicesSequencesStateEnum {
   servicesSequencesViewing,
   servicesSelecting,
   selectedServicesViewing,
-  selectedServicesViewingClientChanging
+  selectedServicesViewingClientChanging,
+  servicesInCreatedServicesSequenceViewing
 }
 
 class ServicesSequencesLogicState extends BaseLogicState {
@@ -366,12 +440,17 @@ class ServicesSequencesLogicState extends BaseLogicState {
 
 @injectable
 class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
+
   final LocationInteractor _locationInteractor;
-  final KioskInteractor _terminalInteractor;
+  final ClientInteractor _clientInteractor;
+  final ServiceInteractor _serviceInteractor;
+  final ServicesSequenceInteractor _servicesSequenceInteractor;
 
   ServicesSequencesCubit(
       this._locationInteractor,
-      this._terminalInteractor,
+      this._clientInteractor,
+      this._serviceInteractor,
+      this._servicesSequenceInteractor,
       @factoryParam ServicesSequencesConfig config
   ) : super(
       ServicesSequencesLogicState(
@@ -599,8 +678,7 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
           QueueConfig(
               accountId: state.config.accountId,
               locationId: state.config.locationId,
-              queueId: state.config.queueId!,
-              updateQueue: !state.config.updateQueue
+              queueId: state.config.queueId!
           )
       );
       return;
@@ -616,6 +694,43 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
         ));
   }
 
+  Future<void> switchToServicesInCreatedServicesSequenceViewing(ServicesSequenceModel servicesSequenceModel) async {
+    showLoad();
+    await _serviceInteractor.getServicesInServicesSequence(servicesSequenceModel.id)
+      ..onSuccess((result) async {
+
+        Map<int, int> serviceIdsToOrderNumbers = result.data.serviceIdsToOrderNumbers;
+        List<ServiceWrapper> selectedServices = [];
+
+        for (MapEntry<int, int> idToOrder in serviceIdsToOrderNumbers.entries) {
+          ServiceWrapper serviceWrapper = state.services.firstWhere(
+            (serviceWrapper) => serviceWrapper.service.id == idToOrder.key,
+            orElse: () => ServiceWrapper(service: ServiceModel(-1, "", ""))
+          );
+          if (serviceWrapper.service.id != -1) {
+            selectedServices.add(
+              serviceWrapper.copy(
+                orderNumber: idToOrder.value
+              )
+            );
+          }
+        }
+
+        selectedServices.sort((a, b) => a.orderNumber.compareTo(b.orderNumber));
+
+        emit(
+            state.copy(
+                servicesSequencesStateEnum: ServicesSequencesStateEnum.servicesInCreatedServicesSequenceViewing,
+                selectedServices: selectedServices
+            )
+        );
+
+      })
+      ..onError((result) {
+        showError(result);
+      });
+  }
+
   void confirmSelectedServices() {
     emit(state.copy(showCreateServicesSequenceDialog: true));
     emit(state.copy(showCreateServicesSequenceDialog: false));
@@ -626,10 +741,10 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
     if (clientId == null) {
       return;
     }
-    await _locationInteractor.changeClientInLocation(
+    await _clientInteractor.changeClientInLocation(
         state.config.locationId,
+        clientId,
         ChangeClientRequest(
-            clientId: clientId,
             serviceIdsToOrderNumbers: {
               for (var serviceWrapper in state.selectedServices)
                 (serviceWrapper).service.id : (serviceWrapper).orderNumber
@@ -641,8 +756,7 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
             QueueConfig(
               accountId: state.config.accountId,
               locationId: state.config.locationId,
-              queueId: state.config.queueId!,
-              updateQueue: state.config.updateQueue
+              queueId: state.config.queueId!
             )
         );
       })
@@ -652,12 +766,12 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
   }
 
   Future<void> _load() async {
-    await _locationInteractor.getServicesSequencesInLocation(
+    await _servicesSequenceInteractor.getServicesSequencesInLocation(
         state.config.locationId
     )
       ..onSuccess((result) async {
         emit(state.copy(servicesSequences: result.data.results));
-        await _locationInteractor.getServicesInLocation(
+        await _serviceInteractor.getServicesInLocation(
             state.config.locationId
         )
           ..onSuccess((result) {

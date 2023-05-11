@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
+import 'package:queue_management_system_client/domain/interactors/service_interactor.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 
@@ -101,10 +101,10 @@ class DeleteServiceLogicState extends BaseDialogLogicState<
 @injectable
 class DeleteServiceCubit extends BaseDialogCubit<DeleteServiceLogicState> {
 
-  final LocationInteractor _locationInteractor;
+  final ServiceInteractor _serviceInteractor;
 
   DeleteServiceCubit(
-      this._locationInteractor,
+      this._serviceInteractor,
       @factoryParam DeleteServiceConfig config
   ) : super(
       DeleteServiceLogicState(
@@ -114,7 +114,7 @@ class DeleteServiceCubit extends BaseDialogCubit<DeleteServiceLogicState> {
 
   Future<void> deleteService() async {
     showLoad();
-    await _locationInteractor.deleteServiceInLocation(
+    await _serviceInteractor.deleteServiceInLocation(
         state.config.locationId,
         state.config.serviceId
     )

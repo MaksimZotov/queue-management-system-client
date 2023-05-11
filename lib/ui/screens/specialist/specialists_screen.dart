@@ -1,20 +1,16 @@
-import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-import 'package:queue_management_system_client/domain/models/location/specialist_model.dart';
+import 'package:queue_management_system_client/domain/interactors/specialist_interactor.dart';
+import 'package:queue_management_system_client/domain/models/specialist/specialist_model.dart';
 import 'package:queue_management_system_client/ui/models/service/service_wrapper.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/specialist_item_widget.dart';
 
-import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
 import '../../../domain/enums/kiosk_mode.dart';
 import '../../../domain/interactors/location_interactor.dart';
-import '../../../domain/interactors/kiosk_interactor.dart';
-import '../../../domain/interactors/queue_interactor.dart';
+import '../../../domain/interactors/service_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/kiosk/kiosk_state.dart';
 import '../../../domain/models/location/location_model.dart';
@@ -79,11 +75,18 @@ class _SpecialistsState extends BaseState<
       return false;
     },
     child: Scaffold(
-      appBar: state.kioskState == null || state.kioskState?.kioskMode == KioskMode.all
-          ? AppBar(
-              title: Text(_getTitleText(context, state))
-          )
-          : null,
+      appBar: AppBar(
+          title: Text(_getTitleText(context, state)),
+          leading: state.kioskState?.kioskMode == KioskMode.specialists && state.specialistsStateEnum == SpecialistsStateEnum.servicesSelecting
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                iconSize: Dimens.backArrowSize,
+                onPressed: () {
+                  getCubitInstance(context).switchToSpecialistsViewing();
+                },
+            )
+            : null
+      ),
       body: _getBody(context, state, widget),
       floatingActionButton: _checkFloatingActionButton(state)
           ? FloatingActionButton(
@@ -125,9 +128,7 @@ class _SpecialistsState extends BaseState<
                     }
                   })
                 : null,
-              onTap: state.kioskState != null
-                  ? getCubitInstance(context).switchToServicesInSpecialist
-                  : null
+              onTap: getCubitInstance(context).switchToServicesInSpecialist
             );
           },
           itemCount: state.specialists.length,
@@ -162,17 +163,23 @@ class _SpecialistsState extends BaseState<
               ),
               Container(height: 2, color: Colors.grey),
               const SizedBox(height: Dimens.contentMargin),
-              ButtonWidget(
-                  text: state.kioskState == null
-                      ? getLocalizations(context).select
-                      : getLocalizations(context).connect,
-                  onClick: state.kioskState == null
-                      ? getCubitInstance(context).switchToSelectedServicesViewing
-                      : () => _showAddClientDialog(context, state, state.selectedServices)
+              Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: ButtonWidget(
+                      text: state.kioskState == null
+                          ? getLocalizations(context).select
+                          : getLocalizations(context).connect,
+                      onClick: state.kioskState == null
+                          ? getCubitInstance(context).switchToSelectedServicesViewing
+                          : () => _showAddClientDialog(context, state, state.selectedServices)
+                  )
               ),
-              ButtonWidget(
-                text: getLocalizations(context).cancel,
-                onClick: getCubitInstance(context).switchToSpecialistsViewing,
+              Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: ButtonWidget(
+                    text: getLocalizations(context).cancel,
+                    onClick: getCubitInstance(context).switchToSpecialistsViewing,
+                  )
               ),
               const SizedBox(height: Dimens.contentMargin)
             ],
@@ -194,16 +201,31 @@ class _SpecialistsState extends BaseState<
             ),
             Container(height: 2, color: Colors.grey),
             const SizedBox(height: Dimens.contentMargin),
-            ButtonWidget(
-              text: getLocalizations(context).confirm,
-              onClick: getCubitInstance(context).confirmSelectedServices,
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: ButtonWidget(
+                  text: getLocalizations(context).confirm,
+                  onClick: getCubitInstance(context).confirmSelectedServices,
+                )
             ),
-            ButtonWidget(
-              text: getLocalizations(context).cancel,
-              onClick: getCubitInstance(context).switchToSpecialistsViewing,
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: ButtonWidget(
+                  text: getLocalizations(context).cancel,
+                  onClick: getCubitInstance(context).switchToSpecialistsViewing,
+                )
             ),
             const SizedBox(height: Dimens.contentMargin)
           ],
+        );
+      case SpecialistsStateEnum.servicesInCreatedSpecialistViewing:
+        return ListView.builder(
+          itemBuilder: (context, index) {
+            return ServiceItemWidget(
+                serviceWrapper: state.servicesInSpecialist[index]
+            );
+          },
+          itemCount: state.servicesInSpecialist.length,
         );
     }
   }
@@ -249,7 +271,8 @@ class _SpecialistsState extends BaseState<
 enum SpecialistsStateEnum {
   specialistsViewing,
   servicesSelecting,
-  selectedServicesViewing
+  selectedServicesViewing,
+  servicesInCreatedSpecialistViewing
 }
 
 class SpecialistsLogicState extends BaseLogicState {
@@ -264,6 +287,7 @@ class SpecialistsLogicState extends BaseLogicState {
 
   final List<SpecialistModel> specialists;
   final List<ServiceWrapper> services;
+  final List<ServiceWrapper> servicesInSpecialist;
 
   final bool showCreateSpecialistDialog;
 
@@ -295,6 +319,7 @@ class SpecialistsLogicState extends BaseLogicState {
     required this.hasRights,
     required this.specialists,
     required this.services,
+    required this.servicesInSpecialist,
     required this.showCreateSpecialistDialog
   });
 
@@ -310,6 +335,7 @@ class SpecialistsLogicState extends BaseLogicState {
     bool? hasRights,
     List<SpecialistModel>? specialists,
     List<ServiceWrapper>? services,
+    List<ServiceWrapper>? servicesInSpecialist,
     bool? showCreateSpecialistDialog,
   }) => SpecialistsLogicState(
       nextConfig: nextConfig,
@@ -323,6 +349,7 @@ class SpecialistsLogicState extends BaseLogicState {
       hasRights: hasRights ?? this.hasRights,
       specialists: specialists ?? this.specialists,
       services: services ?? this.services,
+      servicesInSpecialist: servicesInSpecialist ?? this.servicesInSpecialist,
       showCreateSpecialistDialog: showCreateSpecialistDialog ?? this.showCreateSpecialistDialog
   );
 }
@@ -330,11 +357,13 @@ class SpecialistsLogicState extends BaseLogicState {
 @injectable
 class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
   final LocationInteractor _locationInteractor;
-  final QueueInteractor _queueInteractor;
+  final SpecialistInteractor _specialistInteractor;
+  final ServiceInteractor _serviceInteractor;
 
   SpecialistsCubit(
       this._locationInteractor,
-      this._queueInteractor,
+      this._specialistInteractor,
+      this._serviceInteractor,
       @factoryParam SpecialistsConfig config
   ) : super(
       SpecialistsLogicState(
@@ -345,6 +374,7 @@ class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
           hasRights: false,
           specialists: [],
           services: [],
+          servicesInSpecialist: [],
           showCreateSpecialistDialog: false
       )
   );
@@ -439,17 +469,28 @@ class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
       return;
     }
     showLoad();
-    await _queueInteractor.getServicesInSpecialist(specialistModel.id)
+    await _serviceInteractor.getServicesInSpecialist(specialistModel.id)
       ..onSuccess((result) {
         hideLoad();
-        emit(
-            state.copy(
-                specialistsStateEnum: SpecialistsStateEnum.servicesSelecting,
-                services: result.data.results
-                    .map((service) => ServiceWrapper(service: service))
-                    .toList()
-            )
-        );
+        if (state.kioskState != null) {
+          emit(
+              state.copy(
+                  specialistsStateEnum: SpecialistsStateEnum.servicesSelecting,
+                  services: result.data.results
+                      .map((service) => ServiceWrapper(service: service))
+                      .toList()
+              )
+          );
+        } else {
+          emit(
+              state.copy(
+                  specialistsStateEnum: SpecialistsStateEnum.servicesInCreatedSpecialistViewing,
+                  servicesInSpecialist: result.data.results
+                      .map((service) => ServiceWrapper(service: service))
+                      .toList()
+              )
+          );
+        }
         hideLoad();
       })
       ..onError((result) {
@@ -458,12 +499,12 @@ class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
   }
 
   Future<void> _load() async {
-    await _locationInteractor.getSpecialistsInLocation(
+    await _specialistInteractor.getSpecialistsInLocation(
         state.config.locationId
     )
       ..onSuccess((result) async {
         emit(state.copy(specialists: result.data.results));
-        await _locationInteractor.getServicesInLocation(
+        await _serviceInteractor.getServicesInLocation(
             state.config.locationId
         )
           ..onSuccess((result) {

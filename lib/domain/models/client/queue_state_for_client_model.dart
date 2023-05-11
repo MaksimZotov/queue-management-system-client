@@ -9,13 +9,13 @@ class QueueStateForClientModel {
   final int clientId;
   @JsonKey(name: 'location_id')
   final int locationId;
-  final String? email;
+  final String? phone;
   final int? code;
 
   QueueStateForClientModel({
     required this.clientId,
     required this.locationId,
-    this.email,
+    this.phone,
     this.code
   });
 

@@ -2,20 +2,22 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/enums/client_in_queue_status.dart';
 import 'package:queue_management_system_client/domain/interactors/client_interactor.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/domain/models/client/queue_state_for_client_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
+import 'package:queue_management_system_client/ui/models/client/services_container.dart';
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
 import 'package:queue_management_system_client/ui/widgets/client_info_field_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
+import '../../../dimens.dart';
 import '../../../domain/interactors/socket_interactor.dart';
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/locationnew/client.dart';
-import '../../../domain/models/locationnew/location_state.dart';
-import '../../widgets/button_widget.dart';
+import '../../../domain/models/location/change/base/location_change_model.dart';
+import '../../../domain/models/location/state/client.dart';
+import '../../../domain/models/location/state/location_state.dart';
+import '../../../domain/models/location/state/service.dart';
 import '../base.dart';
 
 class ClientWidget extends BaseWidget<ClientConfig> {
@@ -84,25 +86,29 @@ class _ClientState extends BaseState<
                         children: [
                           ClientInfoFieldWidget(
                               fieldName: getLocalizations(context).queueWithColon,
-                              fieldValue: state.queueName ?? '-'
+                              fieldValue: state.client?.queue?.name ?? '-'
                           ),
                           ClientInfoFieldWidget(
-                              fieldName: getLocalizations(context).emailWithColon,
-                              fieldValue: state.clientState.email ?? '-'
+                              fieldName: getLocalizations(context).phoneWithColon,
+                              fieldValue: state.clientState.phone ?? '-'
+                          ),
+                          ClientInfoFieldWidget(
+                              fieldName: getLocalizations(context).waitTimeWithColon,
+                              fieldValue: _getTimeInMinutes(context, state.client?.waitTimeInMinutes)
+                          ),
+                          ClientInfoFieldWidget(
+                              fieldName: getLocalizations(context).totalTimeWithColon,
+                              fieldValue: _getTimeInMinutes(context, state.client?.totalTimeInMinutes)
                           ),
                           ClientInfoFieldWidget(
                               fieldName: getLocalizations(context).codeWithColon,
                               fieldValue: state.clientState.code?.toString() ?? '-'
-                          )
+                          ),
                         ],
                       )
                   ),
-                  const SizedBox(height: 10),
-                  ButtonWidget(
-                      text: getLocalizations(context).leave,
-                      onClick: getCubitInstance(context).leave
-                  ),
-                ]
+                  const SizedBox(height: Dimens.contentMargin)
+                ] + _getServices(context, state.client)
             ),
           ),
         ),
@@ -118,27 +124,108 @@ class _ClientState extends BaseState<
   ) {
     // Do nothing
   }
+
+  String _getTimeInMinutes(BuildContext context, int? time) {
+    if (time == null) {
+      return '-';
+    }
+    return getLocalizations(context).timeInMinutesPattern(time);
+  }
+
+  List<Widget> _getServices(BuildContext context, Client? client) {
+    if (client == null) {
+      return [];
+    }
+    List<Service> services = client.services.toList();
+    if (services.isEmpty) {
+      return [];
+    }
+
+    List<ServicesContainer> servicesForClientContainers = [];
+    List<Service> servicesWithCurOrder = [];
+
+    services.sort((a, b) => a.orderNumber.compareTo(b.orderNumber));
+    int curOrderNumber = services[0].orderNumber;
+
+    int priorityNumber = 1;
+    for (int i = 0; i < services.length; i++) {
+      Service service = services[i];
+      if (service.orderNumber != curOrderNumber) {
+        servicesForClientContainers.add(
+            ServicesContainer(
+                priorityNumber: priorityNumber,
+                services: servicesWithCurOrder
+            )
+        );
+        curOrderNumber = service.orderNumber;
+        servicesWithCurOrder = [];
+        priorityNumber += 1;
+      }
+      servicesWithCurOrder.add(service);
+    }
+    if (servicesWithCurOrder.isNotEmpty) {
+      servicesForClientContainers.add(
+          ServicesContainer(
+              priorityNumber: priorityNumber,
+              services: servicesWithCurOrder
+          )
+      );
+    }
+
+    return servicesForClientContainers.map((container) =>
+        Card(
+            elevation: 5,
+            color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                          getLocalizations(context).servicesWithPriorityPattern(
+                              container.priorityNumber
+                          ),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 18
+                          )
+                      )
+                  )
+                ] + container.services.map((service) =>
+                    Card(
+                        elevation: 2,
+                        color: Colors.white,
+                        child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Text(
+                                service.name,
+                                style: const TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16
+                                )
+                            )
+                        )
+                    )
+                ).toList(),
+              )
+            )
+        )
+    ).toList();
+  }
 }
 
 class ClientLogicState extends BaseLogicState {
 
   final ClientConfig config;
   final QueueStateForClientModel clientState;
-  final String email;
   final bool showConfirmDialog;
-  final LocationState locationState;
-
-  String? get queueName {
-    for (Client client in locationState.clients) {
-      if (client.id == clientState.clientId && client.queue?.name != null) {
-        return client.queue?.name;
-      }
-    }
-    return null;
-  }
+  final LocationState? locationState;
+  final Client? client;
 
   bool get inQueue =>
-      queueName != null;
+      client?.queue != null;
 
   ClientLogicState({
     super.nextConfig,
@@ -147,9 +234,9 @@ class ClientLogicState extends BaseLogicState {
     super.loading,
     required this.config,
     required this.clientState,
-    required this.email,
     required this.showConfirmDialog,
-    required this.locationState
+    required this.locationState,
+    required this.client
   });
 
   @override
@@ -160,9 +247,9 @@ class ClientLogicState extends BaseLogicState {
     bool? loading,
     List<LocationModel>? locations,
     QueueStateForClientModel? clientState,
-    String? email,
     bool? showConfirmDialog,
     LocationState? locationState,
+    Client? client
   }) => ClientLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -170,9 +257,9 @@ class ClientLogicState extends BaseLogicState {
       loading: loading ?? this.loading,
       config: config,
       clientState: clientState ?? this.clientState,
-      email: email ?? this.email,
       showConfirmDialog: showConfirmDialog ?? this.showConfirmDialog,
-      locationState: locationState ?? this.locationState
+      locationState: locationState ?? this.locationState,
+      client: client ?? this.client
   );
 }
 
@@ -189,6 +276,8 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
 
   Timer? _timer;
 
+  List<LocationChange> changes = [];
+
   ClientCubit(
     this._clientInteractor,
     this._socketInteractor,
@@ -201,9 +290,12 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
             clientId: -1,
             locationId: -1
           ),
-          email: '',
           showConfirmDialog: false,
-          locationState: LocationState(null, [])
+          locationState: LocationState(
+              id: null,
+              clients: []
+          ),
+          client: null
       )
   );
 
@@ -215,17 +307,16 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
         state.config.accessKey
     )
       ..onSuccess((result) {
-        emit(state.copy(clientState: result.data, email: result.data.email));
+        emit(state.copy(clientState: result.data));
         _connectToSocket();
         hideLoad();
       })
       ..onError((result) async {
         await _clientInteractor.getQueueStateForClient(
-            state.config.clientId,
-            state.config.accessKey
+            state.config.clientId
         )
           ..onSuccess((result) {
-            emit(state.copy(clientState: result.data, email: result.data.email));
+            emit(state.copy(clientState: result.data));
             hideLoad();
             _connectToSocket();
           })
@@ -253,41 +344,64 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
     emit(state.copy(loading: false, error: result));
   }
 
-  Future<void> leave() async {
-    showLoad();
-    await _clientInteractor.leaveQueue(state.config.clientId, state.config.accessKey)
-      ..onSuccess((result) {
-        emit(state.copy(clientState: result.data));
-      })
-      ..onError((result) {
-        showError(result);
-      });
-  }
-
   Future<void> _connectToSocket() async {
-    await _locationInteractor.getLocationState(
-        state.clientState.locationId
-    )..onSuccess((result) {
-      _handleNewLocationState(result.data);
-    })..onError((result) {
-      showError(result);
-    });
-    _socketInteractor.connectToSocket<LocationState>(
+    _socketInteractor.connectToSocket<LocationChange>(
         _locationTopic + state.clientState.locationId.toString(),
-        () => { /* Do nothing */ },
-        _handleNewLocationState,
-        (error) => { /* Do nothing */ }
+        () async => {
+          await _locationInteractor.getLocationState(
+              state.clientState.locationId
+          )..onSuccess((result) {
+              _setLocationState(result.data);
+          })..onError((result) {
+              showError(result);
+          })
+        },
+        _handleLocationChange,
+        (error) => { }
     );
     _startUpdating();
   }
 
-  void _handleNewLocationState(LocationState locationState) {
-    emit(state.copy(locationState: locationState));
-  }
-
   void _startUpdating() async {
     _timer = Timer.periodic(const Duration(seconds: _updatePeriod), (timer) {
-      emit(state.copy(error: state.error));
+      emit(state.copy());
     });
+  }
+
+  void _setLocationState(LocationState locationState) {
+    LocationState actualLocationState = _locationInteractor.transformLocation(
+        locationState,
+        changes
+    );
+
+    Client? curClient;
+
+    for (Client client in actualLocationState.clients) {
+      if (client.id == state.clientState.clientId) {
+        curClient = client;
+      }
+    }
+
+    emit(
+        state.copy(
+            locationState: actualLocationState,
+            client: curClient
+        )
+    );
+
+    changes.clear();
+  }
+
+  void _handleLocationChange(LocationChange locationChange) {
+    LocationState? prevLocationState = state.locationState;
+    changes.add(locationChange);
+    if (prevLocationState != null) {
+      LocationState newLocationState = _locationInteractor.transformLocation(
+          prevLocationState,
+          changes
+      );
+      changes.clear();
+      _setLocationState(newLocationState);
+    }
   }
 }

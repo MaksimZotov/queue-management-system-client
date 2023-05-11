@@ -4,14 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
-import 'package:queue_management_system_client/domain/models/locationnew/client.dart';
+import 'package:queue_management_system_client/domain/models/location/change/base/location_change_model.dart';
+import 'package:queue_management_system_client/domain/models/location/state/client.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../domain/interactors/socket_interactor.dart';
 import '../../../domain/models/base/result.dart';
-import '../../../domain/models/locationnew/board.dart';
-import '../../../domain/models/locationnew/location_state.dart';
+import '../../../domain/models/location/board.dart';
+import '../../../domain/models/location/state/location_state.dart';
 import '../../router/routes_config.dart';
 
 class BoardWidget extends BaseWidget<BoardConfig> {
@@ -70,7 +71,9 @@ class _BoardState extends BaseState<BoardWidget, BoardLogicState, BoardCubit> {
                           children: [
                             Expanded(
                               child: Card(
-                                color: Colors.blueGrey[300],
+                                color: client.queue == null
+                                    ? Colors.blueGrey[300]
+                                    : Colors.green[300],
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Align(
@@ -93,7 +96,9 @@ class _BoardState extends BaseState<BoardWidget, BoardLogicState, BoardCubit> {
                             Expanded(
                               flex: 2,
                               child: Card(
-                                color: Colors.blueGrey[300],
+                                color: client.queue == null
+                                  ? Colors.blueGrey[300]
+                                  : Colors.green[300],
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                     child: Align(
@@ -141,6 +146,7 @@ class BoardLogicState extends BaseLogicState {
   final BoardConfig config;
   final Board board;
   final int page;
+  final LocationState? locationState;
 
   BoardLogicState({
     super.nextConfig,
@@ -149,7 +155,8 @@ class BoardLogicState extends BaseLogicState {
     super.loading,
     required this.config,
     required this.board,
-    required this.page
+    required this.page,
+    required this.locationState
   });
 
   @override
@@ -159,7 +166,8 @@ class BoardLogicState extends BaseLogicState {
     String? snackBar,
     bool? loading,
     Board? board,
-    int? page
+    int? page,
+    LocationState? locationState
   }) => BoardLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -167,7 +175,8 @@ class BoardLogicState extends BaseLogicState {
       loading: loading ?? this.loading,
       config: config,
       board: board ?? this.board,
-      page: page ?? this.page
+      page: page ?? this.page,
+      locationState: locationState ?? this.locationState
   );
 }
 
@@ -181,6 +190,8 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
 
   Timer? _timer;
 
+  List<LocationChange> changes = [];
+
   BoardCubit(
     this._locationInteractor,
     this._socketInteractor,
@@ -189,28 +200,29 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
       BoardLogicState(
           config: config,
           board: Board([]),
-          page: 0
+          page: 0,
+          locationState: LocationState(
+              id: null,
+              clients: []
+          )
       )
   );
 
   @override
   Future<void> onStart() async {
     showLoad();
-    await _locationInteractor.getLocationState(
-        state.config.locationId
-    )..onSuccess((result) {
-      emit(state.copy(board: Board.fromLocationState(result.data, state.config.rowsAmount)));
-      hideLoad();
-    })..onError((result) {
-      showError(result);
-    });
-
-    _socketInteractor.connectToSocket<LocationState>(
+    _socketInteractor.connectToSocket<LocationChange>(
       _locationTopic + state.config.locationId.toString(),
-      () => { /* Do nothing */ },
-      (locationState) => {
-        emit(state.copy(board: Board.fromLocationState(locationState, state.config.rowsAmount)))
+      () async => {
+        await _locationInteractor.getLocationState(
+            state.config.locationId
+        )..onSuccess((result) {
+          _setLocationState(result.data);
+        })..onError((result) {
+          showError(result);
+        })
       },
+      _handleLocationChange,
       (error) => { /* Do nothing */ }
     );
 
@@ -235,5 +247,34 @@ class BoardCubit extends BaseCubit<BoardLogicState> {
         emit(state.copy(page: state.page + 1));
       }
     });
+  }
+
+  void _setLocationState(LocationState locationState) {
+    LocationState actualLocationState = _locationInteractor.transformLocation(
+        locationState,
+        changes
+    );
+
+    emit(
+        state.copy(
+            locationState: actualLocationState,
+            board: Board.fromLocationState(actualLocationState, state.config.rowsAmount)
+        )
+    );
+
+    changes.clear();
+  }
+
+  void _handleLocationChange(LocationChange locationChange) {
+    LocationState? prevLocationState = state.locationState;
+    changes.add(locationChange);
+    if (prevLocationState != null) {
+      LocationState newLocationState = _locationInteractor.transformLocation(
+          prevLocationState,
+          changes
+      );
+      changes.clear();
+      _setLocationState(newLocationState);
+    }
   }
 }

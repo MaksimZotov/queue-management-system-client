@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:queue_management_system_client/domain/enums/client_in_queue_status.dart';
-import 'package:queue_management_system_client/domain/models/locationnew/service.dart';
-import 'package:queue_management_system_client/domain/models/queue/client_in_queue_model.dart';
 
-import '../../dimens.dart';
-import '../../domain/models/locationnew/client.dart';
+import '../../domain/models/location/state/client.dart';
+import '../../domain/models/location/state/service.dart';
 
 class ClientItemWidget extends StatefulWidget {
   final Client client;
@@ -58,9 +55,9 @@ class _ClientItemState extends State<ClientItemWidget> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(
+                const Text(
                     'Информация о клиенте:',
-                    style: const TextStyle(color: Colors.black, fontSize: 18)
+                    style: TextStyle(color: Colors.black, fontSize: 18)
                 ),
                 const SizedBox(height: 5),
                 Card(
@@ -82,6 +79,19 @@ class _ClientItemState extends State<ClientItemWidget> {
                     child: Padding(
                         padding: const EdgeInsets.all(4),
                         child: Text(
+                            AppLocalizations.of(context)!.phoneWithColonPattern(
+                                widget.client.phone ?? '-'
+                            ),
+                            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)
+                        )
+                    )
+                ),
+                Card(
+                    elevation: 2,
+                    color: Colors.white,
+                    child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Text(
                             AppLocalizations.of(context)!.waitTimeInMinutesPattern(
                                 widget.client.waitTimeInMinutes
                             ),
@@ -89,9 +99,22 @@ class _ClientItemState extends State<ClientItemWidget> {
                         )
                     )
                 ),
+                Card(
+                    elevation: 2,
+                    color: Colors.white,
+                    child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Text(
+                            AppLocalizations.of(context)!.totalTimeInMinutesPattern(
+                                widget.client.totalTimeInMinutes
+                            ),
+                            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)
+                        )
+                    )
+                ),
                 const SizedBox(height: 10),
                 Text(
-                    'Услуги:',
+                    AppLocalizations.of(context)!.servicesWithColon,
                     style: const TextStyle(color: Colors.black, fontSize: 18)
                 ),
                 const SizedBox(height: 5)
@@ -104,7 +127,7 @@ class _ClientItemState extends State<ClientItemWidget> {
   }
 
   Widget _getButtons() {
-    if (widget.onServe != null && widget.onReturn != null) {
+    if (widget.onServe != null && widget.onReturn != null && widget.onChange != null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -129,6 +152,14 @@ class _ClientItemState extends State<ClientItemWidget> {
           Padding(
               padding: const EdgeInsets.all(16),
               child: IconButton(
+                tooltip: AppLocalizations.of(context)!.redirectClient,
+                icon: const Icon(Icons.track_changes, size: 35, color: Colors.grey),
+                onPressed: () => widget.onChange!.call(widget.client),
+              )
+          ),
+          Padding(
+              padding: const EdgeInsets.all(16),
+              child: IconButton(
                 tooltip: AppLocalizations.of(context)!.returnClientToQueue,
                 icon: const Icon(Icons.call_received, size: 35, color: Colors.grey),
                 onPressed: () => widget.onReturn!.call(widget.client),
@@ -145,7 +176,7 @@ class _ClientItemState extends State<ClientItemWidget> {
         ],
       );
     }
-    if (widget.onCall != null && widget.onChange != null) {
+    if (widget.onCall != null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -173,14 +204,6 @@ class _ClientItemState extends State<ClientItemWidget> {
                 tooltip: AppLocalizations.of(context)!.callClient,
                 icon: const Icon(Icons.call_made, size: 35, color: Colors.grey),
                 onPressed: () => widget.onCall!.call(widget.client),
-              )
-          ),
-          Padding(
-              padding: const EdgeInsets.all(16),
-              child: IconButton(
-                tooltip: AppLocalizations.of(context)!.redirectClient,
-                icon: const Icon(Icons.track_changes, size: 35, color: Colors.grey),
-                onPressed: () => widget.onChange!.call(widget.client),
               )
           )
         ],

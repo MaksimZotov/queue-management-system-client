@@ -1,22 +1,15 @@
-import 'dart:developer';
-
-import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 
-import '../../../data/api/server_api.dart';
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
 import '../../../domain/enums/kiosk_mode.dart';
 import '../../../domain/interactors/location_interactor.dart';
-import '../../../domain/interactors/kiosk_interactor.dart';
+import '../../../domain/interactors/service_interactor.dart';
 import '../../../domain/models/base/result.dart';
 import '../../../domain/models/kiosk/kiosk_state.dart';
 import '../../../domain/models/location/location_model.dart';
-import '../../../domain/models/location/service_model.dart';
 import '../../models/service/service_wrapper.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/button_widget.dart';
@@ -49,15 +42,13 @@ class _ServicesState extends BaseState<
       ServicesLogicState state,
       ServicesWidget widget
   ) => Scaffold(
-    appBar: state.kioskState == null || state.kioskState?.kioskMode == KioskMode.all
-      ? AppBar(
-        title: Text(
-            state.locationName.isEmpty
-                ? ''
-                : getLocalizations(context).services
-        ),
-      )
-      : null,
+    appBar: AppBar(
+      title: Text(
+          state.locationName.isEmpty
+              ? ''
+              : getLocalizations(context).services
+      ),
+    ),
     body: _getBody(context, state, widget),
     floatingActionButton: state.hasRights && state.kioskState == null
         ? FloatingActionButton(
@@ -148,13 +139,19 @@ class _ServicesState extends BaseState<
         ),
         Container(height: 2, color: Colors.grey),
         const SizedBox(height: Dimens.contentMargin),
-        ButtonWidget(
-          text: getLocalizations(context).connect,
-          onClick: () => _showAddClientDialog(context, state, state.selectedServices),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: ButtonWidget(
+            text: getLocalizations(context).connect,
+            onClick: () => _showAddClientDialog(context, state, state.selectedServices)
+          )
         ),
-        ButtonWidget(
-          text: getLocalizations(context).cancel,
-          onClick: getCubitInstance(context).clearSelect,
+        Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: ButtonWidget(
+              text: getLocalizations(context).cancel,
+              onClick: getCubitInstance(context).clearSelect
+            )
         ),
         const SizedBox(height: Dimens.contentMargin),
       ],
@@ -249,10 +246,13 @@ class ServicesLogicState extends BaseLogicState {
 
 @injectable
 class ServicesCubit extends BaseCubit<ServicesLogicState> {
+
   final LocationInteractor _locationInteractor;
+  final ServiceInteractor _serviceInteractor;
 
   ServicesCubit(
       this._locationInteractor,
+      this._serviceInteractor,
       @factoryParam ServicesConfig config
   ) : super(
       ServicesLogicState(
@@ -325,7 +325,7 @@ class ServicesCubit extends BaseCubit<ServicesLogicState> {
   }
 
   Future<void> _load() async {
-    await _locationInteractor.getServicesInLocation(
+    await _serviceInteractor.getServicesInLocation(
         state.config.locationId
     )
       ..onSuccess((result) {

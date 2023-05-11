@@ -10,4 +10,5 @@ class Dimens {
   static const double errorFontSize = 16;
   static const double textFormFieldFontSize = 18;
   static const double fieldWidthForWeb = 320;
+  static const double backArrowSize = 24;
 }

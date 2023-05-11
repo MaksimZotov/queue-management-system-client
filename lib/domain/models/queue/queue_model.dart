@@ -1,4 +1,4 @@
-import 'client_in_queue_model.dart';
+import '../client/client_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'queue_model.g.dart';
@@ -10,14 +10,12 @@ class QueueModel {
   final String? description;
   @JsonKey(name: 'has_rights')
   final bool hasRights;
-  final bool enabled;
 
   QueueModel(
     this.id,
     this.name,
     this.description,
-    this.hasRights,
-    this.enabled
+    this.hasRights
   );
 
   static QueueModel fromJson(Map<String, dynamic> json) => _$QueueModelFromJson(json);
