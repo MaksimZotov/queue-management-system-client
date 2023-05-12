@@ -166,14 +166,14 @@ class AddRightsCubit extends BaseDialogCubit<AddRightsLogicState> {
     await _rightsInteractor.addRights(
         state.config.locationId,
         AddRightsRequest(
-            email: state.email,
+            email: state.email.toLowerCase(),
             status: state.status
         )
     )
       ..onSuccess((result) {
         popResult(
             AddRightsResult(
-                email: state.email,
+                email: state.email.toLowerCase(),
                 status: state.status
             )
         );
