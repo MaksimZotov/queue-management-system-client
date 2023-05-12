@@ -62,23 +62,18 @@ class LocationState extends BaseState<
                       tooltip: getLocalizations(context).switchToKioskMode,
                       icon: const Icon(Icons.co_present_sharp),
                       onPressed: () => _showSwitchToKioskDialog(context, state)
+                  ),
+                  IconButton(
+                      tooltip: getLocalizations(context).rightsSettings,
+                      icon: const Icon(Icons.manage_accounts),
+                      onPressed: () => widget.emitConfig(
+                          RightsConfig(
+                              accountId: state.config.accountId,
+                              locationId: state.config.locationId
+                          )
+                      )
                   )
-                ] + (
-                    (state.locationModel?.isOwner == true || state.locationModel?.rightsStatus == RightsStatus.administrator)
-                    ? [
-                        IconButton(
-                            tooltip: getLocalizations(context).rightsSettings,
-                            icon: const Icon(Icons.manage_accounts),
-                            onPressed: () => widget.emitConfig(
-                                RightsConfig(
-                                    accountId: state.config.accountId,
-                                    locationId: state.config.locationId
-                                )
-                            )
-                        )
-                      ]
-                    : []
-                ),
+                ]
             )
             : null,
         body: Center(

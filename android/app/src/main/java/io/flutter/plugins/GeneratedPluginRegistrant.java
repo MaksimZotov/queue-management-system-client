@@ -21,6 +21,11 @@ public final class GeneratedPluginRegistrant {
       Log.e(TAG, "Error registering plugin file_saver, com.one.file_saver.FileSaverPlugin", e);
     }
     try {
+      flutterEngine.getPlugins().add(new com.it_nomads.fluttersecurestorage.FlutterSecureStoragePlugin());
+    } catch(Exception e) {
+      Log.e(TAG, "Error registering plugin flutter_secure_storage, com.it_nomads.fluttersecurestorage.FlutterSecureStoragePlugin", e);
+    }
+    try {
       flutterEngine.getPlugins().add(new app.mylekha.client.flutter_usb_printer.FlutterUsbPrinterPlugin());
     } catch(Exception e) {
       Log.e(TAG, "Error registering plugin flutter_usb_printer, app.mylekha.client.flutter_usb_printer.FlutterUsbPrinterPlugin", e);

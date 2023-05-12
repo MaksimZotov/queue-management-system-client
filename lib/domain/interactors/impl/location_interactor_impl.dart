@@ -5,7 +5,6 @@ import 'package:queue_management_system_client/domain/models/location/change/bas
 import 'package:queue_management_system_client/domain/models/location/change/location_add_client.dart';
 import 'package:queue_management_system_client/domain/models/location/change/location_delete_client.dart';
 import 'package:queue_management_system_client/domain/models/location/change/location_update_client.dart';
-import 'package:queue_management_system_client/domain/models/location/check_is_owner_model.dart';
 import 'package:queue_management_system_client/domain/models/location/state/client.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 
@@ -23,11 +22,6 @@ class LocationInteractorImpl extends LocationInteractor {
   @override
   Future<Result<ContainerForList<LocationModel>>> getLocations(int? accountId) async {
     return _repository.getLocations(accountId);
-  }
-
-  @override
-  Future<Result<CheckIsOwnerModel>> checkIsOwner(int? accountId) {
-    return _repository.checkIsOwner(accountId);
   }
 
   @override

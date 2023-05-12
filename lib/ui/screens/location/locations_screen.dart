@@ -65,7 +65,7 @@ class _LocationsState extends BaseState<
           ),
           onPressed: state.hasToken
               ? () => _showLogoutFromAccountDialog(context)
-              : () => widget.emitConfig(InitialConfig()),
+              : () => widget.emitConfig(InitialConfig(firstLaunch: false)),
         )
       ],
     ),
@@ -87,13 +87,11 @@ class _LocationsState extends BaseState<
       ),
       itemCount: state.locations.length,
     ),
-    floatingActionButton: state.isOwner
-        ? FloatingActionButton(
-            tooltip: getLocalizations(context).createLocation,
-            onPressed: () => _showCreateLocationDialog(context),
-            child: const Icon(Icons.add),
-        )
-        : null,
+    floatingActionButton: FloatingActionButton(
+      tooltip: getLocalizations(context).createLocation,
+      onPressed: () => _showCreateLocationDialog(context),
+      child: const Icon(Icons.add),
+    ),
   );
 
   @override
@@ -151,10 +149,7 @@ class _LocationsState extends BaseState<
 class LocationsLogicState extends BaseLogicState {
 
   final LocationsConfig config;
-
   final List<LocationModel> locations;
-
-  final bool isOwner;
   final bool hasToken;
 
   LocationsLogicState({
@@ -164,7 +159,6 @@ class LocationsLogicState extends BaseLogicState {
     super.loading,
     required this.config,
     required this.locations,
-    required this.isOwner,
     required this.hasToken,
   });
 
@@ -175,7 +169,6 @@ class LocationsLogicState extends BaseLogicState {
     String? snackBar,
     bool? loading,
     List<LocationModel>? locations,
-    bool? isOwner,
     bool? hasToken
   }) => LocationsLogicState(
       nextConfig: nextConfig,
@@ -184,7 +177,6 @@ class LocationsLogicState extends BaseLogicState {
       loading: loading ?? this.loading,
       config: config,
       locations: locations ?? this.locations,
-      isOwner: isOwner ?? this.isOwner,
       hasToken: hasToken ?? this.hasToken
   );
 }
@@ -203,7 +195,6 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
     LocationsLogicState(
       config: config,
       locations: [],
-      isOwner: false,
       hasToken: false,
       snackBar: null,
       loading: false
@@ -216,19 +207,12 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
     if (await _accountInteractor.checkToken()) {
       emit(state.copy(hasToken: true));
     }
-    await _locationInteractor.checkIsOwner(state.config.accountId)
-      ..onSuccess((result) async {
-        emit(state.copy(isOwner: result.data.isOwner));
-      })
-      ..onError((result) {
-        showError(result);
-      });
     await _load();
   }
 
   Future<void> logout() async {
     await _accountInteractor.logout();
-    navigate(InitialConfig());
+    navigate(InitialConfig(firstLaunch: false));
   }
 
   Future<void> handleCreateLocationResult(CreateLocationResult result) async {

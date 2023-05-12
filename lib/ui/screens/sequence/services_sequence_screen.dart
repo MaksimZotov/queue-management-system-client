@@ -352,7 +352,7 @@ class _ServicesSequencesState extends BaseState<
   }
 
   bool _checkFloatingActionButton(ServicesSequencesLogicState state) =>
-      state.hasRights && state.servicesSequencesStateEnum == ServicesSequencesStateEnum.servicesSequencesViewing && state.kioskState == null;
+      state.servicesSequencesStateEnum == ServicesSequencesStateEnum.servicesSequencesViewing && state.kioskState == null;
 }
 
 enum ServicesSequencesStateEnum {
@@ -371,7 +371,6 @@ class ServicesSequencesLogicState extends BaseLogicState {
 
   final String? ownerEmail;
   final String locationName;
-  final bool hasRights;
 
   final List<ServicesSequenceModel> servicesSequences;
   final List<ServiceWrapper> services;
@@ -400,7 +399,6 @@ class ServicesSequencesLogicState extends BaseLogicState {
     required this.servicesSequencesStateEnum,
     required this.ownerEmail,
     required this.locationName,
-    required this.hasRights,
     required this.servicesSequences,
     required this.services,
     required this.selectedServices,
@@ -416,7 +414,6 @@ class ServicesSequencesLogicState extends BaseLogicState {
     ServicesSequencesStateEnum? servicesSequencesStateEnum,
     String? ownerEmail,
     String? locationName,
-    bool? hasRights,
     List<ServicesSequenceModel>? servicesSequences,
     List<ServiceWrapper>? services,
     List<ServiceWrapper>? selectedServices,
@@ -430,7 +427,6 @@ class ServicesSequencesLogicState extends BaseLogicState {
       config: config,
       ownerEmail: ownerEmail ?? this.ownerEmail,
       locationName: locationName ?? this.locationName,
-      hasRights: hasRights ?? this.hasRights,
       servicesSequences: servicesSequences ?? this.servicesSequences,
       services: services ?? this.services,
       selectedServices: selectedServices ?? this.selectedServices,
@@ -458,7 +454,6 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
           servicesSequencesStateEnum: ServicesSequencesStateEnum.servicesSequencesViewing,
           ownerEmail: null,
           locationName: '',
-          hasRights: false,
           servicesSequences: [],
           services: [],
           selectedServices: [],
@@ -481,8 +476,7 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
         emit(
             state.copy(
                 ownerEmail: location.ownerEmail,
-                locationName: location.name,
-                hasRights: location.isOwner ? true : location.rightsStatus != null
+                locationName: location.name
             )
         );
         await _load();

@@ -42,16 +42,14 @@ class _QueueItemState extends State<QueueItemWidget> {
               )
             )
             : null,
-        trailing: widget.queue.hasRights == true
-            ? SizedBox(
-              height: double.infinity,
-              child: IconButton(
-                tooltip: AppLocalizations.of(context)!.delete,
-                icon: const Icon(Icons.delete),
-                onPressed: () => widget.onDelete(widget.queue)
-              ),
-            )
-            : null,
+        trailing: SizedBox(
+          height: double.infinity,
+          child: IconButton(
+              tooltip: AppLocalizations.of(context)!.delete,
+              icon: const Icon(Icons.delete),
+              onPressed: () => widget.onDelete(widget.queue)
+          ),
+        ),
         onTap: () => widget.onTap(widget.queue)
       ),
     );

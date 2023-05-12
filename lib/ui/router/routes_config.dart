@@ -43,6 +43,11 @@ class ErrorConfig extends BaseConfig {
 }
 
 class InitialConfig extends BaseConfig {
+  final bool firstLaunch;
+
+  InitialConfig({
+    required this.firstLaunch
+  });
 
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
@@ -57,6 +62,7 @@ class InitialConfig extends BaseConfig {
 }
 
 class AuthorizationConfig extends BaseConfig {
+
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
     return RouterPage(
@@ -70,11 +76,12 @@ class AuthorizationConfig extends BaseConfig {
 
   @override
   BaseConfig getPrevConfig() {
-    return InitialConfig();
+    return InitialConfig(firstLaunch: false);
   }
 }
 
 class RegistrationConfig extends BaseConfig {
+
   @override
   Page getPage(ValueChanged<BaseConfig> emitConfig) {
     return RouterPage(
@@ -88,7 +95,7 @@ class RegistrationConfig extends BaseConfig {
 
   @override
   BaseConfig getPrevConfig() {
-    return InitialConfig();
+    return InitialConfig(firstLaunch: false);
   }
 }
 

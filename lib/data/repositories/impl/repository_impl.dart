@@ -12,7 +12,6 @@ import 'package:queue_management_system_client/domain/models/client/queue_state_
 import 'package:queue_management_system_client/domain/models/specialist/create_specialist_request.dart';
 import 'package:queue_management_system_client/domain/models/service/create_service_request.dart';
 import 'package:queue_management_system_client/domain/models/sequence/create_services_sequence_request.dart';
-import 'package:queue_management_system_client/domain/models/location/check_is_owner_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 import 'package:queue_management_system_client/domain/models/specialist/specialist_model.dart';
 import 'package:queue_management_system_client/domain/models/sequence/services_sequence_model.dart';
@@ -32,7 +31,7 @@ import '../../../domain/models/account/tokens_model.dart';
 import '../../../domain/models/queue/create_queue_request.dart';
 import '../../../domain/models/queue/queue_state_model.dart';
 import '../../../domain/models/rights/add_rights_request.dart';
-import '../../local/account_storage.dart';
+import '../../local/account_info_storage.dart';
 import '../../local/printer_info_storage.dart';
 import '../../native/android/android_native_interactor.dart';
 import '../../printer/printer_interactor.dart';
@@ -107,14 +106,6 @@ class RepositoryImpl extends Repository {
       return await _serverApi.getLocations(accountId);
     }
     return ErrorResult(type: ErrorType.unknown);
-  }
-
-  @override
-  Future<Result<CheckIsOwnerModel>> checkIsOwner(int? accountId) async {
-    if (accountId == null && !(await _secureStorage.containsAccountId())) {
-      return SuccessResult(data: CheckIsOwnerModel(isOwner: false));
-    }
-    return await _serverApi.checkIsOwner(accountId ?? (await _secureStorage.getAccountId())!);
   }
 
   @override

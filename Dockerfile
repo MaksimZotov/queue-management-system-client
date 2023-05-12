@@ -15,7 +15,7 @@ COPY . .
 RUN flutter update-packages --force-upgrade
 RUN flutter pub get
 
-RUN flutter build web --release --web-renderer html --dart-define SERVER_URL=http://141.98.169.103/api --dart-define CLIENT_URL=http://141.98.169.103
+RUN flutter build web --release --web-renderer html --dart-define SERVER_URL=https://maksimzotov.ru/api --dart-define CLIENT_URL=https://maksimzotov.ru
 
 COPY /nginx/nginx.conf /etc/nginx/conf.d/default.conf
 RUN chmod +x /app/entrypoint.sh

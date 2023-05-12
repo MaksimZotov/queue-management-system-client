@@ -12,7 +12,6 @@ import '../../domain/models/location/create_location_request.dart';
 import '../../domain/models/location/state/location_state.dart';
 import '../../domain/models/service/create_service_request.dart';
 import '../../domain/models/sequence/create_services_sequence_request.dart';
-import '../../domain/models/location/check_is_owner_model.dart';
 import '../../domain/models/location/location_model.dart';
 import '../../domain/models/client/create_client_request.dart';
 import '../../domain/models/service/ordered_services_model.dart';
@@ -40,7 +39,6 @@ abstract class Repository {
 
   // <======================== Location ========================>
   Future<Result<ContainerForList<LocationModel>>> getLocations(int? accountId);
-  Future<Result<CheckIsOwnerModel>> checkIsOwner(int? accountId);
   Future<Result<LocationModel>> createLocation(CreateLocationRequest createLocationRequest);
   Future<Result> deleteLocation(int locationId);
   Future<Result<LocationModel>> getLocation(int locationId);

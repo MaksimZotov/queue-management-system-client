@@ -8,14 +8,11 @@ class QueueModel {
   final int id;
   final String name;
   final String? description;
-  @JsonKey(name: 'has_rights')
-  final bool hasRights;
 
   QueueModel(
     this.id,
     this.name,
-    this.description,
-    this.hasRights
+    this.description
   );
 
   static QueueModel fromJson(Map<String, dynamic> json) => _$QueueModelFromJson(json);

@@ -248,7 +248,7 @@ class RegistrationCubit extends BaseCubit<RegistrationLogicState> {
     showLoad();
     await _accountInteractor.signup(
       SignupModel(
-        email: state.email,
+        email: state.email.toLowerCase().trim(),
         firstName: state.firstName,
         lastName: state.lastName,
         password: state.password,

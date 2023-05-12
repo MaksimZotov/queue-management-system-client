@@ -16,7 +16,7 @@ class AppRouterInformationParser extends RouteInformationParser<BaseConfig> {
       switch (segments.length) {
         // "/"
         case 0:
-          return InitialConfig();
+          return InitialConfig(firstLaunch: true);
         case 1:
           switch (segments[0]) {
             // "/authorization"

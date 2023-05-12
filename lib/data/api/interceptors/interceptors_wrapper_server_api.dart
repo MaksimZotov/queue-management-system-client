@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../../../domain/models/account/tokens_model.dart';
-import '../../local/account_storage.dart';
+import '../../local/account_info_storage.dart';
 import '../server_api.dart';
 
 class InterceptorsWrapperServerApi extends InterceptorsWrapper {
@@ -34,10 +34,16 @@ class InterceptorsWrapperServerApi extends InterceptorsWrapper {
     if ((err.response?.statusCode == 401)) {
       if (await _accountInfoStorage.containsRefreshToken()) {
         final refreshToken = await _accountInfoStorage.getRefreshToken();
-        final response = await _dioApi.post(
-            '${ServerApi.url}$_refreshTokenMethod',
-            queryParameters: { 'refresh_token': 'Bearer $refreshToken' }
-        );
+        late Response response;
+        try {
+          response = await _dioApi.post(
+              '${ServerApi.url}$_refreshTokenMethod',
+              queryParameters: { 'refresh_token': 'Bearer $refreshToken' }
+          );
+        } on DioError catch (exception) {
+          await _accountInfoStorage.deleteAll();
+          return handler.next(exception);
+        }
         int? code = response.statusCode;
         if (code != null && code >= 200 && code < 300) {
           final tokens = TokensModel.fromJson(response.data!);

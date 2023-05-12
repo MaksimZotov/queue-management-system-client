@@ -154,7 +154,7 @@ class AuthorizationCubit extends BaseCubit<AuthorizationLogicState> {
     showLoad();
     await _accountInteractor.login(
         LoginModel(
-            email: state.email,
+            email: state.email.toLowerCase().trim(),
             password: state.password
         )
     )
