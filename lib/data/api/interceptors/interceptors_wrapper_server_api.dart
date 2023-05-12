@@ -41,6 +41,7 @@ class InterceptorsWrapperServerApi extends InterceptorsWrapper {
               queryParameters: { 'refresh_token': 'Bearer $refreshToken' }
           );
         } on DioError catch (exception) {
+          await _accountInfoStorage.deleteAll();
           return handler.next(exception);
         }
         int? code = response.statusCode;
