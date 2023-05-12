@@ -41,16 +41,14 @@ class _LocationItemState extends State<LocationItemWidget> {
                 ),
             )
             : null,
-        trailing: widget.location.isOwner
-            ? SizedBox(
-                height: double.infinity,
-                child: IconButton(
-                  tooltip: AppLocalizations.of(context)!.delete,
-                  icon: const Icon(Icons.delete),
-                  onPressed: () => widget.onDelete(widget.location),
-                ),
-            )
-            : null,
+        trailing: SizedBox(
+          height: double.infinity,
+          child: IconButton(
+            tooltip: AppLocalizations.of(context)!.delete,
+            icon: const Icon(Icons.delete),
+            onPressed: () => widget.onDelete(widget.location),
+          ),
+        ),
         onTap: () => widget.onClick(widget.location),
       ),
     );

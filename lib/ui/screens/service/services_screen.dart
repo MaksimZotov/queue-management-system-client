@@ -50,7 +50,7 @@ class _ServicesState extends BaseState<
       ),
     ),
     body: _getBody(context, state, widget),
-    floatingActionButton: state.hasRights && state.kioskState == null
+    floatingActionButton: state.kioskState == null
         ? FloatingActionButton(
             tooltip: getLocalizations(context).createService,
             onPressed: () => showDialog(
@@ -189,7 +189,6 @@ class ServicesLogicState extends BaseLogicState {
 
   final String? ownerEmail;
   final String locationName;
-  final bool hasRights;
 
   final List<ServiceWrapper> services;
 
@@ -217,7 +216,6 @@ class ServicesLogicState extends BaseLogicState {
     required this.config,
     required this.ownerEmail,
     required this.locationName,
-    required this.hasRights,
     required this.services
   });
 
@@ -229,7 +227,6 @@ class ServicesLogicState extends BaseLogicState {
     bool? loading,
     String? ownerEmail,
     String? locationName,
-    bool? hasRights,
     List<ServiceWrapper>? services
   }) => ServicesLogicState(
       nextConfig: nextConfig,
@@ -239,7 +236,6 @@ class ServicesLogicState extends BaseLogicState {
       config: config,
       ownerEmail: ownerEmail ?? this.ownerEmail,
       locationName: locationName ?? this.locationName,
-      hasRights: hasRights ?? this.hasRights,
       services: services ?? this.services
   );
 }
@@ -259,7 +255,6 @@ class ServicesCubit extends BaseCubit<ServicesLogicState> {
           config: config,
           ownerEmail: null,
           locationName: '',
-          hasRights: false,
           services: []
       )
   );
@@ -272,8 +267,7 @@ class ServicesCubit extends BaseCubit<ServicesLogicState> {
         emit(
             state.copy(
                 ownerEmail: location.ownerEmail,
-                locationName: location.name,
-                hasRights: location.isOwner ? true : location.rightsStatus != null
+                locationName: location.name
             )
         );
         await _load();

@@ -231,7 +231,7 @@ class _SpecialistsState extends BaseState<
   }
 
   bool _checkFloatingActionButton(SpecialistsLogicState state) =>
-      state.hasRights && state.specialistsStateEnum == SpecialistsStateEnum.specialistsViewing && state.kioskState == null;
+      state.specialistsStateEnum == SpecialistsStateEnum.specialistsViewing && state.kioskState == null;
 
   String _getTitleText(BuildContext context, SpecialistsLogicState state) {
     if (state.specialistsStateEnum == SpecialistsStateEnum.specialistsViewing) {
@@ -283,7 +283,6 @@ class SpecialistsLogicState extends BaseLogicState {
 
   final String? ownerEmail;
   final String locationName;
-  final bool hasRights;
 
   final List<SpecialistModel> specialists;
   final List<ServiceWrapper> services;
@@ -316,7 +315,6 @@ class SpecialistsLogicState extends BaseLogicState {
     required this.specialistsStateEnum,
     required this.ownerEmail,
     required this.locationName,
-    required this.hasRights,
     required this.specialists,
     required this.services,
     required this.servicesInSpecialist,
@@ -332,7 +330,6 @@ class SpecialistsLogicState extends BaseLogicState {
     SpecialistsStateEnum? specialistsStateEnum,
     String? ownerEmail,
     String? locationName,
-    bool? hasRights,
     List<SpecialistModel>? specialists,
     List<ServiceWrapper>? services,
     List<ServiceWrapper>? servicesInSpecialist,
@@ -346,7 +343,6 @@ class SpecialistsLogicState extends BaseLogicState {
       config: config,
       ownerEmail: ownerEmail ?? this.ownerEmail,
       locationName: locationName ?? this.locationName,
-      hasRights: hasRights ?? this.hasRights,
       specialists: specialists ?? this.specialists,
       services: services ?? this.services,
       servicesInSpecialist: servicesInSpecialist ?? this.servicesInSpecialist,
@@ -371,7 +367,6 @@ class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
           specialistsStateEnum: SpecialistsStateEnum.specialistsViewing,
           ownerEmail: null,
           locationName: '',
-          hasRights: false,
           specialists: [],
           services: [],
           servicesInSpecialist: [],
@@ -387,8 +382,7 @@ class SpecialistsCubit extends BaseCubit<SpecialistsLogicState> {
         emit(
             state.copy(
                 ownerEmail: location.ownerEmail,
-                locationName: location.name,
-                hasRights: location.isOwner ? true : location.rightsStatus != null
+                locationName: location.name
             )
         );
         await _load();

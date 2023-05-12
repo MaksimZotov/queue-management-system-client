@@ -74,27 +74,25 @@ class _QueuesState extends BaseState<
       },
       itemCount: state.queues.length,
     ),
-    floatingActionButton: state.hasRights
-        ? FloatingActionButton(
-          tooltip: getLocalizations(context).createQueue,
-          onPressed: () => showDialog(
-              context: context,
-              builder: (context) => CreateQueueWidget(
-                  config: CreateQueueConfig(
-                    locationId: state.config.locationId
-                  )
+    floatingActionButton: FloatingActionButton(
+      tooltip: getLocalizations(context).createQueue,
+      onPressed: () => showDialog(
+          context: context,
+          builder: (context) => CreateQueueWidget(
+              config: CreateQueueConfig(
+                  locationId: state.config.locationId
               )
-          ).then((result) {
-            if (result is CreateQueueResult) {
-              getCubitInstance(context).handleCreateQueueResult(
-                  result,
-                  getLocalizations(context).locationDoesNotContainSpecialists
-              );
-            }
-          }),
-          child: const Icon(Icons.add),
-        )
-        : null,
+          )
+      ).then((result) {
+        if (result is CreateQueueResult) {
+          getCubitInstance(context).handleCreateQueueResult(
+              result,
+              getLocalizations(context).locationDoesNotContainSpecialists
+          );
+        }
+      }),
+      child: const Icon(Icons.add),
+    ),
   );
 
   @override
@@ -107,7 +105,6 @@ class QueuesLogicState extends BaseLogicState {
 
   final String? ownerEmail;
   final String locationName;
-  final bool hasRights;
 
   final List<QueueModel> queues;
 
@@ -119,7 +116,6 @@ class QueuesLogicState extends BaseLogicState {
     required this.config,
     required this.ownerEmail,
     required this.locationName,
-    required this.hasRights,
     required this.queues,
   });
   
@@ -132,7 +128,6 @@ class QueuesLogicState extends BaseLogicState {
     String? ownerEmail,
     String? locationName,
     List<QueueModel>? queues,
-    bool? hasRights
   }) => QueuesLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -141,7 +136,6 @@ class QueuesLogicState extends BaseLogicState {
       config: config,
       ownerEmail: ownerEmail ?? this.ownerEmail,
       locationName: locationName ?? this.locationName,
-      hasRights: hasRights ?? this.hasRights,
       queues: queues ?? this.queues
   );
 }
@@ -160,7 +154,6 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
             config: config,
             ownerEmail: null,
             locationName: '',
-            hasRights: false,
             queues: []
       )
   );
@@ -173,8 +166,7 @@ class QueuesCubit extends BaseCubit<QueuesLogicState> {
         emit(
             state.copy(
                 ownerEmail: location.ownerEmail,
-                locationName: location.name,
-                hasRights: location.isOwner ? true : location.rightsStatus != null
+                locationName: location.name
             )
         );
         await _load();
