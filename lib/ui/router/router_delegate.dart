@@ -33,7 +33,7 @@ class AppRouterDelegate extends RouterDelegate<BaseConfig>
   @override
   BaseConfig get currentConfiguration {
     if (config == null) {
-      return InitialConfig();
+      return InitialConfig(firstLaunch: true);
     }
     return config!;
   }

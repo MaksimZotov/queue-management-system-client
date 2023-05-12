@@ -117,7 +117,7 @@ class InitialCubit extends BaseCubit<InitialLogicState> {
 
   @override
   Future<void> onStart() async {
-    if (await _accountInteractor.checkToken()) {
+    if (state.config.firstLaunch && await _accountInteractor.checkToken()) {
       int? accountId = await _accountInteractor.getCurrentAccountId();
       if (accountId != null) {
         await _locationInteractor.checkIsOwner(accountId)

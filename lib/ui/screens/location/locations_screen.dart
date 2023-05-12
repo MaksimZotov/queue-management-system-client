@@ -65,7 +65,7 @@ class _LocationsState extends BaseState<
           ),
           onPressed: state.hasToken
               ? () => _showLogoutFromAccountDialog(context)
-              : () => widget.emitConfig(InitialConfig()),
+              : () => widget.emitConfig(InitialConfig(firstLaunch: false)),
         )
       ],
     ),
@@ -228,7 +228,7 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
 
   Future<void> logout() async {
     await _accountInteractor.logout();
-    navigate(InitialConfig());
+    navigate(InitialConfig(firstLaunch: false));
   }
 
   Future<void> handleCreateLocationResult(CreateLocationResult result) async {
