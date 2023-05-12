@@ -14,7 +14,6 @@ import 'package:queue_management_system_client/domain/models/location/create_loc
 import 'package:queue_management_system_client/domain/models/specialist/create_specialist_request.dart';
 import 'package:queue_management_system_client/domain/models/service/create_service_request.dart';
 import 'package:queue_management_system_client/domain/models/sequence/create_services_sequence_request.dart';
-import 'package:queue_management_system_client/domain/models/location/check_is_owner_model.dart';
 import 'package:queue_management_system_client/domain/models/location/location_model.dart';
 import 'package:queue_management_system_client/domain/models/specialist/specialist_model.dart';
 import 'package:queue_management_system_client/domain/models/sequence/services_sequence_model.dart';
@@ -189,14 +188,6 @@ class ServerApi {
       request: _dioApi.get(
         '$url/locations',
         queryParameters: { 'account_id': accountId }
-      )
-  );
-
-  Future<Result<CheckIsOwnerModel>> checkIsOwner(int accountId) => _execRequest(
-      fromJson: CheckIsOwnerModel.fromJson,
-      request: _dioApi.get(
-          '$url/locations/check',
-          queryParameters: { 'account_id': accountId }
       )
   );
 
