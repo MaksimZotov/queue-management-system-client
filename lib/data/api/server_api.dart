@@ -43,7 +43,7 @@ import '../../domain/models/account/tokens_model.dart';
 import '../../domain/models/queue/queue_state_model.dart';
 import '../converters/container_for_list_converter.dart';
 import '../converters/from_json.dart';
-import '../local/account_storage.dart';
+import '../local/account_info_storage.dart';
 
 @singleton
 class ServerApi {

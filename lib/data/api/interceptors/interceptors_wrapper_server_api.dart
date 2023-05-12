@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../../../domain/models/account/tokens_model.dart';
-import '../../local/account_storage.dart';
+import '../../local/account_info_storage.dart';
 import '../server_api.dart';
 
 class InterceptorsWrapperServerApi extends InterceptorsWrapper {

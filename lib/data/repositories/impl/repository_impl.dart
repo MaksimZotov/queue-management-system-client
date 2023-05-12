@@ -32,7 +32,7 @@ import '../../../domain/models/account/tokens_model.dart';
 import '../../../domain/models/queue/create_queue_request.dart';
 import '../../../domain/models/queue/queue_state_model.dart';
 import '../../../domain/models/rights/add_rights_request.dart';
-import '../../local/account_storage.dart';
+import '../../local/account_info_storage.dart';
 import '../../local/printer_info_storage.dart';
 import '../../native/android/android_native_interactor.dart';
 import '../../printer/printer_interactor.dart';
