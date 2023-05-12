@@ -64,7 +64,7 @@ class _ClientState extends BaseState<
           child: Text(
               errorText,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 56)
+              style: const TextStyle(fontSize: 32)
           )
       );
     }
