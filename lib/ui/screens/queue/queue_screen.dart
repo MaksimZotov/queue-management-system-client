@@ -45,8 +45,7 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
       title: Text(state.queueStateModel.name)
     ),
     body: Column(
-      children: (state.servingClient != null
-          ? <Widget>[
+      children: (state.servingClient != null ? <Widget>[
         ClientItemWidget(
           client: state.servingClient!,
           onChange: (client) => widget.emitConfig(
