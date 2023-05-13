@@ -17,88 +17,85 @@ bool _checkAndroidAndNotWeb() {
   return !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 }
 
-class AddClientConfig extends BaseDialogConfig {
+class CreateClientConfig extends BaseDialogConfig {
   final int locationId;
   final List<int>? serviceIds;
   final int? servicesSequenceId;
 
-  AddClientConfig({
+  CreateClientConfig({
     required this.locationId,
     this.serviceIds,
     this.servicesSequenceId
   });
 }
 
-class AddClientResult extends BaseDialogResult {}
+class CreateClientResult extends BaseDialogResult {}
 
 
-class AddClientWidget extends BaseDialogWidget<
-    AddClientConfig
+class CreateClientWidget extends BaseDialogWidget<
+    CreateClientConfig
 > {
 
-  const AddClientWidget({
+  const CreateClientWidget({
     super.key,
     required super.config
   });
 
   @override
-  State<AddClientWidget> createState() => _AddClientState();
+  State<CreateClientWidget> createState() => _CreateClientState();
 }
 
-class _AddClientState extends BaseDialogState<
-    AddClientWidget,
-    AddClientLogicState,
-    AddClientCubit
+class _CreateClientState extends BaseDialogState<
+    CreateClientWidget,
+    CreateClientLogicState,
+    CreateClientCubit
 > {
 
   @override
   String getTitle(
       BuildContext context,
-      AddClientLogicState state,
-      AddClientWidget widget
+      CreateClientLogicState state,
+      CreateClientWidget widget
   ) => getLocalizations(context).connection;
 
   @override
   List<Widget> getDialogContentWidget(
       BuildContext context,
-      AddClientLogicState state,
-      AddClientWidget widget
+      CreateClientLogicState state,
+      CreateClientWidget widget
   ) => state.clientAdded ? <Widget>[
-      Text(
-          getLocalizations(context).yourTicketNumberWithColonPattern(
-              state.ticketCode
-          ),
-          style: const TextStyle(
+    Text(
+        getLocalizations(context).yourTicketNumberWithColonPattern(
+            state.ticketCode
+        ),
+        style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold
-          ),
-      )
-    ] : (
-      (!_checkAndroidAndNotWeb() ? <Widget>[
-        TextFieldWidget(
-            label: getLocalizations(context).phone,
-            text: state.phone,
-            onTextChanged: getCubitInstance(context).setPhone
+        ),
+    )
+  ] : <Widget>[
+    TextFieldWidget(
+        label: getLocalizations(context).phone,
+        text: state.phone,
+        onTextChanged: getCubitInstance(context).setPhone
+    ),
+    const SizedBox(height: Dimens.contentMargin),
+    ButtonWidget(
+        text: getLocalizations(context).connect,
+        onClick: () => getCubitInstance(context).connect(
+            getLocalizations(context).yourTicketNumberWithColon
         )
-      ] : <Widget>[]) + <Widget>[
-        const SizedBox(height: Dimens.contentMargin),
-        ButtonWidget(
-            text: getLocalizations(context).connect,
-            onClick: () => getCubitInstance(context).connect(
-                getLocalizations(context).yourTicketNumberWithColon
-            )
-        )
-      ]
-  );
+    )
+  ];
 
   @override
-  AddClientCubit getCubit() =>
+  CreateClientCubit getCubit() =>
       statesAssembler.getAddClientCubit(widget.config);
 }
 
-class AddClientLogicState extends BaseDialogLogicState<
-    AddClientConfig,
-    AddClientResult
+class CreateClientLogicState extends BaseDialogLogicState<
+    CreateClientConfig,
+    CreateClientResult
 > {
 
   final String phone;
@@ -106,7 +103,7 @@ class AddClientLogicState extends BaseDialogLogicState<
   final bool clientAdded;
   final int ticketCode;
 
-  AddClientLogicState({
+  CreateClientLogicState({
     super.nextConfig,
     super.error,
     super.snackBar,
@@ -119,16 +116,16 @@ class AddClientLogicState extends BaseDialogLogicState<
   });
 
   @override
-  AddClientLogicState copy({
+  CreateClientLogicState copy({
     BaseConfig? nextConfig,
     ErrorResult? error,
     String? snackBar,
     bool? loading,
-    AddClientResult? result,
+    CreateClientResult? result,
     String? phone,
     bool? clientAdded,
     int? ticketCode,
-  }) => AddClientLogicState(
+  }) => CreateClientLogicState(
       nextConfig: nextConfig,
       error: error,
       snackBar: snackBar,
@@ -142,17 +139,17 @@ class AddClientLogicState extends BaseDialogLogicState<
 }
 
 @injectable
-class AddClientCubit extends BaseDialogCubit<
-    AddClientLogicState
+class CreateClientCubit extends BaseDialogCubit<
+    CreateClientLogicState
 > {
 
   final ClientInteractor _clientInteractor;
 
-  AddClientCubit(
+  CreateClientCubit(
       this._clientInteractor,
-      @factoryParam AddClientConfig config
+      @factoryParam CreateClientConfig config
   ) : super(
-      AddClientLogicState(
+      CreateClientLogicState(
           config: config,
           phone: '',
           clientAdded: false,
@@ -166,7 +163,8 @@ class AddClientCubit extends BaseDialogCubit<
 
   Future<void> connect(String yourTicketNumberWithColon) async {
     showLoad();
-    bool confirmationRequired = !_checkAndroidAndNotWeb();
+    bool notAndroid = !_checkAndroidAndNotWeb();
+    bool confirmationRequired = notAndroid || state.phone.trim().isNotEmpty;
     await _clientInteractor.createClientInLocation(
         state.config.locationId,
         CreateClientRequest(
@@ -185,7 +183,7 @@ class AddClientCubit extends BaseDialogCubit<
           emit(state.copy(clientAdded: true, ticketCode: code));
           hideLoad();
         } else {
-          popResult(AddClientResult());
+          popResult(CreateClientResult());
         }
       })
       ..onError((result) {

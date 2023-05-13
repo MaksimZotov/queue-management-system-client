@@ -14,7 +14,7 @@ import '../../models/service/service_wrapper.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/button_widget.dart';
 import '../../widgets/service_item_widget.dart';
-import '../client/add_client_dialog.dart';
+import '../client/create_client_dialog.dart';
 import 'create_service_dialog.dart';
 import 'delete_service_dialog.dart';
 
@@ -106,7 +106,7 @@ class _ServicesState extends BaseState<
         itemBuilder: (context, index) {
           return ServiceItemWidget(
               serviceWrapper: state.services[index],
-              onTap: (serviceWrapper) => _showAddClientDialog(context, state, [serviceWrapper])
+              onTap: (serviceWrapper) => _showCreateClientDialog(context, state, [serviceWrapper])
           );
         },
         itemCount: state.services.length,
@@ -143,7 +143,7 @@ class _ServicesState extends BaseState<
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: ButtonWidget(
             text: getLocalizations(context).connect,
-            onClick: () => _showAddClientDialog(context, state, state.selectedServices)
+            onClick: () => _showCreateClientDialog(context, state, state.selectedServices)
           )
         ),
         Padding(
@@ -158,14 +158,14 @@ class _ServicesState extends BaseState<
     );
   }
 
-  void _showAddClientDialog(
+  void _showCreateClientDialog(
       BuildContext context,
       ServicesLogicState state,
       List<ServiceWrapper> serviceWrappers
   ) => showDialog(
       context: context,
-      builder: (context) => AddClientWidget(
-          config: AddClientConfig(
+      builder: (context) => CreateClientWidget(
+          config: CreateClientConfig(
               locationId: state.config.locationId,
               serviceIds: serviceWrappers
                   .map((serviceWrapper) => serviceWrapper.service.id)
@@ -173,7 +173,7 @@ class _ServicesState extends BaseState<
           )
       )
   ).then((result) {
-    if (result is AddClientResult) {
+    if (result is CreateClientResult) {
       if (state.kioskState?.kioskMode == KioskMode.all) {
         Navigator.of(context).pop();
       } else {

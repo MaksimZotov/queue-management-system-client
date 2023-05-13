@@ -17,7 +17,7 @@ import '../../../domain/models/location/location_model.dart';
 import '../../router/routes_config.dart';
 import '../../widgets/button_widget.dart';
 import '../../widgets/service_item_widget.dart';
-import '../client/add_client_dialog.dart';
+import '../client/create_client_dialog.dart';
 import 'create_specialist_dialog.dart';
 import 'delete_specialist_dialog.dart';
 
@@ -140,7 +140,7 @@ class _SpecialistsState extends BaseState<
               return ServiceItemWidget(
                   serviceWrapper: state.services[index],
                   onTap: state.kioskState?.multipleSelect == false
-                      ? (serviceWrapper) => _showAddClientDialog(context, state, [serviceWrapper])
+                      ? (serviceWrapper) => _showCreateClientDialog(context, state, [serviceWrapper])
                       : getCubitInstance(context).onClickServiceWhenServicesSelecting
               );
             },
@@ -171,7 +171,7 @@ class _SpecialistsState extends BaseState<
                           : getLocalizations(context).connect,
                       onClick: state.kioskState == null
                           ? getCubitInstance(context).switchToSelectedServicesViewing
-                          : () => _showAddClientDialog(context, state, state.selectedServices)
+                          : () => _showCreateClientDialog(context, state, state.selectedServices)
                   )
               ),
               Padding(
@@ -243,14 +243,14 @@ class _SpecialistsState extends BaseState<
     return getLocalizations(context).services;
   }
 
-  void _showAddClientDialog(
+  void _showCreateClientDialog(
       BuildContext context,
       SpecialistsLogicState state,
       List<ServiceWrapper> serviceWrappers
   ) => showDialog(
       context: context,
-      builder: (context) => AddClientWidget(
-          config: AddClientConfig(
+      builder: (context) => CreateClientWidget(
+          config: CreateClientConfig(
               locationId: state.config.locationId,
               serviceIds: serviceWrappers
                   .map((serviceWrapper) => serviceWrapper.service.id)
@@ -258,7 +258,7 @@ class _SpecialistsState extends BaseState<
           )
       )
   ).then((result) {
-    if (result is AddClientResult) {
+    if (result is CreateClientResult) {
       if (state.kioskState?.kioskMode == KioskMode.all) {
         Navigator.of(context).pop();
       } else {
