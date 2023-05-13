@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/client_interactor.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
@@ -59,6 +60,7 @@ class _ClientState extends BaseState<
         child: CircularProgressIndicator(),
       );
     }
+
     String? errorText = state.error?.description ?? getErrorText(context, state.error);
     if (errorText != null) {
       return Center(
@@ -69,55 +71,83 @@ class _ClientState extends BaseState<
           )
       );
     }
-    return Center(
-      child: Padding(
+
+    Column mainInfoColumn = Column(
+      children: [
+        ClientInfoFieldWidget(
+            fieldName: getLocalizations(context).queueWithColon,
+            fieldValue: state.client?.queue?.name ?? '-'
+        ),
+        ClientInfoFieldWidget(
+            fieldName: getLocalizations(context).phoneWithColon,
+            fieldValue: state.clientState.phone ?? '-'
+        ),
+        ClientInfoFieldWidget(
+            fieldName: getLocalizations(context).waitTimeWithColon,
+            fieldValue: _getTimeInMinutes(context, state.client?.waitTimeInMinutes)
+        ),
+        ClientInfoFieldWidget(
+            fieldName: getLocalizations(context).totalTimeWithColon,
+            fieldValue: _getTimeInMinutes(context, state.client?.totalTimeInMinutes)
+        ),
+        ClientInfoFieldWidget(
+            fieldName: getLocalizations(context).codeWithColon,
+            fieldValue: state.clientState.code?.toString() ?? '-'
+        )
+      ],
+    );
+
+    if (
+      defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.android
+    ) {
+      return Padding(
         padding: const EdgeInsets.symmetric(
             horizontal: 8,
             vertical: 16
         ),
-        child: Column(
-            children: <Widget>[
-              Card(
+        child: ListView.builder(
+          itemBuilder: (context, index) => index == 0
+              ? Card(
                   elevation: 5,
                   color: Colors.white,
-                  child: Column(
-                    children: [
-                      ClientInfoFieldWidget(
-                          fieldName: getLocalizations(context).queueWithColon,
-                          fieldValue: state.client?.queue?.name ?? '-'
-                      ),
-                      ClientInfoFieldWidget(
-                          fieldName: getLocalizations(context).phoneWithColon,
-                          fieldValue: state.clientState.phone ?? '-'
-                      ),
-                      ClientInfoFieldWidget(
-                          fieldName: getLocalizations(context).waitTimeWithColon,
-                          fieldValue: _getTimeInMinutes(context, state.client?.waitTimeInMinutes)
-                      ),
-                      ClientInfoFieldWidget(
-                          fieldName: getLocalizations(context).totalTimeWithColon,
-                          fieldValue: _getTimeInMinutes(context, state.client?.totalTimeInMinutes)
-                      ),
-                      ClientInfoFieldWidget(
-                          fieldName: getLocalizations(context).codeWithColon,
-                          fieldValue: state.clientState.code?.toString() ?? '-'
-                      ),
-                    ],
-                  )
-              ),
-              const SizedBox(height: Dimens.contentMargin),
-              Expanded(
-                  child: ListView.builder(
-                    itemBuilder: (context, index) => ServicesContainerWidget(
-                      servicesContainer: state.servicesContainers[index],
-                    ),
-                    itemCount: state.servicesContainers.length,
-                  )
+                  child: mainInfoColumn
               )
-            ]
+              : ServicesContainerWidget(
+                  servicesContainer: state.servicesContainers[index - 1]
+              ),
+          itemCount: 1 + state.servicesContainers.length,
         ),
-      ),
-    );
+      );
+    } else {
+      return Center(
+        child: SizedBox(
+          width: double.infinity,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 16
+              ),
+              child: Column(
+                  children: <Widget>[
+                    Card(
+                        elevation: 5,
+                        color: Colors.white,
+                        child: mainInfoColumn
+                    ),
+                    const SizedBox(height: Dimens.contentMargin)
+                  ] + state.servicesContainers.map((servicesContainer) =>
+                      ServicesContainerWidget(
+                          servicesContainer: servicesContainer
+                      )
+                  ).toList()
+              ),
+            ),
+          ),
+        ),
+      );
+    }
   }
 
   @override

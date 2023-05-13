@@ -40,50 +40,48 @@ class _QueueState extends BaseState<QueueWidget, QueueLogicState, QueueCubit> {
       BuildContext context,
       QueueLogicState state,
       QueueWidget widget
-  ) => Scaffold(
-    appBar: AppBar(
-      title: Text(state.queueStateModel.name)
-    ),
-    body: Column(
-      children: (state.servingClient != null ? <Widget>[
-        ClientItemWidget(
-          client: state.servingClient!,
-          onChange: (client) => widget.emitConfig(
-              ServicesSequencesConfig(
-                  accountId: widget.config.accountId,
-                  locationId: widget.config.locationId,
-                  kioskMode: null,
-                  multipleSelect: null,
-                  clientId: client.id,
-                  queueId: widget.config.queueId
-              )
-          ),
-          onNotify: getCubitInstance(context).notify,
-          onServe: getCubitInstance(context).serve,
-          onReturn: getCubitInstance(context).returnClient,
-          onCall: null,
-          onDelete: getCubitInstance(context).delete,
-        ),
-        const SizedBox(height: Dimens.contentMargin),
-        Container(height: 2, color: Colors.grey),
-        const SizedBox(height: Dimens.contentMargin)
-      ] : <Widget>[]) + [
-        Expanded(
-            child: ListView.builder(
-              itemBuilder: (context, index) => ClientItemWidget(
-                client: state.availableClients[index],
+    ) => Scaffold(
+      appBar: AppBar(
+          title: Text(state.queueStateModel.name)
+      ),
+      body: ListView.builder(
+        itemBuilder: (context, index) => index == 0
+            ? Column(
+                children: (state.servingClient != null ? <Widget>[
+                  ClientItemWidget(
+                    client: state.servingClient!,
+                    onChange: (client) => widget.emitConfig(
+                        ServicesSequencesConfig(
+                            accountId: widget.config.accountId,
+                            locationId: widget.config.locationId,
+                            kioskMode: null,
+                            multipleSelect: null,
+                            clientId: client.id,
+                            queueId: widget.config.queueId
+                        )
+                    ),
+                    onNotify: getCubitInstance(context).notify,
+                    onServe: getCubitInstance(context).serve,
+                    onReturn: getCubitInstance(context).returnClient,
+                    onCall: null,
+                    onDelete: getCubitInstance(context).delete,
+                  ),
+                  const SizedBox(height: Dimens.contentMargin),
+                  Container(height: 2, color: Colors.grey),
+                  const SizedBox(height: Dimens.contentMargin)
+                ] : <Widget>[])
+            )
+            : ClientItemWidget(
+                client: state.availableClients[index - 1],
                 onChange: null,
                 onNotify: getCubitInstance(context).notify,
                 onServe: null,
                 onReturn: null,
                 onCall: getCubitInstance(context).call,
                 onDelete: getCubitInstance(context).delete,
-              ),
-              itemCount: state.availableClients.length,
-            )
-        )
-      ],
-    )
+            ),
+        itemCount: 1 + state.availableClients.length,
+      )
   );
 
   @override
@@ -97,7 +95,7 @@ class QueueLogicState extends BaseLogicState {
   final LocationState? locationState;
   final Client? servingClient;
   final List<Client> availableClients;
-  
+
   QueueLogicState({
     super.nextConfig,
     super.error,
@@ -214,7 +212,7 @@ class QueueCubit extends BaseCubit<QueueLogicState> {
     )
       ..onError((result) {
         showError(result);
-    });
+      });
   }
 
   Future<void> returnClient(Client client) async {
