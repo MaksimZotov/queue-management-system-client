@@ -87,11 +87,13 @@ class _LocationsState extends BaseState<
       ),
       itemCount: state.locations.length,
     ),
-    floatingActionButton: FloatingActionButton(
-      tooltip: getLocalizations(context).createLocation,
-      onPressed: () => _showCreateLocationDialog(context),
-      child: const Icon(Icons.add),
-    ),
+    floatingActionButton: state.accountId == state.config.accountId
+      ? FloatingActionButton(
+          tooltip: getLocalizations(context).createLocation,
+          onPressed: () => _showCreateLocationDialog(context),
+          child: const Icon(Icons.add),
+      )
+      : null,
   );
 
   @override
@@ -151,6 +153,7 @@ class LocationsLogicState extends BaseLogicState {
   final LocationsConfig config;
   final List<LocationModel> locations;
   final bool hasToken;
+  final int? accountId;
 
   LocationsLogicState({
     super.nextConfig,
@@ -160,6 +163,7 @@ class LocationsLogicState extends BaseLogicState {
     required this.config,
     required this.locations,
     required this.hasToken,
+    required this.accountId
   });
 
   @override
@@ -169,7 +173,8 @@ class LocationsLogicState extends BaseLogicState {
     String? snackBar,
     bool? loading,
     List<LocationModel>? locations,
-    bool? hasToken
+    bool? hasToken,
+    int? accountId
   }) => LocationsLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -177,7 +182,8 @@ class LocationsLogicState extends BaseLogicState {
       loading: loading ?? this.loading,
       config: config,
       locations: locations ?? this.locations,
-      hasToken: hasToken ?? this.hasToken
+      hasToken: hasToken ?? this.hasToken,
+      accountId: accountId ?? this.accountId,
   );
 }
 
@@ -197,16 +203,20 @@ class LocationsCubit extends BaseCubit<LocationsLogicState> {
       locations: [],
       hasToken: false,
       snackBar: null,
-      loading: false
+      loading: false,
+      accountId: null
     )
   );
 
   @override
   Future<void> onStart() async {
     showLoad();
-    if (await _accountInteractor.checkToken()) {
-      emit(state.copy(hasToken: true));
-    }
+    emit(
+        state.copy(
+            hasToken: await _accountInteractor.checkToken(),
+            accountId: await _accountInteractor.getCurrentAccountId()
+        )
+    );
     await _load();
   }
 
