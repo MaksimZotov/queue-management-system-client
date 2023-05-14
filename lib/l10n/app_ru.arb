@@ -107,6 +107,7 @@
 "waitTimeWithColon": "Время ожидания:",
 "totalTimeWithColon": "Общее время:",
 "servicesWithColon": "Услуги:",
+"informationAboutClientWithColon": "Информация о клиенте:",
 
 "yourTicketNumberWithColonPattern": "Номер вашего талона: {code}",
 "@yourTicketNumberWithColonPattern": {

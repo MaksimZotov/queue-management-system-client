@@ -11,4 +11,5 @@ class Dimens {
   static const double textFormFieldFontSize = 18;
   static const double fieldWidthForWeb = 320;
   static const double backArrowSize = 24;
+  static const double maxServiceWidthInQueueScreen = 210;
 }

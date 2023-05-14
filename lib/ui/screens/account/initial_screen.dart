@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
-import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
 import 'package:queue_management_system_client/ui/widgets/button_widget.dart';
 
@@ -102,11 +101,9 @@ class InitialLogicState extends BaseLogicState {
 
 @injectable
 class InitialCubit extends BaseCubit<InitialLogicState> {
-  final LocationInteractor _locationInteractor;
   final AccountInteractor _accountInteractor;
 
   InitialCubit(
-     this._locationInteractor,
      this._accountInteractor,
       @factoryParam InitialConfig config
   ) : super(

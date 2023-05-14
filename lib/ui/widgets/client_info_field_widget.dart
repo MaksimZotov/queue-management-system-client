@@ -4,10 +4,10 @@ import 'package:flutter/foundation.dart';
 import '../../dimens.dart';
 
 class ClientInfoFieldWidget extends StatefulWidget {
-  String fieldName;
-  String fieldValue;
+  final String fieldName;
+  final String fieldValue;
 
-  ClientInfoFieldWidget({
+  const ClientInfoFieldWidget({
     Key? key,
     required this.fieldName,
     required this.fieldValue,

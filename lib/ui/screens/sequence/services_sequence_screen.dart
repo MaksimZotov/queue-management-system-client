@@ -8,7 +8,7 @@ import 'package:queue_management_system_client/domain/models/client/change_clien
 import 'package:queue_management_system_client/domain/models/specialist/specialist_model.dart';
 import 'package:queue_management_system_client/ui/models/service/service_wrapper.dart';
 import 'package:queue_management_system_client/ui/screens/base.dart';
-import 'package:queue_management_system_client/ui/screens/client/add_client_dialog.dart';
+import 'package:queue_management_system_client/ui/screens/client/create_client_dialog.dart';
 import 'package:queue_management_system_client/ui/widgets/specialist_item_widget.dart';
 
 import '../../../data/api/server_api.dart';
@@ -132,14 +132,14 @@ class _ServicesSequencesState extends BaseState<
               onTap: state.kioskState != null
                   ? (servicesSequence) => showDialog(
                         context: context,
-                        builder: (context) => AddClientWidget(
-                            config: AddClientConfig(
+                        builder: (context) => CreateClientWidget(
+                            config: CreateClientConfig(
                                 locationId: state.config.locationId,
                                 servicesSequenceId: servicesSequence.id
                             )
                         )
                     ).then((result) {
-                      if (result is AddClientResult) {
+                      if (result is CreateClientResult) {
                         if (state.kioskState?.kioskMode == KioskMode.all) {
                           Navigator.of(context).pop();
                         }

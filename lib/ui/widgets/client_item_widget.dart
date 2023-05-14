@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../dimens.dart';
 import '../../domain/models/location/state/client.dart';
 import '../../domain/models/location/state/service.dart';
 
@@ -35,29 +37,36 @@ class _ClientItemState extends State<ClientItemWidget> {
     List<Widget> services = [];
     for (Service service in widget.client.services) {
       services.add(
-          Card(
+        ConstrainedBox(
+          constraints: BoxConstraints(
+              maxWidth: defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android
+                  ? Dimens.maxServiceWidthInQueueScreen
+                  : double.infinity
+          ),
+          child: Card(
               elevation: 2,
               color: Colors.white,
               child: Padding(
                   padding: const EdgeInsets.all(4),
                   child: Text(service.name, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16))
               )
-          )
+          ),
+        )
       );
     }
 
     return Card(
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                const Text(
-                    'Информация о клиенте:',
-                    style: TextStyle(color: Colors.black, fontSize: 18)
+                Text(
+                    AppLocalizations.of(context)!.informationAboutClientWithColon,
+                    style: const TextStyle(color: Colors.black, fontSize: 18)
                 ),
                 const SizedBox(height: 5),
                 Card(

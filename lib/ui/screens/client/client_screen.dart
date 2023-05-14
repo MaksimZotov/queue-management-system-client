@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:queue_management_system_client/domain/interactors/client_interactor.dart';
 import 'package:queue_management_system_client/domain/interactors/location_interactor.dart';
@@ -9,6 +10,7 @@ import 'package:queue_management_system_client/domain/models/location/location_m
 import 'package:queue_management_system_client/ui/models/client/services_container.dart';
 import 'package:queue_management_system_client/ui/router/routes_config.dart';
 import 'package:queue_management_system_client/ui/widgets/client_info_field_widget.dart';
+import 'package:queue_management_system_client/ui/widgets/services_container_widget.dart';
 
 import '../../../di/assemblers/states_assembler.dart';
 import '../../../dimens.dart';
@@ -58,6 +60,7 @@ class _ClientState extends BaseState<
         child: CircularProgressIndicator(),
       );
     }
+
     String? errorText = state.error?.description ?? getErrorText(context, state.error);
     if (errorText != null) {
       return Center(
@@ -68,52 +71,83 @@ class _ClientState extends BaseState<
           )
       );
     }
-    return Center(
-      child: SizedBox(
-        width: double.infinity,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 16
-            ),
-            child: Column(
-                children: <Widget>[
-                  Card(
-                      elevation: 5,
-                      color: Colors.white,
-                      child: Column(
-                        children: [
-                          ClientInfoFieldWidget(
-                              fieldName: getLocalizations(context).queueWithColon,
-                              fieldValue: state.client?.queue?.name ?? '-'
-                          ),
-                          ClientInfoFieldWidget(
-                              fieldName: getLocalizations(context).phoneWithColon,
-                              fieldValue: state.clientState.phone ?? '-'
-                          ),
-                          ClientInfoFieldWidget(
-                              fieldName: getLocalizations(context).waitTimeWithColon,
-                              fieldValue: _getTimeInMinutes(context, state.client?.waitTimeInMinutes)
-                          ),
-                          ClientInfoFieldWidget(
-                              fieldName: getLocalizations(context).totalTimeWithColon,
-                              fieldValue: _getTimeInMinutes(context, state.client?.totalTimeInMinutes)
-                          ),
-                          ClientInfoFieldWidget(
-                              fieldName: getLocalizations(context).codeWithColon,
-                              fieldValue: state.clientState.code?.toString() ?? '-'
-                          ),
-                        ],
+
+    Column mainInfoColumn = Column(
+      children: [
+        ClientInfoFieldWidget(
+            fieldName: getLocalizations(context).queueWithColon,
+            fieldValue: state.client?.queue?.name ?? '-'
+        ),
+        ClientInfoFieldWidget(
+            fieldName: getLocalizations(context).phoneWithColon,
+            fieldValue: state.clientState.phone ?? '-'
+        ),
+        ClientInfoFieldWidget(
+            fieldName: getLocalizations(context).waitTimeWithColon,
+            fieldValue: _getTimeInMinutes(context, state.client?.waitTimeInMinutes)
+        ),
+        ClientInfoFieldWidget(
+            fieldName: getLocalizations(context).totalTimeWithColon,
+            fieldValue: _getTimeInMinutes(context, state.client?.totalTimeInMinutes)
+        ),
+        ClientInfoFieldWidget(
+            fieldName: getLocalizations(context).codeWithColon,
+            fieldValue: state.clientState.code?.toString() ?? '-'
+        )
+      ],
+    );
+
+    if (
+      defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.android
+    ) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 16
+        ),
+        child: ListView.builder(
+          itemBuilder: (context, index) => index == 0
+              ? Card(
+                  elevation: 5,
+                  color: Colors.white,
+                  child: mainInfoColumn
+              )
+              : ServicesContainerWidget(
+                  servicesContainer: state.servicesContainers[index - 1]
+              ),
+          itemCount: 1 + state.servicesContainers.length,
+        ),
+      );
+    } else {
+      return Center(
+        child: SizedBox(
+          width: double.infinity,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 16
+              ),
+              child: Column(
+                  children: <Widget>[
+                    Card(
+                        elevation: 5,
+                        color: Colors.white,
+                        child: mainInfoColumn
+                    ),
+                    const SizedBox(height: Dimens.contentMargin)
+                  ] + state.servicesContainers.map((servicesContainer) =>
+                      ServicesContainerWidget(
+                          servicesContainer: servicesContainer
                       )
-                  ),
-                  const SizedBox(height: Dimens.contentMargin)
-                ] + _getServices(context, state.client)
+                  ).toList()
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   @override
@@ -131,89 +165,6 @@ class _ClientState extends BaseState<
     }
     return getLocalizations(context).timeInMinutesPattern(time);
   }
-
-  List<Widget> _getServices(BuildContext context, Client? client) {
-    if (client == null) {
-      return [];
-    }
-    List<Service> services = client.services.toList();
-    if (services.isEmpty) {
-      return [];
-    }
-
-    List<ServicesContainer> servicesForClientContainers = [];
-    List<Service> servicesWithCurOrder = [];
-
-    services.sort((a, b) => a.orderNumber.compareTo(b.orderNumber));
-    int curOrderNumber = services[0].orderNumber;
-
-    int priorityNumber = 1;
-    for (int i = 0; i < services.length; i++) {
-      Service service = services[i];
-      if (service.orderNumber != curOrderNumber) {
-        servicesForClientContainers.add(
-            ServicesContainer(
-                priorityNumber: priorityNumber,
-                services: servicesWithCurOrder
-            )
-        );
-        curOrderNumber = service.orderNumber;
-        servicesWithCurOrder = [];
-        priorityNumber += 1;
-      }
-      servicesWithCurOrder.add(service);
-    }
-    if (servicesWithCurOrder.isNotEmpty) {
-      servicesForClientContainers.add(
-          ServicesContainer(
-              priorityNumber: priorityNumber,
-              services: servicesWithCurOrder
-          )
-      );
-    }
-
-    return servicesForClientContainers.map((container) =>
-        Card(
-            elevation: 5,
-            color: Colors.white,
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                children: <Widget>[
-                  Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Text(
-                          getLocalizations(context).servicesWithPriorityPattern(
-                              container.priorityNumber
-                          ),
-                          style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 18
-                          )
-                      )
-                  )
-                ] + container.services.map((service) =>
-                    Card(
-                        elevation: 2,
-                        color: Colors.white,
-                        child: Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Text(
-                                service.name,
-                                style: const TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16
-                                )
-                            )
-                        )
-                    )
-                ).toList(),
-              )
-            )
-        )
-    ).toList();
-  }
 }
 
 class ClientLogicState extends BaseLogicState {
@@ -223,6 +174,7 @@ class ClientLogicState extends BaseLogicState {
   final bool showConfirmDialog;
   final LocationState? locationState;
   final Client? client;
+  final List<ServicesContainer> servicesContainers;
 
   bool get inQueue =>
       client?.queue != null;
@@ -236,7 +188,8 @@ class ClientLogicState extends BaseLogicState {
     required this.clientState,
     required this.showConfirmDialog,
     required this.locationState,
-    required this.client
+    required this.client,
+    required this.servicesContainers
   });
 
   @override
@@ -249,7 +202,8 @@ class ClientLogicState extends BaseLogicState {
     QueueStateForClientModel? clientState,
     bool? showConfirmDialog,
     LocationState? locationState,
-    Client? client
+    Client? client,
+    List<ServicesContainer>? servicesContainers
   }) => ClientLogicState(
       nextConfig: nextConfig,
       error: error,
@@ -259,7 +213,8 @@ class ClientLogicState extends BaseLogicState {
       clientState: clientState ?? this.clientState,
       showConfirmDialog: showConfirmDialog ?? this.showConfirmDialog,
       locationState: locationState ?? this.locationState,
-      client: client ?? this.client
+      client: client ?? this.client,
+      servicesContainers: servicesContainers ?? this.servicesContainers
   );
 }
 
@@ -295,7 +250,8 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
               id: null,
               clients: []
           ),
-          client: null
+          client: null,
+          servicesContainers: []
       )
   );
 
@@ -385,7 +341,8 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
     emit(
         state.copy(
             locationState: actualLocationState,
-            client: curClient
+            client: curClient,
+            servicesContainers: _getServicesContainers(curClient)
         )
     );
 
@@ -403,5 +360,48 @@ class ClientCubit extends BaseCubit<ClientLogicState> {
       changes.clear();
       _setLocationState(newLocationState);
     }
+  }
+
+  List<ServicesContainer> _getServicesContainers(Client? client) {
+    if (client == null) {
+      return [];
+    }
+    List<Service> services = client.services.toList();
+    if (services.isEmpty) {
+      return [];
+    }
+
+    List<ServicesContainer> servicesForClientContainers = [];
+    List<Service> servicesWithCurOrder = [];
+
+    services.sort((a, b) => a.orderNumber.compareTo(b.orderNumber));
+    int curOrderNumber = services[0].orderNumber;
+
+    int priorityNumber = 1;
+    for (int i = 0; i < services.length; i++) {
+      Service service = services[i];
+      if (service.orderNumber != curOrderNumber) {
+        servicesForClientContainers.add(
+            ServicesContainer(
+                priorityNumber: priorityNumber,
+                services: servicesWithCurOrder
+            )
+        );
+        curOrderNumber = service.orderNumber;
+        servicesWithCurOrder = [];
+        priorityNumber += 1;
+      }
+      servicesWithCurOrder.add(service);
+    }
+    if (servicesWithCurOrder.isNotEmpty) {
+      servicesForClientContainers.add(
+          ServicesContainer(
+              priorityNumber: priorityNumber,
+              services: servicesWithCurOrder
+          )
+      );
+    }
+
+    return servicesForClientContainers;
   }
 }
