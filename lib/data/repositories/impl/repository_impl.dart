@@ -331,10 +331,13 @@ class RepositoryImpl extends Repository {
   @override
   Future<bool> enableKioskMode(bool printerEnabled) async {
     await _sharedPreferencesStorage.setPrinterEnabled(printerEnabled);
-    _androidNativeInteractor.enableLockTask();
     if (printerEnabled) {
-      return _printerInteractor.connectToPrinter();
+      bool connected = await _printerInteractor.connectToPrinter();
+      if (!connected) {
+        return false;
+      }
     }
+    _androidNativeInteractor.enableLockTask();
     return true;
   }
   // <======================== Kiosk ========================>
