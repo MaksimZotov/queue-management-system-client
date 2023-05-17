@@ -106,7 +106,7 @@ class _ServicesState extends BaseState<
         itemBuilder: (context, index) {
           return ServiceItemWidget(
               serviceWrapper: state.services[index],
-              onTap: (serviceWrapper) => _showCreateClientDialog(context, state, [serviceWrapper])
+              onClick: (serviceWrapper) => _showCreateClientDialog(context, state, [serviceWrapper])
           );
         },
         itemCount: state.services.length,
@@ -117,7 +117,7 @@ class _ServicesState extends BaseState<
         itemBuilder: (context, index) {
           return ServiceItemWidget(
               serviceWrapper: state.services[index],
-              onTap: getCubitInstance(context).onClickServiceWhenServicesSelecting
+              onClick: getCubitInstance(context).onClickServiceWhenServicesSelecting
           );
         },
         itemCount: state.services.length,
@@ -131,7 +131,7 @@ class _ServicesState extends BaseState<
             itemBuilder: (context, index) {
               return ServiceItemWidget(
                   serviceWrapper: state.services[index],
-                  onTap: getCubitInstance(context).onClickServiceWhenServicesSelecting
+                  onClick: getCubitInstance(context).onClickServiceWhenServicesSelecting
               );
             },
             itemCount: state.services.length,

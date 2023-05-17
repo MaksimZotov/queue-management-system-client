@@ -159,7 +159,7 @@ class _ServicesSequencesState extends BaseState<
                 itemBuilder: (context, index) {
                   return ServiceItemWidget(
                       serviceWrapper: state.services[index],
-                      onTap: getCubitInstance(context).onClickServiceWhenServicesSelecting
+                      onClick: getCubitInstance(context).onClickServiceWhenServicesSelecting
                   );
                 },
                 itemCount: state.services.length,
@@ -215,7 +215,8 @@ class _ServicesSequencesState extends BaseState<
                               flex: 1,
                               child: ServiceItemWidget(
                                   serviceWrapper: serviceWrapper,
-                                  onTap: getCubitInstance(context).onClickServiceWhenSelectedServicesViewing
+                                  onClick: (serviceWrapper) => getCubitInstance(context).onClickServiceWhenSelectedServicesViewing(serviceWrapper, false),
+                                  onLongClick: (serviceWrapper) => getCubitInstance(context).onClickServiceWhenSelectedServicesViewing(serviceWrapper, true)
                               )
                           )
                         ],
@@ -273,7 +274,8 @@ class _ServicesSequencesState extends BaseState<
                           flex: 1,
                           child: ServiceItemWidget(
                               serviceWrapper: serviceWrapper,
-                              onTap: getCubitInstance(context).onClickServiceWhenSelectedServicesViewing
+                              onClick: (serviceWrapper) => getCubitInstance(context).onClickServiceWhenSelectedServicesViewing(serviceWrapper, false),
+                              onLongClick: (serviceWrapper) => getCubitInstance(context).onClickServiceWhenSelectedServicesViewing(serviceWrapper, true)
                           )
                       )
                     ],
@@ -327,7 +329,7 @@ class _ServicesSequencesState extends BaseState<
                         flex: 1,
                         child: ServiceItemWidget(
                           serviceWrapper: state.selectedServices[index],
-                          onTap: null
+                          onClick: null
                         )
                       )
                     ],
@@ -524,7 +526,10 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
     );
   }
 
-  void onClickServiceWhenSelectedServicesViewing(ServiceWrapper serviceWrapper) {
+  void onClickServiceWhenSelectedServicesViewing(
+      ServiceWrapper serviceWrapper,
+      bool longClick
+  ) {
     List<ServiceWrapper> selectedServices = state.selectedServices;
     int order = serviceWrapper.orderNumber;
 
@@ -535,15 +540,22 @@ class ServicesSequencesCubit extends BaseCubit<ServicesSequencesLogicState> {
       bool hasNext = false;
 
       for (ServiceWrapper item in selectedServices) {
-        if (item.orderNumber == serviceWrapper.orderNumber - 1 && item.selected) {
+        if (item.orderNumber == order - 1 && item.selected) {
           hasPrev = true;
         }
-        if (item.orderNumber == serviceWrapper.orderNumber + 1 && item.selected) {
+        if (item.orderNumber == order + 1 && item.selected) {
           hasNext = true;
         }
       }
 
-      if (hasPrev && hasNext) {
+      if (longClick && hasPrev && !hasNext) {
+        mapServices = (cur) {
+          if (cur.orderNumber == order) {
+            return cur.copy(selected: true, orderNumber: cur.orderNumber);
+          }
+          return cur;
+        };
+      } else if (hasPrev && hasNext) {
         mapServices = (cur) {
           if ([order - 1, order, order + 1].contains(cur.orderNumber)) {
             return cur.copy(selected: true, orderNumber: order - 1);

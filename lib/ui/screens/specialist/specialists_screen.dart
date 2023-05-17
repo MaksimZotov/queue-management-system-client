@@ -139,7 +139,7 @@ class _SpecialistsState extends BaseState<
             itemBuilder: (context, index) {
               return ServiceItemWidget(
                   serviceWrapper: state.services[index],
-                  onTap: state.kioskState?.multipleSelect == false
+                  onClick: state.kioskState?.multipleSelect == false
                       ? (serviceWrapper) => _showCreateClientDialog(context, state, [serviceWrapper])
                       : getCubitInstance(context).onClickServiceWhenServicesSelecting
               );
@@ -155,7 +155,7 @@ class _SpecialistsState extends BaseState<
                   itemBuilder: (context, index) {
                     return ServiceItemWidget(
                         serviceWrapper: state.services[index],
-                        onTap: getCubitInstance(context).onClickServiceWhenServicesSelecting
+                        onClick: getCubitInstance(context).onClickServiceWhenServicesSelecting
                     );
                   },
                   itemCount: state.services.length,
