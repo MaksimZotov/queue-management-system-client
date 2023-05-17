@@ -55,12 +55,17 @@ class InterceptorsWrapperServerApi extends InterceptorsWrapper {
             method: requestOptions.method,
             headers: requestOptions.headers,
           );
-          final retryResponse = await _dioApi.request(
-              requestOptions.path,
-              data: requestOptions.data,
-              queryParameters: requestOptions.queryParameters,
-              options: options
-          );
+          late Response retryResponse;
+          try {
+            retryResponse = await _dioApi.request(
+                requestOptions.path,
+                data: requestOptions.data,
+                queryParameters: requestOptions.queryParameters,
+                options: options
+            );
+          } on DioError catch (exception) {
+            return handler.next(exception);
+          }
           return handler.resolve(retryResponse);
         } else {
           await _accountInfoStorage.deleteAll();
