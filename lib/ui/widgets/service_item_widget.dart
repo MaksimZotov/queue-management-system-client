@@ -4,13 +4,15 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../models/service/service_wrapper.dart';
 
 class ServiceItemWidget extends StatefulWidget {
-  final ValueChanged<ServiceWrapper>? onTap;
+  final ValueChanged<ServiceWrapper>? onClick;
+  final ValueChanged<ServiceWrapper>? onLongClick;
   final ValueChanged<ServiceWrapper>? onDelete;
   final ServiceWrapper serviceWrapper;
 
   const ServiceItemWidget({
     Key? key,
-    this.onTap,
+    this.onClick,
+    this.onLongClick,
     this.onDelete,
     required this.serviceWrapper,
   }) : super(key: key);
@@ -49,8 +51,11 @@ class _ServiceItemState extends State<ServiceItemWidget> {
                       onPressed: () => widget.onDelete?.call(widget.serviceWrapper)),
                 )
               : null,
-          onTap: widget.onTap != null
-              ? () => widget.onTap?.call(widget.serviceWrapper)
+          onTap: widget.onClick != null
+              ? () => widget.onClick?.call(widget.serviceWrapper)
+              : null,
+          onLongPress: widget.onLongClick != null
+              ? () => widget.onLongClick?.call(widget.serviceWrapper)
               : null,
       )
     );
