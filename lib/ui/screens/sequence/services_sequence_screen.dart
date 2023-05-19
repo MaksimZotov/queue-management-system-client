@@ -152,7 +152,7 @@ class _ServicesSequencesState extends BaseState<
         );
       case ServicesSequencesStateEnum.servicesSelecting:
         return Column(
-          children: [
+          children: <Widget>[
             Expanded(
               flex: 1,
               child: ListView.builder(
@@ -164,7 +164,8 @@ class _ServicesSequencesState extends BaseState<
                 },
                 itemCount: state.services.length,
               ),
-            ),
+            )
+          ] + ((state.services.toList()..removeWhere((serviceWrapper) => !serviceWrapper.selected)).isNotEmpty ? <Widget>[
             Container(height: 2, color: Colors.grey),
             const SizedBox(height: Dimens.contentMargin),
             Padding(
@@ -182,7 +183,7 @@ class _ServicesSequencesState extends BaseState<
                 )
             ),
             const SizedBox(height: Dimens.contentMargin)
-          ],
+          ] : <Widget>[]),
         );
       case ServicesSequencesStateEnum.selectedServicesViewing:
         return Column(
@@ -190,19 +191,19 @@ class _ServicesSequencesState extends BaseState<
             Expanded(
               flex: 1,
               child: ReorderableListView(
+                buildDefaultDragHandles: false,
                 onReorder: (oldIndex, newIndex) => setState(() {
                   getCubitInstance(context).onReorderSelectedServices(oldIndex, newIndex);
                 }),
-                children: state.selectedServices
-                    .map((serviceWrapper) => Row(
-                        key: Key(serviceWrapper.service.id.toString()),
+                children: state.selectedServices.asMap().entries.map((entry) => Row(
+                        key: Key(entry.value.service.id.toString()),
                         children: [
                           Card(
                             color: Colors.blueGrey[300],
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
-                                '${serviceWrapper.orderNumber}:',
+                                '${entry.value.orderNumber}:',
                                 style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
@@ -214,7 +215,8 @@ class _ServicesSequencesState extends BaseState<
                           Expanded(
                               flex: 1,
                               child: ServiceItemWidget(
-                                  serviceWrapper: serviceWrapper,
+                                  index: entry.key,
+                                  serviceWrapper: entry.value,
                                   onClick: (serviceWrapper) => getCubitInstance(context).onClickServiceWhenSelectedServicesViewing(serviceWrapper, false),
                                   onLongClick: (serviceWrapper) => getCubitInstance(context).onClickServiceWhenSelectedServicesViewing(serviceWrapper, true)
                               )
@@ -250,18 +252,19 @@ class _ServicesSequencesState extends BaseState<
             Expanded(
               flex: 1,
               child: ReorderableListView(
+                  buildDefaultDragHandles: false,
                   onReorder: (oldIndex, newIndex) => setState(() {
                     getCubitInstance(context).onReorderSelectedServices(oldIndex, newIndex);
                   }),
-                  children: state.selectedServices.map((serviceWrapper) => Row(
-                    key: Key(serviceWrapper.service.id.toString()),
+                  children: state.selectedServices.asMap().entries.map((entry) => Row(
+                    key: Key(entry.value.service.id.toString()),
                     children: [
                       Card(
                         color: Colors.blueGrey[300],
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            '${serviceWrapper.orderNumber}:',
+                            '${entry.value.orderNumber}:',
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -273,7 +276,8 @@ class _ServicesSequencesState extends BaseState<
                       Expanded(
                           flex: 1,
                           child: ServiceItemWidget(
-                              serviceWrapper: serviceWrapper,
+                              index: entry.key,
+                              serviceWrapper: entry.value,
                               onClick: (serviceWrapper) => getCubitInstance(context).onClickServiceWhenSelectedServicesViewing(serviceWrapper, false),
                               onLongClick: (serviceWrapper) => getCubitInstance(context).onClickServiceWhenSelectedServicesViewing(serviceWrapper, true)
                           )

@@ -7,6 +7,7 @@ class ServiceItemWidget extends StatefulWidget {
   final ValueChanged<ServiceWrapper>? onClick;
   final ValueChanged<ServiceWrapper>? onLongClick;
   final ValueChanged<ServiceWrapper>? onDelete;
+  final int? index;
   final ServiceWrapper serviceWrapper;
 
   const ServiceItemWidget({
@@ -14,6 +15,7 @@ class ServiceItemWidget extends StatefulWidget {
     this.onClick,
     this.onLongClick,
     this.onDelete,
+    this.index,
     required this.serviceWrapper,
   }) : super(key: key);
 
@@ -50,6 +52,11 @@ class _ServiceItemState extends State<ServiceItemWidget> {
                       icon: const Icon(Icons.delete),
                       onPressed: () => widget.onDelete?.call(widget.serviceWrapper)),
                 )
+              : widget.index != null
+              ? ReorderableDragStartListener(
+                index: widget.index!,
+                child: const Icon(Icons.drag_handle),
+              )
               : null,
           onTap: widget.onClick != null
               ? () => widget.onClick?.call(widget.serviceWrapper)
