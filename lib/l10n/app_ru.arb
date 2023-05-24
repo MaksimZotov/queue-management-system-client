@@ -1,0 +1,174 @@
+{
+"enterAccount": "Вход в аккаунт",
+"authorization": "Авторизация",
+"registration": "Регистрация",
+"password": "Пароль",
+"login": "Войти",
+"email": "Почта",
+"firstName": "Имя",
+"lastName": "Фамилия",
+"repeatPassword": "Повторите пароль",
+"signup": "Зарегистрироваться",
+"codeConfirmation": "Подтверждение кода",
+"code": "Код",
+"confirm": "Подтвердить",
+"cancel": "Отмена",
+"locations": "Локации",
+"creationOfLocation": "Создание локации",
+"name": "Название",
+"description": "Описание",
+"create": "Создать",
+"delete": "Удалить",
+"deleteLocationQuestion": "Удалить локацию?",
+"ownerIdentifierCopied": "Идентификатор владельца скопирован",
+"deleteQueueQuestion": "Удалить очередь?",
+"creationOfQueue": "Создание очереди",
+"add": "Добавить",
+"rightsSettings": "Настройки доступа",
+"revokeRights": "Лишить прав",
+"revokeRightsQuestion": "Лишить прав?",
+"revoke": "Лишить",
+"addingOfEmployee": "Добавление сотрудника",
+"phoneWithColon": "Телефон:",
+"codeWithColon": "Код:",
+"unknownError": "Неизвестная ошибка",
+"serverError": "Ошибка на сервере",
+"timeoutError": "Вышло время ожидания ответа",
+"connectionError": "Нет соединения",
+"navigationToAnotherOwner": "Переход к локациям другого владельца",
+"ownerIdentifier": "Идентификатор владельца",
+"navigate": "Перейти",
+"creationOfService": "Создание услуги",
+"creationOfSpecialist": "Создание специалиста",
+"services": "Услуги",
+"servicesSequences": "Наборы услуг",
+"specialists": "Специалисты",
+"queues": "Очереди",
+"queueWithColon": "Очередь:",
+"deleteServiceQuestion": "Удалить услугу?",
+"select": "Выбрать",
+"allTypes": "Все виды",
+"connection": "Подключение",
+"connect": "Подключиться",
+"switchButton": "Переключить",
+"specialists": "Специалисты",
+"shareOwnerIdentifier": "Поделиться идентификатором владельца",
+"identifierMustBeANumber": "Идентификатор должен быть числом",
+"navigateToAnotherOwner": "Перейти к локациям другого владельца",
+"login": "Войти",
+"logout": "Выйти",
+"logoutFromAccount": "Выйти из своего аккаунта",
+"switchToBoardMode": "Переключиться в режим табло",
+"switchToKioskMode": "Переключиться в режим киоска",
+"switchToBoardModeQuestion": "Переключиться в режим табло?",
+"switchingToKioskMode": "Переключение в режим киоска",
+"employee": "Сотрудник",
+"administrator": "Администратор",
+"createLocation": "Создать локацию",
+"createService": "Создать услугу",
+"createSpecialist": "Создать специалиста",
+"createServicesSequence": "Создать последовательность услуг",
+"createQueue": "Создать очередь",
+"addEmployee": "Добавить сотрудника",
+"rights": "Права",
+"multipleSelect": "Множественный выбор",
+"finishServing": "Завершить обслуживание",
+"notify": "Отправить уведомление",
+"logoutFromAccountQuestion": "Выйти из аккаунта?",
+"mode": "Режим",
+"yes": "Да",
+"switchVerb": "Переключиться",
+"creationOfServicesSequence": "Создание набора услуг",
+"deleteSpecialistQuestion": "Удалить специалиста?",
+"deleteServicesSequenceQuestion": "Удалить набор услуг?",
+"specialist": "Специалист",
+"locationDoesNotContainSpecialists": "В локации нет специалистов",
+"columnsAmount": "Количество столбцов",
+"rowsAmount": "Количество строк",
+"switchFrequency": "Частота переключения",
+"maxColumnsAmountMustBePositiveNumber": "Количество столбцов должно быть положительным числом",
+"maxRowsAmountMustBePositiveNumber": "Количество строк должно быть положительным числом",
+"switchFrequencyMustBePositiveNumber": "Частота переключения должна быть положительным числом",
+"deleteClient": "Удалить клиента",
+"downloadQrCode": "Скачать QR-код",
+"callClient": "Вызвать клиента",
+"returnClientToQueue": "Вернуть клиента в очередь",
+"ipAddress": "IP адрес",
+"port": "Порт",
+"assign": "Назначить",
+"redirectClient": "Перенаправить клиента",
+"copyLink": "Скопировать ссылку",
+"locationLinkCopied": "Ссылка на локацию скопирована",
+"printer": "Принтер",
+"switchToKioskError": "Не удалось переключиться в режим киоска",
+"yourTicketNumberWithColon": "Номер вашего талона:",
+"close": "Закрыть",
+"phone": "Телефон",
+"waitTimeWithColon": "Время ожидания:",
+"totalTimeWithColon": "Общее время:",
+"servicesWithColon": "Услуги:",
+"informationAboutClientWithColon": "Информация о клиенте:",
+
+"yourTicketNumberWithColonPattern": "Номер вашего талона: {code}",
+"@yourTicketNumberWithColonPattern": {
+  "placeholders": {
+    "code": {
+      "type": "int"
+    }
+  }
+},
+
+"codeWithColonPattern": "Код: {code}",
+"@codeWithColonPattern": {
+  "placeholders": {
+    "code": {
+      "type": "int"
+    }
+  }
+},
+
+"phoneWithColonPattern": "Телефон: {phone}",
+"@phoneWithColonPattern": {
+  "placeholders": {
+    "phone": {
+      "type": "String"
+    }
+  }
+},
+
+"waitTimeInMinutesPattern": "Время ожидания: {waitTime} мин.",
+"@waitTimeInMinutesPattern": {
+  "placeholders": {
+    "waitTime": {
+      "type": "int"
+    }
+  }
+},
+
+"totalTimeInMinutesPattern": "Общее время: {waitTime} мин.",
+"@waitTimeInMinutesPattern": {
+  "placeholders": {
+    "waitTime": {
+      "type": "int"
+    }
+  }
+},
+
+"timeInMinutesPattern": "{time} мин.",
+"@timeInMinutesPattern": {
+  "placeholders": {
+    "time": {
+      "type": "int"
+    }
+  }
+},
+
+"servicesWithPriorityPattern": "Услуги с приоритетом №{number}:",
+"@servicesWithPriorityPattern": {
+  "placeholders": {
+    "number": {
+      "type": "int"
+    }
+  }
+}
+}
