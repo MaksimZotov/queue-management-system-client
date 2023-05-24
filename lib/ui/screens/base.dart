@@ -37,6 +37,8 @@ abstract class BaseState<
   C extends BaseCubit<S>
 > extends State<W> {
 
+  Flushbar? _flushbar;
+
   AppLocalizations getLocalizations(BuildContext context) =>
       AppLocalizations.of(context)!;
 
@@ -65,10 +67,11 @@ abstract class BaseState<
 
   void checkSnackBar(BuildContext context, String? snackBar) {
     if (snackBar != null) {
-      Flushbar(
+      _flushbar?.dismiss();
+      _flushbar = Flushbar(
           message: snackBar,
           duration: const Duration(seconds: 3),
-      ).show(context);
+      )..show(context);
     }
   }
 
@@ -103,6 +106,8 @@ abstract class BaseDialogState<
   S extends BaseDialogLogicState,
   C extends BaseDialogCubit<S>
 > extends State<W> {
+
+  Flushbar? _flushbar;
 
   AppLocalizations getLocalizations(BuildContext context) =>
       AppLocalizations.of(context)!;
@@ -146,15 +151,17 @@ abstract class BaseDialogState<
 
   void checkSnackBar(BuildContext context, String? snackBar) {
     if (snackBar != null) {
-      Flushbar(
+      _flushbar?.dismiss();
+      _flushbar = Flushbar(
         message: snackBar,
-        duration: const Duration(seconds: 3),
-      ).show(context);
+        duration: const Duration(seconds: 3)
+      )..show(context);
     }
   }
 
   void checkResult(BuildContext context, BaseDialogResult? result) {
     if (result != null) {
+      _flushbar?.dismiss();
       Navigator.of(context).pop(result);
     }
   }
